@@ -1,0 +1,10 @@
+# Django
+django==3.1.2
+django-environ==0.4.5
+
+# Django REST Framework
+djangorestframework==3.12.1
+coreapi==2.3.3
+
+# Postgres
+psycopg2==2.8.6
