@@ -10,7 +10,9 @@ This is a work-in-progress for CPSC 547.
 
 `$ docker-compose run django python manage.py migrate`
 
-`$ docker-compose up`
+`$ docker-compose exec -T --user postgres postgres pg_restore --clean --dbname amr-tv < db.dump`
+
+`$ docker-compose up --detach`
 
 ## Acknowledgements
 
