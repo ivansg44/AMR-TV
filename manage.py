@@ -23,8 +23,8 @@ if __name__ == "__main__":
         raise
 
     # This allows easy placement of apps within the interior
-    # amr-tv directory.
+    # amr_tv directory.
     current_path = os.path.dirname(os.path.abspath(__file__))
-    sys.path.append(os.path.join(current_path, "amr-tv"))
+    sys.path.append(os.path.join(current_path, "amr_tv"))
 
     execute_from_command_line(sys.argv)

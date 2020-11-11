@@ -6,6 +6,7 @@ from django.views import defaults as default_views
 
 urlpatterns = [
     path(settings.ADMIN_URL, admin.site.urls),
+    path("isolates/", include("amr_tv.isolate.urls")),
     path("", TemplateView.as_view(template_name="base.html"), name=""),
 ]
 

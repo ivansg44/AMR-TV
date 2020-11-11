@@ -2,5 +2,5 @@ from django.apps import AppConfig
 
 
 class IsolateAppConfig(AppConfig):
-    name = "amr-tv.isolate"
+    name = "amr_tv.isolate"
     verbose_name = "Isolate"
