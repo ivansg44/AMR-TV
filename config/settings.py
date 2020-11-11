@@ -12,7 +12,7 @@ if READ_DOT_ENV_FILE:
 
 # GENERAL
 # ------------------------------------------------------------------------------
-DEBUG = env.bool("DJANGO_DEBUG", False)
+DEBUG = True
 SECRET_KEY = env(
     "DJANGO_SECRET_KEY",
     default="NzEUafAjLMzrvA6C6i16Bvpf6NjXoO8vBF5tYUwRtwNo8IOMGdcZoFFjTl9uO0pz",
@@ -109,3 +109,11 @@ X_FRAME_OPTIONS = "DENY"
 ADMIN_URL = "admin/"
 ADMINS = [("""Ivan S Gill""", "isgill93@student.ubc.ca")]
 MANAGERS = ADMINS
+
+# REST FRAMEWORK
+#-------------------------------------------------------------------------------
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS':
+        'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10
+}
