@@ -1,7 +1,7 @@
 import environ
 
 ROOT_DIR = (environ.Path(__file__) - 2)
-APPS_DIR = ROOT_DIR.path("amr-tv")
+APPS_DIR = ROOT_DIR.path("amr_tv")
 
 env = environ.Env()
 
@@ -43,7 +43,7 @@ THIRD_PARTY_APPS = [
     "rest_framework",
 ]
 LOCAL_APPS = [
-    "amr-tv.isolate.apps.IsolateAppConfig",
+    "amr_tv.isolate.apps.IsolateAppConfig",
 ]
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
@@ -62,7 +62,7 @@ MIDDLEWARE = [
 # STATIC
 # ------------------------------------------------------------------------------
 STATIC_ROOT = str(ROOT_DIR("staticfiles"))
-STATIC_URL = "/amr-tv/static/"
+STATIC_URL = "/amr_tv/static/"
 STATICFILES_DIRS = [str(APPS_DIR.path("static"))]
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
