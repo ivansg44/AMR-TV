@@ -8,3 +8,4 @@ class IsolateViewSet(ReadOnlyModelViewSet):
     """wip"""
     queryset = Isolate.objects.all().order_by("-create_date")
     serializer_class = IsolateSerializer
+    lookup_value_regex = '[\w.]+'
