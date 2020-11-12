@@ -1,8 +1,10 @@
+from django.db.models import F
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from amr_tv.isolate.models import Isolate
-from amr_tv.isolate.serializers import IsolateSerializer
+from amr_tv.isolate.serializers import IsolateSerializer, IsolateLinkSerializer
 
 
 class IsolateViewSet(ReadOnlyModelViewSet):
@@ -31,4 +33,17 @@ class IsolateViewSet(ReadOnlyModelViewSet):
             return self.get_paginated_response(serializer.data)
 
         serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False)
+    def links(self, request):
+        """wip"""
+        queryset = self.get_queryset().annotate(isolate_1=F("isolate"), isolate_2=F("isolate"), amr_genotypes_1=F("amr_genotypes"), amr_genotypes_2=F("amr_genotypes"))
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = IsolateLinkSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = IsolateLinkSerializer(queryset, many=True)
         return Response(serializer.data)
