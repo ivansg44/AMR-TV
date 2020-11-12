@@ -5,7 +5,7 @@ from amr_tv.isolate.views import IsolateViewSet
 
 
 router = routers.DefaultRouter()
-router.register(r"isolates", IsolateViewSet)
+router.register(r"", IsolateViewSet)
 
 urlpatterns = [
     path("", include(router.urls))
