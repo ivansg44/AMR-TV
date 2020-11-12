@@ -14,7 +14,8 @@ class IsolateViewSet(ReadOnlyModelViewSet):
     def list(self, request):
         """Lists all isolates over optionally supplied time period.
 
-        Overrides superclass method.
+        Overrides superclass method. If end_date is supplied,
+        end_date-1 is used.
 
         :param request: May contain query parameters start_date and
         end_date.
