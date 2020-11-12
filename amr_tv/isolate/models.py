@@ -1,3 +1,4 @@
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
 
@@ -9,4 +10,4 @@ class Isolate(models.Model):
     location = models.TextField()
     isolation_source = models.TextField()
     host = models.TextField()
-    amr_genotypes = models.JSONField()
+    amr_genotypes = ArrayField(models.TextField())
