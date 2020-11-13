@@ -8,3 +8,5 @@ coreapi==2.3.3
 
 # Postgres
 psycopg2==2.8.6
+
+plotly==4.12.0
