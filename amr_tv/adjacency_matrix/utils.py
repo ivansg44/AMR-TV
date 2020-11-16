@@ -4,6 +4,21 @@ from operator import mul
 
 from django.db.models import Count
 from numpy import zeros
+from plotly import express as px
+from plotly.offline import plot
+
+
+def get_adjacency_matrix_plot(data, organism_groups_list):
+    """wip"""
+    fig = px.imshow(data,
+                    x=organism_groups_list,
+                    y=organism_groups_list,
+                    color_continuous_scale="Greys"
+                    )
+    fig.update_xaxes(side="top")
+    fig.update_layout(width=1000,
+                      height=1000)
+    return plot(fig, output_type='div', config={"responsive": True})
 
 
 def get_adjacency_matrix_data(isolate_genotypes_qs, organism_groups_list):
