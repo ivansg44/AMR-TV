@@ -1,24 +1,16 @@
-from copy import deepcopy
 from functools import reduce
+from itertools import combinations
 from operator import mul
 
 from django.db.models import Count
+from numpy import zeros
 
-from amr_tv.isolate.models import Isolate, IsolateGenotype
 
-
-def foo():
+def get_adjacency_matrix_data(isolate_genotypes_qs, organism_groups_list):
     """wip"""
-    # TODO: May not need to use viewsets???
-    date_range = ("2020-10-01", "2020-10-31")
-    isolates_qs = Isolate.objects.all().filter(create_date__range=date_range)
-    organism_groups_list = \
-        isolates_qs.values_list('organism_group', flat=True).distinct()
-    ret_val = {organism_group: 0 for organism_group in organism_groups_list}
-    ret = {organism_group: deepcopy(ret_val) for organism_group in organism_groups_list}
+    organism_groups_count = len(organism_groups_list)
+    data = zeros((organism_groups_count, organism_groups_count))
 
-    isolate_genotypes_qs = \
-        IsolateGenotype.objects.all().filter(create_date__range=date_range)
     shared_genotypes_qs = \
         isolate_genotypes_qs.values("amr_genotype", "organism_group")
     shared_genotype_counts_qs = \
@@ -27,19 +19,26 @@ def foo():
     count_acc = 0
     amr_genotype_acc = ""
     organism_groups_acc = set()
-    for e in shared_genotype_counts_qs.order_by("amr_genotype"):
-        if e["amr_genotype"] != amr_genotype_acc:
+    organism_groups_list_indices = \
+        {k: v for v, k in enumerate(organism_groups_list)}
+    for entry in shared_genotype_counts_qs.order_by("amr_genotype"):
+        if entry["amr_genotype"] != amr_genotype_acc:
             edge_count = ncr(count_acc, 2)
             for organism_group in organism_groups_acc:
-                for second_organism_group in organism_groups_acc:
-                    ret[organism_group][second_organism_group] += edge_count
+                x = organism_groups_list_indices[organism_group]
+                data[x][x] += edge_count
+            for pair in combinations(organism_groups_acc, 2):
+                x = organism_groups_list_indices[pair[0]]
+                y = organism_groups_list_indices[pair[1]]
+                data[x][y] += edge_count
+                data[y][x] += edge_count
             count_acc = 0
-            amr_genotype_acc = e["amr_genotype"]
+            amr_genotype_acc = entry["amr_genotype"]
             organism_groups_acc = set()
-        count_acc += e["count"]
-        organism_groups_acc.add(e["organism_group"])
+        count_acc += entry["count"]
+        organism_groups_acc.add(entry["organism_group"])
 
-    return ret
+    return data
 
 
 def ncr(n, r):

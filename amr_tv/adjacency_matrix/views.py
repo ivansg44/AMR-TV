@@ -3,21 +3,23 @@ import numpy as np
 from plotly import express as px
 from plotly.offline import plot
 
-from amr_tv.adjacency_matrix.utils import foo
+from amr_tv.adjacency_matrix.utils import get_adjacency_matrix_data
+from amr_tv.isolate.models import Isolate, IsolateGenotype
 
 
 def adjacency_matrix_view(request):
     """wip"""
-    # TODO: May not need to use viewsets???
-    foo_ret = foo()
-    organism_groups_list = list(foo_ret.keys())
-    organism_groups_count = len(organism_groups_list)
-    data = np.zeros((organism_groups_count, organism_groups_count))
-    for i in range(organism_groups_count):
-        for j in range(organism_groups_count):
-            first_organism_group = organism_groups_list[i]
-            second_organism_group = organism_groups_list[j]
-            data[i][j] = foo_ret[first_organism_group][second_organism_group]
+    # Stub date range
+    date_range = ("2020-10-01", "2020-10-31")
+
+    isolates_qs = Isolate.objects.all().filter(create_date__range=date_range)
+    organism_groups_list = \
+        list(isolates_qs.values_list('organism_group', flat=True).distinct())
+
+    isolate_genotypes_qs = \
+        IsolateGenotype.objects.all().filter(create_date__range=date_range)
+    data = \
+        get_adjacency_matrix_data(isolate_genotypes_qs, organism_groups_list)
     fig = px.imshow(data,
                     x=organism_groups_list,
                     y=organism_groups_list,
