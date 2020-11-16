@@ -1,5 +1,6 @@
 from copy import deepcopy
-from math import factorial
+from functools import reduce
+from operator import mul
 
 from django.db.models import Count
 
@@ -28,9 +29,10 @@ def foo():
     organism_groups_acc = set()
     for e in shared_genotype_counts_qs.order_by("amr_genotype"):
         if e["amr_genotype"] != amr_genotype_acc:
+            edge_count = ncr(count_acc, 2)
             for organism_group in organism_groups_acc:
                 for second_organism_group in organism_groups_acc:
-                    ret[organism_group][second_organism_group] += count_acc
+                    ret[organism_group][second_organism_group] += edge_count
             count_acc = 0
             amr_genotype_acc = e["amr_genotype"]
             organism_groups_acc = set()
@@ -38,3 +40,11 @@ def foo():
         organism_groups_acc.add(e["organism_group"])
 
     return ret
+
+
+def ncr(n, r):
+    """wip https://stackoverflow.com/a/4941932"""
+    r = min(r, n-r)
+    numer = reduce(mul, range(n, n-r, -1), 1)
+    denom = reduce(mul, range(1, r+1), 1)
+    return numer // denom  # or / in Python 2
