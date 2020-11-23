@@ -5,3 +5,10 @@ $.ajax({
     $("#adjacency-matrix-plot").html(data);
   }
 })
+
+$.ajax({
+  url: "node-link-diagram/",
+  success: (data) => {
+    $("#node-link-diagram-plot").html(data);
+  }
+})
