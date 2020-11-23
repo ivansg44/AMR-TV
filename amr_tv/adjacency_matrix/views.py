@@ -1,7 +1,7 @@
-from django.shortcuts import render
+from django.shortcuts import HttpResponse
 
 import amr_tv.adjacency_matrix.utils as utils
-from amr_tv.isolate.models import Isolate, IsolateGenotype
+from amr_tv.isolate.models import Isolate
 
 
 def adjacency_matrix_view(request):
@@ -16,4 +16,4 @@ def adjacency_matrix_view(request):
     links = utils.get_links(date_range)
     data = utils.get_adjacency_matrix_data(links, organism_groups_list)
     plot_div = utils.get_adjacency_matrix_plot(data, organism_groups_list)
-    return render(request, "base.html", {"adjacency_matrix": plot_div})
+    return HttpResponse(plot_div)
