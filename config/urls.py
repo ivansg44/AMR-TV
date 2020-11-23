@@ -1,14 +1,15 @@
 from django.conf import settings
 from django.urls import include, path
 from django.contrib import admin
-from django.views.generic import TemplateView
 from django.views import defaults as default_views
+from django.views.generic import TemplateView
 
 urlpatterns = [
     path(settings.ADMIN_URL, admin.site.urls),
     path("isolates/", include("amr_tv.isolate.urls")),
     path("amr-genotypes/", include("amr_tv.amr_genotype.urls")),
-    path("", TemplateView.as_view(template_name="base.html"), name=""),
+    path("adjacency-matrix/", include("amr_tv.adjacency_matrix.urls")),
+    path("", TemplateView.as_view(template_name="base.html"))
 ]
 
 if settings.DEBUG:
