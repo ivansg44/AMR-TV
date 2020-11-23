@@ -13,10 +13,7 @@ def adjacency_matrix_view(request):
     organism_groups_list = \
         list(isolates_qs.values_list('organism_group', flat=True).distinct())
 
-    isolate_genotypes_qs = \
-        IsolateGenotype.objects.all().filter(create_date__range=date_range)
-    data = \
-        utils.get_adjacency_matrix_data(isolate_genotypes_qs,
-                                        organism_groups_list)
+    links = utils.get_links(date_range)
+    data = utils.get_adjacency_matrix_data(links, organism_groups_list)
     plot_div = utils.get_adjacency_matrix_plot(data, organism_groups_list)
     return render(request, "base.html", {"adjacency_matrix": plot_div})
