@@ -4,9 +4,12 @@ import networkx as nx
 import plotly.graph_objects as go
 from plotly.offline import plot
 
+import amr_tv.node_link_diagram.utils as utils
+
 
 def node_link_diagram_view(request):
     """wip"""
+    G = utils.get_network()
     G = nx.random_geometric_graph(200, 0.125)
 
     edge_x = []
@@ -53,15 +56,6 @@ def node_link_diagram_view(request):
                 titleside='right'
             ),
             line_width=2))
-
-    node_adjacencies = []
-    node_text = []
-    for node, adjacencies in enumerate(G.adjacency()):
-        node_adjacencies.append(len(adjacencies[1]))
-        node_text.append('# of connections: ' + str(len(adjacencies[1])))
-
-    node_trace.marker.color = node_adjacencies
-    node_trace.text = node_text
 
     fig = go.Figure(data=[edge_trace, node_trace])
 

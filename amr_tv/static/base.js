@@ -1,14 +1,26 @@
 $.ajax({
-  url: "adjacency-matrix/",
-  success: (data) => {
+  url: "transmission-events/",
+  success: () => {
     $("#adjacency-matrix-spinner-container").hide();
-    $("#adjacency-matrix-plot").html(data);
-  }
-})
+    render_adjacency_matrix();
+    render_node_link_diagram();
+  },
+});
 
-$.ajax({
-  url: "node-link-diagram/",
-  success: (data) => {
-    $("#node-link-diagram-plot").html(data);
-  }
-})
+const render_adjacency_matrix = () => {
+  $.ajax({
+    url: "adjacency-matrix/",
+    success: (data) => {
+      $("#adjacency-matrix-plot").html(data);
+    },
+  });
+};
+
+const render_node_link_diagram = () => {
+  $.ajax({
+    url: "node-link-diagram/",
+    success: (data) => {
+      $("#node-link-diagram-plot").html(data);
+    },
+  });
+};
