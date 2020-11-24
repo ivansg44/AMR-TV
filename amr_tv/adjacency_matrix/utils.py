@@ -28,6 +28,7 @@ def get_adjacency_matrix_data(transmission_events, organism_groups_list):
         x = organism_groups_list_indices[row[1]]
         y = organism_groups_list_indices[row[4]]
         data[x][y] += 1
+        data[y][x] += 1
 
     for i in range(organism_groups_count):
         for j in range(organism_groups_count):
