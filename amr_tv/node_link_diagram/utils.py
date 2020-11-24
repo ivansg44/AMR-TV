@@ -17,3 +17,15 @@ def filter_transmission_events(query_params, transmission_events):
         continue
 
     return ret
+
+
+def get_transmission_network(transmission_events):
+    """TODO: ..."""
+    graph = nx.Graph()
+    count = 1
+    for event in transmission_events:
+        graph.add_node(count)
+        graph.add_node(count + 1)
+        graph.add_edge(count, count + 1)
+        count += 2
+    return graph

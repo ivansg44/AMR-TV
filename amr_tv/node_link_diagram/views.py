@@ -14,13 +14,14 @@ def node_link_diagram_view(request):
     transmission_events = json.loads(request.session["transmission_events"])
     filtered_transmission_events = \
         utils.filter_transmission_events(request.GET, transmission_events)
-    G = nx.random_geometric_graph(200, 0.125)
+    G = utils.get_transmission_network(filtered_transmission_events)
+    pos = nx.spring_layout(G)
 
     edge_x = []
     edge_y = []
     for edge in G.edges():
-        x0, y0 = G.nodes[edge[0]]['pos']
-        x1, y1 = G.nodes[edge[1]]['pos']
+        x0, y0 = pos[edge[0]]
+        x1, y1 = pos[edge[1]]
         edge_x.append(x0)
         edge_x.append(x1)
         edge_x.append(None)
@@ -36,7 +37,8 @@ def node_link_diagram_view(request):
     node_x = []
     node_y = []
     for node in G.nodes():
-        x, y = G.nodes[node]['pos']
+        # x, y = G.nodes[node]['pos']
+        x, y = pos[node]
         node_x.append(x)
         node_y.append(y)
     node_trace = go.Scatter(
