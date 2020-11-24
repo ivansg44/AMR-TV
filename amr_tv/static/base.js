@@ -19,6 +19,11 @@ const render_adjacency_matrix = () => {
 const render_node_link_diagram = () => {
   $.ajax({
     url: "node-link-diagram/",
+    data: {
+      // Stub organism group specifications
+      "Enterobacter": ["Salmonella enterica"],
+      "Salmonella enterica": ["Enterobacter"],
+    },
     success: (data) => {
       $("#node-link-diagram-plot").html(data);
     },

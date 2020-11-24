@@ -1,3 +1,5 @@
+import json
+
 from django.shortcuts import HttpResponse
 
 import networkx as nx
@@ -9,7 +11,9 @@ import amr_tv.node_link_diagram.utils as utils
 
 def node_link_diagram_view(request):
     """wip"""
-    G = utils.get_network()
+    transmission_events = json.loads(request.session["transmission_events"])
+    filtered_transmission_events = \
+        utils.filter_transmission_events(request.GET, transmission_events)
     G = nx.random_geometric_graph(200, 0.125)
 
     edge_x = []
