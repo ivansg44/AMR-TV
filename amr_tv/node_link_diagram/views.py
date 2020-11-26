@@ -36,13 +36,19 @@ def node_link_diagram_view(request):
 
     node_x = []
     node_y = []
+    node_text = []
     for node in G.nodes():
-        # x, y = G.nodes[node]['pos']
         x, y = pos[node]
         node_x.append(x)
         node_y.append(y)
+
+        organism_group = G.nodes[node]["organism_group"]
+        min_date = G.nodes[node]["min_date"]
+        node_text_vals = (organism_group, min_date)
+        node_text.append("organism_group: %s, min_date: %s" % node_text_vals)
+
     node_trace = go.Scatter(
-        x=node_x, y=node_y,
+        x=node_x, y=node_y, text=node_text,
         mode='markers',
         hoverinfo='text',
         marker=dict(

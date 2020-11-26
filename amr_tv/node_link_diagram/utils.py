@@ -27,8 +27,12 @@ def get_transmission_network(transmission_events):
     for event in transmission_events:
         node_index_one = node_indices_dict[str(event[0:3])]
         node_index_two = node_indices_dict[str(event[3:])]
-        graph.add_node(node_index_one)
-        graph.add_node(node_index_two)
+        graph.add_node(node_index_one,
+                       organism_group=event[1],
+                       min_date=event[2])
+        graph.add_node(node_index_two,
+                       organism_group=event[4],
+                       min_date=event[5])
         graph.add_edge(node_index_one, node_index_two)
     return graph
 
