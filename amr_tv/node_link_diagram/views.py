@@ -17,22 +17,9 @@ def node_link_diagram_view(request):
     G = utils.get_transmission_network(filtered_transmission_events)
     pos = nx.spring_layout(G)
 
-    edge_x = []
-    edge_y = []
+    edges = []
     for edge in G.edges():
-        x0, y0 = pos[edge[0]]
-        x1, y1 = pos[edge[1]]
-        edge_x.append(x0)
-        edge_x.append(x1)
-        edge_x.append(None)
-        edge_y.append(y0)
-        edge_y.append(y1)
-        edge_y.append(None)
-    edge_trace = go.Scatter(
-        x=edge_x, y=edge_y,
-        line=dict(width=0.5, color='#888'),
-        hoverinfo='none',
-        mode='lines')
+        edges.append((edge[0], edge[1]))
 
     node_x = []
     node_y = []
@@ -55,24 +42,42 @@ def node_link_diagram_view(request):
         mode='markers',
         hoverinfo='text',
         marker=dict(
-            showscale=True,
-            # colorscale options
-            # 'Greys' | 'YlGnBu' | 'Greens' | 'YlOrRd' | 'Bluered' | 'RdBu' |
-            # 'Reds' | 'Blues' | 'Picnic' | 'Rainbow' | 'Portland' | 'Jet' |
-            # 'Hot' | 'Blackbody' | 'Earth' | 'Electric' | 'Viridis' |
-            # colorscale='YlGnBu',
-            reversescale=True,
+            showscale=False,
             color=node_color,
             size=10,
-            colorbar=dict(
-                thickness=15,
-                title='Node Connections',
-                xanchor='left',
-                titleside='right'
-            ),
             line_width=2))
 
-    fig = go.Figure(data=[edge_trace, node_trace])
+    # Plotly does not support built-in arrows for some idiotic reason.
+    # Here's a hackey solution from:
+    # https://stackoverflow.com/questions/57482878/
+    # plotting-a-directed-graph-with-dash-through-matplotlib
+    x_axis = dict(showline=False, zeroline=False, showgrid=False,
+                  showticklabels=False,
+                  mirror='allticks', ticks='inside', ticklen=5,
+                  tickfont=dict(size=14),
+                  title='')
+
+    y_axis = dict(showline=False, zeroline=False, showgrid=False,
+                  showticklabels=False,
+                  mirror='allticks', ticks='inside', ticklen=5,
+                  tickfont=dict(size=14),
+                  title='')
+    annotations = [
+        dict(showarrow=True, arrowsize=2, arrowwidth=1, arrowhead=1,
+             standoff=3, startstandoff=1,
+             ax=pos[arrow[0]][0], ay=pos[arrow[0]][1], axref='x', ayref='y',
+             x=pos[arrow[1]][0], y=pos[arrow[1]][1], xref='x', yref='y'
+             ) for arrow in edges]
+    layout = dict(width=800, height=600,
+                  showlegend=False,
+                  xaxis=x_axis,
+                  yaxis=y_axis,
+                  hovermode='closest',
+                  plot_bgcolor='#E5ECF6',
+                  annotations=annotations,  # arrows
+                  )
+
+    fig = go.Figure(data=[node_trace], layout=layout)
 
     plot_div = plot(fig, output_type="div")
     return HttpResponse(plot_div)
