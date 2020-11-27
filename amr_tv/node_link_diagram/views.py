@@ -10,7 +10,7 @@ import amr_tv.node_link_diagram.utils as utils
 
 
 def node_link_diagram_view(request):
-    """wip"""
+    """TODO: ..."""
     transmission_events = json.loads(request.session["transmission_events"])
     filtered_transmission_events = \
         utils.filter_transmission_events(request.GET, transmission_events)
@@ -34,9 +34,6 @@ def node_link_diagram_view(request):
         hoverinfo='none',
         mode='lines')
 
-    organism_groups_list = request.session["organism_groups_list"]
-    color_map = utils.get_organism_group_color_map(organism_groups_list)
-
     node_x = []
     node_y = []
     node_text = []
@@ -51,7 +48,7 @@ def node_link_diagram_view(request):
         node_text_vals = (organism_group, min_date)
         node_text.append("organism_group: %s, min_date: %s" % node_text_vals)
 
-        node_color.append(color_map[organism_group])
+        node_color.append(request.session["node_color_map"][organism_group])
 
     node_trace = go.Scatter(
         x=node_x, y=node_y, text=node_text,

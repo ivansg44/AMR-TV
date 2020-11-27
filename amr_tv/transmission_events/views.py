@@ -13,8 +13,10 @@ def transmission_events_view(request):
     request.session["organism_groups_list"] = \
         utils.get_organism_groups_list(date_range)
 
-    raw_query_data = utils.run_transmission_events_query(date_range)
+    request.session["node_color_map"] = \
+        utils.get_node_color_map(request.session["organism_groups_list"])
 
+    raw_query_data = utils.run_transmission_events_query(date_range)
     request.session["transmission_events"] = \
         json.dumps(raw_query_data, cls=DjangoJSONEncoder)
 

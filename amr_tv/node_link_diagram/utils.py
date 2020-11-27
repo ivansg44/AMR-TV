@@ -51,20 +51,3 @@ def get_transmission_network_node_indices_dict(transmission_events):
             node_indices_dict[str_node_two] = count
             count += 1
     return node_indices_dict
-
-
-def get_organism_group_color_map(organism_groups_list):
-    """TODO: ..."""
-    # https://colorbrewer2.org/?type=qualitative&scheme=Set1&n=9
-    colour_scheme = [
-        "#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33",
-        "#a65628", "#f781bf", "#999999"
-    ]
-
-    acc = 0
-    color_map = {}
-    for organism_group in organism_groups_list:
-        color_map[organism_group] = colour_scheme[acc % len(colour_scheme)]
-        acc += 1
-
-    return color_map
