@@ -10,6 +10,9 @@ def transmission_events_view(request):
     """TODO: ..."""
     # Stub date range
     request.session["date_range"] = ["2020-10-01", "2020-10-31"]
+    request.session["organism_groups_list"] = \
+        utils.get_organism_groups_list(request.session["date_range"])
+
     raw_query_data = \
         utils.run_transmission_events_query(request.session["date_range"])
 
