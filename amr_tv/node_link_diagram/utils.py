@@ -1,0 +1,150 @@
+import networkx as nx
+import plotly.graph_objects as go
+
+
+def filter_transmission_events(query_params, transmission_events):
+    """TODO: ..."""
+    ret = []
+    # Less of a headache
+    dict_params = dict(query_params)
+
+    for event in transmission_events:
+        # "[]" added to end of query_dict keys
+        organism_group_one = event[1] + "[]"
+        organism_group_two = event[4]
+        if organism_group_one in dict_params:
+            if organism_group_two in dict_params[organism_group_one]:
+                ret.append(event)
+        continue
+
+    return ret
+
+
+def get_transmission_network(transmission_events):
+    """TODO: ..."""
+    node_indices_dict = \
+        get_transmission_network_node_indices_dict(transmission_events)
+    graph = nx.Graph()
+    for event in transmission_events:
+        node_index_one = node_indices_dict[str(event[0:3])]
+        node_index_two = node_indices_dict[str(event[3:])]
+        graph.add_node(node_index_one,
+                       organism_group=event[1],
+                       min_date=event[2])
+        graph.add_node(node_index_two,
+                       organism_group=event[4],
+                       min_date=event[5])
+        graph.add_edge(node_index_one, node_index_two)
+    return graph
+
+
+def get_transmission_network_node_indices_dict(transmission_events):
+    """TODO: ..."""
+    node_indices_dict = {}
+    count = 0
+    for event in transmission_events:
+        str_node_one = str(event[0:3])
+        str_node_two = str(event[3:])
+        if str_node_one not in node_indices_dict:
+            node_indices_dict[str_node_one] = count
+            count += 1
+        if str_node_two not in node_indices_dict:
+            node_indices_dict[str_node_two] = count
+            count += 1
+    return node_indices_dict
+
+
+def get_node_color_map(query_params):
+    """TODO: ..."""
+    dict_params = dict(query_params)
+    # Get rid of "[]" at end of each key
+    node_organism_group_list = [key[0:-2] for key in dict_params.keys()]
+
+    # https://colorbrewer2.org/?type=qualitative&scheme=Set1&n=9
+    colour_scheme = [
+        "#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33",
+        "#a65628", "#f781bf", "#999999"
+    ]
+
+    acc = 0
+    color_map = {}
+    for organism_group in node_organism_group_list:
+        color_map[organism_group] = colour_scheme[acc % len(colour_scheme)]
+        acc += 1
+
+    return color_map
+
+
+def get_node_trace(graph, positions, color_map):
+    """TODO: ..."""
+    x_list = []
+    y_list = []
+    text_list = []
+    color_list = []
+    for node in graph.nodes():
+        x_list.append(positions[node][0])
+        y_list.append(positions[node][1])
+
+        organism_group = graph.nodes[node]["organism_group"]
+        min_date = graph.nodes[node]["min_date"]
+        text_vals = (organism_group, min_date)
+        text_list.append("organism_group: %s, min_date: %s" % text_vals)
+
+        color_list.append(color_map[organism_group])
+
+    return go.Scatter(
+        x=x_list,
+        y=y_list,
+        text=text_list,
+        mode='markers',
+        hoverinfo='text',
+        marker={
+            "showscale": False,
+            "color": color_list,
+            "size": 10,
+            "line_width": 2
+        }
+    )
+
+
+def get_graph_layout(graph, positions):
+    """TODO: ..."""
+    axis = {
+        "showline": False,
+        "zeroline": False,
+        "showgrid": False,
+        "showticklabels": False,
+        "ticklen": 0
+    }
+
+    # Plotly does not support built-in arrows for some idiotic reason.
+    # Here's a hackey solution from:
+    # https://stackoverflow.com/questions/57482878/
+    # plotting-a-directed-graph-with-dash-through-matplotlib
+    annotations = []
+    for edge in graph.edges():
+        annotations.append({
+            "showarrow": True,
+            "arrowsize": 2,
+            "arrowwidth": 1,
+            "arrowhead": 1,
+            "standoff": 3,
+            "startstandoff": 1,
+            "ax": positions[edge[0]][0],
+            "ay": positions[edge[0]][1],
+            "axref": "x",
+            "ayref": "y",
+            "x": positions[edge[1]][0],
+            "y": positions[edge[1]][1],
+            "xref": "x",
+            "yref": "y",
+        })
+
+    return {
+        "width": 800,
+        "height": 600,
+        "showlegend": False,
+        "xaxis": axis,
+        "yaxis": axis,
+        "annotations": annotations
+    }
