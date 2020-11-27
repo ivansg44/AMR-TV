@@ -84,3 +84,46 @@ def get_node_trace(graph, positions, color_map):
             "line_width": 2
         }
     )
+
+
+def get_graph_layout(graph, positions):
+    """TODO: ..."""
+    axis = {
+        "showline": False,
+        "zeroline": False,
+        "showgrid": False,
+        "showticklabels": False,
+        "ticklen": 0
+    }
+
+    # Plotly does not support built-in arrows for some idiotic reason.
+    # Here's a hackey solution from:
+    # https://stackoverflow.com/questions/57482878/
+    # plotting-a-directed-graph-with-dash-through-matplotlib
+    annotations = []
+    for edge in graph.edges():
+        annotations.append({
+            "showarrow": True,
+            "arrowsize": 2,
+            "arrowwidth": 1,
+            "arrowhead": 1,
+            "standoff": 3,
+            "startstandoff": 1,
+            "ax": positions[edge[0]][0],
+            "ay": positions[edge[0]][1],
+            "axref": "x",
+            "ayref": "y",
+            "x": positions[edge[1]][0],
+            "y": positions[edge[1]][1],
+            "xref": "x",
+            "yref": "y",
+        })
+
+    return {
+        "width": 800,
+        "height": 600,
+        "showlegend": False,
+        "xaxis": axis,
+        "yaxis": axis,
+        "annotations": annotations
+    }
