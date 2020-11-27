@@ -17,35 +17,12 @@ def node_link_diagram_view(request):
     G = utils.get_transmission_network(filtered_transmission_events)
     pos = nx.spring_layout(G)
 
+    node_trace = \
+        utils.get_node_trace(G, pos, request.session["node_color_map"])
+
     edges = []
     for edge in G.edges():
         edges.append((edge[0], edge[1]))
-
-    node_x = []
-    node_y = []
-    node_text = []
-    node_color = []
-    for node in G.nodes():
-        x, y = pos[node]
-        node_x.append(x)
-        node_y.append(y)
-
-        organism_group = G.nodes[node]["organism_group"]
-        min_date = G.nodes[node]["min_date"]
-        node_text_vals = (organism_group, min_date)
-        node_text.append("organism_group: %s, min_date: %s" % node_text_vals)
-
-        node_color.append(request.session["node_color_map"][organism_group])
-
-    node_trace = go.Scatter(
-        x=node_x, y=node_y, text=node_text,
-        mode='markers',
-        hoverinfo='text',
-        marker=dict(
-            showscale=False,
-            color=node_color,
-            size=10,
-            line_width=2))
 
     # Plotly does not support built-in arrows for some idiotic reason.
     # Here's a hackey solution from:

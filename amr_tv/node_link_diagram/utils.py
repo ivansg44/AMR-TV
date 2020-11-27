@@ -1,4 +1,5 @@
 import networkx as nx
+import plotly.graph_objects as go
 
 
 def filter_transmission_events(query_params, transmission_events):
@@ -51,3 +52,35 @@ def get_transmission_network_node_indices_dict(transmission_events):
             node_indices_dict[str_node_two] = count
             count += 1
     return node_indices_dict
+
+
+def get_node_trace(graph, positions, color_map):
+    """TODO: ..."""
+    x_list = []
+    y_list = []
+    text_list = []
+    color_list = []
+    for node in graph.nodes():
+        x_list.append(positions[node][0])
+        y_list.append(positions[node][1])
+
+        organism_group = graph.nodes[node]["organism_group"]
+        min_date = graph.nodes[node]["min_date"]
+        text_vals = (organism_group, min_date)
+        text_list.append("organism_group: %s, min_date: %s" % text_vals)
+
+        color_list.append(color_map[organism_group])
+
+    return go.Scatter(
+        x=x_list,
+        y=y_list,
+        text=text_list,
+        mode='markers',
+        hoverinfo='text',
+        marker={
+            "showscale": False,
+            "color": color_list,
+            "size": 10,
+            "line_width": 2
+        }
+    )
