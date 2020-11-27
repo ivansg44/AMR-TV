@@ -10,23 +10,6 @@ def get_organism_groups_list(date_range):
         list(isolates_qs.values_list('organism_group', flat=True).distinct())
 
 
-def get_node_color_map(organism_groups_list):
-    """TODO: ..."""
-    # https://colorbrewer2.org/?type=qualitative&scheme=Set1&n=9
-    colour_scheme = [
-        "#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33",
-        "#a65628", "#f781bf", "#999999"
-    ]
-
-    acc = 0
-    color_map = {}
-    for organism_group in organism_groups_list:
-        color_map[organism_group] = colour_scheme[acc % len(colour_scheme)]
-        acc += 1
-
-    return color_map
-
-
 def run_transmission_events_query(date_range):
     """TODO: ..."""
     with connection.cursor() as cursor:

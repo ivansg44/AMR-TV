@@ -54,6 +54,27 @@ def get_transmission_network_node_indices_dict(transmission_events):
     return node_indices_dict
 
 
+def get_node_color_map(query_params):
+    """TODO: ..."""
+    dict_params = dict(query_params)
+    # Get rid of "[]" at end of each key
+    node_organism_group_list = [key[0:-2] for key in dict_params.keys()]
+
+    # https://colorbrewer2.org/?type=qualitative&scheme=Set1&n=9
+    colour_scheme = [
+        "#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33",
+        "#a65628", "#f781bf", "#999999"
+    ]
+
+    acc = 0
+    color_map = {}
+    for organism_group in node_organism_group_list:
+        color_map[organism_group] = colour_scheme[acc % len(colour_scheme)]
+        acc += 1
+
+    return color_map
+
+
 def get_node_trace(graph, positions, color_map):
     """TODO: ..."""
     x_list = []

@@ -17,7 +17,7 @@ def node_link_diagram_view(request):
     graph = utils.get_transmission_network(filtered_transmission_events)
     positions = nx.spring_layout(graph)
 
-    color_map = request.session["node_color_map"]
+    color_map = utils.get_node_color_map(request.GET)
     node_trace = utils.get_node_trace(graph, positions, color_map)
 
     graph_layout = utils.get_graph_layout(graph, positions)
