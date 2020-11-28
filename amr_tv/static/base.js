@@ -32,5 +32,11 @@ const renderNodeLinkDiagram = () => {
 
 $("#node-link-diagram-plot").on("plotly_click", (data) => {
   const customData = data.target._hoverdata[0].customdata;
-  return;
+  $.ajax({
+    url: "node-detail-table/",
+    data: customData,
+    success: (data) => {
+      $("#node-detail-table-plot").html(data);
+    },
+  });
 });
