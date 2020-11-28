@@ -93,7 +93,6 @@ def get_node_trace(graph, positions, color_map):
         amr_genotypes = graph.nodes[node]["amr_genotypes"]
         custom_data_list.append({
             "organism_group": organism_group,
-            "min_date": min_date,
             "amr_genotypes": amr_genotypes
         })
 
