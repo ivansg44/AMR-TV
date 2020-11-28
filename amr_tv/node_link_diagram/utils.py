@@ -30,10 +30,12 @@ def get_transmission_network(transmission_events):
         node_index_two = node_indices_dict[str(event[3:])]
         graph.add_node(node_index_one,
                        organism_group=event[1],
-                       min_date=event[2])
+                       min_date=event[2],
+                       amr_genotypes=event[0])
         graph.add_node(node_index_two,
                        organism_group=event[4],
-                       min_date=event[5])
+                       min_date=event[5],
+                       amr_genotypes=event[3])
         graph.add_edge(node_index_one, node_index_two)
     return graph
 
@@ -79,6 +81,7 @@ def get_node_trace(graph, positions, color_map):
     """TODO: ..."""
     x_list = []
     y_list = []
+    custom_data_list = []
     text_list = []
     color_list = []
     for node in graph.nodes():
@@ -87,6 +90,13 @@ def get_node_trace(graph, positions, color_map):
 
         organism_group = graph.nodes[node]["organism_group"]
         min_date = graph.nodes[node]["min_date"]
+        amr_genotypes = graph.nodes[node]["amr_genotypes"]
+        custom_data_list.append({
+            "organism_group": organism_group,
+            "min_date": min_date,
+            "amr_genotypes": amr_genotypes
+        })
+
         text_vals = (organism_group, min_date)
         text_list.append("organism_group: %s, min_date: %s" % text_vals)
 
@@ -98,6 +108,7 @@ def get_node_trace(graph, positions, color_map):
         text=text_list,
         mode='markers',
         hoverinfo='text',
+        customdata=custom_data_list,
         marker={
             "showscale": False,
             "color": color_list,

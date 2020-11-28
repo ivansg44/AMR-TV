@@ -29,3 +29,8 @@ const render_node_link_diagram = () => {
     },
   });
 };
+
+$("#node-link-diagram-plot").on("plotly_click", function(data) {
+  const customData = data.target._hoverdata[0].customdata;
+  return;
+});
