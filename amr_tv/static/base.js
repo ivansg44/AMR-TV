@@ -8,12 +8,8 @@ $.ajax({
     for (const organismGroup of data.organismGroupsList) {
       selectedAdjacencyMatrixCells[organismGroup] = {};
     }
-    // Stub organism group specifications
-    selectedAdjacencyMatrixCells["Enterobacter"]["Salmonella enterica"] = null;
-    selectedAdjacencyMatrixCells["Salmonella enterica"]["Enterobacter"]= null;
 
     renderAdjacencyMatrix(data.organismGroupsList);
-    renderNodeLinkDiagram(selectedAdjacencyMatrixCells);
   },
 });
 
@@ -26,6 +22,10 @@ const renderAdjacencyMatrix = (organismGroupsList) => {
     },
   });
 };
+
+$("#node-link-diagram-create-btn").click(() => {
+  renderNodeLinkDiagram(selectedAdjacencyMatrixCells);
+});
 
 const renderNodeLinkDiagram = (selectedAdjacencyMatrixCells) => {
   $.ajax({
