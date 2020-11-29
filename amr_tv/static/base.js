@@ -2,12 +2,12 @@ $.ajax({
   url: "transmission-events/",
   success: () => {
     $("#adjacency-matrix-spinner-container").hide();
-    render_adjacency_matrix();
-    render_node_link_diagram();
+    renderAdjacencyMatrix();
+    renderNodeLinkDiagram();
   },
 });
 
-const render_adjacency_matrix = () => {
+const renderAdjacencyMatrix = () => {
   $.ajax({
     url: "adjacency-matrix/",
     success: (data) => {
@@ -16,7 +16,7 @@ const render_adjacency_matrix = () => {
   });
 };
 
-const render_node_link_diagram = () => {
+const renderNodeLinkDiagram = () => {
   $.ajax({
     url: "node-link-diagram/",
     data: {
@@ -29,3 +29,16 @@ const render_node_link_diagram = () => {
     },
   });
 };
+
+$("#node-link-diagram-plot").on("plotly_click", (data) => {
+  const customData = data.target._hoverdata[0].customdata;
+  $.ajax({
+    url: "node-detail-table/",
+    data: customData,
+    success: (data) => {
+      $("#node-detail-organism-group").text(data.organismGroup)
+      $("#node-detail-amr-genotypes").text(data.amrGenotypes)
+      $("#node-detail-table-plot").html(data.plotDiv);
+    },
+  });
+});
