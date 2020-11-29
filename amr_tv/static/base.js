@@ -30,6 +30,12 @@ const renderNodeLinkDiagram = () => {
   });
 };
 
+$("#adjacency-matrix-plot").on("plotly_click", (data) => {
+  const x = data.target._hoverdata[0].x;
+  const y = data.target._hoverdata[0].y;
+  return;
+});
+
 $("#node-link-diagram-plot").on("plotly_click", (data) => {
   const customData = data.target._hoverdata[0].customdata;
   $.ajax({
