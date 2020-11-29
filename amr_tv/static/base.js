@@ -36,7 +36,9 @@ $("#node-link-diagram-plot").on("plotly_click", (data) => {
     url: "node-detail-table/",
     data: customData,
     success: (data) => {
-      $("#node-detail-table-plot").html(data);
+      $("#node-detail-organism-group").text(data.organismGroup)
+      $("#node-detail-amr-genotypes").text(data.amrGenotypes)
+      $("#node-detail-table-plot").html(data.plotDiv);
     },
   });
 });
