@@ -1,9 +1,15 @@
+const selectedAdjacencyMatrixCells = {
+  // Stub organism group specifications
+  "Enterobacter": {"Salmonella enterica": null},
+  "Salmonella enterica": {"Enterobacter": null},
+};
+
 $.ajax({
   url: "transmission-events/",
   success: () => {
     $("#adjacency-matrix-spinner-container").hide();
     renderAdjacencyMatrix();
-    renderNodeLinkDiagram();
+    renderNodeLinkDiagram(selectedAdjacencyMatrixCells);
   },
 });
 
@@ -16,14 +22,10 @@ const renderAdjacencyMatrix = () => {
   });
 };
 
-const renderNodeLinkDiagram = () => {
+const renderNodeLinkDiagram = (selectedAdjacencyMatrixCells) => {
   $.ajax({
     url: "node-link-diagram/",
-    data: {
-      // Stub organism group specifications
-      "Enterobacter": ["Salmonella enterica"],
-      "Salmonella enterica": ["Enterobacter"],
-    },
+    data: {"data": JSON.stringify(selectedAdjacencyMatrixCells)},
     success: (data) => {
       $("#node-link-diagram-plot").html(data);
     },

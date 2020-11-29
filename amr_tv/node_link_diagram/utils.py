@@ -2,20 +2,16 @@ import networkx as nx
 import plotly.graph_objects as go
 
 
-def filter_transmission_events(query_params, transmission_events):
+def filter_transmission_events(selected_events, transmission_events):
     """TODO: ..."""
     ret = []
-    # Less of a headache
-    dict_params = dict(query_params)
 
     for event in transmission_events:
-        # "[]" added to end of query_dict keys
-        organism_group_one = event[1] + "[]"
+        organism_group_one = event[1]
         organism_group_two = event[4]
-        if organism_group_one in dict_params:
-            if organism_group_two in dict_params[organism_group_one]:
+        if organism_group_one in selected_events:
+            if organism_group_two in selected_events[organism_group_one]:
                 ret.append(event)
-        continue
 
     return ret
 
@@ -56,12 +52,8 @@ def get_transmission_network_node_indices_dict(transmission_events):
     return node_indices_dict
 
 
-def get_node_color_map(query_params):
+def get_node_color_map(selected_events):
     """TODO: ..."""
-    dict_params = dict(query_params)
-    # Get rid of "[]" at end of each key
-    node_organism_group_list = [key[0:-2] for key in dict_params.keys()]
-
     # https://colorbrewer2.org/?type=qualitative&scheme=Set1&n=9
     colour_scheme = [
         "#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33",
@@ -70,7 +62,7 @@ def get_node_color_map(query_params):
 
     acc = 0
     color_map = {}
-    for organism_group in node_organism_group_list:
+    for organism_group in selected_events:
         color_map[organism_group] = colour_scheme[acc % len(colour_scheme)]
         acc += 1
 
