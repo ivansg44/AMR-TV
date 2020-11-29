@@ -63,8 +63,9 @@ def get_node_color_map(selected_events):
     acc = 0
     color_map = {}
     for organism_group in selected_events:
-        color_map[organism_group] = colour_scheme[acc % len(colour_scheme)]
-        acc += 1
+        if len(selected_events[organism_group]):
+            color_map[organism_group] = colour_scheme[acc % len(colour_scheme)]
+            acc += 1
 
     return color_map
 

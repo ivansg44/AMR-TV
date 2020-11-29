@@ -7,7 +7,7 @@ import amr_tv.adjacency_matrix.utils as utils
 
 def adjacency_matrix_view(request):
     """TODO: ..."""
-    organism_groups_list = request.session["organism_groups_list"]
+    organism_groups_list = json.loads(request.GET["data"])
 
     transmission_events = json.loads(request.session["transmission_events"])
 
