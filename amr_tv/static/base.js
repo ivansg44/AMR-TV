@@ -1,11 +1,11 @@
-let dateRange = ["2020-10-01", "2020-10-31"];
+let dateRange = [];
 let organismGroupsArr = [];
 const selectedAdjacencyMatrixCells = {};
 
 $("#adjacency-matrix-create-btn").click(async () => {
-  // const startDate = $("start-date-input").val();
-  // const endDate = $("end-date-input").val();
-  // dateRange = [startDate, endDate];
+  const startDate = $("#start-date-input").val();
+  const endDate = $("#end-date-input").val();
+  dateRange = [startDate, endDate];
 
   const transmissionEventsResponse = await getTransmissionEvents();
   organismGroupsArr = transmissionEventsResponse.organismGroupsArr;
