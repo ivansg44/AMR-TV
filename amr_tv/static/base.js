@@ -38,6 +38,7 @@ const renderNodeLinkDiagram = (selectedAdjacencyMatrixCells) => {
 };
 
 $("#adjacency-matrix-plot").on("plotly_click", (data) => {
+  const pointIndex = data.target._hoverdata[0].pointIndex;
   const x = data.target._hoverdata[0].x;
   const y = data.target._hoverdata[0].y
   const xHasY = selectedAdjacencyMatrixCells[x].hasOwnProperty(y)
@@ -46,16 +47,24 @@ $("#adjacency-matrix-plot").on("plotly_click", (data) => {
   if (xHasY) {
     delete selectedAdjacencyMatrixCells[x][y];
   } else {
-    selectedAdjacencyMatrixCells[x][y] = null;
+    selectedAdjacencyMatrixCells[x][y] = pointIndex;
   }
 
   if (x !== y) {
     if (yHasX) {
       delete selectedAdjacencyMatrixCells[y][x];
     } else {
-      selectedAdjacencyMatrixCells[y][x] = null;
+      selectedAdjacencyMatrixCells[y][x] = [pointIndex[1], pointIndex[0]];
     }
   }
+
+  $.ajax({
+    url: "adjacency-matrix/highlighted/",
+    data: {"data": JSON.stringify(selectedAdjacencyMatrixCells)},
+    success: (data) => {
+      $("#adjacency-matrix-plot").html(data);
+    },
+  });
 });
 
 $("#node-link-diagram-plot").on("plotly_click", (data) => {
