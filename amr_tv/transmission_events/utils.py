@@ -1,14 +1,5 @@
 from django.db import connection
 
-from amr_tv.isolate.models import Isolate
-
-
-def get_organism_groups_list(date_range):
-    """TODO: ..."""
-    isolates_qs = Isolate.objects.all().filter(create_date__range=date_range)
-    return \
-        list(isolates_qs.values_list('organism_group', flat=True).distinct())
-
 
 def run_transmission_events_query(date_range):
     """TODO: ..."""

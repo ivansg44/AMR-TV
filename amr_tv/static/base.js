@@ -1,5 +1,4 @@
 let dateRange = [];
-let organismGroupsArr = [];
 const selectedAdjacencyMatrixCells = {};
 
 $("#adjacency-matrix-create-btn").click(async () => {
@@ -7,8 +6,7 @@ $("#adjacency-matrix-create-btn").click(async () => {
   const endDate = $("#end-date-input").val();
   dateRange = [startDate, endDate];
 
-  const transmissionEventsResponse = await getTransmissionEvents();
-  organismGroupsArr = transmissionEventsResponse.organismGroupsArr;
+  await loadTransmissionEvents();
 
   for (const organismGroup of organismGroupsArr) {
     selectedAdjacencyMatrixCells[organismGroup] = {};
@@ -17,7 +15,7 @@ $("#adjacency-matrix-create-btn").click(async () => {
   renderAdjacencyMatrix();
 });
 
-const getTransmissionEvents = () => {
+const loadTransmissionEvents = () => {
   return $.ajax({
     url: "transmission-events/",
     data: {"date_range": JSON.stringify(dateRange)},
