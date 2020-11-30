@@ -1,7 +1,7 @@
 import json
 
 from django.core.serializers.json import DjangoJSONEncoder
-from django.shortcuts import HttpResponse
+from django.http import JsonResponse
 
 import amr_tv.transmission_events.utils as utils
 
@@ -10,6 +10,7 @@ def transmission_events_view(request):
     """TODO: ..."""
     # Stub date range
     date_range = ["2020-10-01", "2020-10-31"]
+    organism_groups_list = utils.get_organism_groups_list(date_range)
     request.session["organism_groups_list"] = \
         utils.get_organism_groups_list(date_range)
 
@@ -17,4 +18,4 @@ def transmission_events_view(request):
     request.session["transmission_events"] = \
         json.dumps(raw_query_data, cls=DjangoJSONEncoder)
 
-    return HttpResponse("Transmission data added to session")
+    return JsonResponse({"organismGroupsList": organism_groups_list})

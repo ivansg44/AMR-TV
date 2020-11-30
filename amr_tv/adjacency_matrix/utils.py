@@ -2,10 +2,9 @@ from math import log10
 
 from numpy import zeros
 from plotly import express as px
-from plotly.offline import plot
 
 
-def get_adjacency_matrix_plot(data, organism_groups_list):
+def get_adjacency_matrix_fig(data, organism_groups_list):
     """TODO: ..."""
     fig = px.imshow(data,
                     x=organism_groups_list,
@@ -15,7 +14,7 @@ def get_adjacency_matrix_plot(data, organism_groups_list):
     fig.update_xaxes(side="top")
     fig.update_layout(width=1000,
                       height=1000)
-    return plot(fig, output_type="div", config={"responsive": True})
+    return fig
 
 
 def get_adjacency_matrix_data(transmission_events, organism_groups_list):
@@ -36,3 +35,27 @@ def get_adjacency_matrix_data(transmission_events, organism_groups_list):
                 data[i][j] = log10(data[i][j])
 
     return data
+
+
+def get_highlighted_adjacency_matrix_fig(fig, selected_cells):
+    """TODO: ..."""
+    for organism_group in selected_cells:
+        if not len(selected_cells[organism_group]):
+            continue
+        nested_organism_groups = selected_cells[organism_group]
+        for group in nested_organism_groups:
+            x = nested_organism_groups[group][0]
+            y = nested_organism_groups[group][1]
+            fig.add_shape(
+                type="rect",
+                x0=x-0.5,
+                x1=x+0.5,
+                y0=y-0.5,
+                y1=y+0.5,
+                line={
+                    "color": "orange",
+                    "width": 3
+                }
+            )
+
+    return fig

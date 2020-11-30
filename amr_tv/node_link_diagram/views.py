@@ -12,12 +12,13 @@ import amr_tv.node_link_diagram.utils as utils
 def node_link_diagram_view(request):
     """TODO: ..."""
     transmission_events = json.loads(request.session["transmission_events"])
+    selected_events = json.loads(request.GET["data"])
     filtered_transmission_events = \
-        utils.filter_transmission_events(request.GET, transmission_events)
+        utils.filter_transmission_events(selected_events, transmission_events)
     graph = utils.get_transmission_network(filtered_transmission_events)
     positions = nx.spring_layout(graph)
 
-    color_map = utils.get_node_color_map(request.GET)
+    color_map = utils.get_node_color_map(selected_events)
     node_trace = utils.get_node_trace(graph, positions, color_map)
 
     graph_layout = utils.get_graph_layout(graph, positions)
