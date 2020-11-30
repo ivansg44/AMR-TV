@@ -18,9 +18,27 @@
     <div class="container-fluid m-1">
       <div class="row">
         <div class="col">
-          <div id="adjacency-matrix-spinner-container">
-            <div id="adjacency-matrix-spinner" class="spinner-border"></div>
+          <div class="input-group">
+            <div class="input-group-prepend">
+              <div class="input-group-text">Start</div>
+            </div>
+            <input id="start-date-input" type="date" class="form-control" value="2020-10-01" min="2010-12-15" max="2020-10-31">
           </div>
+        </div>
+        <div class="col">
+          <div class="input-group">
+            <div class="input-group-prepend">
+              <div class="input-group-text">End</div>
+            </div>
+            <input id="end-date-input" type="date" class="form-control" value="2020-10-31" min="2010-12-15" max="2020-10-31">
+          </div>
+        </div>
+        <div class="col">
+          <button id="adjacency-matrix-create-btn" type="button" class="btn btn-primary">Create</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
           <div id="adjacency-matrix-plot"></div>
         </div>
       </div>
@@ -70,6 +88,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
     <script src="{% static 'base.js' %}"></script>
+    <script src="{% static 'organism_groups.js' %}"></script>
     {% endblock javascript %}
   </body>
 </html>

@@ -55,7 +55,8 @@ def get_highlighted_adjacency_matrix_fig(fig, selected_cells):
                 line={
                     "color": "orange",
                     "width": 3
-                }
+                },
+                fillcolor="rgba(240,255,0,0.2)"
             )
 
     return fig

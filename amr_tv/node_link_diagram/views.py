@@ -12,7 +12,7 @@ import amr_tv.node_link_diagram.utils as utils
 def node_link_diagram_view(request):
     """TODO: ..."""
     transmission_events = json.loads(request.session["transmission_events"])
-    selected_events = json.loads(request.GET["data"])
+    selected_events = json.loads(request.GET["selected_events"])
     filtered_transmission_events = \
         utils.filter_transmission_events(selected_events, transmission_events)
     graph = utils.get_transmission_network(filtered_transmission_events)
