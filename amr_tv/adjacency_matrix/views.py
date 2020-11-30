@@ -12,7 +12,7 @@ _base_fig = None
 
 def adjacency_matrix_view(request):
     """TODO: ..."""
-    organism_groups_list = json.loads(request.GET["data"])
+    organism_groups_list = json.loads(request.GET["organism_groups_list"])
     transmission_events = json.loads(request.session["transmission_events"])
     data = utils.get_adjacency_matrix_data(transmission_events,
                                            organism_groups_list)
@@ -31,7 +31,7 @@ def highlighted_adjacency_matrix_view(request):
     if not fig:
         return HttpResponse(fig)
 
-    selected_cells = json.loads(request.GET["data"])
+    selected_cells = json.loads(request.GET["selected_cells"])
     highlighted_fig = \
         utils.get_highlighted_adjacency_matrix_fig(fig, selected_cells)
     plot_div = plot(highlighted_fig, output_type="div")

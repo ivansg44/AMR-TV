@@ -1,4 +1,4 @@
-let dateRange = [];
+let dateRange = ["2020-10-01", "2020-10-31"];
 let organismGroupsArr = [];
 const selectedAdjacencyMatrixCells = {};
 
@@ -6,7 +6,6 @@ $("#adjacency-matrix-create-btn").click(async () => {
   // const startDate = $("start-date-input").val();
   // const endDate = $("end-date-input").val();
   // dateRange = [startDate, endDate];
-  dateRange = ["2020-10-01", "2020-10-31"];
 
   const transmissionEventsResponse = await getTransmissionEvents();
   organismGroupsArr = transmissionEventsResponse.organismGroupsArr;
@@ -28,7 +27,7 @@ const getTransmissionEvents = () => {
 const renderAdjacencyMatrix = () => {
   $.ajax({
     url: "adjacency-matrix/",
-    data: {"data": JSON.stringify(organismGroupsArr)},
+    data: {"organism_groups_list": JSON.stringify(organismGroupsArr)},
     success: (data) => {
       $("#adjacency-matrix-plot").html(data);
     },
@@ -36,13 +35,13 @@ const renderAdjacencyMatrix = () => {
 };
 
 $("#node-link-diagram-create-btn").click(() => {
-  renderNodeLinkDiagram(selectedAdjacencyMatrixCells);
+  renderNodeLinkDiagram();
 });
 
-const renderNodeLinkDiagram = (selectedAdjacencyMatrixCells) => {
+const renderNodeLinkDiagram = () => {
   $.ajax({
     url: "node-link-diagram/",
-    data: {"data": JSON.stringify(selectedAdjacencyMatrixCells)},
+    data: {"selected_events": JSON.stringify(selectedAdjacencyMatrixCells)},
     success: (data) => {
       $("#node-link-diagram-plot").html(data);
     },
@@ -57,7 +56,7 @@ $("#adjacency-matrix-plot").on("plotly_click", (data) => {
 
   $.ajax({
     url: "adjacency-matrix/highlighted/",
-    data: {"data": JSON.stringify(selectedAdjacencyMatrixCells)},
+    data: {"selected_cells": JSON.stringify(selectedAdjacencyMatrixCells)},
     success: (data) => {
       $("#adjacency-matrix-plot").html(data);
     },
@@ -85,9 +84,11 @@ const updateSelectedAdjacencyMatrixCells = (x, y, pointIndex) => {
 
 $("#node-link-diagram-plot").on("plotly_click", (data) => {
   const customData = data.target._hoverdata[0].customdata;
+  customData["date_range"] = dateRange;
+  customData["organism_groups"] = organismGroupsArr;
   $.ajax({
     url: "node-detail-table/",
-    data: customData,
+    data: {"data": JSON.stringify(customData)},
     success: (data) => {
       $("#node-detail-organism-group").text(data.organismGroup);
       $("#node-detail-amr-genotypes").text(data.amrGenotypes);
