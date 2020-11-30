@@ -8,8 +8,7 @@ import amr_tv.transmission_events.utils as utils
 
 def transmission_events_view(request):
     """TODO: ..."""
-    # Stub date range
-    date_range = ["2020-10-01", "2020-10-31"]
+    date_range = json.loads(request.GET["date_range"])
     organism_groups_list = utils.get_organism_groups_list(date_range)
     request.session["organism_groups_list"] = \
         utils.get_organism_groups_list(date_range)
@@ -18,4 +17,4 @@ def transmission_events_view(request):
     request.session["transmission_events"] = \
         json.dumps(raw_query_data, cls=DjangoJSONEncoder)
 
-    return JsonResponse({"organismGroupsList": organism_groups_list})
+    return JsonResponse({"organismGroupsArr": organism_groups_list})
