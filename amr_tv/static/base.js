@@ -94,3 +94,7 @@ $("#node-link-diagram-plot").on("plotly_click", (data) => {
     },
   });
 });
+
+$(document).ready(() => {
+  $("#adjacency-matrix-create-btn").click();
+});
