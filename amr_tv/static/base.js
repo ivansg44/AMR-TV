@@ -41,6 +41,18 @@ $("#adjacency-matrix-plot").on("plotly_click", (data) => {
   const pointIndex = data.target._hoverdata[0].pointIndex;
   const x = data.target._hoverdata[0].x;
   const y = data.target._hoverdata[0].y
+  updateSelectedAdjacencyMatrixCells(x, y, pointIndex);
+
+  $.ajax({
+    url: "adjacency-matrix/highlighted/",
+    data: {"data": JSON.stringify(selectedAdjacencyMatrixCells)},
+    success: (data) => {
+      $("#adjacency-matrix-plot").html(data);
+    },
+  });
+});
+
+const updateSelectedAdjacencyMatrixCells = (x, y, pointIndex) => {
   const xHasY = selectedAdjacencyMatrixCells[x].hasOwnProperty(y)
   const yHasX = selectedAdjacencyMatrixCells[y].hasOwnProperty(x)
 
@@ -57,15 +69,7 @@ $("#adjacency-matrix-plot").on("plotly_click", (data) => {
       selectedAdjacencyMatrixCells[y][x] = [pointIndex[1], pointIndex[0]];
     }
   }
-
-  $.ajax({
-    url: "adjacency-matrix/highlighted/",
-    data: {"data": JSON.stringify(selectedAdjacencyMatrixCells)},
-    success: (data) => {
-      $("#adjacency-matrix-plot").html(data);
-    },
-  });
-});
+};
 
 $("#node-link-diagram-plot").on("plotly_click", (data) => {
   const customData = data.target._hoverdata[0].customdata;
