@@ -144,8 +144,11 @@ def get_graph_layout(graph, positions):
         })
 
     return {
-        "width": 800,
-        "height": 600,
+        "width": 700,
+        "height": 700,
+        "margin": {
+            "l": 0, "r": 0, "t": 0, "b": 0
+        },
         "showlegend": False,
         "xaxis": axis,
         "yaxis": axis,

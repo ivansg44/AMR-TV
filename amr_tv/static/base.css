@@ -5,3 +5,12 @@
 #adjacency-matrix-spinner {
     margin: 400px;
 }
+
+/*
+Keep scrollbar visible to stop jittering while hovering over plotly
+figures.
+*/
+html {
+    overflow: -moz-scrollbars-vertical;
+    overflow-y: scroll;
+}
