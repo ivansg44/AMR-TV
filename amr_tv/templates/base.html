@@ -18,6 +18,27 @@
     <div class="container-fluid m-1">
       <div class="row">
         <div class="col">
+          <div class="input-group">
+            <div class="input-group-prepend">
+              <div class="input-group-text">Start</div>
+            </div>
+            <input id="start-date-input" type="date" class="form-control">
+          </div>
+        </div>
+        <div class="col">
+          <div class="input-group">
+            <div class="input-group-prepend">
+              <div class="input-group-text">End</div>
+            </div>
+            <input id="end-date-input" type="date" class="form-control">
+          </div>
+        </div>
+        <div class="col">
+          <button id="adjacency-matrix-create-btn" type="button" class="btn btn-primary">Create</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
           <div id="adjacency-matrix-spinner-container">
             <div id="adjacency-matrix-spinner" class="spinner-border"></div>
           </div>
