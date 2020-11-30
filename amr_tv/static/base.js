@@ -1,22 +1,34 @@
+let dateRange = [];
+let organismGroupsArr = [];
 const selectedAdjacencyMatrixCells = {};
 
-$.ajax({
-  url: "transmission-events/",
-  success: (data) => {
-    $("#adjacency-matrix-spinner-container").hide();
+$("#adjacency-matrix-create-btn").click(async () => {
+  // const startDate = $("start-date-input").val();
+  // const endDate = $("end-date-input").val();
+  // dateRange = [startDate, endDate];
+  dateRange = ["2020-10-01", "2020-10-31"];
 
-    for (const organismGroup of data.organismGroupsList) {
-      selectedAdjacencyMatrixCells[organismGroup] = {};
-    }
+  const transmissionEventsResponse = await getTransmissionEvents();
+  organismGroupsArr = transmissionEventsResponse.organismGroupsArr;
 
-    renderAdjacencyMatrix(data.organismGroupsList);
-  },
+  for (const organismGroup of organismGroupsArr) {
+    selectedAdjacencyMatrixCells[organismGroup] = {};
+  }
+
+  renderAdjacencyMatrix();
 });
 
-const renderAdjacencyMatrix = (organismGroupsList) => {
+const getTransmissionEvents = () => {
+  return $.ajax({
+    url: "transmission-events/",
+    data: {"date_range": JSON.stringify(dateRange)},
+  });
+};
+
+const renderAdjacencyMatrix = () => {
   $.ajax({
     url: "adjacency-matrix/",
-    data: {"data": JSON.stringify(organismGroupsList)},
+    data: {"data": JSON.stringify(organismGroupsArr)},
     success: (data) => {
       $("#adjacency-matrix-plot").html(data);
     },
