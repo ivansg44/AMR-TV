@@ -70,44 +70,57 @@ def get_node_color_map(selected_events):
     return color_map
 
 
-def get_node_trace(graph, positions, color_map):
+def get_node_traces(graph, positions, color_map):
     """TODO: ..."""
-    x_list = []
-    y_list = []
-    custom_data_list = []
-    text_list = []
-    color_list = []
+    traces_dict = {}
     for node in graph.nodes():
-        x_list.append(positions[node][0])
-        y_list.append(positions[node][1])
-
         organism_group = graph.nodes[node]["organism_group"]
+        if organism_group not in traces_dict:
+            traces_dict[organism_group] = {
+                "x_list": [],
+                "y_list": [],
+                "custom_data_list": [],
+                "text_list": [],
+                "color_list": []
+            }
+
+        trace_dict = traces_dict[organism_group]
+        trace_dict["x_list"].append(positions[node][0])
+        trace_dict["y_list"].append(positions[node][1])
+
         min_date = graph.nodes[node]["min_date"]
         amr_genotypes = graph.nodes[node]["amr_genotypes"]
-        custom_data_list.append({
+        trace_dict["custom_data_list"].append({
             "organism_group": organism_group,
             "amr_genotypes": amr_genotypes
         })
 
-        text_vals = (organism_group, min_date)
-        text_list.append("organism_group: %s, min_date: %s" % text_vals)
+        text = "organism_group: %s, min_date: %s" % (organism_group, min_date)
+        trace_dict["text_list"].append(text)
 
-        color_list.append(color_map[organism_group])
+        trace_dict["color_list"].append(color_map[organism_group])
 
-    return go.Scatter(
-        x=x_list,
-        y=y_list,
-        text=text_list,
-        mode='markers',
-        hoverinfo='text',
-        customdata=custom_data_list,
-        marker={
-            "showscale": False,
-            "color": color_list,
-            "size": 10,
-            "line_width": 2
-        }
-    )
+    ret = []
+    for organism_group in traces_dict:
+        trace_dict = traces_dict[organism_group]
+        trace = go.Scatter(
+            x=trace_dict["x_list"],
+            y=trace_dict["y_list"],
+            text=trace_dict["text_list"],
+            mode='markers',
+            hoverinfo='text',
+            customdata=trace_dict["custom_data_list"],
+            marker={
+                "showscale": False,
+                "color": trace_dict["color_list"],
+                "size": 10,
+                "line_width": 2
+            },
+            name=organism_group
+        )
+        ret.append(trace)
+
+    return ret
 
 
 def get_graph_layout(graph, positions):
@@ -149,7 +162,7 @@ def get_graph_layout(graph, positions):
         "margin": {
             "l": 0, "r": 0, "t": 0, "b": 0
         },
-        "showlegend": False,
+        "showlegend": True,
         "xaxis": axis,
         "yaxis": axis,
         "annotations": annotations

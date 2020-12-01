@@ -19,11 +19,11 @@ def node_link_diagram_view(request):
     positions = nx.spring_layout(graph)
 
     color_map = utils.get_node_color_map(selected_events)
-    node_trace = utils.get_node_trace(graph, positions, color_map)
+    node_traces = utils.get_node_traces(graph, positions, color_map)
 
     graph_layout = utils.get_graph_layout(graph, positions)
 
-    fig = go.Figure(data=[node_trace], layout=graph_layout)
+    fig = go.Figure(data=node_traces, layout=graph_layout)
     plot_div = plot(fig, output_type="div")
 
     return HttpResponse(plot_div)
