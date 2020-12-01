@@ -7,7 +7,6 @@ from django.views.generic import TemplateView
 urlpatterns = [
     path(settings.ADMIN_URL, admin.site.urls),
     path("isolates/", include("amr_tv.isolate.urls")),
-    path("amr-genotypes/", include("amr_tv.amr_genotype.urls")),
     path("transmission-events/", include("amr_tv.transmission_events.urls")),
     path("adjacency-matrix/", include("amr_tv.adjacency_matrix.urls")),
     path("node-link-diagram/", include("amr_tv.node_link_diagram.urls")),
