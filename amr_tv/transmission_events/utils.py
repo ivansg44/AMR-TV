@@ -2,7 +2,15 @@ from django.db import connection
 
 
 def run_transmission_events_query(date_range):
-    """TODO: ..."""
+    """Runs SQL query to get transmission events.
+
+    :param date_range: create_date range of isolates to derive network
+    from.
+    :type date_range: list[str, str]
+    :return: Transmission events, detailing amr_genotypes,
+    organism_group, and min_date for two nodes from derived network.
+    :rtype: list[list]
+    """
     with connection.cursor() as cursor:
         cursor.execute("SELECT a.amr_genotypes, a.organism_group, a.min_date, "
                        "b.amr_genotypes, b.organism_group, b.min_date "

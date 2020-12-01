@@ -12,7 +12,13 @@ _headers = utils.get_headers()
 
 
 def node_detail_table_view(request):
-    """TODO: ..."""
+    """Renders node-detail table.
+
+    :param request: Contains date_range, organism_group, and
+    amr_genotypes of node to create table from.
+    :return: Render of node-detail table.
+    :rtype: HttpResponse
+    """
     query_params = json.loads(request.GET["data"])
     date_range = query_params["date_range"]
     organism_group = query_params["organism_group"]

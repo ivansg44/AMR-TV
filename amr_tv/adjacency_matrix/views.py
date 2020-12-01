@@ -11,7 +11,14 @@ _base_fig = None
 
 
 def adjacency_matrix_view(request):
-    """TODO: ..."""
+    """Renders adjacency matrix.
+
+    Uses transmission events data stored in session.
+
+    :param request: Contains organism_groups_list.
+    :return: Render of adjacency matrix.
+    :rtype: HttpResponse
+    """
     organism_groups_list = json.loads(request.GET["organism_groups_list"])
     transmission_events = json.loads(request.session["transmission_events"])
     data = utils.get_adjacency_matrix_data(transmission_events,
@@ -25,7 +32,16 @@ def adjacency_matrix_view(request):
 
 
 def highlighted_adjacency_matrix_view(request):
-    """TODO: ..."""
+    """Re-renders adjacency matrix with highlighted cells.
+
+    Uses global variable _base_fig, so should be called after
+    adjacency_matrix_view.
+
+    :param request: Contains selected_cells indicating which cells to
+    highlight.
+    :return: Render of adjacency matrix.
+    :rtype: HttpResponse
+    """
     # Copy global variable
     fig = go.Figure(_base_fig)
     if not fig:

@@ -10,7 +10,13 @@ import amr_tv.node_link_diagram.utils as utils
 
 
 def node_link_diagram_view(request):
-    """TODO: ..."""
+    """Renders node-link diagram.
+
+    :param request: Contains selected_events value to specify which
+    node-links to visualize.
+    :return: Render of node-link diagram.
+    :rtype: HttpResponse
+    """
     transmission_events = json.loads(request.session["transmission_events"])
     selected_events = json.loads(request.GET["selected_events"])
     filtered_transmission_events = \

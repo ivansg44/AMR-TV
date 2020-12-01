@@ -5,7 +5,18 @@ from plotly import express as px
 
 
 def get_adjacency_matrix_fig(data, organism_groups_list):
-    """TODO: ..."""
+    """Get plotly figure of adjacency matrix.
+
+    Really, it's a heatmap.
+
+    :param data: See get_adjacency_matrix_data return value.
+    :type data: Numpy.array
+    :param organism_groups_list: List of organism groups encoding axes
+    values.
+    :type organism_groups_list: list[str]
+    :return: Plotly figure of adjacency matrix.
+    :rtype: plotly.graph_objects.Figure
+    """
     fig = px.imshow(data,
                     x=organism_groups_list,
                     y=organism_groups_list,
@@ -18,7 +29,18 @@ def get_adjacency_matrix_fig(data, organism_groups_list):
 
 
 def get_adjacency_matrix_data(transmission_events, organism_groups_list):
-    """TODO: ..."""
+    """Get data that goes into rendered adjacency matrix.
+
+    :param transmission_events: See run_transmission_events_query
+    return value.
+    :type transmission_events: list[list]
+    :param organism_groups_list: List of organism groups encoding axes
+    values.
+    :type organism_groups_list: list[str]
+    :return: Matrix storing number of log10 transmission events
+    between different organism groups.
+    :rtype: Numpy.array
+    """
     organism_groups_count = len(organism_groups_list)
     data = zeros((organism_groups_count, organism_groups_count))
     organism_groups_list_indices = \
@@ -38,7 +60,17 @@ def get_adjacency_matrix_data(transmission_events, organism_groups_list):
 
 
 def get_highlighted_adjacency_matrix_fig(fig, selected_cells):
-    """TODO: ..."""
+    """Add highlights to fig.
+
+    :param fig: See get_adjacency_matrix_fig return value.
+    :type fig: plotly.graph_objects.Figure
+    :param selected_events: Specified organism_group-organism_group
+    relationships inside nested dictionary.
+    :type selected_events: dict[str, dict[str, None]]
+    :return: Fig with some yellow and transparent rectangles added to
+    it.
+    :rtype: plotly.graph_objects.Figure
+    """
     for organism_group in selected_cells:
         if not len(selected_cells[organism_group]):
             continue

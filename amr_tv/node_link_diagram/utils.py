@@ -3,7 +3,18 @@ import plotly.graph_objects as go
 
 
 def filter_transmission_events(selected_events, transmission_events):
-    """TODO: ..."""
+    """Filter transmission_events for node-links of interest.
+
+    :param selected_events: Specified organism_group-organism_group
+    relationships inside nested dictionary.
+    :type selected_events: dict[str, dict[str, None]]
+    :param transmission_events: See run_transmission_events_query
+    return value.
+    :type transmission_events: list[list]
+    :return: Filtered version of run_transmission_events_query return
+    value.
+    :rtype: list[list]
+    """
     ret = []
 
     for event in transmission_events:
@@ -17,7 +28,14 @@ def filter_transmission_events(selected_events, transmission_events):
 
 
 def get_transmission_network(transmission_events):
-    """TODO: ..."""
+    """Create a networkX graph encoding transmission_events.
+
+    :param transmission_events: See run_transmission_events_query
+    return value.
+    :type transmission_events: list[list]
+    :return: networkX graph
+    :rtype: nx.Graph
+    """
     node_indices_dict = \
         get_transmission_network_node_indices_dict(transmission_events)
     graph = nx.Graph()
@@ -37,7 +55,19 @@ def get_transmission_network(transmission_events):
 
 
 def get_transmission_network_node_indices_dict(transmission_events):
-    """TODO: ..."""
+    """Assigns an index to each unique node in transmission_events.
+
+    This is useful when making the networkX graph, as
+    transmission_events details every one-to-one relationship, so
+    nodes may appear twice.
+
+    :param transmission_events: See run_transmission_events_query
+    return value.
+    :type transmission_events: list[list]
+    :return: Concatenated and stringified amr_genotypes, min_date, and 
+    organism_groups of unique nodes, and an assigned index.
+    :rtype: dict[str, int]
+    """
     node_indices_dict = {}
     count = 0
     for event in transmission_events:
@@ -53,7 +83,17 @@ def get_transmission_network_node_indices_dict(transmission_events):
 
 
 def get_node_color_map(selected_events):
-    """TODO: ..."""
+    """Generate color map for all organism groups in selected_events.
+
+    This is done dynamically for each node-link diagram, because it 
+    minimizes collisions.
+
+    :param selected_events: Specified organism_group-organism_group
+    relationships inside nested dictionary.
+    :type selected_events: dict[str, dict[str, None]]
+    :return: organism_group and their assigned hex codes.
+    :rtype: dict[str, str]
+    """
     # https://colorbrewer2.org/?type=qualitative&scheme=Set1&n=9
     colour_scheme = [
         "#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33",
@@ -71,7 +111,19 @@ def get_node_color_map(selected_events):
 
 
 def get_node_traces(graph, positions, color_map):
-    """TODO: ..."""
+    """Generate scatter traces from graph.
+
+    One scatter trace is generated for every organism_group.
+
+    :param graph: See get_transmission_network return value.
+    :type graph: nx.Graph
+    :param positions: x and y positions of every node in graph.
+    :type positions: dict[int, list[int, int]]
+    :param color_map: See get_node_color_map return value.
+    :type color_map: dict[str, str]
+    :return: NetworkX scatter traces for every organism group in graph.
+    :rtype: list[go.Scatter]
+    """
     traces_dict = {}
     for node in graph.nodes():
         organism_group = graph.nodes[node]["organism_group"]
@@ -121,7 +173,15 @@ def get_node_traces(graph, positions, color_map):
 
 
 def get_graph_layout(graph, positions):
-    """TODO: ..."""
+    """Get layout data for node-link diagram plotly figure.
+
+    :param graph: See get_transmission_network return value.
+    :type graph: nx.Graph
+    :param positions: x and y positions of every node in graph.
+    :type positions: dict[int, list[int, int]]
+    :return: Layout data for node-link diagram plotly figure.
+    :rtype: dict
+    """
     axis = {
         "showline": False,
         "zeroline": False,
