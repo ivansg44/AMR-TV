@@ -1,6 +1,11 @@
 let dateRange = [];
 const selectedAdjacencyMatrixCells = {};
 
+/**
+ * GET request on transmission events view, which loads transmission events in
+ * to session variables for other views. Potentially too large to store here.
+ * @returns {jQuery}
+ */
 const loadTransmissionEvents = () => {
   return $.ajax({
     url: "transmission-events/",
@@ -8,6 +13,10 @@ const loadTransmissionEvents = () => {
   });
 };
 
+/**
+ * Renders adjacency matrix using loaded transmission data. Should be
+ * called after loadTransmissionEvents.
+ */
 const renderAdjacencyMatrix = () => {
   $.ajax({
     url: "adjacency-matrix/",
@@ -22,6 +31,12 @@ const renderAdjacencyMatrix = () => {
   });
 };
 
+/**
+ * Highlights cells clicked on adjacency matrix.
+ * @param x Organism group from x-axis corresponding to selected cell.
+ * @param y Organism group from y-axis corresponding to selected cell.
+ * @param pointIndex 2 element array of numerical x and y coordinates.
+ */
 const updateSelectedAdjacencyMatrixCells = (x, y, pointIndex) => {
   const xHasY = selectedAdjacencyMatrixCells[x].hasOwnProperty(y)
   const yHasX = selectedAdjacencyMatrixCells[y].hasOwnProperty(x)
@@ -41,6 +56,9 @@ const updateSelectedAdjacencyMatrixCells = (x, y, pointIndex) => {
   }
 };
 
+/**
+ * Renders node-link diagram from user's selected cells from adjacency matrix.
+ */
 const renderNodeLinkDiagram = () => {
   $.ajax({
     url: "node-link-diagram/",
@@ -54,7 +72,9 @@ const renderNodeLinkDiagram = () => {
   });
 };
 
+// Entry point
 $(document).ready(() => {
+  // Create adjacency matrix from inputted dates
   $("#adjacency-matrix-create-btn").click(async () => {
     $("#loading-spinner").show();
 
@@ -71,6 +91,7 @@ $(document).ready(() => {
     renderAdjacencyMatrix();
   }).click();
 
+  // Highlight clicked adjacency matrix cells
   $("#adjacency-matrix-plot").on("plotly_click", (data) => {
     $("#loading-spinner").show();
 
@@ -89,11 +110,13 @@ $(document).ready(() => {
     });
   });
 
+  // Create node-link diagram from selected adjacency matrix cells
   $("#node-link-diagram-create-btn").click(() => {
     $("#loading-spinner").show();
     renderNodeLinkDiagram();
   });
 
+  // Create node-detail table from selected node from node-link diagram
   $("#node-link-diagram-plot").on("plotly_click", (data) => {
     $("#loading-spinner").show();
 
