@@ -2,6 +2,8 @@ let dateRange = [];
 const selectedAdjacencyMatrixCells = {};
 
 $("#adjacency-matrix-create-btn").click(async () => {
+  $("#loading-spinner").show();
+
   const startDate = $("#start-date-input").val();
   const endDate = $("#end-date-input").val();
   dateRange = [startDate, endDate];
@@ -28,11 +30,13 @@ const renderAdjacencyMatrix = () => {
     data: {"organism_groups_list": JSON.stringify(organismGroupsArr)},
     success: (data) => {
       $("#adjacency-matrix-plot").html(data);
+      $("#loading-spinner").hide();
     },
   });
 };
 
 $("#node-link-diagram-create-btn").click(() => {
+  $("#loading-spinner").show();
   renderNodeLinkDiagram();
 });
 
@@ -42,11 +46,14 @@ const renderNodeLinkDiagram = () => {
     data: {"selected_events": JSON.stringify(selectedAdjacencyMatrixCells)},
     success: (data) => {
       $("#node-link-diagram-plot").html(data);
+      $("#loading-spinner").hide();
     },
   });
 };
 
 $("#adjacency-matrix-plot").on("plotly_click", (data) => {
+  $("#loading-spinner").show();
+
   const pointIndex = data.target._hoverdata[0].pointIndex;
   const x = data.target._hoverdata[0].x;
   const y = data.target._hoverdata[0].y
@@ -57,6 +64,7 @@ $("#adjacency-matrix-plot").on("plotly_click", (data) => {
     data: {"selected_cells": JSON.stringify(selectedAdjacencyMatrixCells)},
     success: (data) => {
       $("#adjacency-matrix-plot").html(data);
+      $("#loading-spinner").hide();
     },
   });
 });
@@ -81,6 +89,8 @@ const updateSelectedAdjacencyMatrixCells = (x, y, pointIndex) => {
 };
 
 $("#node-link-diagram-plot").on("plotly_click", (data) => {
+  $("#loading-spinner").show();
+
   const customData = data.target._hoverdata[0].customdata;
   customData["date_range"] = dateRange;
   customData["organism_groups"] = organismGroupsArr;
@@ -91,6 +101,9 @@ $("#node-link-diagram-plot").on("plotly_click", (data) => {
       $("#node-detail-organism-group").text(data.organismGroup);
       $("#node-detail-amr-genotypes").text(data.amrGenotypes);
       $("#node-detail-table-plot").html(data.plotDiv);
+
+      $("#loading-spinner").hide();
+      document.getElementById('node-detail-table-plot').scrollIntoView();
     },
   });
 });

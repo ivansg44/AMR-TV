@@ -12,8 +12,8 @@ def get_adjacency_matrix_fig(data, organism_groups_list):
                     color_continuous_scale="Greys"
                     )
     fig.update_xaxes(side="top")
-    fig.update_layout(width=1000,
-                      height=1000)
+    fig.update_layout(width=900,
+                      height=900)
     return fig
 
 
