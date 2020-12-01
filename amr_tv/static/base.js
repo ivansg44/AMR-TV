@@ -91,6 +91,7 @@ $("#node-link-diagram-plot").on("plotly_click", (data) => {
       $("#node-detail-organism-group").text(data.organismGroup);
       $("#node-detail-amr-genotypes").text(data.amrGenotypes);
       $("#node-detail-table-plot").html(data.plotDiv);
+      document.getElementById('node-detail-table-plot').scrollIntoView();
     },
   });
 });
