@@ -14,6 +14,9 @@ const renderAdjacencyMatrix = () => {
     data: {"organism_groups_list": JSON.stringify(organismGroupsArr)},
     success: (data) => {
       $("#adjacency-matrix-plot").html(data);
+      $("#node-link-diagram-plot").empty();
+      $(".node-detail-text-div").hide();
+      $("#node-detail-table-plot").empty();
       $("#loading-spinner").hide();
     },
   });
@@ -44,6 +47,8 @@ const renderNodeLinkDiagram = () => {
     data: {"selected_events": JSON.stringify(selectedAdjacencyMatrixCells)},
     success: (data) => {
       $("#node-link-diagram-plot").html(data);
+      $(".node-detail-text-div").hide();
+      $("#node-detail-table-plot").empty();
       $("#loading-spinner").hide();
     },
   });
@@ -104,6 +109,7 @@ $(document).ready(() => {
         $("#node-detail-table-plot").html(data.plotDiv);
 
         $("#loading-spinner").hide();
+        $(".node-detail-text-div").show();
         document.getElementById('node-detail-table-plot').scrollIntoView();
       },
     });
