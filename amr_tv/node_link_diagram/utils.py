@@ -81,7 +81,7 @@ def get_node_traces(graph, positions, color_map):
                 "y_list": [],
                 "custom_data_list": [],
                 "text_list": [],
-                "color_list": []
+                "color": color_map[organism_group]
             }
 
         trace_dict = traces_dict[organism_group]
@@ -95,10 +95,7 @@ def get_node_traces(graph, positions, color_map):
             "amr_genotypes": amr_genotypes
         })
 
-        text = "organism_group: %s, min_date: %s" % (organism_group, min_date)
-        trace_dict["text_list"].append(text)
-
-        trace_dict["color_list"].append(color_map[organism_group])
+        trace_dict["text_list"].append("min_date: " + min_date)
 
     ret = []
     for organism_group in traces_dict:
@@ -112,7 +109,7 @@ def get_node_traces(graph, positions, color_map):
             customdata=trace_dict["custom_data_list"],
             marker={
                 "showscale": False,
-                "color": trace_dict["color_list"],
+                "color": trace_dict["color"],
                 "size": 10,
                 "line_width": 2
             },
