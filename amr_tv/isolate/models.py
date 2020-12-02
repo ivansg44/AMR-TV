@@ -11,15 +11,3 @@ class Isolate(models.Model):
     isolation_source = models.TextField()
     host = models.TextField()
     amr_genotypes = ArrayField(models.TextField())
-
-
-class IsolateGenotype(models.Model):
-    """Similar to isolate, but with unnested genotypes.
-
-    Useful for counting and finding shared genotypes. Better to
-    populate this once, than every time at runtime.
-    """
-    isolate = models.TextField()
-    amr_genotype = models.TextField()
-    create_date = models.DateTimeField()
-    organism_group = models.TextField()
