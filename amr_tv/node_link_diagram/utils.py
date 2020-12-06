@@ -196,6 +196,17 @@ def get_graph_layout(graph, positions):
     # plotting-a-directed-graph-with-dash-through-matplotlib
     annotations = []
     for edge in graph.edges():
+        # NetworkX re-orders edges by node index
+        # TODO: less hackey way to do this?
+        node_0 = graph.nodes[edge[0]]
+        node_1 = graph.nodes[edge[1]]
+        if len(node_0["amr_genotypes"]) < len(node_1["amr_genotypes"]):
+            edge_0 = edge[0]
+            edge_1 = edge[1]
+        else:
+            edge_0 = edge[1]
+            edge_1 = edge[0]
+
         annotations.append({
             "showarrow": True,
             "arrowsize": 2,
@@ -203,12 +214,12 @@ def get_graph_layout(graph, positions):
             "arrowhead": 1,
             "standoff": 3,
             "startstandoff": 1,
-            "ax": positions[edge[0]][0],
-            "ay": positions[edge[0]][1],
+            "ax": positions[edge_0][0],
+            "ay": positions[edge_0][1],
             "axref": "x",
             "ayref": "y",
-            "x": positions[edge[1]][0],
-            "y": positions[edge[1]][1],
+            "x": positions[edge_1][0],
+            "y": positions[edge_1][1],
             "xref": "x",
             "yref": "y",
         })
