@@ -6,17 +6,22 @@ specified date range.
 
 [1]: https://www.ncbi.nlm.nih.gov/pathogens/isolates/
 
-## Implementation Overview
+## Brief roadmap/overview
 
-Using a Docker, Django, and Postgres boilerplate setup with some personal 
-modifications, I built several Django apps located in `amr_tv/`: `isolate`, 
-`transmission_events`, `adjacency_matrix`, `node_link_diagram`, and 
-`node-detail-table`. In addition to building these applications, I also wrote the JavaScript code that ties a lot of these applications together. 
+`compose/`, `config/`, `docker-compose.yml`, `postgres.env` provide the Django + 
+Postgres + Docker setup inspired by [Cookiecutter Django][2]. I made some 
+changes to these files, but started with a boilerplate.
+
+Python libraries in `requirements.txt`.
+
+Code I'm mostly responsible for is in  `amr-tv/`. I built several Django apps: 
+`isolate`, `transmission_events`, `adjacency_matrix`, `node_link_diagram`, and 
+`node-detail-table`.
 
 **isolate**
 
-`isolate` stores the data from the NCBI Isolates Browser. All I did was write a 
-model with fields that map to NCBI Isolates Browser's column headers, and then 
+`isolate` stores the data from the NCBI Isolates Browser. I created a model 
+with fields that map to NCBI Isolates Browser's column headers, and then 
 populated the resulting table in Postgres with the mapped data.
 
 **transmission_events**
@@ -62,7 +67,8 @@ using Plotly's table architecture.
 
 <br />
 
-In addition to building these above applications, I also wrote some functional code in `amr-tv/static/base.js` responsible for:
+In addition to building these above applications, I also wrote some functional 
+code in `amr-tv/static/base.js` responsible for:
 
 1. Displaying the rendered plots in the browser
 2. Providing some of the interactivity
