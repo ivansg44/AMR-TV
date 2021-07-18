@@ -1,11 +1,14 @@
 """TODO"""
 
-import dash
+from dash import Dash
+from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import plotly.graph_objects as go
 
-app = dash.Dash(external_stylesheets=[dbc.themes.UNITED])
+import data_parser
+
+app = Dash(external_stylesheets=[dbc.themes.UNITED])
 
 
 def get_main_fig_nodes(marker_size):
@@ -160,20 +163,35 @@ def get_main_fig():
 
 
 app.layout = dbc.Container(
-    children=dbc.Row(
-        children=dbc.Col(
-            children=dcc.Graph(
-                figure=get_main_fig(),
-                id="main-graph",
-                style={"height": "90vh"}
-            ),
-            id="main-col"
-        ),
-        id="main-row"
-    ),
+    children=dcc.Store("first-launch"),
     id="main-container",
     fluid=True
 )
+
+
+@app.callback(
+    output=Output("main-container", "children"),
+    inputs=Input("first-launch", "data")
+)
+def launch_app(_):
+    """TODO"""
+    app_data = data_parser.get_app_data("stub_sample_data.tsv",
+                                        "stub_transmission_data.tsv")
+    return [
+        dbc.Row(
+            children=dbc.Col(
+                children=dcc.Graph(
+                    figure=get_main_fig(),
+                    id="main-graph",
+                    style={"height": "90vh"}
+                ),
+                id="main-col"
+            ),
+            id="main-row"
+        ),
+        dcc.Store(id="app_data", data=app_data)
+    ]
+
 
 if __name__ == "__main__":
     app.run_server(debug=True)
