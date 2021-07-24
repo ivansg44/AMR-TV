@@ -132,8 +132,8 @@ def get_main_fig():
                 "ticktext": [
                     "Oct 2011",
                     "Sep 2012",
-                    "Jun 2012",
-                    "Jul 2012",
+                    "Jun 2013",
+                    "Jul 2013",
                     "Nov 2014",
                     "Dec 2014",
                     "Jan 2015"
