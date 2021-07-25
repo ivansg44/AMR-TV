@@ -64,6 +64,6 @@ def get_main_fig_facet_y(mge_strain_combos_y_vals_dict):
     for mge_strain_combo in mge_strain_combos_y_vals_dict:
         if last_mge_seen is not None and last_mge_seen != mge_strain_combo[0]:
             y_val = mge_strain_combos_y_vals_dict[mge_strain_combo] - 0.5
-            main_fig_facet_y.append(y_val)
+            main_fig_facet_y += [y_val, y_val, None]
         last_mge_seen = mge_strain_combo[0]
     return main_fig_facet_y
