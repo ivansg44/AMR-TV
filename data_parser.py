@@ -12,14 +12,18 @@ def get_app_data(samples_tsv_path, transmissions_tsv_path):
 
     sample_dates_list = \
         [v["sample_date"] for v in samples_data_dict.values()]
+    sorted_sample_dates_tbl = \
+        dict.fromkeys(sorted(sample_dates_list))
     sample_date_x_vals_dict = {
-        e: i+1 for i, e in enumerate(dict.fromkeys(sorted(sample_dates_list)))
+        e: i+1 for i, e in enumerate(sorted_sample_dates_tbl)
     }
 
     mge_strain_combos_list = \
         [(v["mge"], v["strain"]) for v in samples_data_dict.values()]
+    sorted_mge_strain_combos_tbl = \
+        dict.fromkeys(sorted(mge_strain_combos_list))
     mge_strain_combos_y_vals_dict = {
-        e: i+1 for i, e in enumerate(dict.fromkeys(mge_strain_combos_list))
+        e: i+1 for i, e in enumerate(sorted_mge_strain_combos_tbl)
     }
 
     app_data = {
