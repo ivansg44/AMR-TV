@@ -30,7 +30,9 @@ def get_app_data(samples_tsv_path, transmissions_tsv_path):
         "main_fig_nodes_x":
             [sample_date_x_vals_dict[x] for x in sample_dates_list],
         "main_fig_nodes_y":
-            [mge_strain_combos_y_vals_dict[x] for x in mge_strain_combos_list]
+            [mge_strain_combos_y_vals_dict[x] for x in mge_strain_combos_list],
+        "main_fig_facet_y":
+            get_main_fig_facet_y(mge_strain_combos_y_vals_dict)
     }
     return app_data
 
@@ -53,3 +55,15 @@ def get_transmission_data_dict(transmissions_tsv_path):
         for row in reader:
             transmissions_data_dict[row.pop("transmission_id")] = row
     return transmissions_data_dict
+
+
+def get_main_fig_facet_y(mge_strain_combos_y_vals_dict):
+    """TODO"""
+    last_mge_seen = None
+    main_fig_facet_y = []
+    for mge_strain_combo in mge_strain_combos_y_vals_dict:
+        if last_mge_seen is not None and last_mge_seen != mge_strain_combo[0]:
+            y_val = mge_strain_combos_y_vals_dict[mge_strain_combo] - 0.5
+            main_fig_facet_y.append(y_val)
+        last_mge_seen = mge_strain_combo[0]
+    return main_fig_facet_y
