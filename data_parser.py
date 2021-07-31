@@ -34,6 +34,8 @@ def get_app_data(samples_tsv_path, transmissions_tsv_path):
         "main_fig_facet_y":
             get_main_fig_facet_y(mge_strain_combos_y_vals_dict)
     }
+    app_data["main_fig_facet_x"] = get_main_fig_facet_x(app_data)
+
     return app_data
 
 
@@ -67,3 +69,13 @@ def get_main_fig_facet_y(mge_strain_combos_y_vals_dict):
             main_fig_facet_y += [y_val, y_val, None]
         last_mge_seen = mge_strain_combo[0]
     return main_fig_facet_y
+
+
+def get_main_fig_facet_x(app_data):
+    """TODO"""
+    main_fig_facet_x = []
+    line_start = app_data["main_fig_nodes_x"][0] - 0.5
+    line_end = app_data["main_fig_nodes_x"][-1] + 0.5
+    for i in range(0, len(app_data["main_fig_facet_y"]), 3):
+        main_fig_facet_x += [line_start, line_end, None]
+    return main_fig_facet_x
