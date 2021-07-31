@@ -8,7 +8,10 @@ import plotly.graph_objects as go
 
 import data_parser
 
-app = Dash(external_stylesheets=[dbc.themes.UNITED])
+app = Dash(external_stylesheets=[dbc.themes.UNITED],
+           # Fixes bug with debugger in Pycharm. See
+           # https://bit.ly/3j86GL1.
+           name="foo")
 
 
 def get_main_fig_nodes(marker_size):
