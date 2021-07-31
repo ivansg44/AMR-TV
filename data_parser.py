@@ -31,6 +31,10 @@ def get_app_data(samples_tsv_path, transmissions_tsv_path):
             [sample_date_x_vals_dict[x] for x in sample_dates_list],
         "main_fig_nodes_y":
             [mge_strain_combos_y_vals_dict[x] for x in mge_strain_combos_list],
+        "main_fig_edges_x":
+            get_main_fig_edges_x(transmissions_data_dict,
+                                 samples_data_dict,
+                                 sample_date_x_vals_dict),
         "main_fig_facet_y":
             get_main_fig_facet_y(mge_strain_combos_y_vals_dict)
     }
@@ -57,6 +61,22 @@ def get_transmission_data_dict(transmissions_tsv_path):
         for row in reader:
             transmissions_data_dict[row.pop("transmission_id")] = row
     return transmissions_data_dict
+
+
+def get_main_fig_edges_x(transmissions_data_dict, samples_data_dict,
+                         sample_date_x_vals_dict):
+    main_fig_edges_x = []
+    for transmission_id in transmissions_data_dict:
+        sample_one_id = \
+            transmissions_data_dict[transmission_id]["sample_id_one"]
+        sample_two_id = \
+            transmissions_data_dict[transmission_id]["sample_id_two"]
+        sample_one_date = samples_data_dict[sample_one_id]["sample_date"]
+        sample_two_date = samples_data_dict[sample_two_id]["sample_date"]
+        sample_one_x = sample_date_x_vals_dict[sample_one_date]
+        sample_two_x = sample_date_x_vals_dict[sample_two_date]
+        main_fig_edges_x += [sample_one_x, sample_two_x, None]
+    return main_fig_edges_x
 
 
 def get_main_fig_facet_y(mge_strain_combos_y_vals_dict):
