@@ -27,6 +27,12 @@ def get_app_data(samples_tsv_path, transmissions_tsv_path):
     }
 
     app_data = {
+        "main_fig_xaxis_range":
+            [0.5, len(sample_date_x_vals_dict)+0.5],
+        "main_fig_xaxis_tickvals":
+            list(range(1, len(sample_date_x_vals_dict) + 1)),
+        "main_fig_xaxis_ticktext":
+            list(sample_date_x_vals_dict.keys()),
         "main_fig_nodes_x":
             [sample_date_x_vals_dict[x] for x in sample_dates_list],
         "main_fig_nodes_y":
