@@ -35,6 +35,10 @@ def get_app_data(samples_tsv_path, transmissions_tsv_path):
             get_main_fig_edges_x(transmissions_data_dict,
                                  samples_data_dict,
                                  sample_date_x_vals_dict),
+        "main_fig_edges_y":
+            get_main_fig_edges_y(transmissions_data_dict,
+                                 samples_data_dict,
+                                 mge_strain_combos_y_vals_dict),
         "main_fig_facet_y":
             get_main_fig_facet_y(mge_strain_combos_y_vals_dict)
     }
@@ -65,6 +69,7 @@ def get_transmission_data_dict(transmissions_tsv_path):
 
 def get_main_fig_edges_x(transmissions_data_dict, samples_data_dict,
                          sample_date_x_vals_dict):
+    """TODO"""
     main_fig_edges_x = []
     for transmission_id in transmissions_data_dict:
         sample_one_id = \
@@ -77,6 +82,29 @@ def get_main_fig_edges_x(transmissions_data_dict, samples_data_dict,
         sample_two_x = sample_date_x_vals_dict[sample_two_date]
         main_fig_edges_x += [sample_one_x, sample_two_x, None]
     return main_fig_edges_x
+
+
+def get_main_fig_edges_y(transmissions_data_dict, samples_data_dict,
+                         mge_strain_combos_y_vals_dict):
+    """TODO"""
+    main_fig_edges_y = []
+    for transmission_id in transmissions_data_dict:
+        sample_one_id = \
+            transmissions_data_dict[transmission_id]["sample_id_one"]
+        sample_two_id = \
+            transmissions_data_dict[transmission_id]["sample_id_two"]
+        sample_one_mge_strain_combo = \
+            (samples_data_dict[sample_one_id]["mge"],
+             samples_data_dict[sample_one_id]["strain"])
+        sample_two_mge_strain_combo = \
+            (samples_data_dict[sample_two_id]["mge"],
+             samples_data_dict[sample_two_id]["strain"])
+        sample_one_y = \
+            mge_strain_combos_y_vals_dict[sample_one_mge_strain_combo]
+        sample_two_y = \
+            mge_strain_combos_y_vals_dict[sample_two_mge_strain_combo]
+        main_fig_edges_y += [sample_one_y, sample_two_y, None]
+    return main_fig_edges_y
 
 
 def get_main_fig_facet_y(mge_strain_combos_y_vals_dict):
