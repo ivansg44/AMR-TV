@@ -47,6 +47,8 @@ def get_app_data(samples_tsv_path, transmissions_tsv_path):
     app_data["main_fig_facet_x"] = get_main_fig_facet_x(app_data)
     app_data["main_fig_edge_labels_x"] = get_main_fig_edge_labels_x(app_data)
     app_data["main_fig_edge_labels_y"] = get_main_fig_edge_labels_y(app_data)
+    app_data["main_fig_edge_labels_text_pos"] = \
+        get_main_fig_edge_labels_text_pos(app_data)
 
     return app_data
 
@@ -151,3 +153,20 @@ def get_main_fig_edge_labels_y(app_data):
         line_end = app_data["main_fig_edges_y"][i+1]
         main_fig_edge_labels_y.append((line_start + line_end) / 2)
     return main_fig_edge_labels_y
+
+
+def get_main_fig_edge_labels_text_pos(app_data):
+    """TODO"""
+    main_fig_edge_labels_text_pos = []
+    for i in range(0, len(app_data["main_fig_edges_x"]), 3):
+        x_line_diff = \
+            app_data["main_fig_edges_x"][i] - app_data["main_fig_edges_x"][i+1]
+        y_line_diff = \
+            app_data["main_fig_edges_y"][i] - app_data["main_fig_edges_y"][i+1]
+        if x_line_diff and y_line_diff:
+            main_fig_edge_labels_text_pos.append("top right")
+        elif x_line_diff and not y_line_diff:
+            main_fig_edge_labels_text_pos.append("top center")
+        elif not x_line_diff and y_line_diff:
+            main_fig_edge_labels_text_pos.append("middle right")
+    return main_fig_edge_labels_text_pos
