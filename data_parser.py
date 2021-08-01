@@ -39,6 +39,8 @@ def get_app_data(samples_tsv_path, transmissions_tsv_path):
             get_main_fig_edges_y(transmissions_data_dict,
                                  samples_data_dict,
                                  mge_strain_combos_y_vals_dict),
+        "main_fig_edge_labels_text":
+            [v["notes"] for v in transmissions_data_dict.values()],
         "main_fig_facet_y":
             get_main_fig_facet_y(mge_strain_combos_y_vals_dict)
     }
