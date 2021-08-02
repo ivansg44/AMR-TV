@@ -60,8 +60,8 @@ def get_app_data(samples_tsv_path, transmissions_tsv_path):
     app_data["main_fig_facet_x"] = get_main_fig_facet_x(app_data)
     app_data["main_fig_edge_labels_x"] = get_main_fig_edge_labels_x(app_data)
     app_data["main_fig_edge_labels_y"] = get_main_fig_edge_labels_y(app_data)
-    app_data["main_fig_edge_labels_text_pos"] = \
-        get_main_fig_edge_labels_text_pos(app_data)
+    app_data["main_fig_edge_labels_textposition"] = \
+        get_main_fig_edge_labels_textposition(app_data)
 
     return app_data
 
@@ -87,6 +87,7 @@ def get_transmission_data_dict(transmissions_tsv_path):
 
 
 def get_main_fig_yaxis_tickvals(mge_highest_y_vals_dict):
+    """TODO"""
     main_fig_yaxis_tickvals = []
     lowest_y = 1
     for highest_y in mge_highest_y_vals_dict.values():
@@ -173,7 +174,7 @@ def get_main_fig_edge_labels_y(app_data):
     return main_fig_edge_labels_y
 
 
-def get_main_fig_edge_labels_text_pos(app_data):
+def get_main_fig_edge_labels_textposition(app_data):
     """TODO"""
     main_fig_edge_labels_text_pos = []
     for i in range(0, len(app_data["main_fig_edges_x"]), 3):
