@@ -14,13 +14,11 @@ app = Dash(external_stylesheets=[dbc.themes.UNITED],
            name="foo")
 
 
-def get_main_fig_nodes(marker_size):
+def get_main_fig_nodes(app_data, marker_size=60):
     """TODO"""
-    x = [1, 2, 3, 4, 5, 5, 5, 6, 7]
-    y = [7, 7, 5, 3, 5, 4, 1, 4, 3]
     nodes = go.Scatter(
-        x=x,
-        y=y,
+        x=app_data["main_fig_nodes_x"],
+        y=app_data["main_fig_nodes_y"],
         mode="markers+text",
         marker={
             "size": marker_size,
@@ -39,25 +37,11 @@ def get_main_fig_nodes(marker_size):
     return nodes
 
 
-def get_main_fig_edges():
+def get_main_fig_edges(app_data):
     """TODO"""
-    x = [1, 2, None,
-         3, 4, None,
-         3, 5, None,
-         3, 5, None,
-         4, 7, None,
-         5, 5, None,
-         5, 6, None]
-    y = [7, 7, None,
-         5, 3, None,
-         5, 5, None,
-         5, 4, None,
-         3, 3, None,
-         5, 4, None,
-         4, 4, None]
     edges = go.Scatter(
-        x=x,
-        y=y,
+        x=app_data["main_fig_edges_x"],
+        y=app_data["main_fig_edges_y"],
         mode="lines",
         line={
             "width": 1,
@@ -67,32 +51,14 @@ def get_main_fig_edges():
     return edges
 
 
-def get_main_fig_edge_labels():
+def get_main_fig_edge_labels(app_data):
     """TODO"""
-    x = [1.5, 3.5, 4, 4, 5.5, 5, 5.5]
-    y = [7, 4, 5, 4.5, 3, 4.5, 4]
     edges = go.Scatter(
-        x=x,
-        y=y,
+        x=app_data["main_fig_edge_labels_x"],
+        y=app_data["main_fig_edge_labels_y"],
         mode="text",
-        text=[
-            "4 SNVs",
-            "pRFLPA1",
-            "3 SNVs",
-            "OR",
-            "6 SNVs<br>pRFLPA1",
-            "pRFLPA1",
-            "38 SNVs<br>pRFLPA1"
-        ],
-        textposition=[
-            "top center",
-            "top right",
-            "top center",
-            "top right",
-            "top center",
-            "middle right",
-            "top center",
-        ],
+        text=app_data["main_fig_edge_labels_text"],
+        textposition=app_data["main_fig_edge_labels_textposition"],
         textfont={
             "size": 16
         },
@@ -100,13 +66,11 @@ def get_main_fig_edge_labels():
     return edges
 
 
-def get_main_fig_y_axis_facet_lines():
+def get_main_fig_facet_lines(app_data):
     """TODO"""
     lines = go.Scatter(
-        x=[0.5, 7.5, None,
-           0.5, 7.5, None],
-        y=[2, 2, None,
-           6, 6, None],
+        x=app_data["main_fig_facet_x"],
+        y=app_data["main_fig_facet_y"],
         mode="lines",
         line={
             "color": "grey"
@@ -115,32 +79,23 @@ def get_main_fig_y_axis_facet_lines():
     return lines
 
 
-def get_main_fig():
+def get_main_fig(app_data):
     """TODO"""
     fig = go.Figure(
-        data=[get_main_fig_edges(),
-              get_main_fig_edge_labels(),
-              get_main_fig_nodes(60),
-              get_main_fig_y_axis_facet_lines()],
+        data=[get_main_fig_edges(app_data),
+              get_main_fig_edge_labels(app_data),
+              get_main_fig_nodes(app_data),
+              get_main_fig_facet_lines(app_data)],
         layout={
             "margin": {
                 "l": 0, "r": 0, "t": 0, "b": 0
             },
             "showlegend": False,
             "xaxis": {
-                "range": [0.5, 7.5],
+                "range": app_data["main_fig_xaxis_range"],
                 "tickmode": "array",
-                "tickvals": list(range(1, 8)),
-                # TODO use dates with days so no x values are shared
-                "ticktext": [
-                    "Oct 2011",
-                    "Sep 2012",
-                    "Jun 2013",
-                    "Jul 2013",
-                    "Nov 2014",
-                    "Dec 2014",
-                    "Jan 2015"
-                ],
+                "tickvals": app_data["main_fig_xaxis_tickvals"],
+                "ticktext": app_data["main_fig_xaxis_ticktext"],
                 "tickfont": {
                     "size": 16
                 },
@@ -148,12 +103,8 @@ def get_main_fig():
             },
             "yaxis": {
                 "tickmode": "array",
-                "tickvals": [1, 4, 7],
-                "ticktext": [
-                    "Tn4401<br>Tn4401b-1<br>IncP,L/M",
-                    "Tn4401<br>Tn4401b-2<br>IncN",
-                    "Tn4401<br>Tn4401a-1<br>IncFll(k)"
-                ],
+                "tickvals": app_data["main_fig_yaxis_tickvals"],
+                "ticktext": app_data["main_fig_yaxis_ticktext"],
                 "tickfont": {
                     "size": 16
                 },
@@ -184,7 +135,7 @@ def launch_app(_):
         dbc.Row(
             children=dbc.Col(
                 children=dcc.Graph(
-                    figure=get_main_fig(),
+                    figure=get_main_fig(app_data),
                     id="main-graph",
                     style={"height": "90vh"}
                 ),
