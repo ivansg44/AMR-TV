@@ -38,6 +38,8 @@ def get_app_data(samples_tsv_path, transmissions_tsv_path):
             list(sample_date_x_vals_dict.keys()),
         "main_fig_yaxis_tickvals":
             get_main_fig_yaxis_tickvals(mge_highest_y_vals_dict),
+        "main_fig_yaxis_ticktext":
+            [mge for mge in mge_highest_y_vals_dict],
         "main_fig_nodes_x":
             [sample_date_x_vals_dict[x] for x in sample_dates_list],
         "main_fig_nodes_y":
