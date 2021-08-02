@@ -25,6 +25,9 @@ def get_app_data(samples_tsv_path, transmissions_tsv_path):
     mge_strain_combos_y_vals_dict = {
         e: i+1 for i, e in enumerate(sorted_mge_strain_combos_tbl)
     }
+    mge_highest_y_vals_dict = {
+        mge: v for (mge, _), v in mge_strain_combos_y_vals_dict.items()
+    }
 
     app_data = {
         "main_fig_xaxis_range":
@@ -48,7 +51,7 @@ def get_app_data(samples_tsv_path, transmissions_tsv_path):
         "main_fig_edge_labels_text":
             [v["notes"] for v in transmissions_data_dict.values()],
         "main_fig_facet_y":
-            get_main_fig_facet_y(mge_strain_combos_y_vals_dict)
+            get_main_fig_facet_y(mge_highest_y_vals_dict)
     }
     app_data["main_fig_facet_x"] = get_main_fig_facet_x(app_data)
     app_data["main_fig_edge_labels_x"] = get_main_fig_edge_labels_x(app_data)
@@ -119,15 +122,11 @@ def get_main_fig_edges_y(transmissions_data_dict, samples_data_dict,
     return main_fig_edges_y
 
 
-def get_main_fig_facet_y(mge_strain_combos_y_vals_dict):
+def get_main_fig_facet_y(mge_highest_y_vals_dict):
     """TODO"""
-    last_mge_seen = None
     main_fig_facet_y = []
-    for mge_strain_combo in mge_strain_combos_y_vals_dict:
-        if last_mge_seen is not None and last_mge_seen != mge_strain_combo[0]:
-            y_val = mge_strain_combos_y_vals_dict[mge_strain_combo] - 0.5
-            main_fig_facet_y += [y_val, y_val, None]
-        last_mge_seen = mge_strain_combo[0]
+    for facet_y in [y + 0.5 for y in mge_highest_y_vals_dict.values()][:-1]:
+        main_fig_facet_y += [facet_y, facet_y, None]
     return main_fig_facet_y
 
 
