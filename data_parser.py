@@ -182,7 +182,9 @@ def get_main_fig_edge_labels_textposition(app_data):
             app_data["main_fig_edges_x"][i] - app_data["main_fig_edges_x"][i+1]
         y_line_diff = \
             app_data["main_fig_edges_y"][i] - app_data["main_fig_edges_y"][i+1]
-        if x_line_diff and y_line_diff:
+        if x_line_diff and y_line_diff < 0:
+            main_fig_edge_labels_text_pos.append("bottom right")
+        if x_line_diff and y_line_diff > 0:
             main_fig_edge_labels_text_pos.append("top right")
         elif x_line_diff and not y_line_diff:
             main_fig_edge_labels_text_pos.append("top center")
