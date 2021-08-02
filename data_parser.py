@@ -36,6 +36,8 @@ def get_app_data(samples_tsv_path, transmissions_tsv_path):
             list(range(1, len(sample_date_x_vals_dict) + 1)),
         "main_fig_xaxis_ticktext":
             list(sample_date_x_vals_dict.keys()),
+        "main_fig_yaxis_tickvals":
+            get_main_fig_yaxis_tickvals(mge_highest_y_vals_dict),
         "main_fig_nodes_x":
             [sample_date_x_vals_dict[x] for x in sample_dates_list],
         "main_fig_nodes_y":
@@ -80,6 +82,15 @@ def get_transmission_data_dict(transmissions_tsv_path):
         for row in reader:
             transmissions_data_dict[row.pop("transmission_id")] = row
     return transmissions_data_dict
+
+
+def get_main_fig_yaxis_tickvals(mge_highest_y_vals_dict):
+    main_fig_yaxis_tickvals = []
+    lowest_y = 1
+    for highest_y in mge_highest_y_vals_dict.values():
+        main_fig_yaxis_tickvals.append((highest_y + lowest_y) / 2)
+        lowest_y = highest_y + 1
+    return main_fig_yaxis_tickvals
 
 
 def get_main_fig_edges_x(transmissions_data_dict, samples_data_dict,
