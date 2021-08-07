@@ -44,6 +44,8 @@ def get_app_data(samples_tsv_path, transmissions_tsv_path):
             [sample_date_x_vals_dict[x] for x in sample_dates_list],
         "main_fig_nodes_y":
             [mge_strain_combos_y_vals_dict[x] for x in mge_strain_combos_list],
+        "main_fig_nodes_text":
+            [v["strain"] for v in samples_data_dict.values()],
         "main_fig_edges_x":
             get_main_fig_edges_x(transmissions_data_dict,
                                  samples_data_dict,

@@ -29,7 +29,7 @@ def get_main_fig_nodes(app_data, marker_size=60):
                 "color": "black"
             }
         },
-        text="ST1846<br>ST1846",
+        text=app_data["main_fig_nodes_text"],
         textfont={
             "size": 16
         }
