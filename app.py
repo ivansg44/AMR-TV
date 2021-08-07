@@ -93,6 +93,7 @@ def get_main_fig(app_data):
             "showlegend": False,
             "xaxis": {
                 "range": app_data["main_fig_xaxis_range"],
+                "fixedrange": True,
                 "tickmode": "array",
                 "tickvals": app_data["main_fig_xaxis_tickvals"],
                 "ticktext": app_data["main_fig_xaxis_ticktext"],
@@ -102,6 +103,7 @@ def get_main_fig(app_data):
                 "linecolor": "black"
             },
             "yaxis": {
+                "fixedrange": True,
                 "tickmode": "array",
                 "tickvals": app_data["main_fig_yaxis_tickvals"],
                 "ticktext": app_data["main_fig_yaxis_ticktext"],
@@ -137,6 +139,7 @@ def launch_app(_):
                 children=dcc.Graph(
                     figure=get_main_fig(app_data),
                     id="main-graph",
+                    config={"displayModeBar": False},
                     style={"height": "90vh"}
                 ),
                 id="main-col"
