@@ -47,6 +47,8 @@ def get_app_data(samples_tsv_path, transmissions_tsv_path):
         "main_fig_nodes_text": [
             v["strain"]+"<br>"+v["notes"] for v in samples_data_dict.values()
         ],
+        "main_fig_nodes_marker_color":
+            get_main_fig_nodes_marker_color(samples_data_dict),
         "main_fig_edges_x":
             get_main_fig_edges_x(transmissions_data_dict,
                                  samples_data_dict,
@@ -97,6 +99,29 @@ def get_main_fig_yaxis_tickvals(mge_highest_y_vals_dict):
         main_fig_yaxis_tickvals.append((highest_y + lowest_y) / 2)
         lowest_y = highest_y + 1
     return main_fig_yaxis_tickvals
+
+
+def get_main_fig_nodes_marker_color(samples_data_dict):
+    """TODO"""
+    color_opts = ["#8dd3c7",
+                  "#ffffb3",
+                  "#bebada",
+                  "#fb8072",
+                  "#80b1d3",
+                  "#fdb462",
+                  "#b3de69",
+                  "#fccde5",
+                  "#d9d9d9",
+                  "#bc80bd",
+                  "#ccebc5",
+                  "#ffed6f"]
+    sample_species = [v["species"] for v in samples_data_dict.values()]
+    species_tbl = dict.fromkeys(sample_species)
+    species_color_dict = \
+        {species: color for species, color in zip(species_tbl, color_opts)}
+    main_fig_nodes_marker_color = \
+        [species_color_dict[x] for x in sample_species]
+    return main_fig_nodes_marker_color
 
 
 def get_main_fig_edges_x(transmissions_data_dict, samples_data_dict,

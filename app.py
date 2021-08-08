@@ -22,8 +22,8 @@ def get_main_fig_nodes(app_data, marker_size=60):
         mode="markers+text",
         marker={
             "size": marker_size,
-            "symbol": "square",
-            "color": "white",
+            "symbol": ["square" for _ in app_data["main_fig_nodes_x"]],
+            "color": app_data["main_fig_nodes_marker_color"],
             "line": {
                 "width": 2,
                 "color": "black"
