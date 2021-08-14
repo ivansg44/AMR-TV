@@ -29,7 +29,11 @@ def get_app_data(samples_tsv_path, transmissions_tsv_path):
         mge: v for (mge, _), v in mge_strain_combos_y_vals_dict.items()
     }
 
+    sample_species = [v["species"] for v in samples_data_dict.values()]
+    species_color_dict = get_species_color_dict(sample_species)
+
     app_data = {
+        "species_color_dict": species_color_dict,
         "main_fig_xaxis_range":
             [0.5, len(sample_date_x_vals_dict)+0.5],
         "main_fig_xaxis_tickvals":
@@ -48,7 +52,7 @@ def get_app_data(samples_tsv_path, transmissions_tsv_path):
             v["strain"]+"<br>"+v["notes"] for v in samples_data_dict.values()
         ],
         "main_fig_nodes_marker_color":
-            get_main_fig_nodes_marker_color(samples_data_dict),
+            [species_color_dict[x] for x in sample_species],
         "main_fig_edges_x":
             get_main_fig_edges_x(transmissions_data_dict,
                                  samples_data_dict,
@@ -91,17 +95,7 @@ def get_transmission_data_dict(transmissions_tsv_path):
     return transmissions_data_dict
 
 
-def get_main_fig_yaxis_tickvals(mge_highest_y_vals_dict):
-    """TODO"""
-    main_fig_yaxis_tickvals = []
-    lowest_y = 1
-    for highest_y in mge_highest_y_vals_dict.values():
-        main_fig_yaxis_tickvals.append((highest_y + lowest_y) / 2)
-        lowest_y = highest_y + 1
-    return main_fig_yaxis_tickvals
-
-
-def get_main_fig_nodes_marker_color(samples_data_dict):
+def get_species_color_dict(sample_species):
     """TODO"""
     color_opts = ["#8dd3c7",
                   "#ffffb3",
@@ -115,13 +109,20 @@ def get_main_fig_nodes_marker_color(samples_data_dict):
                   "#bc80bd",
                   "#ccebc5",
                   "#ffed6f"]
-    sample_species = [v["species"] for v in samples_data_dict.values()]
     species_tbl = dict.fromkeys(sample_species)
     species_color_dict = \
         {species: color for species, color in zip(species_tbl, color_opts)}
-    main_fig_nodes_marker_color = \
-        [species_color_dict[x] for x in sample_species]
-    return main_fig_nodes_marker_color
+    return species_color_dict
+
+
+def get_main_fig_yaxis_tickvals(mge_highest_y_vals_dict):
+    """TODO"""
+    main_fig_yaxis_tickvals = []
+    lowest_y = 1
+    for highest_y in mge_highest_y_vals_dict.values():
+        main_fig_yaxis_tickvals.append((highest_y + lowest_y) / 2)
+        lowest_y = highest_y + 1
+    return main_fig_yaxis_tickvals
 
 
 def get_main_fig_edges_x(transmissions_data_dict, samples_data_dict,

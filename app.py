@@ -4,6 +4,7 @@ from dash import Dash
 from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
+import dash_html_components as html
 import plotly.graph_objects as go
 
 import data_parser
@@ -118,6 +119,22 @@ def get_main_fig(app_data):
     return fig
 
 
+def get_main_fig_legend_cols(sample_species_dict):
+    """TODO"""
+    main_fig_legend_cols = []
+    for species, color in sample_species_dict.items():
+        main_fig_legend_cols.append(
+            dbc.Col(
+                html.I(species),
+                style={
+                    "backgroundColor": color,
+                    "textAlign": "center"
+                }
+            )
+        )
+    return main_fig_legend_cols
+
+
 app.layout = dbc.Container(
     children=dcc.Store("first-launch"),
     id="main-container",
@@ -134,6 +151,9 @@ def launch_app(_):
     app_data = data_parser.get_app_data("stub_sample_data.tsv",
                                         "stub_transmission_data.tsv")
     return [
+        dbc.Row(
+            children=get_main_fig_legend_cols(app_data["species_color_dict"])
+        ),
         dbc.Row(
             children=dbc.Col(
                 children=dcc.Graph(
