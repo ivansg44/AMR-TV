@@ -1,10 +1,33 @@
-"""TODO"""
+"""Parse data used by application for generating viz.
+
+Currently using stub data in convenient format.
+"""
 
 import csv
 
 
 def get_app_data(samples_tsv_path, transmissions_tsv_path):
-    """TODO"""
+    """Parse sample and transmission data to be vized.
+
+    The philosophy of this fn is to provide data that is ready to be
+    "plugged in". i.e., we parse and format the data in such way that
+    the amount of data manipulation required downstream by modules
+    dedicated to generating the actual viz is minimized. This means the
+    object returned by this fn may not be easily understood by humans
+    if you exported it as a stand-alone JSON file.
+
+    The format of ``samples_tsv_path`` and ``transmissions_tsv_path``
+    is not described in this docstring, because we have not decided on
+    the final data format to be fed into this application.
+
+    :param samples_tsv_path: Path to tsv file describing sample data
+    :type samples_tsv_path: str
+    :param transmissions_tsv_path: Path to tsv file describing
+        transmission data.
+    :type transmissions_tsv_path: str
+    :return: Sample and transmission data used to generate app viz
+    :rtype: dict
+    """
     samples_data_dict = \
         get_samples_data_dict(samples_tsv_path)
     transmissions_data_dict = \
@@ -12,19 +35,24 @@ def get_app_data(samples_tsv_path, transmissions_tsv_path):
 
     sample_dates_list = \
         [v["sample_date"] for v in samples_data_dict.values()]
-    sorted_sample_dates_tbl = \
-        dict.fromkeys(sorted(sample_dates_list))
+    # Delete duplicates while maintaining order
+    sorted_sample_dates_tbl = dict.fromkeys(sorted(sample_dates_list))
+    # Assign positive int x-vals to unique sample dates
     sample_date_x_vals_dict = {
         e: i+1 for i, e in enumerate(sorted_sample_dates_tbl)
     }
 
+    # MGE and strain of each sample
     mge_strain_combos_list = \
         [(v["mge"], v["strain"]) for v in samples_data_dict.values()]
+    # Delete duplicates while maintaining order
     sorted_mge_strain_combos_tbl = \
         dict.fromkeys(sorted(mge_strain_combos_list))
+    # Assign positive int y-vals to unique mge strain combos
     mge_strain_combos_y_vals_dict = {
         e: i+1 for i, e in enumerate(sorted_mge_strain_combos_tbl)
     }
+    # Highest y-val for each mge across all its mge strain combos
     mge_highest_y_vals_dict = {
         mge: v for (mge, _), v in mge_strain_combos_y_vals_dict.items()
     }
