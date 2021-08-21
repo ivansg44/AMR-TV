@@ -6,7 +6,15 @@ import plotly.graph_objects as go
 
 
 def get_main_fig_nodes(app_data, marker_size=60):
-    """TODO"""
+    """Get main fig nodes graph obj.
+
+    :param app_data: See ``get_app_data``
+    :type app_data: dict
+    :param marker_size: Size of markers in px
+    :type marker_size: int
+    :return: Plotly scatter obj representing main fig nodes
+    :rtype: go.Scatter
+    """
     nodes = go.Scatter(
         x=app_data["main_fig_nodes_x"],
         y=app_data["main_fig_nodes_y"],
@@ -29,7 +37,13 @@ def get_main_fig_nodes(app_data, marker_size=60):
 
 
 def get_main_fig_edges(app_data):
-    """TODO"""
+    """Get main fig edges graph obj.
+
+    :param app_data: See ``get_app_data``
+    :type app_data: dict
+    :return: Plotly scatter obj representing main fig edges
+    :rtype: go.Scatter
+    """
     edges = go.Scatter(
         x=app_data["main_fig_edges_x"],
         y=app_data["main_fig_edges_y"],
@@ -43,7 +57,13 @@ def get_main_fig_edges(app_data):
 
 
 def get_main_fig_edge_labels(app_data):
-    """TODO"""
+    """Get main fig edge labels graph obj.
+
+    :param app_data: See ``get_app_data``
+    :type app_data: dict
+    :return: Plotly scatter obj representing main fig edge labels
+    :rtype: go.Scatter
+    """
     edges = go.Scatter(
         x=app_data["main_fig_edge_labels_x"],
         y=app_data["main_fig_edge_labels_y"],
@@ -58,7 +78,15 @@ def get_main_fig_edge_labels(app_data):
 
 
 def get_main_fig_facet_lines(app_data):
-    """TODO"""
+    """Get main fig facet lines.
+
+    Facet lines divide the main fig into sections for each mge.
+
+    :param app_data: See ``get_app_data``
+    :type app_data: dict
+    :return: Plotly scatter obj representing main fig facet lines
+    :rtype: go.Scatter
+    """
     lines = go.Scatter(
         x=app_data["main_fig_facet_x"],
         y=app_data["main_fig_facet_y"],
@@ -71,7 +99,15 @@ def get_main_fig_facet_lines(app_data):
 
 
 def get_main_fig(app_data):
-    """TODO"""
+    """Get main fig plot.
+
+    This consists of a figure overlayed with multiple scatter plots.
+
+    :param app_data: See ``get_app_data``
+    :type app_data: dict
+    :return: Plotly figure representing main fig plot
+    :rtype: go.Figure
+    """
     fig = go.Figure(
         data=[get_main_fig_edges(app_data),
               get_main_fig_edge_labels(app_data),
@@ -110,7 +146,16 @@ def get_main_fig(app_data):
 
 
 def get_main_fig_legend_cols(sample_species_dict):
-    """TODO"""
+    """Get cols encoding main fig species legend.
+
+    This is just a list of bootstrap columns of different background
+    colors.
+
+    :param sample_species_dict: See ``get_species_color_dict``
+    :type sample_species_dict: dict
+    :return: List of bootstrap columns encoding main fig species legend
+    :rtype: list[dbc.Col]
+    """
     main_fig_legend_cols = []
     for species, color in sample_species_dict.items():
         main_fig_legend_cols.append(
