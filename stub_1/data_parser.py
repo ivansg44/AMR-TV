@@ -1,3 +1,4 @@
+from collections import Counter
 import csv
 from datetime import datetime
 
@@ -29,7 +30,7 @@ def get_app_data(sample_csv_path):
         "main_fig_nodes_x":
             [date_x_vals_dict[e] for e in date_list],
         "main_fig_nodes_y":
-            [location_y_vals_dict[e] for e in location_list]
+            stagger_indices([location_y_vals_dict[e] for e in location_list])
     }
 
     return app_data
@@ -65,3 +66,14 @@ def get_sample_data_dict(sample_csv_path):
                 "predicted_mobility": row["PredictedMobility"]
             }
     return sample_data_dict
+
+
+def stagger_indices(index_list):
+    helper_obj = {k: [1/(v+1), 1] for k, v in Counter(index_list).items()}
+    staggered_list = []
+    for i in index_list:
+        start = i-0.5
+        staggered_i = start + (helper_obj[i][0] * helper_obj[i][1])
+        helper_obj[i][1] += 1
+        staggered_list.append(staggered_i)
+    return staggered_list
