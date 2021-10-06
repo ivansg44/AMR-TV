@@ -15,7 +15,24 @@ def get_app_data(sample_csv_path):
         e: i+1 for i, e in enumerate(dict.fromkeys(sorted(location_list)))
     }
 
-    return {}
+    app_data = {
+        "main_fig_xaxis_range":
+            [0.5, len(date_x_vals_dict) + 0.5],
+        "main_fig_xaxis_tickvals":
+            list(range(1, len(date_x_vals_dict) + 1)),
+        "main_fig_xaxis_ticktext":
+            list(date_x_vals_dict.keys()),
+        "main_fig_yaxis_tickvals":
+            list(range(1, len(location_y_vals_dict) + 1)),
+        "main_fig_yaxis_ticktext":
+            list(location_y_vals_dict.keys()),
+        "main_fig_nodes_x":
+            [date_x_vals_dict[e] for e in date_list],
+        "main_fig_nodes_y":
+            [location_y_vals_dict[e] for e in location_list]
+    }
+
+    return app_data
 
 
 def get_sample_data_dict(sample_csv_path):
