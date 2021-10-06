@@ -1,0 +1,20 @@
+different node color,separate node,track,,Different node shape,Edge Color #1,Edge Color #2,unique combination would be 1 category Edge Color #3,Edge Color #4,combined with left flanks,,Edge color #5,Edge Color 6,,,,pop up
+Patient ID,Sample ID / Isolate,Location,Date of collection,Organism,F1: MLST type,Resitance gene type,SNPs_homozygous,Left_flanks,Right_flanks,KPC3 found on,mash_neighbor_cluster,rep_type(s),relaxase_type(s),mpf_type,orit_type(s),PredictedMobility
+B,BC21A475A,Hospital 1,June 2021,Enterobacter cloacae,719,KPC-3,C8015T,GTTCT,GTTCT,plasmid,840,IncP,"MOBP,MOBH",MPF_T,-,Conjugative
+C,,,,,,,,,,,,,,,,
+D,BC21A494A,Hospital 1,July 2021,Citrobacter freundii,-,KPC-3,C8015T,GTTCT,GTTCT,plasmid,1574,IncN,MOBF,MPF_T,MOBF,Conjugative
+A,BC21A497A,Hospital 2,July 2021,Klebsiella sp. FDAARGOS_511,-,KPC-3,C8015T|A8208T,GTTCT,GTTCT,plasmid,1575,-,-,-,-,Non-mobilizable
+A,BC21A498A,Hospital 2,July 2021,Klebsiella sp. FDAARGOS_511,-,KPC-3,C8015T|A8208T,GTTCT,GTTCT,plasmid,1575,-,-,-,-,Non-mobilizable
+E,BC21A515A,Hospital 1,August 2021,Enterobacter cloacae,-,KPC-3/OXA-9,C8015T,GTTCT,GTTCT,plasmid,934,-,-,-,-,Non-mobilizable
+F,,,,,,,,,,,,,,,,
+G,BC21A516A,Hospital 3,September 2021,Citrobacter freundii,22,KPC-3,C8015T,AGTAG,AGTAG,plasmid,1575,-,-,-,-,Non-mobilizable
+H,BC21A230A,Hospital 3,September 2021,Klebsiella sp.,-,KPC-3,C8015T,GTTCT,GTTCT,plasmid,1575,-,-,-,-,Non-mobilizable
+I,BC21A288A,Hospital 3,September 2021,Klebsiella aerogenes,-,KPC-3,C8015T,GTTCT,GTTCT,plasmid,1575,-,-,-,-,Non-mobilizable
+J,BC21A291A,Hospital 3,September 2021,Klebsiella variicola,2008,KPC-3,C8015T,GTTCT,GTTCT,plasmid,1575,-,-,-,-,Non-mobilizable
+Environmental,BC19A658A,Hospital 1,March 2019,Enterobacter cloacae,719,KPC-3,C8015T|A8208T,GTTCT,GTTCT,plasmid,840,IncP,"MOBP,MOBH",MPF_T,-,Conjugative
+Environmental,BC19A659A,Hospital 1,March 2019,Enterobacter cloacae,719,KPC-3,C8015T|A8208T,GTTCT,GTTCT,plasmid,840,IncP,"MOBP,MOBH",MPF_T,-,Conjugative
+Environmental,BC19A660A,Hospital 1,May 2019,Enterobacter cloacae,719,KPC-3,C8015T,GTTCT,GTTCT,plasmid,840,IncP,"MOBP,MOBH",MPF_T,-,Conjugative
+Environmental,BC19A661A,Hospital 1,June 2019,Enterobacter cloacae,719,KPC-3,C8015T|A8208T,GTTCT,GTTCT,plasmid,840,IncP,"MOBP,MOBH",MPF_T,-,Conjugative
+Environmental,BC21A022A,Hospital 1,March 2021,Enterobacter cloacae,719,KPC-3,C8015T,AGTAG,AGTAG,plasmid,840,IncP,"MOBP,MOBH",MPF_T,-,Conjugative
+H,BC19A642A,Hospital 1,July 2021,Enterobacter cloacae,719,KPC-3,C8015T|A8208T,GTTCT,GTTCT,plasmid,840,IncP,"MOBP,MOBH",MPF_T,-,Conjugative
+I,BC20A785A,Hospital 1,July 2021,Enterobacter cloacae,719,KPC-3,C8015T|A8208T,GTTCT,GTTCT,plasmid,840,IncP,"MOBP,MOBH",MPF_T,-,Conjugative
