@@ -3,7 +3,8 @@ from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 
-import data_parser
+from data_parser import get_app_data
+from main_fig_generator import get_main_fig
 
 app = Dash(
     external_stylesheets=[dbc.themes.UNITED],
@@ -26,8 +27,22 @@ app.layout = dbc.Container(
 )
 def launch_app(_):
     """Populate empty container after launch."""
-    app_data = data_parser.get_app_data("sample_data.csv")
-    return []
+    app_data = get_app_data("sample_data.csv")
+    return [
+        dbc.Row(
+            children=dbc.Col(
+                children=dcc.Graph(
+                    figure=get_main_fig(app_data),
+                    id="main-graph",
+                    config={"displayModeBar": False},
+                    style={"height": "90vh"}
+                ),
+                id="main-col"
+            ),
+            id="main-row"
+        ),
+        dcc.Store(id="app_data", data=app_data)
+    ]
 
 
 if __name__ == "__main__":
