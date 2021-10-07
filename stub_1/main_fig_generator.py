@@ -10,10 +10,23 @@ def get_main_fig_nodes(app_data):
     return nodes
 
 
+def get_main_fig_facet_lines(app_data):
+    lines = go.Scatter(
+        x=app_data["main_fig_facet_x"],
+        y=app_data["main_fig_facet_y"],
+        mode="lines",
+        line={
+            "color": "grey"
+        }
+    )
+    return lines
+
+
 def get_main_fig(app_data):
     fig = go.Figure(
         data=[
-            get_main_fig_nodes(app_data)
+            get_main_fig_nodes(app_data),
+            get_main_fig_facet_lines(app_data)
         ],
         layout={
             "margin": {
@@ -32,6 +45,7 @@ def get_main_fig(app_data):
                 "linecolor": "black"
             },
             "yaxis": {
+                "range": app_data["main_fig_yaxis_range"],
                 "fixedrange": True,
                 "tickmode": "array",
                 "tickvals": app_data["main_fig_yaxis_tickvals"],

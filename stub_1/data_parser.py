@@ -19,6 +19,8 @@ def get_app_data(sample_csv_path):
     app_data = {
         "main_fig_xaxis_range":
             [0.5, len(date_x_vals_dict) + 0.5],
+        "main_fig_yaxis_range":
+            [0.5, len(location_y_vals_dict) + 0.5],
         "main_fig_xaxis_tickvals":
             list(range(1, len(date_x_vals_dict) + 1)),
         "main_fig_xaxis_ticktext":
@@ -32,6 +34,12 @@ def get_app_data(sample_csv_path):
         "main_fig_nodes_y":
             stagger_indices([location_y_vals_dict[e] for e in location_list])
     }
+
+    num_of_facets = len(app_data["main_fig_yaxis_tickvals"]) - 1
+    app_data["main_fig_facet_y"] =\
+        get_main_fig_facet_y(num_of_facets)
+    app_data["main_fig_facet_x"] =\
+        get_main_fig_facet_x(app_data["main_fig_xaxis_range"], num_of_facets)
 
     return app_data
 
@@ -77,3 +85,18 @@ def stagger_indices(index_list):
         helper_obj[i][1] += 1
         staggered_list.append(staggered_i)
     return staggered_list
+
+
+def get_main_fig_facet_x(main_fig_xaxis_range, num_of_facets):
+    main_fig_facet_x = []
+    [xmin, xmax] = main_fig_xaxis_range
+    for i in range(0, num_of_facets):
+        main_fig_facet_x += [xmin, xmax, None]
+    return main_fig_facet_x
+
+
+def get_main_fig_facet_y(num_of_facets):
+    main_fig_facet_y = []
+    for i in range(0, num_of_facets):
+        main_fig_facet_y += [i+1.5, i+1.5, None]
+    return main_fig_facet_y
