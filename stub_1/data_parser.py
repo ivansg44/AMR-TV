@@ -16,6 +16,9 @@ def get_app_data(sample_csv_path):
         e: i+1 for i, e in enumerate(dict.fromkeys(sorted(location_list)))
     }
 
+    organism_list = [v["organism"] for v in sample_data_dict.values()]
+    organism_symbol_dict = get_organism_symbol_dict(organism_list)
+
     app_data = {
         "main_fig_xaxis_range":
             [0.5, len(date_x_vals_dict) + 0.5],
@@ -32,7 +35,9 @@ def get_app_data(sample_csv_path):
         "main_fig_nodes_x":
             [date_x_vals_dict[e] for e in date_list],
         "main_fig_nodes_y":
-            stagger_indices([location_y_vals_dict[e] for e in location_list])
+            stagger_indices([location_y_vals_dict[e] for e in location_list]),
+        "main_fig_nodes_marker_symbol":
+            [organism_symbol_dict[v] for v in organism_list]
     }
 
     num_of_facets = len(app_data["main_fig_yaxis_tickvals"]) - 1
@@ -74,6 +79,25 @@ def get_sample_data_dict(sample_csv_path):
                 "predicted_mobility": row["PredictedMobility"]
             }
     return sample_data_dict
+
+
+def get_organism_symbol_dict(organism_list):
+    organism_symbol_dict = {}
+    organism_table = dict.fromkeys(organism_list)
+
+    available_plotly_symbols = [
+        "circle", "square", "diamond", "cross", "x", "triangle-up"
+    ]
+    next_index_in_symbol_list = 0
+
+    if len(organism_table) > len(available_plotly_symbols):
+        raise IndexError("Not enough unique symbols for different organisms")
+
+    for organism in organism_table:
+        organism_symbol_dict[organism] =\
+            available_plotly_symbols[next_index_in_symbol_list]
+        next_index_in_symbol_list += 1
+    return organism_symbol_dict
 
 
 def stagger_indices(index_list):

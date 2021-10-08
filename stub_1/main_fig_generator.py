@@ -5,7 +5,10 @@ def get_main_fig_nodes(app_data):
     nodes = go.Scatter(
         x=app_data["main_fig_nodes_x"],
         y=app_data["main_fig_nodes_y"],
-        mode="markers"
+        mode="markers",
+        marker={
+            "symbol": app_data["main_fig_nodes_marker_symbol"]
+        }
     )
     return nodes
 
