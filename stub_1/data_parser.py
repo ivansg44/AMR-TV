@@ -35,7 +35,9 @@ def get_app_data(sample_csv_path):
         "main_fig_nodes_x":
             [date_x_vals_dict[e] for e in date_list],
         "main_fig_nodes_y":
-            stagger_indices([location_y_vals_dict[e] for e in location_list]),
+            get_main_fig_nodes_y(date_list,
+                                 location_list,
+                                 location_y_vals_dict),
         "main_fig_nodes_marker_symbol":
             [organism_symbol_dict[v] for v in organism_list],
         "main_fig_nodes_text":
@@ -102,15 +104,21 @@ def get_organism_symbol_dict(organism_list):
     return organism_symbol_dict
 
 
-def stagger_indices(index_list):
-    helper_obj = {k: [1/(v+1), 1] for k, v in Counter(index_list).items()}
-    staggered_list = []
-    for i in index_list:
-        start = i-0.5
-        staggered_i = start + (helper_obj[i][0] * helper_obj[i][1])
-        helper_obj[i][1] += 1
-        staggered_list.append(staggered_i)
-    return staggered_list
+def get_main_fig_nodes_y(date_list, location_list, location_y_vals_dict):
+    main_fig_nodes_y = []
+
+    date_location_zip_list = list(zip(date_list, location_list))
+    helper_obj = \
+        {k: [1/(v+1), 1] for k, v in Counter(date_location_zip_list).items()}
+
+    for combo in date_location_zip_list:
+        unstaggered_y = location_y_vals_dict[combo[1]]
+        lowest_y = unstaggered_y - 0.5
+        staggered_y = lowest_y + (helper_obj[combo][0] * helper_obj[combo][1])
+        helper_obj[combo][1] += 1
+        main_fig_nodes_y.append(staggered_y)
+
+    return main_fig_nodes_y
 
 
 def get_main_fig_facet_x(main_fig_xaxis_range, num_of_facets):
