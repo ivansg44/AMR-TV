@@ -5,15 +5,20 @@ def get_main_fig_nodes(app_data):
     nodes = go.Scatter(
         x=app_data["main_fig_nodes_x"],
         y=app_data["main_fig_nodes_y"],
-        mode="markers",
+        mode="markers+text",
         marker={
-            "color": "white",
+            "color": "lightgrey",
             "line": {
                 "color": "black",
                 "width": 1
             },
-            "size": 18,
+            "size": 24,
             "symbol": app_data["main_fig_nodes_marker_symbol"]
+        },
+        text=app_data["main_fig_nodes_text"],
+        textfont={
+            "color": "black",
+            "size": 16
         }
     )
     return nodes

@@ -37,7 +37,9 @@ def get_app_data(sample_csv_path):
         "main_fig_nodes_y":
             stagger_indices([location_y_vals_dict[e] for e in location_list]),
         "main_fig_nodes_marker_symbol":
-            [organism_symbol_dict[v] for v in organism_list]
+            [organism_symbol_dict[v] for v in organism_list],
+        "main_fig_nodes_text":
+            ["<b>%s</b>" % v["patient_id"] for v in sample_data_dict.values()]
     }
 
     num_of_facets = len(app_data["main_fig_yaxis_tickvals"]) - 1
