@@ -7,6 +7,12 @@ def get_main_fig_nodes(app_data):
         y=app_data["main_fig_nodes_y"],
         mode="markers",
         marker={
+            "color": "white",
+            "line": {
+                "color": "black",
+                "width": 1
+            },
+            "size": 18,
             "symbol": app_data["main_fig_nodes_marker_symbol"]
         }
     )
