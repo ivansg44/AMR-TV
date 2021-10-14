@@ -58,9 +58,11 @@ def get_app_data(sample_csv_path):
         "main_fig_gene_links_y":
             get_link_list_y(gene_links, main_fig_nodes_y_dict),
         "main_fig_homozygous_snps_links_x":
-            get_link_list_x(gene_links, date_x_vals_dict, sample_data_dict),
+            get_link_list_x(homozygous_snps_links,
+                            date_x_vals_dict,
+                            sample_data_dict),
         "main_fig_homozygous_snps_links_y":
-            get_link_list_y(gene_links, main_fig_nodes_y_dict)
+            get_link_list_y(homozygous_snps_links, main_fig_nodes_y_dict)
     }
 
     num_of_facets = len(app_data["main_fig_yaxis_tickvals"]) - 1
