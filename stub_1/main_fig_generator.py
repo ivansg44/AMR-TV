@@ -24,14 +24,15 @@ def get_main_fig_nodes(app_data):
     return nodes
 
 
-def get_main_fig_links(links_x, links_y, color, offset):
+def get_main_fig_links(links_x, links_y, color, dash, offset):
     mlst_links = go.Scatter(
         x=[x+offset if x else None for x in links_x],
         y=[y+offset if y else None for y in links_y],
         mode="lines",
         line={
             "width": 1.5,
-            "color": color
+            "color": color,
+            "dash": dash
         }
     )
     return mlst_links
@@ -55,14 +56,17 @@ def get_main_fig(app_data):
             get_main_fig_links(app_data["main_fig_mlst_links_x"],
                                app_data["main_fig_mlst_links_y"],
                                "red",
+                               "solid",
                                0),
             get_main_fig_links(app_data["main_fig_gene_links_x"],
                                app_data["main_fig_gene_links_y"],
                                "green",
+                               "solid",
                                0.01),
             get_main_fig_links(app_data["main_fig_homozygous_snps_links_x"],
                                app_data["main_fig_homozygous_snps_links_y"],
                                "blue",
+                               "solid",
                                -0.01),
             get_main_fig_nodes(app_data),
             get_main_fig_facet_lines(app_data)
