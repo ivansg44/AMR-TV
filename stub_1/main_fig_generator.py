@@ -31,7 +31,7 @@ def get_main_fig_mlst_links(app_data):
         mode="lines",
         line={
             "width": 1,
-            "color": "grey"
+            "color": "#a6cee3"
         }
     )
     return mlst_links
