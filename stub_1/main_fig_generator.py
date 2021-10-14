@@ -24,14 +24,14 @@ def get_main_fig_nodes(app_data):
     return nodes
 
 
-def get_main_fig_mlst_links(app_data):
+def get_main_fig_links(links_x, links_y, color):
     mlst_links = go.Scatter(
-        x=app_data["main_fig_mlst_links_x"],
-        y=app_data["main_fig_mlst_links_y"],
+        x=links_x,
+        y=links_y,
         mode="lines",
         line={
             "width": 1,
-            "color": "#a6cee3"
+            "color": color
         }
     )
     return mlst_links
@@ -52,7 +52,9 @@ def get_main_fig_facet_lines(app_data):
 def get_main_fig(app_data):
     fig = go.Figure(
         data=[
-            get_main_fig_mlst_links(app_data),
+            get_main_fig_links(app_data["main_fig_mlst_links_x"],
+                               app_data["main_fig_mlst_links_y"],
+                               "#a6cee3"),
             get_main_fig_nodes(app_data),
             get_main_fig_facet_lines(app_data)
         ],
