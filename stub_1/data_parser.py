@@ -16,8 +16,15 @@ def get_app_data(sample_csv_path):
         e: i+1 for i, e in enumerate(dict.fromkeys(sorted(location_list)))
     }
 
+    main_fig_nodes_y_dict = get_main_fig_nodes_y_dict(sample_data_dict,
+                                                      date_list,
+                                                      location_list,
+                                                      location_y_vals_dict)
+
     organism_list = [v["organism"] for v in sample_data_dict.values()]
     organism_symbol_dict = get_organism_symbol_dict(organism_list)
+
+    mlst_links = get_link_list(sample_data_dict, "mlst")
 
     app_data = {
         "main_fig_xaxis_range":
@@ -35,13 +42,15 @@ def get_app_data(sample_csv_path):
         "main_fig_nodes_x":
             [date_x_vals_dict[e] for e in date_list],
         "main_fig_nodes_y":
-            get_main_fig_nodes_y(date_list,
-                                 location_list,
-                                 location_y_vals_dict),
+            [main_fig_nodes_y_dict[k] for k in sample_data_dict],
         "main_fig_nodes_marker_symbol":
             [organism_symbol_dict[v] for v in organism_list],
         "main_fig_nodes_text":
-            ["<b>%s</b>" % v["patient_id"] for v in sample_data_dict.values()]
+            ["<b>%s</b>" % v["patient_id"] for v in sample_data_dict.values()],
+        "main_fig_mlst_links_x":
+            get_link_list_x(mlst_links, date_x_vals_dict, sample_data_dict),
+        "main_fig_mlst_links_y":
+            get_link_list_y(mlst_links, main_fig_nodes_y_dict)
     }
 
     num_of_facets = len(app_data["main_fig_yaxis_tickvals"]) - 1
@@ -104,21 +113,62 @@ def get_organism_symbol_dict(organism_list):
     return organism_symbol_dict
 
 
-def get_main_fig_nodes_y(date_list, location_list, location_y_vals_dict):
-    main_fig_nodes_y = []
+def get_link_list(sample_data_dict, attr):
+    link_list = []
+    sample_list = list(sample_data_dict.keys())
+    for i in range(len(sample_list)):
+        sample = sample_list[i]
+        for j in range(i+1, len(sample_list)):
+            other_sample = sample_list[j]
+            sample_val = sample_data_dict[sample][attr]
+            other_sample_val = sample_data_dict[other_sample][attr]
+            if sample_val == other_sample_val:
+                link_list.append((sample, other_sample))
+    return link_list
 
+
+def get_link_list_x(link_list, date_x_vals_dict, sample_data_dict):
+    link_list_x = []
+    for (sample, other_sample) in link_list:
+        date = sample_data_dict[sample]["date"]
+        other_date = sample_data_dict[other_sample]["date"]
+        link_list_x += [
+            date_x_vals_dict[date],
+            date_x_vals_dict[other_date],
+            None
+        ]
+    return link_list_x
+
+
+def get_link_list_y(link_list, main_fig_nodes_y_dict):
+    link_list_y = []
+    for (sample, other_sample) in link_list:
+        main_fig_node_y = main_fig_nodes_y_dict[sample]
+        other_main_fig_node_y = main_fig_nodes_y_dict[other_sample]
+        link_list_y += [main_fig_node_y, other_main_fig_node_y, None]
+    return link_list_y
+
+
+def get_main_fig_nodes_y_dict(sample_data_dict, date_list, location_list,
+                              location_y_vals_dict):
     date_location_zip_list = list(zip(date_list, location_list))
     helper_obj = \
         {k: [1/(v+1), 1] for k, v in Counter(date_location_zip_list).items()}
 
-    for combo in date_location_zip_list:
-        unstaggered_y = location_y_vals_dict[combo[1]]
-        lowest_y = unstaggered_y - 0.5
-        staggered_y = lowest_y + (helper_obj[combo][0] * helper_obj[combo][1])
-        helper_obj[combo][1] += 1
-        main_fig_nodes_y.append(staggered_y)
+    main_fig_nodes_y_dict = {}
+    for sample in sample_data_dict:
+        sample_date = sample_data_dict[sample]["date"]
+        sample_location = sample_data_dict[sample]["location"]
+        [stagger, multiplier] = helper_obj[(sample_date, sample_location)]
 
-    return main_fig_nodes_y
+        unstaggered_y = location_y_vals_dict[sample_location]
+        lowest_y = unstaggered_y - 0.5
+        staggered_y = lowest_y + (stagger * multiplier)
+
+        main_fig_nodes_y_dict[sample] = staggered_y
+        helper_obj[(sample_date, sample_location)][1] += 1
+
+    return main_fig_nodes_y_dict
 
 
 def get_main_fig_facet_x(main_fig_xaxis_range, num_of_facets):
