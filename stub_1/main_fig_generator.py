@@ -53,21 +53,48 @@ def get_main_fig_facet_lines(app_data):
 def get_main_fig(app_data):
     fig = go.Figure(
         data=[
-            get_main_fig_links(app_data["main_fig_mlst_links_x"],
-                               app_data["main_fig_mlst_links_y"],
-                               "red",
-                               "solid",
-                               0),
-            get_main_fig_links(app_data["main_fig_gene_links_x"],
-                               app_data["main_fig_gene_links_y"],
-                               "green",
-                               "solid",
-                               0.01),
-            get_main_fig_links(app_data["main_fig_homozygous_snps_links_x"],
-                               app_data["main_fig_homozygous_snps_links_y"],
-                               "blue",
-                               "solid",
-                               -0.01),
+            get_main_fig_links(
+                app_data["main_fig_mlst_links_x"],
+                app_data["main_fig_mlst_links_y"],
+                "red",
+                "solid",
+                0
+            ),
+            get_main_fig_links(
+                app_data["main_fig_gene_links_x"],
+                app_data["main_fig_gene_links_y"],
+                "green",
+                "solid",
+                0.01
+            ),
+            get_main_fig_links(
+                app_data["main_fig_homozygous_snps_links_x"],
+                app_data["main_fig_homozygous_snps_links_y"],
+                "blue",
+                "solid",
+                -0.01
+            ),
+            get_main_fig_links(
+                app_data["main_fig_flanks_links_x"],
+                app_data["main_fig_flanks_links_y"],
+                "red",
+                "dot",
+                0.02
+            ),
+            get_main_fig_links(
+                app_data["main_fig_mash_neighbour_cluster_links_x"],
+                app_data["main_fig_mash_neighbour_cluster_links_y"],
+                "green",
+                "dot",
+                -0.02
+            ),
+            get_main_fig_links(
+                app_data["main_fig_replicon_types_links_x"],
+                app_data["main_fig_replicon_types_links_y"],
+                "blue",
+                "dot",
+                0.03
+            ),
             get_main_fig_nodes(app_data),
             get_main_fig_facet_lines(app_data)
         ],

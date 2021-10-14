@@ -27,6 +27,10 @@ def get_app_data(sample_csv_path):
     mlst_links = get_link_list(sample_data_dict, "mlst")
     gene_links = get_link_list(sample_data_dict, "gene")
     homozygous_snps_links = get_link_list(sample_data_dict, "homozygous_snps")
+    flanks_links = get_link_list(sample_data_dict, "flanks")
+    mash_neighbour_cluster_links =\
+        get_link_list(sample_data_dict, "mash_neighbour_cluster")
+    replicon_types_links = get_link_list(sample_data_dict, "replicon_types")
 
     app_data = {
         "main_fig_xaxis_range":
@@ -62,7 +66,24 @@ def get_app_data(sample_csv_path):
                             date_x_vals_dict,
                             sample_data_dict),
         "main_fig_homozygous_snps_links_y":
-            get_link_list_y(homozygous_snps_links, main_fig_nodes_y_dict)
+            get_link_list_y(homozygous_snps_links, main_fig_nodes_y_dict),
+        "main_fig_flanks_links_x":
+            get_link_list_x(flanks_links, date_x_vals_dict, sample_data_dict),
+        "main_fig_flanks_links_y":
+            get_link_list_y(flanks_links, main_fig_nodes_y_dict),
+        "main_fig_mash_neighbour_cluster_links_x":
+            get_link_list_x(mash_neighbour_cluster_links,
+                            date_x_vals_dict,
+                            sample_data_dict),
+        "main_fig_mash_neighbour_cluster_links_y":
+            get_link_list_y(mash_neighbour_cluster_links,
+                            main_fig_nodes_y_dict),
+        "main_fig_replicon_types_links_x":
+            get_link_list_x(replicon_types_links,
+                            date_x_vals_dict,
+                            sample_data_dict),
+        "main_fig_replicon_types_links_y":
+            get_link_list_y(replicon_types_links, main_fig_nodes_y_dict),
     }
 
     num_of_facets = len(app_data["main_fig_yaxis_tickvals"]) - 1
@@ -96,8 +117,7 @@ def get_sample_data_dict(sample_csv_path):
                 "mlst": row["F1: MLST type"],
                 "gene": row["Resitance gene type"],
                 "homozygous_snps": row["SNPs_homozygous"],
-                "left_flanks": row["Left_flanks"],
-                "right_flanks": row["Right_flanks"],
+                "flanks": row["Left_flanks"] + row["Right_flanks"],
                 "mash_neighbour_cluster": row["mash_neighbor_cluster"],
                 "replicon_types": row["rep_type(s)"],
                 "relaxase_types": row["relaxase_type(s)"],
