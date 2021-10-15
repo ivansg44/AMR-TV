@@ -24,6 +24,11 @@ def get_app_data(sample_csv_path, links_across_y):
     organism_list = [v["organism"] for v in sample_data_dict.values()]
     organism_symbol_dict = get_organism_symbol_dict(organism_list)
 
+    mobility_list = \
+        [v["predicted_mobility"] for v in sample_data_dict.values()]
+    mobility_marker_dict = {"Conjugative": "#a6cee3",
+                            "Non-mobilizable": "#b2df8a"}
+
     some_args = {"sample_data_dict": sample_data_dict,
                  "link_across_y": links_across_y}
     mlst_links = get_link_list(**{**some_args, **{"attr": "mlst"}})
@@ -55,6 +60,8 @@ def get_app_data(sample_csv_path, links_across_y):
             [main_fig_nodes_y_dict[k] for k in sample_data_dict],
         "main_fig_nodes_marker_symbol":
             [organism_symbol_dict[v] for v in organism_list],
+        "main_fig_nodes_marker_color":
+            [mobility_marker_dict[v] for v in mobility_list],
         "main_fig_nodes_text":
             ["<b>%s</b>" % v["patient_id"] for v in sample_data_dict.values()],
         "main_fig_mlst_links_x":
