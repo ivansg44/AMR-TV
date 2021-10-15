@@ -45,6 +45,12 @@ def get_app_data(sample_csv_path, track, links_across_y, max_day_range):
         get_link_list(**{**some_args, **{"attr": "replicon_types"}})
 
     app_data = {
+        "node_shape_legend_fig_nodes_x":
+            list(range(1, len(organism_symbol_dict))),
+        "node_shape_legend_fig_nodes_marker_symbol":
+            list(organism_symbol_dict.values()),
+        "node_shape_legend_fig_nodes_text":
+            ["<b>%s</b>" % k for k in organism_symbol_dict.keys()],
         "main_fig_xaxis_range":
             [0.5, len(date_x_vals_dict) + 0.5],
         "main_fig_yaxis_range":

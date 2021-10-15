@@ -5,6 +5,7 @@ import dash_core_components as dcc
 
 from data_parser import get_app_data
 from main_fig_generator import get_main_fig
+from legend_fig_generator import get_node_shape_legend_fig
 
 app = Dash(
     external_stylesheets=[dbc.themes.UNITED],
@@ -35,10 +36,22 @@ def launch_app(_):
         dbc.Row(
             children=dbc.Col(
                 children=dcc.Graph(
+                    figure=get_node_shape_legend_fig(app_data),
+                    id="node-shape-legend-graph",
+                    config={"displayModeBar": False},
+                    style={"height": "5vh"}
+                ),
+                id="node-shape-legend-col"
+            ),
+            id="node-shape-legend-row"
+        ),
+        dbc.Row(
+            children=dbc.Col(
+                children=dcc.Graph(
                     figure=get_main_fig(app_data),
                     id="main-graph",
                     config={"displayModeBar": False},
-                    style={"height": "90vh"}
+                    style={"height": "80vh"}
                 ),
                 id="main-col"
             ),
