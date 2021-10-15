@@ -1,9 +1,9 @@
 from collections import Counter
 import csv
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
-def get_app_data(sample_csv_path, links_across_y):
+def get_app_data(sample_csv_path, links_across_y, max_day_range):
     sample_data_dict = get_sample_data_dict(sample_csv_path)
 
     date_list = [v["date"] for v in sample_data_dict.values()]
@@ -30,7 +30,8 @@ def get_app_data(sample_csv_path, links_across_y):
                             "Non-mobilizable": "#b2df8a"}
 
     some_args = {"sample_data_dict": sample_data_dict,
-                 "link_across_y": links_across_y}
+                 "link_across_y": links_across_y,
+                 "max_day_range": max_day_range}
     mlst_links = get_link_list(**{**some_args, **{"attr": "mlst"}})
     gene_links = get_link_list(**{**some_args, **{"attr": "gene"}})
     homozygous_snps_links = \
@@ -124,6 +125,7 @@ def get_sample_data_dict(sample_csv_path):
                 "patient_id": row["Patient ID"],
                 "location": row["Location"],
                 "date": datetime_iso_str,
+                "datetime_obj": datetime_obj,
                 "organism": row["Organism"],
                 "mlst": row["F1: MLST type"],
                 "gene": row["Resitance gene type"],
@@ -156,7 +158,7 @@ def get_organism_symbol_dict(organism_list):
     return organism_symbol_dict
 
 
-def get_link_list(sample_data_dict, attr, link_across_y):
+def get_link_list(sample_data_dict, attr, link_across_y, max_day_range):
     link_list = []
     sample_list = list(sample_data_dict.keys())
     for i in range(len(sample_list)):
@@ -167,6 +169,12 @@ def get_link_list(sample_data_dict, attr, link_across_y):
             sample_location = sample_data_dict[sample]["location"]
             other_location = sample_data_dict[other_sample]["location"]
             if not link_across_y and sample_location != other_location:
+                continue
+
+            sample_datetime = sample_data_dict[sample]["datetime_obj"]
+            other_datetime = sample_data_dict[other_sample]["datetime_obj"]
+            day_range = other_datetime - sample_datetime
+            if timedelta(max_day_range) < day_range:
                 continue
 
             sample_val = sample_data_dict[sample][attr]
