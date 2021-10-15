@@ -42,7 +42,7 @@ def get_app_data(sample_csv_path, track, attr_link_list, links_across_y,
 
     app_data = {
         "node_shape_legend_fig_nodes_y":
-            list(range(1, len(organism_symbol_dict))),
+            list(range(len(organism_symbol_dict))),
         "node_shape_legend_fig_nodes_marker_symbol":
             list(organism_symbol_dict.values()),
         "node_shape_legend_fig_nodes_text":
