@@ -30,7 +30,7 @@ def get_main_fig_links(links_x, links_y, color, dash, offset):
         y=[y+offset if y else None for y in links_y],
         mode="lines",
         line={
-            "width": 1.5,
+            "width": 3,
             "color": color,
             "dash": dash
         }
@@ -56,42 +56,42 @@ def get_main_fig(app_data):
             get_main_fig_links(
                 app_data["main_fig_mlst_links_x"],
                 app_data["main_fig_mlst_links_y"],
-                "red",
+                "#1b9e77",
                 "solid",
                 0
             ),
             get_main_fig_links(
                 app_data["main_fig_gene_links_x"],
                 app_data["main_fig_gene_links_y"],
-                "green",
+                "#d95f02",
                 "solid",
                 0.01
             ),
             get_main_fig_links(
                 app_data["main_fig_homozygous_snps_links_x"],
                 app_data["main_fig_homozygous_snps_links_y"],
-                "blue",
+                "#7570b3",
                 "solid",
                 -0.01
             ),
             get_main_fig_links(
                 app_data["main_fig_flanks_links_x"],
                 app_data["main_fig_flanks_links_y"],
-                "red",
+                "#1b9e77",
                 "dot",
                 0.02
             ),
             get_main_fig_links(
                 app_data["main_fig_mash_neighbour_cluster_links_x"],
                 app_data["main_fig_mash_neighbour_cluster_links_y"],
-                "green",
+                "#d95f02",
                 "dot",
                 -0.02
             ),
             get_main_fig_links(
                 app_data["main_fig_replicon_types_links_x"],
                 app_data["main_fig_replicon_types_links_y"],
-                "blue",
+                "#7570b3",
                 "dot",
                 0.03
             ),
