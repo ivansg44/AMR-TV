@@ -30,6 +30,14 @@ def launch_app(_):
     """Populate empty container after launch."""
     app_data = get_app_data("sample_data.csv",
                             track="location",
+                            attr_link_list = [
+                                "mlst",
+                                "gene",
+                                "homozygous_snps",
+                                "flanks",
+                                "mash_neighbour_cluster",
+                                "replicon_types"
+                            ],
                             links_across_y=False,
                             max_day_range=60)
     return [

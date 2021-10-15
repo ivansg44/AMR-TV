@@ -3,7 +3,8 @@ import csv
 from datetime import datetime, timedelta
 
 
-def get_app_data(sample_csv_path, track, links_across_y, max_day_range):
+def get_app_data(sample_csv_path, track, attr_link_list, links_across_y,
+                 max_day_range):
     sample_data_dict = get_sample_data_dict(sample_csv_path)
 
     date_list = [v["date"] for v in sample_data_dict.values()]
@@ -30,19 +31,14 @@ def get_app_data(sample_csv_path, track, links_across_y, max_day_range):
     mobility_marker_dict = {"Conjugative": "#a6cee3",
                             "Non-mobilizable": "#b2df8a"}
 
-    some_args = {"sample_data_dict": sample_data_dict,
-                 "track": track,
-                 "link_across_y": links_across_y,
-                 "max_day_range": max_day_range}
-    mlst_links = get_link_list(**{**some_args, **{"attr": "mlst"}})
-    gene_links = get_link_list(**{**some_args, **{"attr": "gene"}})
-    homozygous_snps_links = \
-        get_link_list(**{**some_args, **{"attr": "homozygous_snps"}})
-    flanks_links = get_link_list(**{**some_args, **{"attr": "flanks"}})
-    mash_neighbour_cluster_links =\
-        get_link_list(**{**some_args, **{"attr": "mash_neighbour_cluster"}})
-    replicon_types_links = \
-        get_link_list(**{**some_args, **{"attr": "replicon_types"}})
+    sample_links_dict = \
+        get_sample_links_dict(attr_link_list=attr_link_list,
+                              sample_data_dict=sample_data_dict,
+                              track=track,
+                              links_across_y=links_across_y,
+                              max_day_range=max_day_range,
+                              date_x_vals_dict=date_x_vals_dict,
+                              main_fig_nodes_y_dict=main_fig_nodes_y_dict)
 
     app_data = {
         "node_shape_legend_fig_nodes_y":
@@ -73,37 +69,7 @@ def get_app_data(sample_csv_path, track, links_across_y, max_day_range):
             [mobility_marker_dict[v] for v in mobility_list],
         "main_fig_nodes_text":
             ["<b>%s</b>" % v["patient_id"] for v in sample_data_dict.values()],
-        "main_fig_mlst_links_x":
-            get_link_list_x(mlst_links, date_x_vals_dict, sample_data_dict),
-        "main_fig_mlst_links_y":
-            get_link_list_y(mlst_links, main_fig_nodes_y_dict),
-        "main_fig_gene_links_x":
-            get_link_list_x(gene_links, date_x_vals_dict, sample_data_dict),
-        "main_fig_gene_links_y":
-            get_link_list_y(gene_links, main_fig_nodes_y_dict),
-        "main_fig_homozygous_snps_links_x":
-            get_link_list_x(homozygous_snps_links,
-                            date_x_vals_dict,
-                            sample_data_dict),
-        "main_fig_homozygous_snps_links_y":
-            get_link_list_y(homozygous_snps_links, main_fig_nodes_y_dict),
-        "main_fig_flanks_links_x":
-            get_link_list_x(flanks_links, date_x_vals_dict, sample_data_dict),
-        "main_fig_flanks_links_y":
-            get_link_list_y(flanks_links, main_fig_nodes_y_dict),
-        "main_fig_mash_neighbour_cluster_links_x":
-            get_link_list_x(mash_neighbour_cluster_links,
-                            date_x_vals_dict,
-                            sample_data_dict),
-        "main_fig_mash_neighbour_cluster_links_y":
-            get_link_list_y(mash_neighbour_cluster_links,
-                            main_fig_nodes_y_dict),
-        "main_fig_replicon_types_links_x":
-            get_link_list_x(replicon_types_links,
-                            date_x_vals_dict,
-                            sample_data_dict),
-        "main_fig_replicon_types_links_y":
-            get_link_list_y(replicon_types_links, main_fig_nodes_y_dict),
+        "sample_links_dict": sample_links_dict
     }
 
     num_of_facets = len(app_data["main_fig_yaxis_tickvals"]) - 1
@@ -166,7 +132,52 @@ def get_organism_symbol_dict(organism_list):
     return organism_symbol_dict
 
 
-def get_link_list(sample_data_dict, track, attr, link_across_y, max_day_range):
+def get_sample_links_dict(attr_link_list, sample_data_dict, track,
+                          links_across_y, max_day_range, date_x_vals_dict,
+                          main_fig_nodes_y_dict):
+    available_link_color_dash_combos = [
+        ("#1b9e77", "solid"), ("#d95f02", "solid"), ("#7570b3", "solid"),
+        ("#1b9e77", "dot"), ("#d95f02", "dot"), ("#7570b3", "dot"),
+    ]
+    next_index_in_color_dash_list = 0
+    if len(attr_link_list) > len(available_link_color_dash_combos):
+        msg = "Not enough unique edge patterns for different attributes"
+        raise IndexError(msg)
+
+    offset = 0 - (len(attr_link_list) / 200)
+
+    sample_links_dict = {}
+    for attr in attr_link_list:
+        attr_link_list = get_link_list(sample_data_dict=sample_data_dict,
+                                       track=track,
+                                       attr=attr,
+                                       links_across_y=links_across_y,
+                                       max_day_range=max_day_range)
+        link_list_x = get_link_list_x(link_list=attr_link_list,
+                                      sample_data_dict=sample_data_dict,
+                                      date_x_vals_dict=date_x_vals_dict)
+        link_list_y = \
+            get_link_list_y(link_list=attr_link_list,
+                            main_fig_nodes_y_dict=main_fig_nodes_y_dict)
+
+        sample_links_dict[attr] = {}
+        sample_links_dict[attr]["x"] = \
+            [e+offset if e else e for e in link_list_x]
+        sample_links_dict[attr]["y"] = \
+            [e+offset if e else e for e in link_list_y]
+        sample_links_dict[attr]["color"] = \
+            available_link_color_dash_combos[next_index_in_color_dash_list][0]
+        sample_links_dict[attr]["dash"] = \
+            available_link_color_dash_combos[next_index_in_color_dash_list][1]
+
+        offset += 0.01
+        next_index_in_color_dash_list += 1
+
+    return sample_links_dict
+
+
+def get_link_list(sample_data_dict, track, attr, links_across_y,
+                  max_day_range):
     link_list = []
     sample_list = list(sample_data_dict.keys())
     for i in range(len(sample_list)):
@@ -176,7 +187,7 @@ def get_link_list(sample_data_dict, track, attr, link_across_y, max_day_range):
 
             sample_track = sample_data_dict[sample][track]
             other_track = sample_data_dict[other_sample][track]
-            if not link_across_y and sample_track != other_track:
+            if not links_across_y and sample_track != other_track:
                 continue
 
             sample_datetime = sample_data_dict[sample]["datetime_obj"]
