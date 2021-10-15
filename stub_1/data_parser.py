@@ -3,7 +3,7 @@ import csv
 from datetime import datetime
 
 
-def get_app_data(sample_csv_path):
+def get_app_data(sample_csv_path, links_across_y):
     sample_data_dict = get_sample_data_dict(sample_csv_path)
 
     date_list = [v["date"] for v in sample_data_dict.values()]
@@ -24,13 +24,17 @@ def get_app_data(sample_csv_path):
     organism_list = [v["organism"] for v in sample_data_dict.values()]
     organism_symbol_dict = get_organism_symbol_dict(organism_list)
 
-    mlst_links = get_link_list(sample_data_dict, "mlst")
-    gene_links = get_link_list(sample_data_dict, "gene")
-    homozygous_snps_links = get_link_list(sample_data_dict, "homozygous_snps")
-    flanks_links = get_link_list(sample_data_dict, "flanks")
+    some_args = {"sample_data_dict": sample_data_dict,
+                 "link_across_y": links_across_y}
+    mlst_links = get_link_list(**{**some_args, **{"attr": "mlst"}})
+    gene_links = get_link_list(**{**some_args, **{"attr": "gene"}})
+    homozygous_snps_links = \
+        get_link_list(**{**some_args, **{"attr": "homozygous_snps"}})
+    flanks_links = get_link_list(**{**some_args, **{"attr": "flanks"}})
     mash_neighbour_cluster_links =\
-        get_link_list(sample_data_dict, "mash_neighbour_cluster")
-    replicon_types_links = get_link_list(sample_data_dict, "replicon_types")
+        get_link_list(**{**some_args, **{"attr": "mash_neighbour_cluster"}})
+    replicon_types_links = \
+        get_link_list(**{**some_args, **{"attr": "replicon_types"}})
 
     app_data = {
         "main_fig_xaxis_range":
@@ -145,13 +149,19 @@ def get_organism_symbol_dict(organism_list):
     return organism_symbol_dict
 
 
-def get_link_list(sample_data_dict, attr):
+def get_link_list(sample_data_dict, attr, link_across_y):
     link_list = []
     sample_list = list(sample_data_dict.keys())
     for i in range(len(sample_list)):
         sample = sample_list[i]
         for j in range(i+1, len(sample_list)):
             other_sample = sample_list[j]
+
+            sample_location = sample_data_dict[sample]["location"]
+            other_location = sample_data_dict[other_sample]["location"]
+            if not link_across_y and sample_location != other_location:
+                continue
+
             sample_val = sample_data_dict[sample][attr]
             other_sample_val = sample_data_dict[other_sample][attr]
             if sample_val == other_sample_val:

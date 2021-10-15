@@ -27,7 +27,7 @@ app.layout = dbc.Container(
 )
 def launch_app(_):
     """Populate empty container after launch."""
-    app_data = get_app_data("sample_data.csv")
+    app_data = get_app_data("sample_data.csv", links_across_y=False)
     return [
         dbc.Row(
             children=dbc.Col(
