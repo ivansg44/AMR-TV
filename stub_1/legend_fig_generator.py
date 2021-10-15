@@ -3,8 +3,8 @@ import plotly.graph_objects as go
 
 def get_node_shape_legend_fig_nodes(app_data):
     nodes = go.Scatter(
-        x=app_data["node_shape_legend_fig_nodes_x"],
-        y=[1 for _ in app_data["node_shape_legend_fig_nodes_x"]],
+        x=[1 for _ in app_data["node_shape_legend_fig_nodes_y"]],
+        y=app_data["node_shape_legend_fig_nodes_y"],
         mode="markers+text",
         marker={
             "color": "lightgrey",

@@ -34,27 +34,27 @@ def launch_app(_):
                             max_day_range=60)
     return [
         dbc.Row(
-            children=dbc.Col(
-                children=dcc.Graph(
-                    figure=get_node_shape_legend_fig(app_data),
-                    id="node-shape-legend-graph",
-                    config={"displayModeBar": False},
-                    style={"height": "5vh"}
+            children=[
+                dbc.Col(
+                    children=dcc.Graph(
+                        figure=get_main_fig(app_data),
+                        id="main-graph",
+                        config={"displayModeBar": False},
+                        style={"height": "90vh"}
+                    ),
+                    id="main-col",
                 ),
-                id="node-shape-legend-col"
-            ),
-            id="node-shape-legend-row"
-        ),
-        dbc.Row(
-            children=dbc.Col(
-                children=dcc.Graph(
-                    figure=get_main_fig(app_data),
-                    id="main-graph",
-                    config={"displayModeBar": False},
-                    style={"height": "80vh"}
-                ),
-                id="main-col"
-            ),
+                dbc.Col(
+                    children=dcc.Graph(
+                        figure=get_node_shape_legend_fig(app_data),
+                        id="node-shape-legend-graph",
+                        config={"displayModeBar": False},
+                        style={"height": "90vh"}
+                    ),
+                    id="node-shape-legend-col",
+                    width=2
+                )
+            ],
             id="main-row"
         ),
         dcc.Store(id="app_data", data=app_data)

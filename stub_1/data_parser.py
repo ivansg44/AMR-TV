@@ -45,7 +45,7 @@ def get_app_data(sample_csv_path, track, links_across_y, max_day_range):
         get_link_list(**{**some_args, **{"attr": "replicon_types"}})
 
     app_data = {
-        "node_shape_legend_fig_nodes_x":
+        "node_shape_legend_fig_nodes_y":
             list(range(1, len(organism_symbol_dict))),
         "node_shape_legend_fig_nodes_marker_symbol":
             list(organism_symbol_dict.values()),
