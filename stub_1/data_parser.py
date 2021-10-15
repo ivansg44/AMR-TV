@@ -3,7 +3,7 @@ import csv
 from datetime import datetime, timedelta
 
 
-def get_app_data(sample_csv_path, links_across_y, max_day_range):
+def get_app_data(sample_csv_path, track, links_across_y, max_day_range):
     sample_data_dict = get_sample_data_dict(sample_csv_path)
 
     date_list = [v["date"] for v in sample_data_dict.values()]
@@ -11,15 +11,16 @@ def get_app_data(sample_csv_path, links_across_y, max_day_range):
         e: i+1 for i, e in enumerate(dict.fromkeys(sorted(date_list)))
     }
 
-    location_list = [v["location"] for v in sample_data_dict.values()]
-    location_y_vals_dict = {
-        e: i+1 for i, e in enumerate(dict.fromkeys(sorted(location_list)))
+    track_list = [v[track] for v in sample_data_dict.values()]
+    track_y_vals_dict = {
+        e: i+1 for i, e in enumerate(dict.fromkeys(sorted(track_list)))
     }
 
     main_fig_nodes_y_dict = get_main_fig_nodes_y_dict(sample_data_dict,
+                                                      track,
                                                       date_list,
-                                                      location_list,
-                                                      location_y_vals_dict)
+                                                      track_list,
+                                                      track_y_vals_dict)
 
     organism_list = [v["organism"] for v in sample_data_dict.values()]
     organism_symbol_dict = get_organism_symbol_dict(organism_list)
@@ -30,6 +31,7 @@ def get_app_data(sample_csv_path, links_across_y, max_day_range):
                             "Non-mobilizable": "#b2df8a"}
 
     some_args = {"sample_data_dict": sample_data_dict,
+                 "track": track,
                  "link_across_y": links_across_y,
                  "max_day_range": max_day_range}
     mlst_links = get_link_list(**{**some_args, **{"attr": "mlst"}})
@@ -46,15 +48,15 @@ def get_app_data(sample_csv_path, links_across_y, max_day_range):
         "main_fig_xaxis_range":
             [0.5, len(date_x_vals_dict) + 0.5],
         "main_fig_yaxis_range":
-            [0.5, len(location_y_vals_dict) + 0.5],
+            [0.5, len(track_y_vals_dict) + 0.5],
         "main_fig_xaxis_tickvals":
             list(range(1, len(date_x_vals_dict) + 1)),
         "main_fig_xaxis_ticktext":
             list(date_x_vals_dict.keys()),
         "main_fig_yaxis_tickvals":
-            list(range(1, len(location_y_vals_dict) + 1)),
+            list(range(1, len(track_y_vals_dict) + 1)),
         "main_fig_yaxis_ticktext":
-            list(location_y_vals_dict.keys()),
+            list(track_y_vals_dict.keys()),
         "main_fig_nodes_x":
             [date_x_vals_dict[e] for e in date_list],
         "main_fig_nodes_y":
@@ -158,7 +160,7 @@ def get_organism_symbol_dict(organism_list):
     return organism_symbol_dict
 
 
-def get_link_list(sample_data_dict, attr, link_across_y, max_day_range):
+def get_link_list(sample_data_dict, track, attr, link_across_y, max_day_range):
     link_list = []
     sample_list = list(sample_data_dict.keys())
     for i in range(len(sample_list)):
@@ -166,9 +168,9 @@ def get_link_list(sample_data_dict, attr, link_across_y, max_day_range):
         for j in range(i+1, len(sample_list)):
             other_sample = sample_list[j]
 
-            sample_location = sample_data_dict[sample]["location"]
-            other_location = sample_data_dict[other_sample]["location"]
-            if not link_across_y and sample_location != other_location:
+            sample_track = sample_data_dict[sample][track]
+            other_track = sample_data_dict[other_sample][track]
+            if not link_across_y and sample_track != other_track:
                 continue
 
             sample_datetime = sample_data_dict[sample]["datetime_obj"]
@@ -206,24 +208,24 @@ def get_link_list_y(link_list, main_fig_nodes_y_dict):
     return link_list_y
 
 
-def get_main_fig_nodes_y_dict(sample_data_dict, date_list, location_list,
-                              location_y_vals_dict):
-    date_location_zip_list = list(zip(date_list, location_list))
+def get_main_fig_nodes_y_dict(sample_data_dict, track, date_list, track_list,
+                              track_y_vals_dict):
+    date_track_zip_list = list(zip(date_list, track_list))
     helper_obj = \
-        {k: [1/(v+1), 1] for k, v in Counter(date_location_zip_list).items()}
+        {k: [1/(v+1), 1] for k, v in Counter(date_track_zip_list).items()}
 
     main_fig_nodes_y_dict = {}
     for sample in sample_data_dict:
         sample_date = sample_data_dict[sample]["date"]
-        sample_location = sample_data_dict[sample]["location"]
-        [stagger, multiplier] = helper_obj[(sample_date, sample_location)]
+        sample_track = sample_data_dict[sample][track]
+        [stagger, multiplier] = helper_obj[(sample_date, sample_track)]
 
-        unstaggered_y = location_y_vals_dict[sample_location]
+        unstaggered_y = track_y_vals_dict[sample_track]
         lowest_y = unstaggered_y - 0.5
         staggered_y = lowest_y + (stagger * multiplier)
 
         main_fig_nodes_y_dict[sample] = staggered_y
-        helper_obj[(sample_date, sample_location)][1] += 1
+        helper_obj[(sample_date, sample_track)][1] += 1
 
     return main_fig_nodes_y_dict
 
