@@ -94,3 +94,52 @@ def get_link_legend_fig(app_data):
         }
     )
     return fig
+
+
+def get_mobility_legend_fig_nodes(app_data):
+    mobility_marker_dict = app_data["mobility_marker_dict"]
+    nodes = go.Scatter(
+        x=[1, 1],
+        y=[0, 1],
+        mode="markers+text",
+        marker={
+            "color": list(mobility_marker_dict.values()),
+            "line": {
+                "color": "black",
+                "width": 1
+            },
+            "size": 24,
+            "symbol": "circle"
+        },
+        text=["<b>%s</b>" % e for e in mobility_marker_dict.keys()],
+        textfont={
+            "color": "black",
+            "size": 16
+        },
+        textposition="middle right",
+        hoverinfo="skip"
+    )
+    return nodes
+
+
+def get_mobility_legend_fig(app_data):
+    fig = go.Figure(
+        data=[get_mobility_legend_fig_nodes(app_data)],
+        layout={
+            "margin": {
+                "l": 0, "r": 0, "t": 0, "b": 0
+            },
+            "xaxis": {
+                "visible": False,
+                "fixedrange": True,
+                "range": [0.5, 5]
+            },
+            "yaxis": {
+                "visible": False,
+                "fixedrange": True
+            },
+            "showlegend": False,
+            "plot_bgcolor": "white"
+        },
+    )
+    return fig

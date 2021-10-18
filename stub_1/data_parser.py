@@ -69,7 +69,8 @@ def get_app_data(sample_csv_path, track, attr_link_list, links_across_y,
             [mobility_marker_dict[v] for v in mobility_list],
         "main_fig_nodes_text":
             ["<b>%s</b>" % v["patient_id"] for v in sample_data_dict.values()],
-        "sample_links_dict": sample_links_dict
+        "sample_links_dict": sample_links_dict,
+        "mobility_marker_dict": mobility_marker_dict
     }
 
     num_of_facets = len(app_data["main_fig_yaxis_tickvals"]) - 1
