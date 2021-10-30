@@ -193,8 +193,9 @@ def get_link_list(sample_data_dict, track, attr, links_across_y,
 
             sample_datetime = sample_data_dict[sample]["datetime_obj"]
             other_datetime = sample_data_dict[other_sample]["datetime_obj"]
-            day_range = other_datetime - sample_datetime
-            if timedelta(max_day_range) < day_range:
+            day_range_datetime = other_datetime - sample_datetime
+            day_range = abs(day_range_datetime.days)
+            if max_day_range < day_range:
                 continue
 
             sample_val = sample_data_dict[sample][attr]
