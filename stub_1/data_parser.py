@@ -183,6 +183,10 @@ def get_link_list(sample_data_dict, track, attr, links_across_y,
     sample_list = list(sample_data_dict.keys())
     for i in range(len(sample_list)):
         sample = sample_list[i]
+
+        if sample_data_dict[sample][attr] == "-":
+            continue
+
         for j in range(i+1, len(sample_list)):
             other_sample = sample_list[j]
 
