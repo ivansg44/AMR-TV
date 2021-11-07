@@ -69,7 +69,6 @@ def get_main_fig(app_data):
             "showlegend": False,
             "xaxis": {
                 "range": app_data["main_fig_xaxis_range"],
-                "fixedrange": True,
                 "tickmode": "array",
                 "tickvals": app_data["main_fig_xaxis_tickvals"],
                 "ticktext": app_data["main_fig_xaxis_ticktext"],
@@ -80,7 +79,6 @@ def get_main_fig(app_data):
             },
             "yaxis": {
                 "range": app_data["main_fig_yaxis_range"],
-                "fixedrange": True,
                 "tickmode": "array",
                 "tickvals": app_data["main_fig_yaxis_tickvals"],
                 "ticktext": app_data["main_fig_yaxis_ticktext"],
