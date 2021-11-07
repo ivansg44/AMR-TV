@@ -96,14 +96,18 @@ def get_link_legend_fig(app_data):
     return fig
 
 
-def get_mobility_legend_fig_nodes(app_data):
-    mobility_marker_dict = app_data["mobility_marker_dict"]
+def get_node_color_legend_fig_nodes(app_data):
+    node_color_attr_dict = app_data["node_color_attr_dict"]
+
+    if not node_color_attr_dict:
+        return {}
+
     nodes = go.Scatter(
-        x=[1, 1],
-        y=[0, 1],
+        x=[1 for _ in node_color_attr_dict],
+        y=list(range(len(node_color_attr_dict))),
         mode="markers+text",
         marker={
-            "color": list(mobility_marker_dict.values()),
+            "color": list(node_color_attr_dict.values()),
             "line": {
                 "color": "black",
                 "width": 1
@@ -111,7 +115,7 @@ def get_mobility_legend_fig_nodes(app_data):
             "size": 24,
             "symbol": "circle"
         },
-        text=["<b>%s</b>" % e for e in mobility_marker_dict.keys()],
+        text=["<b>%s</b>" % e for e in node_color_attr_dict.keys()],
         textfont={
             "color": "black",
             "size": 16
@@ -122,9 +126,9 @@ def get_mobility_legend_fig_nodes(app_data):
     return nodes
 
 
-def get_mobility_legend_fig(app_data):
+def get_node_color_legend_fig(app_data):
     fig = go.Figure(
-        data=[get_mobility_legend_fig_nodes(app_data)],
+        data=[get_node_color_legend_fig_nodes(app_data)],
         layout={
             "margin": {
                 "l": 0, "r": 0, "t": 0, "b": 0

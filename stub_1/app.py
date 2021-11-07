@@ -7,7 +7,7 @@ from data_parser import get_app_data
 from main_fig_generator import get_main_fig
 from legend_fig_generator import (get_node_shape_legend_fig,
                                   get_link_legend_fig,
-                                  get_mobility_legend_fig)
+                                  get_node_color_legend_fig)
 
 app = Dash(
     external_stylesheets=[dbc.themes.UNITED],
@@ -32,16 +32,19 @@ def launch_app(_):
     """Populate empty container after launch."""
     app_data = get_app_data("sample_data.csv",
                             track="location",
-                            attr_link_list = [
+                            node_color_attr="mash_neighbour_cluster",
+                            attr_link_list=[
                                 "mlst",
                                 "gene",
                                 "homozygous_snps",
                                 "flanks",
                                 "mash_neighbour_cluster",
                                 "replicon_types"
-                            ],
-                            links_across_y=False,
-                            max_day_range=60)
+                            ], links_across_y=False, max_day_range=60)
+
+    node_color_legend_fig_height = \
+        "%svh" % (len(app_data["node_color_attr_dict"]) * 5)
+
     return [
         dbc.Row(
             children=[
@@ -85,15 +88,17 @@ def launch_app(_):
                         dbc.Row(
                             dbc.Col(
                                 dcc.Graph(
-                                    figure=get_mobility_legend_fig(app_data),
-                                    id="mobility-legend-graph",
+                                    figure=get_node_color_legend_fig(app_data),
+                                    id="node-color-legend-graph",
                                     config={"displayModeBar": False},
-                                    style={"height": "10vh"}
+                                    style={
+                                        "height": node_color_legend_fig_height
+                                    }
 
                                 ),
-                                id="mobility-legend-col"
+                                id="node-color-legend-col"
                             ),
-                            id="mobility-legend-row"
+                            id="node-color-legend-row"
                         )
                     ],
                     id="legend-col",

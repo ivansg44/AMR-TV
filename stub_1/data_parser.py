@@ -1,10 +1,10 @@
 from collections import Counter
 import csv
-from datetime import datetime, timedelta
+from datetime import datetime
 
 
-def get_app_data(sample_csv_path, track, attr_link_list, links_across_y,
-                 max_day_range):
+def get_app_data(sample_csv_path, track, attr_link_list,
+                 links_across_y, max_day_range, node_color_attr=None):
     sample_data_dict = get_sample_data_dict(sample_csv_path)
 
     date_list = [v["date"] for v in sample_data_dict.values()]
@@ -26,10 +26,15 @@ def get_app_data(sample_csv_path, track, attr_link_list, links_across_y,
     organism_list = [v["organism"] for v in sample_data_dict.values()]
     organism_symbol_dict = get_organism_symbol_dict(organism_list)
 
-    mobility_list = \
-        [v["predicted_mobility"] for v in sample_data_dict.values()]
-    mobility_marker_dict = {"Conjugative": "#a6cee3",
-                            "Non-mobilizable": "#b2df8a"}
+    if node_color_attr:
+        node_color_attr_list = \
+            [v[node_color_attr] for v in sample_data_dict.values()]
+        node_color_attr_dict = get_node_color_attr_dict(node_color_attr_list)
+        main_fig_nodes_marker_color = \
+            [node_color_attr_dict[v] for v in node_color_attr_list]
+    else:
+        node_color_attr_dict = None
+        main_fig_nodes_marker_color = "lightgrey"
 
     sample_links_dict = \
         get_sample_links_dict(attr_link_list=attr_link_list,
@@ -66,11 +71,11 @@ def get_app_data(sample_csv_path, track, attr_link_list, links_across_y,
         "main_fig_nodes_marker_symbol":
             [organism_symbol_dict[v] for v in organism_list],
         "main_fig_nodes_marker_color":
-            [mobility_marker_dict[v] for v in mobility_list],
+            main_fig_nodes_marker_color,
         "main_fig_nodes_text":
             ["<b>%s</b>" % v["patient_id"] for v in sample_data_dict.values()],
         "sample_links_dict": sample_links_dict,
-        "mobility_marker_dict": mobility_marker_dict
+        "node_color_attr_dict": node_color_attr_dict
     }
 
     num_of_facets = len(app_data["main_fig_yaxis_tickvals"]) - 1
@@ -131,6 +136,40 @@ def get_organism_symbol_dict(organism_list):
             available_plotly_symbols[next_index_in_symbol_list]
         next_index_in_symbol_list += 1
     return organism_symbol_dict
+
+
+def get_node_color_attr_dict(node_color_attr_list):
+    node_color_attr_dict = {}
+    node_color_attr_table = dict.fromkeys(node_color_attr_list)
+
+    # TODO make color blind safe by using color + pattern
+    available_colors = [
+        "#8dd3c7",
+        "#ffffb3",
+        "#bebada",
+        "#fb8072",
+        "#80b1d3",
+        "#fdb462",
+        "#b3de69",
+        "#fccde5",
+        "#d9d9d9",
+        "#bc80bd",
+        "#ccebc5",
+        "#ffed6f"
+    ]
+    next_index_in_color_list = 0
+
+    if len(node_color_attr_table) > len(node_color_attr_table):
+        msg = "Not enough unique colors for specified node attribute"
+        raise IndexError(msg)
+
+
+    for node_color_attr in node_color_attr_table:
+        node_color_attr_dict[node_color_attr] = \
+            available_colors[next_index_in_color_list]
+        next_index_in_color_list += 1
+
+    return node_color_attr_dict
 
 
 def get_sample_links_dict(attr_link_list, sample_data_dict, track,
