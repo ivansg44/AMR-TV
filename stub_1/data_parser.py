@@ -3,10 +3,12 @@ import csv
 from datetime import datetime
 
 
-def get_app_data(sample_csv_path, node_id, track, date_attr, date_format,
-                 label_attr, attr_link_list, links_across_y, max_day_range,
-                 null_vals, node_symbol_attr=None, node_color_attr=None):
-    sample_data_dict = get_sample_data_dict(sample_csv_path,
+def get_app_data(sample_file_path, delimiter, node_id, track, date_attr,
+                 date_format, label_attr, attr_link_list, links_across_y,
+                 max_day_range, null_vals, node_symbol_attr=None,
+                 node_color_attr=None):
+    sample_data_dict = get_sample_data_dict(sample_file_path,
+                                            delimiter,
                                             node_id,
                                             date_attr,
                                             date_format,
@@ -104,11 +106,11 @@ def get_app_data(sample_csv_path, node_id, track, date_attr, date_format,
     return app_data
 
 
-def get_sample_data_dict(sample_csv_path, node_id, date, date_format,
-                         null_vals):
+def get_sample_data_dict(sample_file_path, delimiter, node_id, date,
+                         date_format, null_vals):
     sample_data_dict = {}
-    with open(sample_csv_path) as fp:
-        reader = csv.DictReader(fp)
+    with open(sample_file_path) as fp:
+        reader = csv.DictReader(fp, delimiter=delimiter)
         for row in reader:
             sample_id = row[node_id]
             if sample_id in null_vals:

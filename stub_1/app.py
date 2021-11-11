@@ -32,6 +32,7 @@ def launch_app(_):
     """Populate empty container after launch."""
     app_data = get_app_data(
         "sample_data.csv",
+        delimiter=",",
         node_id="Sample ID / Isolate",
         track="Location",
         date_attr="Date of collection",
