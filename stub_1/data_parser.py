@@ -3,11 +3,16 @@ import csv
 from datetime import datetime
 
 
-def get_app_data(sample_csv_path, track, attr_link_list,
-                 links_across_y, max_day_range, node_color_attr=None):
-    sample_data_dict = get_sample_data_dict(sample_csv_path)
+def get_app_data(sample_csv_path, node_id, track, date_attr, date_format,
+                 label_attr, attr_link_list, links_across_y, max_day_range,
+                 null_vals, node_symbol_attr=None, node_color_attr=None):
+    sample_data_dict = get_sample_data_dict(sample_csv_path,
+                                            node_id,
+                                            date_attr,
+                                            date_format,
+                                            null_vals)
 
-    date_list = [v["date"] for v in sample_data_dict.values()]
+    date_list = [v[date_attr] for v in sample_data_dict.values()]
     date_x_vals_dict = {
         e: i+1 for i, e in enumerate(dict.fromkeys(sorted(date_list)))
     }
@@ -17,14 +22,24 @@ def get_app_data(sample_csv_path, track, attr_link_list,
         e: i+1 for i, e in enumerate(dict.fromkeys(sorted(track_list)))
     }
 
-    main_fig_nodes_y_dict = get_main_fig_nodes_y_dict(sample_data_dict,
-                                                      track,
-                                                      date_list,
-                                                      track_list,
-                                                      track_y_vals_dict)
+    main_fig_nodes_y_dict = \
+        get_main_fig_nodes_y_dict(sample_data_dict,
+                                  date_attr=date_attr,
+                                  date_list=date_list,
+                                  track=track,
+                                  track_list=track_list,
+                                  track_y_vals_dict=track_y_vals_dict)
 
-    organism_list = [v["organism"] for v in sample_data_dict.values()]
-    organism_symbol_dict = get_organism_symbol_dict(organism_list)
+    if node_symbol_attr:
+        node_symbol_attr_list = \
+            [v[node_symbol_attr] for v in sample_data_dict.values()]
+        node_symbol_attr_dict = \
+            get_node_symbol_attr_dict(node_symbol_attr_list)
+        main_fig_nodes_marker_symbol = \
+            [node_symbol_attr_dict[v] for v in node_symbol_attr_list]
+    else:
+        node_symbol_attr_dict = {}
+        main_fig_nodes_marker_symbol = "square"
 
     if node_color_attr:
         node_color_attr_list = \
@@ -33,7 +48,7 @@ def get_app_data(sample_csv_path, track, attr_link_list,
         main_fig_nodes_marker_color = \
             [node_color_attr_dict[v] for v in node_color_attr_list]
     else:
-        node_color_attr_dict = None
+        node_color_attr_dict = {}
         main_fig_nodes_marker_color = "lightgrey"
 
     sample_links_dict = \
@@ -43,15 +58,17 @@ def get_app_data(sample_csv_path, track, attr_link_list,
                               links_across_y=links_across_y,
                               max_day_range=max_day_range,
                               date_x_vals_dict=date_x_vals_dict,
-                              main_fig_nodes_y_dict=main_fig_nodes_y_dict)
+                              main_fig_nodes_y_dict=main_fig_nodes_y_dict,
+                              null_vals=null_vals,
+                              date_attr=date_attr)
 
     app_data = {
         "node_shape_legend_fig_nodes_y":
-            list(range(len(organism_symbol_dict))),
+            list(range(len(node_symbol_attr_dict))),
         "node_shape_legend_fig_nodes_marker_symbol":
-            list(organism_symbol_dict.values()),
+            list(node_symbol_attr_dict.values()),
         "node_shape_legend_fig_nodes_text":
-            ["<b>%s</b>" % k for k in organism_symbol_dict.keys()],
+            ["<b>%s</b>" % k for k in node_symbol_attr_dict.keys()],
         "main_fig_xaxis_range":
             [0.5, len(date_x_vals_dict) + 0.5],
         "main_fig_yaxis_range":
@@ -69,11 +86,11 @@ def get_app_data(sample_csv_path, track, attr_link_list,
         "main_fig_nodes_y":
             [main_fig_nodes_y_dict[k] for k in sample_data_dict],
         "main_fig_nodes_marker_symbol":
-            [organism_symbol_dict[v] for v in organism_list],
+            main_fig_nodes_marker_symbol,
         "main_fig_nodes_marker_color":
             main_fig_nodes_marker_color,
         "main_fig_nodes_text":
-            ["<b>%s</b>" % v["patient_id"] for v in sample_data_dict.values()],
+            ["<b>%s</b>" % v[label_attr] for v in sample_data_dict.values()],
         "sample_links_dict": sample_links_dict,
         "node_color_attr_dict": node_color_attr_dict
     }
@@ -87,55 +104,41 @@ def get_app_data(sample_csv_path, track, attr_link_list,
     return app_data
 
 
-def get_sample_data_dict(sample_csv_path):
+def get_sample_data_dict(sample_csv_path, node_id, date, date_format,
+                         null_vals):
     sample_data_dict = {}
     with open(sample_csv_path) as fp:
-        next(fp)
         reader = csv.DictReader(fp)
         for row in reader:
-            sample_id = row["Sample ID / Isolate"]
-            if not sample_id:
+            sample_id = row[node_id]
+            if sample_id in null_vals:
                 continue
 
-            datetime_obj =\
-                datetime.strptime(row["Date of collection"], "%B %Y")
-            datetime_iso_str = datetime_obj.strftime("%G-%m-%d")
+            row["datetime_obj"] = datetime.strptime(row[date], date_format)
+            row[date] = row["datetime_obj"].strftime("%G-%m-%d")
 
-            sample_data_dict[sample_id] = {
-                "patient_id": row["Patient ID"],
-                "location": row["Location"],
-                "date": datetime_iso_str,
-                "datetime_obj": datetime_obj,
-                "organism": row["Organism"],
-                "mlst": row["F1: MLST type"],
-                "gene": row["Resitance gene type"],
-                "homozygous_snps": row["SNPs_homozygous"],
-                "flanks": row["Left_flanks"] + row["Right_flanks"],
-                "mash_neighbour_cluster": row["mash_neighbor_cluster"],
-                "replicon_types": row["rep_type(s)"],
-                "relaxase_types": row["relaxase_type(s)"],
-                "predicted_mobility": row["PredictedMobility"]
-            }
+            sample_data_dict[sample_id] = row
     return sample_data_dict
 
 
-def get_organism_symbol_dict(organism_list):
-    organism_symbol_dict = {}
-    organism_table = dict.fromkeys(organism_list)
+def get_node_symbol_attr_dict(node_symbol_attr_list):
+    node_symbol_attr_dict = {}
+    node_symbol_attr_table = dict.fromkeys(node_symbol_attr_list)
 
     available_plotly_symbols = [
         "circle", "square", "diamond", "cross", "x", "triangle-up"
     ]
     next_index_in_symbol_list = 0
 
-    if len(organism_table) > len(available_plotly_symbols):
-        raise IndexError("Not enough unique symbols for different organisms")
+    if len(node_symbol_attr_table) > len(available_plotly_symbols):
+        msg = "Not enough unique symbols for specified node attribute"
+        raise IndexError(msg)
 
-    for organism in organism_table:
-        organism_symbol_dict[organism] =\
+    for node_symbol_attr in node_symbol_attr_table:
+        node_symbol_attr_dict[node_symbol_attr] =\
             available_plotly_symbols[next_index_in_symbol_list]
         next_index_in_symbol_list += 1
-    return organism_symbol_dict
+    return node_symbol_attr_dict
 
 
 def get_node_color_attr_dict(node_color_attr_list):
@@ -163,7 +166,6 @@ def get_node_color_attr_dict(node_color_attr_list):
         msg = "Not enough unique colors for specified node attribute"
         raise IndexError(msg)
 
-
     for node_color_attr in node_color_attr_table:
         node_color_attr_dict[node_color_attr] = \
             available_colors[next_index_in_color_list]
@@ -174,7 +176,7 @@ def get_node_color_attr_dict(node_color_attr_list):
 
 def get_sample_links_dict(attr_link_list, sample_data_dict, track,
                           links_across_y, max_day_range, date_x_vals_dict,
-                          main_fig_nodes_y_dict):
+                          main_fig_nodes_y_dict, null_vals, date_attr):
     available_link_color_dash_combos = [
         ("#1b9e77", "solid"), ("#d95f02", "solid"), ("#7570b3", "solid"),
         ("#1b9e77", "dot"), ("#d95f02", "dot"), ("#7570b3", "dot"),
@@ -192,10 +194,12 @@ def get_sample_links_dict(attr_link_list, sample_data_dict, track,
                                        track=track,
                                        attr=attr,
                                        links_across_y=links_across_y,
-                                       max_day_range=max_day_range)
+                                       max_day_range=max_day_range,
+                                       null_vals=null_vals)
         link_list_x = get_link_list_x(link_list=attr_link_list,
+                                      date_x_vals_dict=date_x_vals_dict,
                                       sample_data_dict=sample_data_dict,
-                                      date_x_vals_dict=date_x_vals_dict)
+                                      date_attr=date_attr)
         link_list_y = \
             get_link_list_y(link_list=attr_link_list,
                             main_fig_nodes_y_dict=main_fig_nodes_y_dict)
@@ -217,17 +221,21 @@ def get_sample_links_dict(attr_link_list, sample_data_dict, track,
 
 
 def get_link_list(sample_data_dict, track, attr, links_across_y,
-                  max_day_range):
+                  max_day_range, null_vals):
+    attr_list = attr.split(";")
     link_list = []
     sample_list = list(sample_data_dict.keys())
     for i in range(len(sample_list)):
         sample = sample_list[i]
+        sample_attr_list = [sample_data_dict[sample][v] for v in attr_list]
 
-        if sample_data_dict[sample][attr] == "-":
+        if any(v in null_vals for v in sample_attr_list):
             continue
 
         for j in range(i+1, len(sample_list)):
             other_sample = sample_list[j]
+            other_sample_attr_list = \
+                [sample_data_dict[other_sample][v] for v in attr_list]
 
             sample_track = sample_data_dict[sample][track]
             other_track = sample_data_dict[other_sample][track]
@@ -241,18 +249,16 @@ def get_link_list(sample_data_dict, track, attr, links_across_y,
             if max_day_range < day_range:
                 continue
 
-            sample_val = sample_data_dict[sample][attr]
-            other_sample_val = sample_data_dict[other_sample][attr]
-            if sample_val == other_sample_val:
+            if sample_attr_list == other_sample_attr_list:
                 link_list.append((sample, other_sample))
     return link_list
 
 
-def get_link_list_x(link_list, date_x_vals_dict, sample_data_dict):
+def get_link_list_x(link_list, date_x_vals_dict, sample_data_dict, date_attr):
     link_list_x = []
     for (sample, other_sample) in link_list:
-        date = sample_data_dict[sample]["date"]
-        other_date = sample_data_dict[other_sample]["date"]
+        date = sample_data_dict[sample][date_attr]
+        other_date = sample_data_dict[other_sample][date_attr]
         link_list_x += [
             date_x_vals_dict[date],
             date_x_vals_dict[other_date],
@@ -270,15 +276,15 @@ def get_link_list_y(link_list, main_fig_nodes_y_dict):
     return link_list_y
 
 
-def get_main_fig_nodes_y_dict(sample_data_dict, track, date_list, track_list,
-                              track_y_vals_dict):
+def get_main_fig_nodes_y_dict(sample_data_dict, date_attr, date_list, track,
+                              track_list, track_y_vals_dict):
     date_track_zip_list = list(zip(date_list, track_list))
     helper_obj = \
         {k: [1/(v+1), 1] for k, v in Counter(date_track_zip_list).items()}
 
     main_fig_nodes_y_dict = {}
     for sample in sample_data_dict:
-        sample_date = sample_data_dict[sample]["date"]
+        sample_date = sample_data_dict[sample][date_attr]
         sample_track = sample_data_dict[sample][track]
         [stagger, multiplier] = helper_obj[(sample_date, sample_track)]
 

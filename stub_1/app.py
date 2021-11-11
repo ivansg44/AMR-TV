@@ -5,7 +5,7 @@ import dash_core_components as dcc
 
 from data_parser import get_app_data
 from main_fig_generator import get_main_fig
-from legend_fig_generator import (get_node_shape_legend_fig,
+from legend_fig_generator import (get_node_symbol_legend_fig,
                                   get_link_legend_fig,
                                   get_node_color_legend_fig)
 
@@ -30,18 +30,29 @@ app.layout = dbc.Container(
 )
 def launch_app(_):
     """Populate empty container after launch."""
-    app_data = get_app_data("sample_data.csv",
-                            track="location",
-                            node_color_attr="mash_neighbour_cluster",
-                            attr_link_list=[
-                                "mlst",
-                                "gene",
-                                "homozygous_snps",
-                                "flanks",
-                                "mash_neighbour_cluster",
-                                "replicon_types"
-                            ], links_across_y=False, max_day_range=60)
+    app_data = get_app_data(
+        "sample_data.csv",
+        node_id="Sample ID / Isolate",
+        track="Location",
+        date_attr="Date of collection",
+        date_format="%B %Y",
+        label_attr="Patient ID",
+        attr_link_list=[
+            "F1: MLST type",
+            "Resitance gene type",
+            "SNPs_homozygous",
+            "Left_flanks;Right_flanks",
+            "mash_neighbor_cluster",
+            "rep_type(s)"
+        ],
+        links_across_y=True,
+        max_day_range=60,
+        null_vals=["", "-"],
+        node_symbol_attr="Organism",
+        node_color_attr="mash_neighbor_cluster"
+    )
 
+    node_symbol_legend_fig = get_node_symbol_legend_fig(app_data)
     node_color_legend_fig_height = \
         "%svh" % (len(app_data["node_color_attr_dict"]) * 5)
 
@@ -62,7 +73,7 @@ def launch_app(_):
                         dbc.Row(
                             dbc.Col(
                                 dcc.Graph(
-                                    figure=get_node_shape_legend_fig(app_data),
+                                    figure=node_symbol_legend_fig,
                                     id="node-shape-legend-graph",
                                     config={"displayModeBar": False},
                                     style={"height": "25vh"}

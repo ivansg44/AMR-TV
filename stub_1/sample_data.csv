@@ -1,4 +1,3 @@
-different node color,separate node,track,,Different node shape,Edge Color #1,Edge Color #2,unique combination would be 1 category Edge Color #3,Edge Color #4,combined with left flanks,,Edge color #5,Edge Color 6,,,,pop up
 Patient ID,Sample ID / Isolate,Location,Date of collection,Organism,F1: MLST type,Resitance gene type,SNPs_homozygous,Left_flanks,Right_flanks,KPC3 found on,mash_neighbor_cluster,rep_type(s),relaxase_type(s),mpf_type,orit_type(s),PredictedMobility
 B,BC21A475A,Hospital 1,June 2021,Enterobacter cloacae,719,KPC-3,C8015T,GTTCT,GTTCT,plasmid,840,IncP,"MOBP,MOBH",MPF_T,-,Conjugative
 C,,,,,,,,,,,,,,,,
