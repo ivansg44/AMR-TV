@@ -6,7 +6,7 @@ from datetime import datetime
 def get_app_data(sample_file_path, delimiter, node_id, track, date_attr,
                  date_format, label_attr, attr_link_list, links_across_y,
                  max_day_range, null_vals, node_symbol_attr=None,
-                 node_color_attr=None):
+                 node_color_attr=None, y_key=None):
     sample_data_dict = get_sample_data_dict(sample_file_path,
                                             delimiter,
                                             node_id,
@@ -20,8 +20,9 @@ def get_app_data(sample_file_path, delimiter, node_id, track, date_attr,
     }
 
     track_list = [v[track] for v in sample_data_dict.values()]
+    sorted_track_list = sorted(track_list, key=y_key)
     track_y_vals_dict = {
-        e: i+1 for i, e in enumerate(dict.fromkeys(sorted(track_list)))
+        e: i+1 for i, e in enumerate(dict.fromkeys(sorted_track_list))
     }
 
     main_fig_nodes_y_dict = \
@@ -164,7 +165,7 @@ def get_node_color_attr_dict(node_color_attr_list):
     ]
     next_index_in_color_list = 0
 
-    if len(node_color_attr_table) > len(node_color_attr_table):
+    if len(node_color_attr_table) > len(available_colors):
         msg = "Not enough unique colors for specified node attribute"
         raise IndexError(msg)
 
