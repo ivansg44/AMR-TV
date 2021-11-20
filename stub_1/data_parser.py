@@ -13,9 +13,6 @@ def get_app_data(sample_file_path, delimiter, node_id, track, date_attr,
                                             date_attr,
                                             date_format,
                                             null_vals)
-    main_fig_nodes_marker_opacity = \
-        [0.5 if str(e) in selected_points else 1 for e in range(len(sample_data_dict))]
-
 
     date_list = [v[date_attr] for v in sample_data_dict.values()]
     date_x_vals_dict = {
