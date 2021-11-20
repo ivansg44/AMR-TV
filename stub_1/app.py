@@ -1,5 +1,5 @@
 from dash import Dash
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 
@@ -13,7 +13,8 @@ app = Dash(
     external_stylesheets=[dbc.themes.UNITED],
     # Fixes bug with debugger in Pycharm. See
     # https://bit.ly/3j86GL1.
-    name="foo"
+    name="foo",
+    suppress_callback_exceptions=True
 )
 
 # We initially serve an empty container
@@ -33,6 +34,23 @@ def launch_app(_):
     show_legend = False
     height = "100vh"
     width = "100vw"
+
+    # "senterica_clusters_11042021.tsv"
+    get_app_data_args = {
+        "sample_file_path": "senterica_clusters_11042021.tsv",
+        "delimiter": "\t",
+        "node_id": "Sample",
+        "track": "site_order",
+        "date_attr": "collection_date",
+        "date_format": "%Y-%m-%d %H:%M:%S",
+        "label_attr": "Sample",
+        "attr_link_list": ["Cluster"],
+        "links_across_y": True,
+        "max_day_range": 5000000,
+        "null_vals": ["", "-"],
+        "selected_points": {}
+        # "y_key": int
+    }
 
     # app_data = get_app_data(
     #     "sample_data.csv",
@@ -56,24 +74,8 @@ def launch_app(_):
     #     node_symbol_attr="Organism",
     #     node_color_attr="mash_neighbor_cluster"
     # )
-    app_data = get_app_data(
-        "senterica_clusters_11042021.tsv",
-        delimiter="\t",
-        node_id="Sample",
-        track="site_order",
-        date_attr="collection_date",
-        date_format="%Y-%m-%d %H:%M:%S",
-        label_attr="Sample",
-        attr_link_list=[
-            "Cluster"
-        ],
-        links_across_y=True,
-        max_day_range=5000000,
-        null_vals=["", "-"],
-        # node_symbol_attr="Organism",
-        # node_color_attr="Cluster",
-        y_key=int
-    )
+
+    app_data = get_app_data(**get_app_data_args)
 
     node_symbol_legend_fig = get_node_symbol_legend_fig(app_data)
     node_color_legend_fig_height = \
@@ -146,8 +148,43 @@ def launch_app(_):
         dbc.Row(
             children=children
         ),
-        dcc.Store(id="app_data", data=app_data)
+        dcc.Store(id="get-app-data-args", data=get_app_data_args),
+        dcc.Store(id="selected-points", data={})
     ]
+
+
+@app.callback(
+    inputs=Input("main-graph", "clickData"),
+    state=State("selected-points", "data"),
+    output=[
+        Output("selected-points", "data"),
+        Output("main-graph", "clickData")
+    ],
+    prevent_initial_call=True
+)
+def select_points(click_data, selected_points):
+    new_selected_points = selected_points
+    clicked_point = str(click_data["points"][0]["pointIndex"])
+    if clicked_point in selected_points:
+        new_selected_points.pop(clicked_point)
+    else:
+        new_selected_points[clicked_point] = None
+    return new_selected_points, None
+
+
+@app.callback(
+    inputs=Input("selected-points", "data"),
+    state=State("get-app-data-args", "data"),
+    output=[
+        Output("main-graph", "figure"),
+        Output("get-app-data-args", "data")
+    ],
+    prevent_initial_call=True
+)
+def update_main_graph(selected_points, get_app_data_args):
+    get_app_data_args["selected_points"] = selected_points
+    new_main_fig = get_main_fig(get_app_data(**get_app_data_args))
+    return new_main_fig, get_app_data_args
 
 
 if __name__ == "__main__":

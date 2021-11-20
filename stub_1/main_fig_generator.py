@@ -13,7 +13,8 @@ def get_main_fig_nodes(app_data):
                 "width": 1
             },
             "size": 24,
-            "symbol": app_data["main_fig_nodes_marker_symbol"]
+            "symbol": app_data["main_fig_nodes_marker_symbol"],
+            "opacity": app_data["main_fig_nodes_marker_opacity"]
         },
         text=app_data["main_fig_nodes_text"],
         textfont={

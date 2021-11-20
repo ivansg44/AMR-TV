@@ -6,13 +6,16 @@ from datetime import datetime
 def get_app_data(sample_file_path, delimiter, node_id, track, date_attr,
                  date_format, label_attr, attr_link_list, links_across_y,
                  max_day_range, null_vals, node_symbol_attr=None,
-                 node_color_attr=None, y_key=None):
+                 node_color_attr=None, y_key=None, selected_points={}):
     sample_data_dict = get_sample_data_dict(sample_file_path,
                                             delimiter,
                                             node_id,
                                             date_attr,
                                             date_format,
                                             null_vals)
+    main_fig_nodes_marker_opacity = \
+        [0.5 if str(e) in selected_points else 1 for e in range(len(sample_data_dict))]
+
 
     date_list = [v[date_attr] for v in sample_data_dict.values()]
     date_x_vals_dict = {
@@ -43,6 +46,13 @@ def get_app_data(sample_file_path, delimiter, node_id, track, date_attr,
     else:
         node_symbol_attr_dict = {}
         main_fig_nodes_marker_symbol = "square"
+
+    point_range = range(len(sample_data_dict))
+    if selected_points:
+        main_fig_nodes_marker_opacity = \
+            [1 if str(e) in selected_points else 0.5 for e in point_range]
+    else:
+        main_fig_nodes_marker_opacity = 1
 
     if node_color_attr:
         node_color_attr_list = \
@@ -92,6 +102,8 @@ def get_app_data(sample_file_path, delimiter, node_id, track, date_attr,
             main_fig_nodes_marker_symbol,
         "main_fig_nodes_marker_color":
             main_fig_nodes_marker_color,
+        "main_fig_nodes_marker_opacity":
+            main_fig_nodes_marker_opacity,
         "main_fig_nodes_text":
             ["<b>%s</b>" % v[label_attr] for v in sample_data_dict.values()],
         "sample_links_dict": sample_links_dict,
