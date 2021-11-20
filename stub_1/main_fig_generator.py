@@ -28,16 +28,33 @@ def get_main_fig_nodes(app_data):
 def get_main_fig_link_graphs(app_data):
     link_graphs = []
     for attr in app_data["sample_links_dict"]:
-        link_dict = app_data["sample_links_dict"][attr]
+        opaque_link_dict = app_data["sample_links_dict"][attr]["opaque"]
+        (r, g, b) = opaque_link_dict["color"]
         link_graphs.append(
             go.Scatter(
-                x=[x if x else None for x in link_dict["x"]],
-                y=[y if y else None for y in link_dict["y"]],
+                x=[x if x else None for x in opaque_link_dict["x"]],
+                y=[y if y else None for y in opaque_link_dict["y"]],
                 mode="lines",
                 line={
                     "width": 3,
-                    "color": link_dict["color"],
-                    "dash": link_dict["dash"]
+                    "color": "rgb(%s, %s, %s)" % (r, g, b),
+                    "dash": opaque_link_dict["dash"]
+                }
+            )
+        )
+
+        transparent_link_dict = \
+            app_data["sample_links_dict"][attr]["transparent"]
+        (r, g, b) = transparent_link_dict["color"]
+        link_graphs.append(
+            go.Scatter(
+                x=[x if x else None for x in transparent_link_dict["x"]],
+                y=[y if y else None for y in transparent_link_dict["y"]],
+                mode="lines",
+                line={
+                    "width": 3,
+                    "color": "rgba(%s, %s, %s, 0.01)" % (r, g, b),
+                    "dash": opaque_link_dict["dash"]
                 }
             )
         )

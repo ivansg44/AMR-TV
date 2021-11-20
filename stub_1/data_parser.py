@@ -16,6 +16,9 @@ def get_app_data(sample_file_path, delimiter, node_id, track, date_attr,
                                             date_attr,
                                             date_format,
                                             null_vals)
+    enumerated_samples = enumerate(sample_data_dict)
+    selected_samples = \
+        {k: None for i, k in enumerated_samples if str(i) in selected_points}
 
     date_list = [v[date_attr] for v in sample_data_dict.values()]
     date_x_vals_dict = {
@@ -73,7 +76,8 @@ def get_app_data(sample_file_path, delimiter, node_id, track, date_attr,
                               date_x_vals_dict=date_x_vals_dict,
                               main_fig_nodes_y_dict=main_fig_nodes_y_dict,
                               null_vals=null_vals,
-                              date_attr=date_attr)
+                              date_attr=date_attr,
+                              selected_samples=selected_samples)
 
     app_data = {
         "node_shape_legend_fig_nodes_y":
@@ -191,10 +195,12 @@ def get_node_color_attr_dict(node_color_attr_list):
 
 def get_sample_links_dict(attr_link_list, sample_data_dict, track,
                           links_across_y, max_day_range, date_x_vals_dict,
-                          main_fig_nodes_y_dict, null_vals, date_attr):
+                          main_fig_nodes_y_dict, null_vals, date_attr,
+                          selected_samples):
     available_link_color_dash_combos = [
-        ("#1b9e77", "solid"), ("#d95f02", "solid"), ("#7570b3", "solid"),
-        ("#1b9e77", "dot"), ("#d95f02", "dot"), ("#7570b3", "dot"),
+        ((27, 158, 119), "solid"), ((217, 95, 2), "solid"),
+        ((117, 112, 179), "solid"), ((217, 95, 2), "dot"),
+        ((217, 95, 2), "dot"), ((117, 112, 179), "dot"),
     ]
     next_index_in_color_dash_list = 0
     if len(attr_link_list) > len(available_link_color_dash_combos):
@@ -211,22 +217,54 @@ def get_sample_links_dict(attr_link_list, sample_data_dict, track,
                                        links_across_y=links_across_y,
                                        max_day_range=max_day_range,
                                        null_vals=null_vals)
-        link_list_x = get_link_list_x(link_list=attr_link_list,
-                                      date_x_vals_dict=date_x_vals_dict,
-                                      sample_data_dict=sample_data_dict,
-                                      date_attr=date_attr)
-        link_list_y = \
-            get_link_list_y(link_list=attr_link_list,
-                            main_fig_nodes_y_dict=main_fig_nodes_y_dict)
+        sample_links_dict[attr] = {
+            "opaque": {},
+            "transparent": {}
+        }
 
-        sample_links_dict[attr] = {}
-        sample_links_dict[attr]["x"] = \
-            [e+offset if e else e for e in link_list_x]
-        sample_links_dict[attr]["y"] = \
-            [e+offset if e else e for e in link_list_y]
-        sample_links_dict[attr]["color"] = \
+        if selected_samples:
+            attr_opaque_link_list = []
+            attr_transparent_link_list = []
+            for (x, y) in attr_link_list:
+                if x in selected_samples or y in selected_samples:
+                    attr_opaque_link_list.append((x, y))
+                else:
+                    attr_transparent_link_list.append((x, y))
+        else:
+            attr_opaque_link_list = attr_link_list
+            attr_transparent_link_list = []
+
+        opaque_link_list_x = get_link_list_x(link_list=attr_opaque_link_list,
+                                             date_x_vals_dict=date_x_vals_dict,
+                                             sample_data_dict=sample_data_dict,
+                                             date_attr=date_attr)
+        opaque_link_list_y = \
+            get_link_list_y(link_list=attr_opaque_link_list,
+                            main_fig_nodes_y_dict=main_fig_nodes_y_dict)
+        sample_links_dict[attr]["opaque"]["x"] = \
+            [e+offset if e else e for e in opaque_link_list_x]
+        sample_links_dict[attr]["opaque"]["y"] = \
+            [e+offset if e else e for e in opaque_link_list_y]
+        sample_links_dict[attr]["opaque"]["color"] = \
             available_link_color_dash_combos[next_index_in_color_dash_list][0]
-        sample_links_dict[attr]["dash"] = \
+        sample_links_dict[attr]["opaque"]["dash"] = \
+            available_link_color_dash_combos[next_index_in_color_dash_list][1]
+
+        transparent_link_list_x = \
+            get_link_list_x(link_list=attr_transparent_link_list,
+                            date_x_vals_dict=date_x_vals_dict,
+                            sample_data_dict=sample_data_dict,
+                            date_attr=date_attr)
+        transparent_link_list_y = \
+            get_link_list_y(link_list=attr_transparent_link_list,
+                            main_fig_nodes_y_dict=main_fig_nodes_y_dict)
+        sample_links_dict[attr]["transparent"]["x"] = \
+            [e+offset if e else e for e in transparent_link_list_x]
+        sample_links_dict[attr]["transparent"]["y"] = \
+            [e+offset if e else e for e in transparent_link_list_y]
+        sample_links_dict[attr]["transparent"]["color"] = \
+            available_link_color_dash_combos[next_index_in_color_dash_list][0]
+        sample_links_dict[attr]["transparent"]["dash"] = \
             available_link_color_dash_combos[next_index_in_color_dash_list][1]
 
         offset += 0.01
