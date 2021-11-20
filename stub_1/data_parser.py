@@ -6,7 +6,10 @@ from datetime import datetime
 def get_app_data(sample_file_path, delimiter, node_id, track, date_attr,
                  date_format, label_attr, attr_link_list, links_across_y,
                  max_day_range, null_vals, node_symbol_attr=None,
-                 node_color_attr=None, y_key=None, selected_points={}):
+                 node_color_attr=None, y_key=None, selected_points=None):
+    if selected_points is None:
+        selected_points = {}
+
     sample_data_dict = get_sample_data_dict(sample_file_path,
                                             delimiter,
                                             node_id,
