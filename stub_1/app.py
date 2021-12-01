@@ -35,16 +35,41 @@ def launch_app(_):
     height = "100vh"
     width = "100vw"
 
-    # "senterica_clusters_11042021.tsv"
+    # # "senterica_clusters_11042021.tsv"
+    # get_app_data_args = {
+    #     "sample_file_path": "senterica_clusters_11042021.tsv",
+    #     "delimiter": "\t",
+    #     "node_id": "Sample",
+    #     "track": "site_order",
+    #     "date_attr": "collection_date",
+    #     "date_format": "%Y-%m-%d %H:%M:%S",
+    #     "label_attr": "Sample",
+    #     "attr_link_list": ["Cluster"],
+    #     "links_across_y": True,
+    #     "max_day_range": 5000000,
+    #     "null_vals": ["", "-"],
+    #     "selected_points": {}
+    #     # "y_key": int
+    # }
+
+    # "senterica_clusters_12012021.tsv"
     get_app_data_args = {
-        "sample_file_path": "senterica_clusters_11042021.tsv",
+        "sample_file_path": "senterica_clusters_12012021.tsv",
         "delimiter": "\t",
         "node_id": "Sample",
         "track": "site_order",
         "date_attr": "collection_date",
         "date_format": "%Y-%m-%d %H:%M:%S",
         "label_attr": "Sample",
-        "attr_link_list": ["Cluster"],
+        "attr_link_list": [
+            "threshold_5",
+            # "threshold_10",
+            # "threshold_20",
+            # "threshold_50",
+            # "threshold_100",
+            # "threshold_200",
+            # "threshold_1000",
+        ],
         "links_across_y": True,
         "max_day_range": 5000000,
         "null_vals": ["", "-"],
@@ -75,7 +100,7 @@ def launch_app(_):
     #     node_color_attr="mash_neighbor_cluster"
     # )
 
-    app_data = get_app_data(**get_app_data_args)
+    app_data = get_app_data(**get_app_data_args, y_key=int)
 
     node_symbol_legend_fig = get_node_symbol_legend_fig(app_data)
     node_color_legend_fig_height = \
