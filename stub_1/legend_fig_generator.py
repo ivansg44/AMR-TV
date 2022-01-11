@@ -50,7 +50,7 @@ def get_node_symbol_legend_fig(app_data):
 def get_link_legend_fig_links(app_data):
     links = []
     for i, attr in enumerate(app_data["sample_links_dict"]):
-        link_dict = app_data["sample_links_dict"][attr]
+        link_dict = app_data["sample_links_dict"][attr]["opaque"]
         links.append(
             go.Scatter(
                 x=[0, 1],
@@ -58,7 +58,7 @@ def get_link_legend_fig_links(app_data):
                 mode="lines+text",
                 line={
                     "width": 3,
-                    "color": link_dict["color"],
+                    "color": "rgb(%s, %s, %s)" % link_dict["color"],
                     "dash": link_dict["dash"]
                 },
                 text=["<b>%s</b>" % attr, None],

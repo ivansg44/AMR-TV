@@ -26,7 +26,7 @@ def get_app_data(sample_file_path, delimiter, node_id, track, date_attr,
     }
 
     track_list = [v[track] for v in sample_data_dict.values()]
-    sorted_track_list = sorted(track_list, key=y_key)
+    sorted_track_list = get_sorted_track_list(track_list, y_key=y_key)
     track_y_vals_dict = {
         e: i+1 for i, e in enumerate(dict.fromkeys(sorted_track_list))
     }
@@ -123,6 +123,17 @@ def get_app_data(sample_file_path, delimiter, node_id, track, date_attr,
     return app_data
 
 
+def get_sorted_track_list(track_list, y_key=None):
+    if y_key == "int":
+        y_key = int
+    elif y_key is not None:
+        msg = 'Currently only accept "int" as a y_key, or its default arg ' \
+              '``None``.'
+        raise ValueError(msg)
+
+    return sorted(track_list, key=y_key)
+
+
 def get_sample_data_dict(sample_file_path, delimiter, node_id, date,
                          date_format, null_vals):
     sample_data_dict = {}
@@ -134,7 +145,7 @@ def get_sample_data_dict(sample_file_path, delimiter, node_id, date,
                 continue
 
             row["datetime_obj"] = datetime.strptime(row[date], date_format)
-            row[date] = row["datetime_obj"].strftime("%G-%m-%d")
+            row[date] = row["datetime_obj"].strftime("%Y-%m-%d")
 
             sample_data_dict[sample_id] = row
     return sample_data_dict

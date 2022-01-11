@@ -31,9 +31,9 @@ app.layout = dbc.Container(
 )
 def launch_app(_):
     """Populate empty container after launch."""
-    show_legend = False
+    show_legend = True
     height = "100vh"
-    width = "100vw"
+    width = "80vw"
 
     # # "senterica_clusters_11042021.tsv"
     # get_app_data_args = {
@@ -49,58 +49,62 @@ def launch_app(_):
     #     "max_day_range": 5000000,
     #     "null_vals": ["", "-"],
     #     "selected_points": {}
-    #     # "y_key": int
+    #     "y_key": int
     # }
 
-    # "senterica_clusters_12012021.tsv"
+    # # "senterica_clusters_12012021.tsv"
+    # get_app_data_args = {
+    #     "sample_file_path": "senterica_clusters_12012021.tsv",
+    #     "delimiter": "\t",
+    #     "node_id": "Sample",
+    #     "track": "site_order",
+    #     "date_attr": "collection_date",
+    #     "date_format": "%Y-%m-%d %H:%M:%S",
+    #     "label_attr": "Sample",
+    #     "attr_link_list": [
+    #         # "threshold_5",
+    #         "threshold_10",
+    #         # "threshold_20",
+    #         # "threshold_50",
+    #         # "threshold_100",
+    #         # "threshold_200",
+    #         # "threshold_1000",
+    #     ],
+    #     "node_color_attr": "serovar",
+    #     "node_symbol_attr": "serovar",
+    #     "links_across_y": True,
+    #     "max_day_range": 14,
+    #     "null_vals": ["", "-"],
+    #     "selected_points": {},
+    #     "y_key": "int"
+    # }
+
+    # "sample_data.csv"
     get_app_data_args = {
-        "sample_file_path": "senterica_clusters_12012021.tsv",
-        "delimiter": "\t",
-        "node_id": "Sample",
-        "track": "site_order",
-        "date_attr": "collection_date",
-        "date_format": "%Y-%m-%d %H:%M:%S",
-        "label_attr": "Sample",
+        "sample_file_path": "sample_data.csv",
+        "delimiter": ",",
+        "node_id": "Sample ID / Isolate",
+        "track": "Location",
+        "date_attr": "Date of collection",
+        "date_format": "%B %Y",
+        "label_attr": "Patient ID",
         "attr_link_list": [
-            "threshold_5",
-            # "threshold_10",
-            # "threshold_20",
-            # "threshold_50",
-            # "threshold_100",
-            # "threshold_200",
-            # "threshold_1000",
+            "F1: MLST type",
+            "Resitance gene type",
+            "SNPs_homozygous",
+            "Left_flanks;Right_flanks",
+            "mash_neighbor_cluster",
+            "rep_type(s)"
         ],
+        "node_color_attr": "mash_neighbor_cluster",
+        "node_symbol_attr": "Organism",
         "links_across_y": True,
-        "max_day_range": 5000000,
+        "max_day_range": 60,
         "null_vals": ["", "-"],
         "selected_points": {}
-        # "y_key": int
     }
 
-    # app_data = get_app_data(
-    #     "sample_data.csv",
-    #     delimiter=",",
-    #     node_id="Sample ID / Isolate",
-    #     track="Location",
-    #     date_attr="Date of collection",
-    #     date_format="%B %Y",
-    #     label_attr="Patient ID",
-    #     attr_link_list=[
-    #         "F1: MLST type",
-    #         "Resitance gene type",
-    #         "SNPs_homozygous",
-    #         "Left_flanks;Right_flanks",
-    #         "mash_neighbor_cluster",
-    #         "rep_type(s)"
-    #     ],
-    #     links_across_y=True,
-    #     max_day_range=60,
-    #     null_vals=["", "-"],
-    #     node_symbol_attr="Organism",
-    #     node_color_attr="mash_neighbor_cluster"
-    # )
-
-    app_data = get_app_data(**get_app_data_args, y_key=int)
+    app_data = get_app_data(**get_app_data_args)
 
     node_symbol_legend_fig = get_node_symbol_legend_fig(app_data)
     node_color_legend_fig_height = \
