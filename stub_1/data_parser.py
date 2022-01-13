@@ -222,35 +222,37 @@ def get_sample_links_dict(attr_link_list, sample_data_dict, track,
 
     sample_links_dict = {}
     for attr in attr_link_list:
-        attr_link_list = get_link_list(sample_data_dict=sample_data_dict,
-                                       track=track,
-                                       attr=attr,
-                                       links_across_y=links_across_y,
-                                       max_day_range=max_day_range,
-                                       null_vals=null_vals)
+        sample_links_list = \
+            get_sample_links_list(sample_data_dict=sample_data_dict,
+                                  track=track,
+                                  attr=attr,
+                                  links_across_y=links_across_y,
+                                  max_day_range=max_day_range,
+                                  null_vals=null_vals)
         sample_links_dict[attr] = {
             "opaque": {},
             "transparent": {}
         }
 
         if selected_samples:
-            attr_opaque_link_list = []
-            attr_transparent_link_list = []
-            for (x, y) in attr_link_list:
+            opaque_sample_links_list = []
+            transparent_sample_links_list = []
+            for (x, y) in sample_links_list:
                 if x in selected_samples or y in selected_samples:
-                    attr_opaque_link_list.append((x, y))
+                    opaque_sample_links_list.append((x, y))
                 else:
-                    attr_transparent_link_list.append((x, y))
+                    transparent_sample_links_list.append((x, y))
         else:
-            attr_opaque_link_list = attr_link_list
-            attr_transparent_link_list = []
+            opaque_sample_links_list = sample_links_list
+            transparent_sample_links_list = []
 
-        opaque_link_list_x = get_link_list_x(link_list=attr_opaque_link_list,
-                                             date_x_vals_dict=date_x_vals_dict,
-                                             sample_data_dict=sample_data_dict,
-                                             date_attr=date_attr)
+        opaque_link_list_x = \
+            get_link_list_x(link_list=opaque_sample_links_list,
+                            date_x_vals_dict=date_x_vals_dict,
+                            sample_data_dict=sample_data_dict,
+                            date_attr=date_attr)
         opaque_link_list_y = \
-            get_link_list_y(link_list=attr_opaque_link_list,
+            get_link_list_y(link_list=opaque_sample_links_list,
                             main_fig_nodes_y_dict=main_fig_nodes_y_dict)
         sample_links_dict[attr]["opaque"]["x"] = \
             [e+offset if e else e for e in opaque_link_list_x]
@@ -262,12 +264,12 @@ def get_sample_links_dict(attr_link_list, sample_data_dict, track,
             available_link_color_dash_combos[next_index_in_color_dash_list][1]
 
         transparent_link_list_x = \
-            get_link_list_x(link_list=attr_transparent_link_list,
+            get_link_list_x(link_list=transparent_sample_links_list,
                             date_x_vals_dict=date_x_vals_dict,
                             sample_data_dict=sample_data_dict,
                             date_attr=date_attr)
         transparent_link_list_y = \
-            get_link_list_y(link_list=attr_transparent_link_list,
+            get_link_list_y(link_list=transparent_sample_links_list,
                             main_fig_nodes_y_dict=main_fig_nodes_y_dict)
         sample_links_dict[attr]["transparent"]["x"] = \
             [e+offset if e else e for e in transparent_link_list_x]
@@ -284,8 +286,8 @@ def get_sample_links_dict(attr_link_list, sample_data_dict, track,
     return sample_links_dict
 
 
-def get_link_list(sample_data_dict, track, attr, links_across_y,
-                  max_day_range, null_vals):
+def get_sample_links_list(sample_data_dict, track, attr, links_across_y,
+                          max_day_range, null_vals):
     attr_list = attr.split(";")
     link_list = []
     sample_list = list(sample_data_dict.keys())
