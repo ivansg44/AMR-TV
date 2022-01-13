@@ -254,10 +254,17 @@ def get_sample_links_dict(attr_link_list, sample_data_dict, track,
         opaque_link_list_y = \
             get_link_list_y(link_list=opaque_sample_links_list,
                             main_fig_nodes_y_dict=main_fig_nodes_y_dict)
-        sample_links_dict[attr]["opaque"]["x"] = \
-            [e+offset if e else e for e in opaque_link_list_x]
-        sample_links_dict[attr]["opaque"]["y"] = \
-            [e+offset if e else e for e in opaque_link_list_y]
+        for i in range(0, len(opaque_sample_links_list)*3, 3):
+            [x1, x2] = opaque_link_list_x[i:i+2]
+            [y1, y2] = opaque_link_list_y[i:i+2]
+            if x1 != x2:
+                opaque_link_list_y[i] += offset
+                opaque_link_list_y[i+1] += offset
+            if y1 != y2:
+                opaque_link_list_x[i] += offset
+                opaque_link_list_x[i+1] += offset
+        sample_links_dict[attr]["opaque"]["x"] = opaque_link_list_x
+        sample_links_dict[attr]["opaque"]["y"] = opaque_link_list_y
         sample_links_dict[attr]["opaque"]["color"] = \
             available_link_color_dash_combos[next_index_in_color_dash_list][0]
         sample_links_dict[attr]["opaque"]["dash"] = \
@@ -271,10 +278,17 @@ def get_sample_links_dict(attr_link_list, sample_data_dict, track,
         transparent_link_list_y = \
             get_link_list_y(link_list=transparent_sample_links_list,
                             main_fig_nodes_y_dict=main_fig_nodes_y_dict)
-        sample_links_dict[attr]["transparent"]["x"] = \
-            [e+offset if e else e for e in transparent_link_list_x]
-        sample_links_dict[attr]["transparent"]["y"] = \
-            [e+offset if e else e for e in transparent_link_list_y]
+        for i in range(0, len(transparent_sample_links_list)*3, 3):
+            [x1, x2] = transparent_link_list_x[i:i+2]
+            [y1, y2] = transparent_link_list_y[i:i+2]
+            if x1 != x2:
+                transparent_link_list_y[i] += offset
+                transparent_link_list_y[i+1] += offset
+            if y1 != y2:
+                transparent_link_list_x[i] += offset
+                transparent_link_list_x[i+1] += offset
+        sample_links_dict[attr]["transparent"]["x"] = transparent_link_list_x
+        sample_links_dict[attr]["transparent"]["y"] = transparent_link_list_y
         sample_links_dict[attr]["transparent"]["color"] = \
             available_link_color_dash_combos[next_index_in_color_dash_list][0]
         sample_links_dict[attr]["transparent"]["dash"] = \
