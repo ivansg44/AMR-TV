@@ -1,7 +1,7 @@
 import plotly.graph_objects as go
 
 
-def get_main_fig_nodes(app_data):
+def get_main_fig_nodes(app_data, node_size):
     nodes = go.Scatter(
         x=app_data["main_fig_nodes_x"],
         y=app_data["main_fig_nodes_y"],
@@ -12,7 +12,7 @@ def get_main_fig_nodes(app_data):
                 "color": "black",
                 "width": 1
             },
-            "size": 24,
+            "size": node_size,
             "symbol": app_data["main_fig_nodes_marker_symbol"],
             "opacity": app_data["main_fig_nodes_marker_opacity"]
         },
@@ -73,11 +73,11 @@ def get_main_fig_facet_lines(app_data):
     return lines
 
 
-def get_main_fig(app_data):
+def get_main_fig(app_data, node_size, xaxis_range, yaxis_range):
     main_fig_link_graphs = get_main_fig_link_graphs(app_data)
     fig = go.Figure(
         data=main_fig_link_graphs + [
-            get_main_fig_nodes(app_data),
+            get_main_fig_nodes(app_data, node_size),
             get_main_fig_facet_lines(app_data)
         ],
         layout={
@@ -86,7 +86,7 @@ def get_main_fig(app_data):
             },
             "showlegend": False,
             "xaxis": {
-                "range": app_data["main_fig_xaxis_range"],
+                "range": xaxis_range,
                 "tickmode": "array",
                 "tickvals": app_data["main_fig_xaxis_tickvals"],
                 "ticktext": app_data["main_fig_xaxis_ticktext"],
@@ -96,7 +96,7 @@ def get_main_fig(app_data):
                 "linecolor": "black"
             },
             "yaxis": {
-                "range": app_data["main_fig_yaxis_range"],
+                "range": yaxis_range,
                 "tickmode": "array",
                 "tickvals": app_data["main_fig_yaxis_tickvals"],
                 "ticktext": app_data["main_fig_yaxis_ticktext"],
