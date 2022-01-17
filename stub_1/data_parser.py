@@ -210,7 +210,7 @@ def get_sample_links_dict(attr_link_list, sample_data_dict, track,
                           selected_samples):
     available_link_color_dash_combos = [
         ((27, 158, 119), "solid"), ((217, 95, 2), "solid"),
-        ((117, 112, 179), "solid"), ((217, 95, 2), "dot"),
+        ((117, 112, 179), "solid"), ((27, 158, 119), "dot"),
         ((217, 95, 2), "dot"), ((117, 112, 179), "dot"),
     ]
     next_index_in_color_dash_list = 0
@@ -254,10 +254,9 @@ def get_sample_links_dict(attr_link_list, sample_data_dict, track,
         opaque_link_list_y = \
             get_link_list_y(link_list=opaque_sample_links_list,
                             main_fig_nodes_y_dict=main_fig_nodes_y_dict)
-        for i in range(0, len(opaque_sample_links_list)*3, 3):
-            [x1, x2] = opaque_link_list_x[i:i+2]
+        for i in range(0, len(opaque_link_list_y), 3):
             [y1, y2] = opaque_link_list_y[i:i+2]
-            if x1 != x2:
+            if y1 == y2:
                 opaque_link_list_y[i] += offset
                 opaque_link_list_y[i+1] += offset
             if y1 != y2:
@@ -278,10 +277,9 @@ def get_sample_links_dict(attr_link_list, sample_data_dict, track,
         transparent_link_list_y = \
             get_link_list_y(link_list=transparent_sample_links_list,
                             main_fig_nodes_y_dict=main_fig_nodes_y_dict)
-        for i in range(0, len(transparent_sample_links_list)*3, 3):
-            [x1, x2] = transparent_link_list_x[i:i+2]
+        for i in range(0, len(transparent_link_list_y), 3):
             [y1, y2] = transparent_link_list_y[i:i+2]
-            if x1 != x2:
+            if y1 == y2:
                 transparent_link_list_y[i] += offset
                 transparent_link_list_y[i+1] += offset
             if y1 != y2:
