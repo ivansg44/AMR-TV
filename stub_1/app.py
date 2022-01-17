@@ -1,7 +1,5 @@
-import dash
 from dash import Dash
 from dash.dependencies import Input, Output, State
-from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 
@@ -36,7 +34,6 @@ def launch_app(_):
     show_legend = True
     height = "100vh"
     width = "80vw"
-    node_size = 24
 
     # # "senterica_clusters_11042021.tsv"
     # get_app_data_args = {
@@ -108,8 +105,6 @@ def launch_app(_):
     }
 
     app_data = get_app_data(**get_app_data_args)
-    xaxis_range = app_data["main_fig_xaxis_range"]
-    yaxis_range = app_data["main_fig_yaxis_range"]
 
     node_symbol_legend_fig = get_node_symbol_legend_fig(app_data)
     node_color_legend_fig_height = \
@@ -118,10 +113,7 @@ def launch_app(_):
     children = [
         dbc.Col(
             children=dcc.Graph(
-                figure=get_main_fig(app_data,
-                                    node_size=node_size,
-                                    xaxis_range=xaxis_range,
-                                    yaxis_range=yaxis_range),
+                figure=get_main_fig(app_data),
                 id="main-graph",
                 # config={"displayModeBar": False},
                 style={"height": height, "width": width}
@@ -186,11 +178,7 @@ def launch_app(_):
             children=children
         ),
         dcc.Store(id="get-app-data-args", data=get_app_data_args),
-        dcc.Store(id="selected-points", data={}),
-        dcc.Store(id="magnification", data=1),
-        dcc.Store(id="node-size", data=node_size),
-        dcc.Store(id="xaxis-range", data=xaxis_range),
-        dcc.Store(id="yaxis-range", data=yaxis_range)
+        dcc.Store(id="selected-points", data={})
     ]
 
 
@@ -214,90 +202,17 @@ def select_points(click_data, selected_points):
 
 
 @app.callback(
-    inputs=Input("main-graph", "relayoutData"),
-    state=[
-        State("magnification", "data"),
-        State("node-size", "data"),
-        State("xaxis-range", "data"),
-        State("yaxis-range", "data")
-    ],
-    output=[
-        Output("magnification", "data"),
-        Output("node-size", "data"),
-        Output("xaxis-range", "data"),
-        Output("yaxis-range", "data")
-    ],
-    prevent_initial_call=True
-)
-def update_magnification(relayout_data, magnification, node_size, xaxis_range,
-                         yaxis_range):
-    try:
-        x1 = relayout_data["xaxis.range[0]"]
-        x2 = relayout_data["xaxis.range[1]"]
-        y1 = relayout_data["yaxis.range[0]"]
-        y2 = relayout_data["yaxis.range[1]"]
-    except KeyError:
-        raise PreventUpdate
-
-    old_area = \
-        (xaxis_range[1] - xaxis_range[0]) * (yaxis_range[1] - yaxis_range[0])
-    max_magnification = 5
-    while True:
-        zoomed_area = (x2 - x1) * (y2 - y1)
-        magnification_step = old_area / zoomed_area
-        overall_magnification = magnification_step * magnification
-        if overall_magnification > max_magnification:
-            x1 -= 1
-            x2 += 1
-            y1 -= 1
-            y2 += 1
-        else:
-            break
-
-    new_node_size = round(node_size * magnification_step)
-
-    return overall_magnification, new_node_size, [x1, x2], [y1, y2]
-
-
-@app.callback(
-    inputs=[
-        Input("selected-points", "data"),
-        Input("node-size", "data")
-    ],
-    state=[
-        State("get-app-data-args", "data"),
-        State("xaxis-range", "data"),
-        State("yaxis-range", "data")
-    ],
+    inputs=Input("selected-points", "data"),
+    state=State("get-app-data-args", "data"),
     output=[
         Output("main-graph", "figure"),
         Output("get-app-data-args", "data")
     ],
     prevent_initial_call=True
 )
-def update_main_graph(selected_points, node_size, get_app_data_args,
-                      xaxis_range, yaxis_range):
-    ctx = dash.callback_context
-    trigger = ctx.triggered[0]["prop_id"]
-
-    if trigger == "selected-points.data":
-        get_app_data_args["selected_points"] = selected_points
-        app_data = get_app_data(**get_app_data_args)
-        new_main_fig = get_main_fig(app_data,
-                                    node_size=node_size,
-                                    xaxis_range=xaxis_range,
-                                    yaxis_range=yaxis_range)
-    elif trigger == "node-size.data":
-        get_app_data_args["selected_points"] = selected_points
-        app_data = get_app_data(**get_app_data_args)
-        new_main_fig = get_main_fig(app_data,
-                                    node_size=node_size,
-                                    xaxis_range=xaxis_range,
-                                    yaxis_range=yaxis_range)
-    else:
-        msg = "Unexpected trigger trying to update main graph: %s" % trigger
-        raise RuntimeError(msg)
-
+def update_main_graph(selected_points, get_app_data_args):
+    get_app_data_args["selected_points"] = selected_points
+    new_main_fig = get_main_fig(get_app_data(**get_app_data_args))
     return new_main_fig, get_app_data_args
 
 
