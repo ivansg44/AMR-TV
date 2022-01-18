@@ -7,7 +7,7 @@ def get_app_data(sample_file_path, delimiter, node_id, track, date_attr,
                  date_format, label_attr, attr_link_list, links_across_y,
                  max_day_range, null_vals, node_symbol_attr=None,
                  node_color_attr=None, y_key=None, selected_points=None,
-                 x_magnification=1, y_magnification=1):
+                 xaxis_range=None, yaxis_range=None):
     if selected_points is None:
         selected_points = {}
 
@@ -68,6 +68,10 @@ def get_app_data(sample_file_path, delimiter, node_id, track, date_attr,
         node_color_attr_dict = {}
         main_fig_nodes_marker_color = "lightgrey"
 
+    if not xaxis_range:
+        xaxis_range = [0.5, len(date_x_vals_dict) + 0.5]
+    if not yaxis_range:
+        yaxis_range = [0.5, len(track_y_vals_dict) + 0.5]
     sample_links_dict = \
         get_sample_links_dict(attr_link_list=attr_link_list,
                               sample_data_dict=sample_data_dict,
@@ -79,8 +83,8 @@ def get_app_data(sample_file_path, delimiter, node_id, track, date_attr,
                               null_vals=null_vals,
                               date_attr=date_attr,
                               selected_samples=selected_samples,
-                              x_magnification=x_magnification,
-                              y_magnification=y_magnification)
+                              xaxis_range=xaxis_range,
+                              yaxis_range=yaxis_range)
 
     app_data = {
         "node_shape_legend_fig_nodes_y":
@@ -90,9 +94,9 @@ def get_app_data(sample_file_path, delimiter, node_id, track, date_attr,
         "node_shape_legend_fig_nodes_text":
             ["<b>%s</b>" % k for k in node_symbol_attr_dict.keys()],
         "main_fig_xaxis_range":
-            [0.5, len(date_x_vals_dict) + 0.5],
+            xaxis_range,
         "main_fig_yaxis_range":
-            [0.5, len(track_y_vals_dict) + 0.5],
+            yaxis_range,
         "main_fig_xaxis_tickvals":
             list(range(1, len(date_x_vals_dict) + 1)),
         "main_fig_xaxis_ticktext":
@@ -210,7 +214,7 @@ def get_node_color_attr_dict(node_color_attr_list):
 def get_sample_links_dict(attr_link_list, sample_data_dict, track,
                           links_across_y, max_day_range, date_x_vals_dict,
                           main_fig_nodes_y_dict, null_vals, date_attr,
-                          selected_samples, x_magnification, y_magnification):
+                          selected_samples, xaxis_range, yaxis_range):
     available_link_color_dash_combos = [
         ((27, 158, 119), "solid"), ((217, 95, 2), "solid"),
         ((117, 112, 179), "solid"), ((27, 158, 119), "dot"),
@@ -221,9 +225,9 @@ def get_sample_links_dict(attr_link_list, sample_data_dict, track,
         msg = "Not enough unique edge patterns for different attributes"
         raise IndexError(msg)
 
-    x_offset_interval = 0.01 / x_magnification
+    x_offset_interval = (xaxis_range[1] - xaxis_range[0]) / 300
     x_offset = 0 - (len(attr_link_list) * (x_offset_interval / 2))
-    y_offset_interval = 0.01 / y_magnification
+    y_offset_interval = (yaxis_range[1] - yaxis_range[0]) / 300
     y_offset = 0 - (len(attr_link_list) * (y_offset_interval / 2))
 
     sample_links_dict = {}
