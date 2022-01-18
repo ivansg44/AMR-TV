@@ -1,5 +1,7 @@
+import dash
 from dash import Dash
 from dash.dependencies import Input, Output, State
+from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 
@@ -106,6 +108,9 @@ def launch_app(_):
 
     app_data = get_app_data(**get_app_data_args)
 
+    launch_xaxis_range = app_data["main_fig_xaxis_range"]
+    launch_yaxis_range = app_data["main_fig_yaxis_range"]
+
     node_symbol_legend_fig = get_node_symbol_legend_fig(app_data)
     node_color_legend_fig_height = \
         "%svh" % (len(app_data["node_color_attr_dict"]) * 5)
@@ -178,7 +183,9 @@ def launch_app(_):
             children=children
         ),
         dcc.Store(id="get-app-data-args", data=get_app_data_args),
-        dcc.Store(id="selected-points", data={})
+        dcc.Store(id="selected-points", data={}),
+        dcc.Store(id="launch-xaxis-range", data=launch_xaxis_range),
+        dcc.Store(id="launch-yaxis-range", data=launch_yaxis_range)
     ]
 
 
@@ -202,17 +209,52 @@ def select_points(click_data, selected_points):
 
 
 @app.callback(
-    inputs=Input("selected-points", "data"),
-    state=State("get-app-data-args", "data"),
+    inputs=[
+        Input("selected-points", "data"),
+        Input("main-graph", "relayoutData")
+    ],
+    state=[
+        State("get-app-data-args", "data"),
+        State("launch-xaxis-range", "data"),
+        State("launch-yaxis-range", "data")
+    ],
     output=[
         Output("main-graph", "figure"),
         Output("get-app-data-args", "data")
     ],
     prevent_initial_call=True
 )
-def update_main_graph(selected_points, get_app_data_args):
-    get_app_data_args["selected_points"] = selected_points
-    new_main_fig = get_main_fig(get_app_data(**get_app_data_args))
+def update_main_graph(selected_points, relayout_data, get_app_data_args,
+                      launch_xaxis_range, launch_yaxis_range):
+    ctx = dash.callback_context
+    trigger = ctx.triggered[0]["prop_id"]
+
+    if trigger == "selected-points.data":
+        get_app_data_args["selected_points"] = selected_points
+        new_main_fig = get_main_fig(get_app_data(**get_app_data_args))
+    elif trigger == "main-graph.relayoutData":
+        try:
+            x1 = relayout_data["xaxis.range[0]"]
+            x2 = relayout_data["xaxis.range[1]"]
+            y1 = relayout_data["yaxis.range[0]"]
+            y2 = relayout_data["yaxis.range[1]"]
+        except KeyError:
+            raise PreventUpdate
+
+        get_app_data_args["x_magnification"] = \
+            (launch_xaxis_range[1] - launch_xaxis_range[0]) / (x2 - x1)
+        get_app_data_args["y_magnification"] = \
+            (launch_yaxis_range[1] - launch_yaxis_range[0]) / (y2 - y1)
+
+        app_data = get_app_data(**get_app_data_args)
+        app_data["main_fig_xaxis_range"] = [x1, x2]
+        app_data["main_fig_yaxis_range"] = [y1, y2]
+
+        new_main_fig = get_main_fig(app_data)
+    else:
+        msg = "Unexpected trigger trying to update main graph: %s" % trigger
+        raise RuntimeError(msg)
+
     return new_main_fig, get_app_data_args
 
 

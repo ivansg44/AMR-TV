@@ -6,7 +6,8 @@ from datetime import datetime
 def get_app_data(sample_file_path, delimiter, node_id, track, date_attr,
                  date_format, label_attr, attr_link_list, links_across_y,
                  max_day_range, null_vals, node_symbol_attr=None,
-                 node_color_attr=None, y_key=None, selected_points=None):
+                 node_color_attr=None, y_key=None, selected_points=None,
+                 x_magnification=1, y_magnification=1):
     if selected_points is None:
         selected_points = {}
 
@@ -77,7 +78,9 @@ def get_app_data(sample_file_path, delimiter, node_id, track, date_attr,
                               main_fig_nodes_y_dict=main_fig_nodes_y_dict,
                               null_vals=null_vals,
                               date_attr=date_attr,
-                              selected_samples=selected_samples)
+                              selected_samples=selected_samples,
+                              x_magnification=x_magnification,
+                              y_magnification=y_magnification)
 
     app_data = {
         "node_shape_legend_fig_nodes_y":
@@ -207,7 +210,7 @@ def get_node_color_attr_dict(node_color_attr_list):
 def get_sample_links_dict(attr_link_list, sample_data_dict, track,
                           links_across_y, max_day_range, date_x_vals_dict,
                           main_fig_nodes_y_dict, null_vals, date_attr,
-                          selected_samples):
+                          selected_samples, x_magnification, y_magnification):
     available_link_color_dash_combos = [
         ((27, 158, 119), "solid"), ((217, 95, 2), "solid"),
         ((117, 112, 179), "solid"), ((27, 158, 119), "dot"),
@@ -218,7 +221,10 @@ def get_sample_links_dict(attr_link_list, sample_data_dict, track,
         msg = "Not enough unique edge patterns for different attributes"
         raise IndexError(msg)
 
-    offset = 0 - (len(attr_link_list) / 200)
+    x_offset_interval = 0.01 / x_magnification
+    x_offset = 0 - (len(attr_link_list) * (x_offset_interval / 2))
+    y_offset_interval = 0.01 / y_magnification
+    y_offset = 0 - (len(attr_link_list) * (y_offset_interval / 2))
 
     sample_links_dict = {}
     for attr in attr_link_list:
@@ -257,11 +263,11 @@ def get_sample_links_dict(attr_link_list, sample_data_dict, track,
         for i in range(0, len(opaque_link_list_y), 3):
             [y1, y2] = opaque_link_list_y[i:i+2]
             if y1 == y2:
-                opaque_link_list_y[i] += offset
-                opaque_link_list_y[i+1] += offset
+                opaque_link_list_y[i] += y_offset
+                opaque_link_list_y[i+1] += y_offset
             if y1 != y2:
-                opaque_link_list_x[i] += offset
-                opaque_link_list_x[i+1] += offset
+                opaque_link_list_x[i] += x_offset
+                opaque_link_list_x[i+1] += x_offset
         sample_links_dict[attr]["opaque"]["x"] = opaque_link_list_x
         sample_links_dict[attr]["opaque"]["y"] = opaque_link_list_y
         sample_links_dict[attr]["opaque"]["color"] = \
@@ -280,11 +286,11 @@ def get_sample_links_dict(attr_link_list, sample_data_dict, track,
         for i in range(0, len(transparent_link_list_y), 3):
             [y1, y2] = transparent_link_list_y[i:i+2]
             if y1 == y2:
-                transparent_link_list_y[i] += offset
-                transparent_link_list_y[i+1] += offset
+                transparent_link_list_y[i] += y_offset
+                transparent_link_list_y[i+1] += y_offset
             if y1 != y2:
-                transparent_link_list_x[i] += offset
-                transparent_link_list_x[i+1] += offset
+                transparent_link_list_x[i] += x_offset
+                transparent_link_list_x[i+1] += x_offset
         sample_links_dict[attr]["transparent"]["x"] = transparent_link_list_x
         sample_links_dict[attr]["transparent"]["y"] = transparent_link_list_y
         sample_links_dict[attr]["transparent"]["color"] = \
@@ -292,7 +298,8 @@ def get_sample_links_dict(attr_link_list, sample_data_dict, track,
         sample_links_dict[attr]["transparent"]["dash"] = \
             available_link_color_dash_combos[next_index_in_color_dash_list][1]
 
-        offset += 0.01
+        x_offset += x_offset_interval
+        y_offset += y_offset_interval
         next_index_in_color_dash_list += 1
 
     return sample_links_dict
