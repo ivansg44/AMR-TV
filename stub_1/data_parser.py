@@ -25,6 +25,11 @@ def get_app_data(sample_file_path, delimiter, node_id, track, date_attr,
     date_x_vals_dict = {
         e: i+1 for i, e in enumerate(dict.fromkeys(sorted(date_list)))
     }
+    main_fig_nodes_x_dict = \
+        get_main_fig_nodes_x_dict(sample_data_dict,
+                                  date_attr=date_attr,
+                                  date_list=date_list,
+                                  date_x_vals_dict=date_x_vals_dict)
 
     track_list = [v[track] for v in sample_data_dict.values()]
     sorted_track_list = get_sorted_track_list(track_list, y_key=y_key)
@@ -106,7 +111,7 @@ def get_app_data(sample_file_path, delimiter, node_id, track, date_attr,
         "main_fig_yaxis_ticktext":
             list(track_y_vals_dict.keys()),
         "main_fig_nodes_x":
-            [date_x_vals_dict[e] for e in date_list],
+            [main_fig_nodes_x_dict[k] for k in sample_data_dict],
         "main_fig_nodes_y":
             [main_fig_nodes_y_dict[k] for k in sample_data_dict],
         "main_fig_nodes_marker_symbol":
@@ -363,6 +368,26 @@ def get_link_list_y(link_list, main_fig_nodes_y_dict):
         other_main_fig_node_y = main_fig_nodes_y_dict[other_sample]
         link_list_y += [main_fig_node_y, other_main_fig_node_y, None]
     return link_list_y
+
+
+def get_main_fig_nodes_x_dict(sample_data_dict, date_attr, date_list,
+                              date_x_vals_dict):
+    helper_obj = \
+        {k: [1/(v+1), 1] for k, v in Counter(date_list).items()}
+
+    main_fig_nodes_x_dict = {}
+    for sample in sample_data_dict:
+        sample_date = sample_data_dict[sample][date_attr]
+        [stagger, multiplier] = helper_obj[sample_date]
+
+        unstaggered_x = date_x_vals_dict[sample_date]
+        lowest_x = unstaggered_x - 0.5
+        staggered_x = lowest_x + (stagger * multiplier)
+
+        main_fig_nodes_x_dict[sample] = staggered_x
+        helper_obj[sample_date][1] += 1
+
+    return main_fig_nodes_x_dict
 
 
 def get_main_fig_nodes_y_dict(sample_data_dict, date_attr, date_list, track,
