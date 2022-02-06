@@ -83,10 +83,9 @@ def get_app_data(sample_file_path, delimiter, node_id, track, date_attr,
                               track=track,
                               links_across_y=links_across_y,
                               max_day_range=max_day_range,
-                              date_x_vals_dict=date_x_vals_dict,
+                              main_fig_nodes_x_dict=main_fig_nodes_x_dict,
                               main_fig_nodes_y_dict=main_fig_nodes_y_dict,
                               null_vals=null_vals,
-                              date_attr=date_attr,
                               selected_samples=selected_samples,
                               xaxis_range=xaxis_range,
                               yaxis_range=yaxis_range)
@@ -217,9 +216,9 @@ def get_node_color_attr_dict(node_color_attr_list):
 
 
 def get_sample_links_dict(attr_link_list, sample_data_dict, track,
-                          links_across_y, max_day_range, date_x_vals_dict,
-                          main_fig_nodes_y_dict, null_vals, date_attr,
-                          selected_samples, xaxis_range, yaxis_range):
+                          links_across_y, max_day_range, main_fig_nodes_x_dict,
+                          main_fig_nodes_y_dict, null_vals, selected_samples,
+                          xaxis_range, yaxis_range):
     available_link_color_dash_combos = [
         ((27, 158, 119), "solid"), ((217, 95, 2), "solid"),
         ((117, 112, 179), "solid"), ((27, 158, 119), "dot"),
@@ -263,9 +262,7 @@ def get_sample_links_dict(attr_link_list, sample_data_dict, track,
 
         opaque_link_list_x = \
             get_link_list_x(link_list=opaque_sample_links_list,
-                            date_x_vals_dict=date_x_vals_dict,
-                            sample_data_dict=sample_data_dict,
-                            date_attr=date_attr)
+                            main_fig_nodes_x_dict=main_fig_nodes_x_dict)
         opaque_link_list_y = \
             get_link_list_y(link_list=opaque_sample_links_list,
                             main_fig_nodes_y_dict=main_fig_nodes_y_dict)
@@ -286,9 +283,7 @@ def get_sample_links_dict(attr_link_list, sample_data_dict, track,
 
         transparent_link_list_x = \
             get_link_list_x(link_list=transparent_sample_links_list,
-                            date_x_vals_dict=date_x_vals_dict,
-                            sample_data_dict=sample_data_dict,
-                            date_attr=date_attr)
+                            main_fig_nodes_x_dict=main_fig_nodes_x_dict)
         transparent_link_list_y = \
             get_link_list_y(link_list=transparent_sample_links_list,
                             main_fig_nodes_y_dict=main_fig_nodes_y_dict)
@@ -348,16 +343,12 @@ def get_sample_links_list(sample_data_dict, track, attr, links_across_y,
     return link_list
 
 
-def get_link_list_x(link_list, date_x_vals_dict, sample_data_dict, date_attr):
+def get_link_list_x(link_list, main_fig_nodes_x_dict):
     link_list_x = []
     for (sample, other_sample) in link_list:
-        date = sample_data_dict[sample][date_attr]
-        other_date = sample_data_dict[other_sample][date_attr]
-        link_list_x += [
-            date_x_vals_dict[date],
-            date_x_vals_dict[other_date],
-            None
-        ]
+        main_fig_node_x = main_fig_nodes_x_dict[sample]
+        other_main_fig_node_x = main_fig_nodes_x_dict[other_sample]
+        link_list_x += [main_fig_node_x, other_main_fig_node_x, None]
     return link_list_x
 
 
