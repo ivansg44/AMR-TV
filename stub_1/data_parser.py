@@ -372,8 +372,14 @@ def get_link_list_y(link_list, main_fig_nodes_y_dict):
 
 def get_main_fig_nodes_x_dict(sample_data_dict, date_attr, date_list,
                               date_x_vals_dict):
-    helper_obj = \
-        {k: [1/(v+1), 1] for k, v in Counter(date_list).items()}
+    date_counts_dict = Counter(date_list)
+    helper_obj = {}
+    for date in date_counts_dict:
+        count = date_counts_dict[date]
+        if count == 1:
+            helper_obj[date] = [1/8, 1]
+        else:
+            helper_obj[date] = [1/(4 * (count - 1)), 0]
 
     main_fig_nodes_x_dict = {}
     for sample in sample_data_dict:
@@ -381,7 +387,7 @@ def get_main_fig_nodes_x_dict(sample_data_dict, date_attr, date_list,
         [stagger, multiplier] = helper_obj[sample_date]
 
         unstaggered_x = date_x_vals_dict[sample_date]
-        lowest_x = unstaggered_x - 0.5
+        lowest_x = unstaggered_x - (1/8)
         staggered_x = lowest_x + (stagger * multiplier)
 
         main_fig_nodes_x_dict[sample] = staggered_x
