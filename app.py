@@ -201,7 +201,7 @@ def launch_app(_):
     prevent_initial_call=True
 )
 def select_nodes(click_data, selected_nodes):
-    """Update ``selected-nodes`` browser variable after clicking node.
+    """Update selected nodes browser variable after clicking node.
 
     The selected nodes are stored as str numbers representing the
     0-based order they appear in the original dataset. i.e., if you
@@ -239,6 +239,22 @@ def select_nodes(click_data, selected_nodes):
     prevent_initial_call=True
 )
 def update_main_graph(selected_nodes, relayout_data, get_app_data_args):
+    """Update main graph after page launch.
+
+    Current triggers:
+
+    * Select nodes browser var updated
+    * User zooms/pans across graph
+
+    :param selected_nodes: Currently selected nodes
+    :type selected_nodes: list[str]
+    :param relayout_data: Information on graph after zooming/panning
+    :type relayout_data: dict
+    :param get_app_data_args: Args previously passed to get app data fn
+    :type get_app_data_args: dict
+    :return: New main graph and new args for getting app data
+    :rtype: (plotly.graph_objects.Figure, dict)
+    """
     ctx = dash.callback_context
     trigger = ctx.triggered[0]["prop_id"]
 

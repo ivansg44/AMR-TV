@@ -1,3 +1,5 @@
+"""Parses sample file for data used in viz."""
+
 from collections import Counter
 import csv
 from datetime import datetime
@@ -8,6 +10,48 @@ def get_app_data(sample_file_path, delimiter, node_id, track, date_attr,
                  max_day_range, null_vals, node_symbol_attr=None,
                  node_color_attr=None, y_key=None, selected_nodes=None,
                  xaxis_range=None, yaxis_range=None):
+    """Get data from sample file that is used to generate viz.
+
+    :param sample_file_path: Path to sample file
+    :type sample_file_path: str
+    :param delimiter: Delimiter in sample file
+    :type delimiter: str
+    :param node_id: Sample file attr encoded by presence of different
+        nodes.
+    :type node_id: str
+    :param track: Sample file attr encoded by y-axis
+    :type track: str
+    :param date_attr: Sample file attr encoded by sample date/x-axis
+    :type date_attr: str
+    :param date_format: 1989 C format code used when parsing date attr
+    :type date_format: str
+    :param label_attr: Sample file attr encoded by node labels
+    :type label_attr: str
+    :param attr_link_list: Sample file attrs encoded by different link
+        types.
+    :type attr_link_list: list[str]
+    :param links_across_y: Whether to viz links across tracks
+    :type links_across_y: bool
+    :param max_day_range: Max number of days allowed b/w sample dates
+        for two nodes when drawing links.
+    :type max_day_range: int
+    :param null_vals: Vals to treat as null in sample data
+    :type null_vals: list[str]
+    :param node_symbol_attr: Sample date attr encoded by node symbol
+    :type node_symbol_attr: str
+    :param node_color_attr: Sample date attr encoded by node color
+    :type node_color_attr: str
+    :param y_key: Python-specific key used to sort vals along y-axis
+    :type y_key: str
+    :param selected_nodes: Nodes selected by user
+    :type selected_nodes: dict
+    :param xaxis_range: Main graph x-axis min and max val
+    :type xaxis_range: list
+    :param yaxis_range: Main graph y-axis min and max val
+    :type yaxis_range: list
+    :return: Data derived from sample data, used to generate viz
+    :rtype: dict
+    """
     if selected_nodes is None:
         selected_nodes = {}
 
@@ -135,6 +179,15 @@ def get_app_data(sample_file_path, delimiter, node_id, track, date_attr,
 
 
 def get_sorted_track_list(track_list, y_key=None):
+    """Get a sorted list of tracks assigned across all nodes.
+
+    :param track_list: List of tracks assigned across all nodes
+    :type track_list: list[str]
+    :param y_key: Python-specific key used to sort tracks
+    :type y_key: str
+    :return: Sorted list of tracks assigned across all nodes
+    :rtype: list[str]
+    """
     if y_key == "int":
         y_key = int
     elif y_key is not None:
