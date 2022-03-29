@@ -6,10 +6,10 @@ from datetime import datetime
 def get_app_data(sample_file_path, delimiter, node_id, track, date_attr,
                  date_format, label_attr, attr_link_list, links_across_y,
                  max_day_range, null_vals, node_symbol_attr=None,
-                 node_color_attr=None, y_key=None, selected_points=None,
+                 node_color_attr=None, y_key=None, selected_nodes=None,
                  xaxis_range=None, yaxis_range=None):
-    if selected_points is None:
-        selected_points = {}
+    if selected_nodes is None:
+        selected_nodes = {}
 
     sample_data_dict = get_sample_data_dict(sample_file_path,
                                             delimiter,
@@ -19,7 +19,7 @@ def get_app_data(sample_file_path, delimiter, node_id, track, date_attr,
                                             null_vals)
     enumerated_samples = enumerate(sample_data_dict)
     selected_samples = \
-        {k: None for i, k in enumerated_samples if str(i) in selected_points}
+        {k: None for i, k in enumerated_samples if str(i) in selected_nodes}
 
     date_list = [v[date_attr] for v in sample_data_dict.values()]
     date_x_vals_dict = {
@@ -56,10 +56,10 @@ def get_app_data(sample_file_path, delimiter, node_id, track, date_attr,
         node_symbol_attr_dict = {}
         main_fig_nodes_marker_symbol = "square"
 
-    point_range = range(len(sample_data_dict))
-    if selected_points:
+    node_range = range(len(sample_data_dict))
+    if selected_nodes:
         main_fig_nodes_marker_opacity = \
-            [1 if str(e) in selected_points else 0.5 for e in point_range]
+            [1 if str(e) in selected_nodes else 0.5 for e in node_range]
     else:
         main_fig_nodes_marker_opacity = 1
 

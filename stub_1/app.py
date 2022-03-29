@@ -50,7 +50,7 @@ def launch_app(_):
     #     "links_across_y": True,
     #     "max_day_range": 5000000,
     #     "null_vals": ["", "-"],
-    #     "selected_points": {}
+    #     "selected_nodes": {}
     #     "y_key": int
     # }
 
@@ -77,7 +77,7 @@ def launch_app(_):
     #     "links_across_y": True,
     #     "max_day_range": 14,
     #     "null_vals": ["", "-"],
-    #     "selected_points": {},
+    #     "selected_nodes": {},
     #     "y_key": "int"
     # }
 
@@ -103,7 +103,7 @@ def launch_app(_):
         "links_across_y": True,
         "max_day_range": 60,
         "null_vals": ["", "-"],
-        "selected_points": {}
+        "selected_nodes": {}
     }
 
     app_data = get_app_data(**get_app_data_args)
@@ -180,32 +180,32 @@ def launch_app(_):
             children=children
         ),
         dcc.Store(id="get-app-data-args", data=get_app_data_args),
-        dcc.Store(id="selected-points", data={})
+        dcc.Store(id="selected-nodes", data={})
     ]
 
 
 @app.callback(
     inputs=Input("main-graph", "clickData"),
-    state=State("selected-points", "data"),
+    state=State("selected-nodes", "data"),
     output=[
-        Output("selected-points", "data"),
+        Output("selected-nodes", "data"),
         Output("main-graph", "clickData")
     ],
     prevent_initial_call=True
 )
-def select_points(click_data, selected_points):
-    new_selected_points = selected_points
-    clicked_point = str(click_data["points"][0]["pointIndex"])
-    if clicked_point in selected_points:
-        new_selected_points.pop(clicked_point)
+def select_nodes(click_data, selected_nodes):
+    new_selected_nodes = selected_nodes
+    clicked_node = str(click_data["points"][0]["pointIndex"])
+    if clicked_node in selected_nodes:
+        new_selected_nodes.pop(clicked_node)
     else:
-        new_selected_points[clicked_point] = None
-    return new_selected_points, None
+        new_selected_nodes[clicked_node] = None
+    return new_selected_nodes, None
 
 
 @app.callback(
     inputs=[
-        Input("selected-points", "data"),
+        Input("selected-nodes", "data"),
         Input("main-graph", "relayoutData")
     ],
     state=[
@@ -217,12 +217,12 @@ def select_points(click_data, selected_points):
     ],
     prevent_initial_call=True
 )
-def update_main_graph(selected_points, relayout_data, get_app_data_args):
+def update_main_graph(selected_nodes, relayout_data, get_app_data_args):
     ctx = dash.callback_context
     trigger = ctx.triggered[0]["prop_id"]
 
-    if trigger == "selected-points.data":
-        get_app_data_args["selected_points"] = selected_points
+    if trigger == "selected-nodes.data":
+        get_app_data_args["selected_nodes"] = selected_nodes
         new_main_fig = get_main_fig(get_app_data(**get_app_data_args))
     elif trigger == "main-graph.relayoutData":
         try:
