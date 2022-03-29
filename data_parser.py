@@ -200,6 +200,24 @@ def get_sorted_track_list(track_list, y_key=None):
 
 def get_sample_data_dict(sample_file_path, delimiter, node_id, date,
                          date_format, null_vals):
+    """Parse sample data file into dict obj.
+
+    :param sample_file_path: Path to sample file
+    :type sample_file_path: str
+    :param delimiter: Delimiter in sample file
+    :type delimiter: str
+    :param node_id: Sample file attr encoded by presence of different
+        nodes.
+    :type node_id: str
+    :param date: Sample file attr encoded by sample date/x-axis
+    :type date: str
+    :param date_format: 1989 C format code used when parsing date attr
+    :type date_format: str
+    :param null_vals: Vals to treat as null in sample data
+    :type null_vals: list[str]
+    :return: Sample file data parsed into dict obj
+    :rtype: dict
+    """
     sample_data_dict = {}
     with open(sample_file_path) as fp:
         reader = csv.DictReader(fp, delimiter=delimiter)
@@ -216,6 +234,15 @@ def get_sample_data_dict(sample_file_path, delimiter, node_id, date,
 
 
 def get_node_symbol_attr_dict(node_symbol_attr_list):
+    """Get a dict mapping node symbol attr vals to symbols.
+
+    :param node_symbol_attr_list: List of node symbol attr vals across
+        all nodes.
+    :type node_symbol_attr_list: list[str]
+    :return: dict with unique node symbol attr vals as keys, and actual
+        symbols as vals.
+    :rtype: dict
+    """
     node_symbol_attr_dict = {}
     node_symbol_attr_table = dict.fromkeys(node_symbol_attr_list)
 
@@ -236,6 +263,15 @@ def get_node_symbol_attr_dict(node_symbol_attr_list):
 
 
 def get_node_color_attr_dict(node_color_attr_list):
+    """Get a dict mapping node color attr vals to symbols.
+
+    :param node_color_attr_list: List of node color attr vals across
+        all nodes.
+    :type node_color_attr_list: list[str]
+    :return: dict with unique node color attr vals as keys, and actual
+        colors as vals.
+    :rtype: dict
+    """
     node_color_attr_dict = {}
     node_color_attr_table = dict.fromkeys(node_color_attr_list)
 
