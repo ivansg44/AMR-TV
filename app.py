@@ -50,6 +50,16 @@ def launch_app(_):
             ),
             className="mt-1"
         ),
+        dbc.Row(
+            dbc.Col(
+                children=dcc.Graph(
+                    figure={},
+                    id="main-graph",
+                    style={"height": "80vh", "width": "80vw"}
+                ),
+                id="main-col",
+            )
+        ),
         dbc.Modal(
             [
                 dbc.ModalHeader("Upload data"),
@@ -70,6 +80,8 @@ def launch_app(_):
             ],
             id="upload-data-modal"
         ),
+        dcc.Store(id="get-app-data-args", data={}),
+        dcc.Store(id="selected-nodes", data={}),
         dcc.Store("new-upload")
     ]
 
@@ -240,7 +252,7 @@ def launch_app(_):
     Input("upload-data-btn", "n_clicks"),
     prevent_intial_call=True
 )
-def open_upload_data_modal(n_clicks):
+def toggle_upload_data_modal(n_clicks):
     """TODO
 
     :param n_clicks:
