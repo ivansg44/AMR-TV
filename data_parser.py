@@ -308,6 +308,37 @@ def get_sample_links_dict(attr_link_list, sample_data_dict, track,
                           links_across_y, max_day_range, main_fig_nodes_x_dict,
                           main_fig_nodes_y_dict, null_vals, selected_samples,
                           xaxis_range, yaxis_range):
+    """Get nested dict containing info on links b/w samples.
+
+    This includes whether the links are opaque or transparent.
+
+    :param attr_link_list: Sample file attrs encoded by different link
+        types.
+    :type attr_link_list: list[str]
+    :param sample_data_dict: Sample file data parsed into dict obj
+    :rtype: dict
+    :param track: Sample file attr encoded by y-axis
+    :type track: str
+    :param links_across_y: Whether to viz links across tracks
+    :type links_across_y: bool
+    :param max_day_range: Max number of days allowed b/w sample dates
+        for two nodes when drawing links.
+    :type max_day_range: int
+    :param main_fig_nodes_x_dict: Dict mapping nodes to x vals
+    :type main_fig_nodes_x_dict: dict
+    :param main_fig_nodes_y_dict: Dict mapping nodes to y vals
+    :type main_fig_nodes_y_dict: dict
+    :param null_vals: Vals to treat as null in sample data
+    :type null_vals: list[str]
+    :param selected_samples: User-selected samples
+    :type selected_samples: dict
+    :param xaxis_range: Main graph x-axis min and max val
+    :type xaxis_range: list
+    :param yaxis_range: Main graph y-axis min and max val
+    :type yaxis_range: list
+    :return: Nested dict containing info on links b/w samples
+    :rtype: dict
+    """
     available_link_color_dash_combos = [
         ((27, 158, 119), "solid"), ((217, 95, 2), "solid"),
         ((117, 112, 179), "solid"), ((27, 158, 119), "dot"),
@@ -400,6 +431,26 @@ def get_sample_links_dict(attr_link_list, sample_data_dict, track,
 
 def get_sample_links_list(sample_data_dict, track, attr, links_across_y,
                           max_day_range, null_vals):
+    """Get a list of all links for a particular attr b/w samples.
+
+    This is a barebone list of tuples.
+
+    :param sample_data_dict: Sample file data parsed into dict obj
+    :rtype: dict
+    :param track: Sample file attr encoded by y-axis
+    :type track: str
+    :param attr: Specific attr we are parsing links for
+    :type attr: str
+    :param links_across_y: Whether to viz links across tracks
+    :type links_across_y: bool
+    :param max_day_range: Max number of days allowed b/w sample dates
+        for two nodes when drawing links.
+    :type max_day_range: int
+    :param null_vals: Vals to treat as null in sample data
+    :type null_vals: list[str]
+    :return: List of links b/w all samples for a particular attr
+    :rtype: list[tuple]
+    """
     attr_list = attr.split(";")
     link_list = []
     sample_list = list(sample_data_dict.keys())
@@ -433,6 +484,21 @@ def get_sample_links_list(sample_data_dict, track, attr, links_across_y,
 
 
 def get_link_list_x(link_list, main_fig_nodes_x_dict):
+    """Get x values for a list of sample links.
+
+    Basically, for Plotly to do what we want, we need a list that looks
+    like this: [x1, x2, None, x3, x4, None, ...]
+
+    Where (x1, x2) and (x3, x4) are separate links.
+
+    :param link_list: See ``get_sample_links_list`` ret val
+    :type link_list: list[tuple]
+    :param main_fig_nodes_x_dict: Dict mapping nodes to x vals
+    :type main_fig_nodes_x_dict: dict
+    :return: List of x vals Plotly needs to draw links for a single
+        attr.
+    :rtype: list
+    """
     link_list_x = []
     for (sample, other_sample) in link_list:
         main_fig_node_x = main_fig_nodes_x_dict[sample]
@@ -442,6 +508,21 @@ def get_link_list_x(link_list, main_fig_nodes_x_dict):
 
 
 def get_link_list_y(link_list, main_fig_nodes_y_dict):
+    """Get y values for a list of sample links.
+
+    Basically, for Plotly to do what we want, we need a list that looks
+    like this: [y1, y2, None, y3, y4, None, ...]
+
+    Where (y1, y2) and (y3, y4) are separate links.
+
+    :param link_list: See ``get_sample_links_list`` ret val
+    :type link_list: list[tuple]
+    :param main_fig_nodes_y_dict: Dict mapping nodes to y vals
+    :type main_fig_nodes_y_dict: dict
+    :return: List of y vals Plotly needs to draw links for a single
+        attr.
+    :rtype: list
+    """
     link_list_y = []
     for (sample, other_sample) in link_list:
         main_fig_node_y = main_fig_nodes_y_dict[sample]
@@ -452,6 +533,19 @@ def get_link_list_y(link_list, main_fig_nodes_y_dict):
 
 def get_main_fig_nodes_x_dict(sample_data_dict, date_attr, date_list,
                               date_x_vals_dict):
+    """Get dict mapping nodes to x vals.
+
+    :param sample_data_dict: Sample file data parsed into dict obj
+    :rtype: dict
+    :param date_attr: Sample file attr encoded by sample date/x-axis
+    :type date_attr: str
+    :param date_list: List of sample dates wrt all nodes
+    :type date_list: list
+    :param date_x_vals_dict: Dict mapping dates to numerical x vals
+    :type date_x_vals_dict: dict
+    :return: Dict mapping nodes to x vals
+    :rtype: dict
+    """
     date_counts_dict = Counter(date_list)
     helper_obj = {}
     for date in date_counts_dict:
@@ -478,6 +572,23 @@ def get_main_fig_nodes_x_dict(sample_data_dict, date_attr, date_list,
 
 def get_main_fig_nodes_y_dict(sample_data_dict, date_attr, date_list, track,
                               track_list, track_y_vals_dict):
+    """Get dict mapping nodes to y vals.
+
+    :param sample_data_dict: Sample file data parsed into dict obj
+    :rtype: dict
+    :param date_attr: Sample file attr encoded by sample date/x-axis
+    :type date_attr: str
+    :param date_list: List of sample dates wrt all nodes
+    :type date_list: list
+    :param track: Sample file attr encoded by y-axis
+    :type track: str
+    :param track_list: List of track vals wrt all nodes
+    :type track_list: list
+    :param track_y_vals_dict: Dict mapping tracks to numerical y vals
+    :type track_y_vals_dict: dict
+    :return: Dict mapping nodes to y vals
+    :rtype: dict
+    """
     date_track_zip_list = list(zip(date_list, track_list))
     helper_obj = \
         {k: [1/(v+1), 1] for k, v in Counter(date_track_zip_list).items()}
@@ -499,6 +610,16 @@ def get_main_fig_nodes_y_dict(sample_data_dict, date_attr, date_list, track,
 
 
 def get_main_fig_facet_x(main_fig_xaxis_range, num_of_facets):
+    """Get x vals for lines used to split main graph by tracks.
+
+    :param main_fig_xaxis_range: Main graph x-axis min and max val
+    :type main_fig_xaxis_range: list
+    :param num_of_facets: Number of lines to draw (number of tracks-1)
+    :type num_of_facets: int
+    :return: List of x vals Plotly needs to draw lines splitting main
+        graph by tracks.
+    :rtype: list
+    """
     main_fig_facet_x = []
     [xmin, xmax] = main_fig_xaxis_range
     for i in range(0, num_of_facets):
@@ -507,6 +628,14 @@ def get_main_fig_facet_x(main_fig_xaxis_range, num_of_facets):
 
 
 def get_main_fig_facet_y(num_of_facets):
+    """Get y vals for lines used to split main graph by tracks.
+
+    :param num_of_facets: Number of lines to draw (number of tracks-1)
+    :type num_of_facets: int
+    :return: List of y vals Plotly needs to draw lines splitting main
+        graph by tracks.
+    :rtype: list
+    """
     main_fig_facet_y = []
     for i in range(0, num_of_facets):
         main_fig_facet_y += [i+1.5, i+1.5, None]
