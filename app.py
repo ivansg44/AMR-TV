@@ -44,12 +44,19 @@ def launch_app(_):
     children = [
         dbc.Row(
             dbc.Col(
-                dbc.Button("Upload", color="primary"),
-                id="upload-btn"
+                dbc.Button("Upload", id="upload-btn", color="primary")
             ),
-            id="toolbar-row",
             className="mt-1"
-        )
+        ),
+        dbc.Modal(
+            [
+                dbc.ModalHeader("Upload file"),
+                dbc.ModalBody("Hello world!"),
+                dbc.ModalFooter("Foo")
+            ],
+            id="upload-modal"
+        ),
+        dcc.Store("new-upload")
     ]
 
     return children
@@ -212,6 +219,22 @@ def launch_app(_):
 #         dcc.Store(id="get-app-data-args", data=get_app_data_args),
 #         dcc.Store(id="selected-nodes", data={})
 #     ]
+
+
+@app.callback(
+    Output("upload-modal", "is_open"),
+    Input("upload-btn", "n_clicks"),
+    prevent_intial_call=True
+)
+def open_upload_modal(n_clicks):
+    """TODO
+
+    :param n_clicks:
+    :type n_clicks:
+    :return:
+    :rtype:
+    """
+    return n_clicks
 
 
 @app.callback(
