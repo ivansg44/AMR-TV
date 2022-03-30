@@ -44,17 +44,24 @@ def launch_app(_):
     children = [
         dbc.Row(
             dbc.Col(
-                dbc.Button("Upload", id="upload-btn", color="primary")
+                dbc.Button("Upload data",
+                           id="upload-data-btn",
+                           color="primary")
             ),
             className="mt-1"
         ),
         dbc.Modal(
             [
-                dbc.ModalHeader("Upload file"),
-                dbc.ModalBody("Hello world!"),
+                dbc.ModalHeader("Upload data"),
+                dbc.ModalBody([
+                    dcc.Upload(
+                        dbc.Button("Select data file", id="select-file-btn"),
+                        id="upload-file"
+                    )
+                ]),
                 dbc.ModalFooter("Foo")
             ],
-            id="upload-modal"
+            id="upload-data-modal"
         ),
         dcc.Store("new-upload")
     ]
@@ -222,11 +229,11 @@ def launch_app(_):
 
 
 @app.callback(
-    Output("upload-modal", "is_open"),
-    Input("upload-btn", "n_clicks"),
+    Output("upload-data-modal", "is_open"),
+    Input("upload-data-btn", "n_clicks"),
     prevent_intial_call=True
 )
-def open_upload_modal(n_clicks):
+def open_upload_data_modal(n_clicks):
     """TODO
 
     :param n_clicks:
@@ -235,6 +242,18 @@ def open_upload_modal(n_clicks):
     :rtype:
     """
     return n_clicks
+
+
+@app.callback(
+    Output("select-file-btn", "children"),
+    Output("select-file-btn", "color"),
+    Input("upload-file", "contents"),
+    Input("upload-file", "filename"),
+    prevent_initial_call=True
+)
+def process_upload(_, filename):
+    """TODO"""
+    return filename, "success"
 
 
 @app.callback(
