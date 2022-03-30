@@ -55,8 +55,15 @@ def launch_app(_):
                 dbc.ModalHeader("Upload data"),
                 dbc.ModalBody([
                     dcc.Upload(
-                        dbc.Button("Select data file", id="select-file-btn"),
-                        id="upload-file"
+                        dbc.Button("Select sample data file",
+                                   id="select-sample-file-btn"),
+                        id="upload-sample-file"
+                    ),
+                    dcc.Upload(
+                        dbc.Button("Select config file",
+                                   id="select-config-file-btn"),
+                        id="upload-config-file",
+                        className="mt-1"
                     )
                 ]),
                 dbc.ModalFooter("Foo")
@@ -245,13 +252,25 @@ def open_upload_data_modal(n_clicks):
 
 
 @app.callback(
-    Output("select-file-btn", "children"),
-    Output("select-file-btn", "color"),
-    Input("upload-file", "contents"),
-    Input("upload-file", "filename"),
+    Output("select-sample-file-btn", "children"),
+    Output("select-sample-file-btn", "color"),
+    Input("upload-sample-file", "contents"),
+    Input("upload-sample-file", "filename"),
     prevent_initial_call=True
 )
-def process_upload(_, filename):
+def process_sample_file_upload(_, filename):
+    """TODO"""
+    return filename, "success"
+
+
+@app.callback(
+    Output("select-config-file-btn", "children"),
+    Output("select-config-file-btn", "color"),
+    Input("upload-config-file", "contents"),
+    Input("upload-config-file", "filename"),
+    prevent_initial_call=True
+)
+def process_config_file_upload(_, filename):
     """TODO"""
     return filename, "success"
 
