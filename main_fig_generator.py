@@ -1,7 +1,16 @@
+"""Fns for generating main fig in viz."""
+
 import plotly.graph_objects as go
 
 
 def get_main_fig_nodes(app_data):
+    """Get plotly scatter obj of nodes in main fig.
+
+    :param app_data: ``data_parser.get_app_data`` ret val
+    :type app_data: dict
+    :return: Plotly scatter obj of nodes in main fig
+    :rtype: go.Scatter
+    """
     nodes = go.Scatter(
         x=app_data["main_fig_nodes_x"],
         y=app_data["main_fig_nodes_y"],
@@ -26,6 +35,16 @@ def get_main_fig_nodes(app_data):
 
 
 def get_main_fig_link_graphs(app_data):
+    """Get plotly scatter objs of different links in main fig.
+
+    Basically, a list of different scatter objs that draw the links.
+    One scatter obj per link type.
+
+    :param app_data: ``data_parser.get_app_data`` ret val
+    :type app_data: dict
+    :return: List of plotly scatter obj used to draw links in main fig
+    :rtype: list[go.Scatter]
+    """
     link_graphs = []
     for attr in app_data["sample_links_dict"]:
         opaque_link_dict = app_data["sample_links_dict"][attr]["opaque"]
@@ -62,6 +81,15 @@ def get_main_fig_link_graphs(app_data):
 
 
 def get_main_fig_facet_lines(app_data):
+    """Get plotly scatter obj of facet lines in main fig.
+
+    These are the lines that split the main graph into tracks.
+
+    :param app_data: ``data_parser.get_app_data`` ret val
+    :type app_data: dict
+    :return: Plotly scatter obj used to draw facet lines in main fig
+    :rtype: go.Scatter
+    """
     lines = go.Scatter(
         x=app_data["main_fig_facet_x"],
         y=app_data["main_fig_facet_y"],
@@ -74,6 +102,13 @@ def get_main_fig_facet_lines(app_data):
 
 
 def get_main_fig(app_data):
+    """Get main fig in viz.
+
+    :param app_data: ``data_parser.get_app_data`` ret val
+    :type app_data: dict
+    :return: Plotly figure object that shows main fig in viz
+    :rtype: go.Figure
+    """
     main_fig_link_graphs = get_main_fig_link_graphs(app_data)
     fig = go.Figure(
         data=main_fig_link_graphs + [
