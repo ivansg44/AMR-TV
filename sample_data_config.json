@@ -1,0 +1,23 @@
+{
+  "sample_file_path": "sample_data.csv",
+  "delimiter": ",",
+  "node_id": "Sample ID / Isolate",
+  "track": "Location",
+  "date_attr": "Date of collection",
+  "date_format": "%B %Y",
+  "label_attr": "Patient ID",
+  "attr_link_list": [
+    "F1: MLST type",
+    "Resitance gene type",
+    "SNPs_homozygous",
+    "Left_flanks;Right_flanks",
+    "mash_neighbor_cluster",
+    "rep_type(s)"
+  ],
+  "node_color_attr": "mash_neighbor_cluster",
+  "node_symbol_attr": "Organism",
+  "links_across_y": 0,
+  "max_day_range": 60,
+  "null_vals": ["", "-"],
+  "selected_nodes": {}
+}
