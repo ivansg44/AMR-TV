@@ -1,3 +1,8 @@
+"""Point of entry for application.
+
+Running this script launches the application.
+"""
+
 import dash
 from dash import Dash
 from dash.dependencies import Input, Output, State
@@ -108,10 +113,6 @@ def launch_app(_):
 
     app_data = get_app_data(**get_app_data_args)
 
-    node_symbol_legend_fig = get_node_symbol_legend_fig(app_data)
-    node_color_legend_fig_height = \
-        "%svh" % (len(app_data["node_color_attr_dict"]) * 5)
-
     children = [
         dbc.Col(
             children=dcc.Graph(
@@ -125,6 +126,12 @@ def launch_app(_):
     ]
 
     if show_legend:
+        node_symbol_legend_fig = get_node_symbol_legend_fig(app_data)
+        link_legend_fig = get_link_legend_fig(app_data)
+        node_color_legend_fig = get_node_color_legend_fig(app_data)
+        node_color_legend_fig_height = \
+            "%svh" % (len(app_data["node_color_attr_dict"]) * 5)
+
         children.append(
             dbc.Col(
                 children=[
@@ -144,7 +151,7 @@ def launch_app(_):
                     dbc.Row(
                         dbc.Col(
                             dcc.Graph(
-                                figure=get_link_legend_fig(app_data),
+                                figure=link_legend_fig,
                                 id="link-legend-graph",
                                 config={"displayModeBar": False},
                                 style={"height": "25vh"}
@@ -157,7 +164,7 @@ def launch_app(_):
                     dbc.Row(
                         dbc.Col(
                             dcc.Graph(
-                                figure=get_node_color_legend_fig(app_data),
+                                figure=node_color_legend_fig,
                                 id="node-color-legend-graph",
                                 config={"displayModeBar": False},
                                 style={
@@ -194,6 +201,20 @@ def launch_app(_):
     prevent_initial_call=True
 )
 def select_nodes(click_data, selected_nodes):
+    """Update selected nodes browser variable after clicking node.
+
+    The selected nodes are stored as str numbers representing the
+    0-based order they appear in the original dataset. i.e., if you
+    click the node corresponding to the fifth row in the original
+    dataset, "4" is added to the list of selected nodes.
+
+    :param click_data: Information on node clicked by user
+    :type click_data: dict
+    :param selected_nodes: Currently selected nodes
+    :type selected_nodes: list[str]
+    :return: New list of selected nodes
+    :rtype: list[str]
+    """
     new_selected_nodes = selected_nodes
     clicked_node = str(click_data["points"][0]["pointIndex"])
     if clicked_node in selected_nodes:
@@ -218,6 +239,22 @@ def select_nodes(click_data, selected_nodes):
     prevent_initial_call=True
 )
 def update_main_graph(selected_nodes, relayout_data, get_app_data_args):
+    """Update main graph after page launch.
+
+    Current triggers:
+
+    * Select nodes browser var updated
+    * User zooms/pans across graph
+
+    :param selected_nodes: Currently selected nodes
+    :type selected_nodes: list[str]
+    :param relayout_data: Information on graph after zooming/panning
+    :type relayout_data: dict
+    :param get_app_data_args: Args previously passed to get app data fn
+    :type get_app_data_args: dict
+    :return: New main graph and new args for getting app data
+    :rtype: (plotly.graph_objects.Figure, dict)
+    """
     ctx = dash.callback_context
     trigger = ctx.triggered[0]["prop_id"]
 

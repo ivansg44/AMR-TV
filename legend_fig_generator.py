@@ -1,7 +1,16 @@
+"""Fns for generating legend figs in viz."""
+
 import plotly.graph_objects as go
 
 
 def get_node_symbol_legend_fig_nodes(app_data):
+    """Get plotly scatter obj of nodes in node symbol legend.
+
+    :param app_data: ``data_parser.get_app_data`` ret val
+    :type app_data: dict
+    :return: Plotly scatter obj of nodes in node symbol legend
+    :rtype: go.Scatter
+    """
     nodes = go.Scatter(
         x=[1 for _ in app_data["node_shape_legend_fig_nodes_y"]],
         y=app_data["node_shape_legend_fig_nodes_y"],
@@ -26,6 +35,13 @@ def get_node_symbol_legend_fig_nodes(app_data):
 
 
 def get_node_symbol_legend_fig(app_data):
+    """Get node symbol legend fig in viz.
+
+    :param app_data: ``data_parser.get_app_data`` ret val
+    :type app_data: dict
+    :return: Plotly figure object that shows node symbol legend in viz
+    :rtype: go.Figure
+    """
     fig = go.Figure(
         data=[get_node_symbol_legend_fig_nodes(app_data)],
         layout={
@@ -48,6 +64,17 @@ def get_node_symbol_legend_fig(app_data):
 
 
 def get_link_legend_fig_links(app_data):
+    """Get plotly scatter objs of different links in link legend fig.
+
+    Basically, a list of different scatter objs that draw one of each
+    link you see in the legend.
+
+    :param app_data: ``data_parser.get_app_data`` ret val
+    :type app_data: dict
+    :return: List of plotly scatter obj used to draw links in link
+        legend fig.
+    :rtype: list[go.Scatter]
+    """
     links = []
     for i, attr in enumerate(app_data["sample_links_dict"]):
         link_dict = app_data["sample_links_dict"][attr]["opaque"]
@@ -74,6 +101,13 @@ def get_link_legend_fig_links(app_data):
 
 
 def get_link_legend_fig(app_data):
+    """Get link legend fig in viz.
+
+    :param app_data: ``data_parser.get_app_data`` ret val
+    :type app_data: dict
+    :return: Plotly figure object that shows link legend in viz
+    :rtype: go.Figure
+    """
     fig = go.Figure(
         data=get_link_legend_fig_links(app_data),
         layout={
@@ -97,6 +131,13 @@ def get_link_legend_fig(app_data):
 
 
 def get_node_color_legend_fig_nodes(app_data):
+    """Get plotly scatter obj of nodes in node color legend.
+
+    :param app_data: ``data_parser.get_app_data`` ret val
+    :type app_data: dict
+    :return: Plotly scatter obj of nodes in node color legend
+    :rtype: go.Scatter
+    """
     node_color_attr_dict = app_data["node_color_attr_dict"]
 
     if not node_color_attr_dict:
@@ -127,6 +168,13 @@ def get_node_color_legend_fig_nodes(app_data):
 
 
 def get_node_color_legend_fig(app_data):
+    """Get node color legend fig in viz.
+
+    :param app_data: ``data_parser.get_app_data`` ret val
+    :type app_data: dict
+    :return: Plotly figure object that shows node color legend in viz
+    :rtype: go.Figure
+    """
     fig = go.Figure(
         data=[get_node_color_legend_fig_nodes(app_data)],
         layout={
