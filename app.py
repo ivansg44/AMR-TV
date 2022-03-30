@@ -48,7 +48,7 @@ def launch_app(_):
                            id="upload-data-btn",
                            color="primary")
             ),
-            className="mt-1"
+            className="my-1"
         ),
         dbc.Row(
             dbc.Col(
@@ -76,7 +76,9 @@ def launch_app(_):
                         className="mt-1"
                     )
                 ]),
-                dbc.ModalFooter("Foo")
+                dbc.ModalFooter(
+                    dbc.Button("Visualize", id="viz-btn")
+                )
             ],
             id="upload-data-modal"
         ),
@@ -285,6 +287,20 @@ def process_sample_file_upload(_, filename):
 def process_config_file_upload(_, filename):
     """TODO"""
     return filename, "success"
+
+
+@app.callback(
+    Output("viz-btn", "color"),
+    Input("upload-sample-file", "contents"),
+    Input("upload-config-file", "contents"),
+    prevent_initial_call=True
+)
+def toggle_viz_btn_color(sample_file_contents, config_file_contents):
+    """"TODO"""
+    if None not in [sample_file_contents, config_file_contents]:
+        return "primary"
+    else:
+        return "secondary"
 
 
 @app.callback(
