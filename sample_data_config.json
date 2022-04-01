@@ -19,5 +19,5 @@
   "links_across_y": 0,
   "max_day_range": 60,
   "null_vals": ["", "-"],
-  "selected_nodes": {}
+  "y_key": "str"
 }

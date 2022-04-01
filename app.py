@@ -82,7 +82,6 @@ def launch_app(_):
             ],
             id="upload-data-modal"
         ),
-        dcc.Store(id="get-app-data-args", data={}),
         dcc.Store(id="selected-nodes", data={}),
         dcc.Store("new-upload")
     ]
@@ -323,9 +322,9 @@ def select_nodes(click_data, selected_nodes):
     :param click_data: Information on node clicked by user
     :type click_data: dict
     :param selected_nodes: Currently selected nodes
-    :type selected_nodes: list[str]
-    :return: New list of selected nodes
-    :rtype: list[str]
+    :type selected_nodes: dict
+    :return: New table of selected nodes
+    :rtype: dict
     """
     new_selected_nodes = selected_nodes
     clicked_node = str(click_data["points"][0]["pointIndex"])
@@ -339,57 +338,74 @@ def select_nodes(click_data, selected_nodes):
 @app.callback(
     inputs=[
         Input("selected-nodes", "data"),
-        Input("main-graph", "relayoutData")
+        Input("main-graph", "relayoutData"),
+        Input("viz-btn", "n_clicks")
     ],
     state=[
-        State("get-app-data-args", "data")
+        State("upload-sample-file", "contents"),
+        State("upload-config-file", "contents")
     ],
-    output=[
-        Output("main-graph", "figure"),
-        Output("get-app-data-args", "data")
-    ],
+    output=Output("main-graph", "figure"),
     prevent_initial_call=True
 )
-def update_main_graph(selected_nodes, relayout_data, get_app_data_args):
+def update_main_graph(selected_nodes, relayout_data, _, sample_file_contents,
+                      config_file_contents):
     """Update main graph after page launch.
 
-    Current triggers:
+    Current triggers:TODO
 
     * Select nodes browser var updated
     * User zooms/pans across graph
 
     :param selected_nodes: Currently selected nodes
-    :type selected_nodes: list[str]
+    :type selected_nodes: dict
     :param relayout_data: Information on graph after zooming/panning
     :type relayout_data: dict
-    :param get_app_data_args: Args previously passed to get app data fn
-    :type get_app_data_args: dict
+    :param sample_file_contents: TODO
+    :type sample_file_contents: TODO
+    :param config_file_contents: TODO
+    :type config_file_contents: TODO
     :return: New main graph and new args for getting app data
     :rtype: (plotly.graph_objects.Figure, dict)
     """
     ctx = dash.callback_context
     trigger = ctx.triggered[0]["prop_id"]
 
+    if None in [sample_file_contents, config_file_contents]:
+        raise PreventUpdate
+
+    sample_file_base64_str = sample_file_contents.split(",")[1]
+
+    config_file_base64_str = config_file_contents.split(",")[1]
+
     if trigger == "selected-nodes.data":
-        get_app_data_args["selected_nodes"] = selected_nodes
-        new_main_fig = get_main_fig(get_app_data(**get_app_data_args))
+        app_data = get_app_data(sample_file_base64_str,
+                                config_file_base64_str,
+                                selected_nodes=selected_nodes)
+        new_main_fig = get_main_fig(app_data)
     elif trigger == "main-graph.relayoutData":
         try:
             x1 = relayout_data["xaxis.range[0]"]
             x2 = relayout_data["xaxis.range[1]"]
             y1 = relayout_data["yaxis.range[0]"]
             y2 = relayout_data["yaxis.range[1]"]
+            app_data = get_app_data(sample_file_base64_str,
+                                    config_file_base64_str,
+                                    xaxis_range=[x1, x2],
+                                    yaxis_range=[y1, y2])
         except KeyError:
-            raise PreventUpdate
+            app_data = get_app_data(sample_file_base64_str,
+                                    config_file_base64_str)
 
-        get_app_data_args["xaxis_range"] = [x1, x2]
-        get_app_data_args["yaxis_range"] = [y1, y2]
-        new_main_fig = get_main_fig(get_app_data(**get_app_data_args))
+        new_main_fig = get_main_fig(app_data)
+    elif trigger == "viz-btn.n_clicks":
+        app_data = get_app_data(sample_file_base64_str, config_file_base64_str)
+        new_main_fig = get_main_fig(app_data)
     else:
         msg = "Unexpected trigger trying to update main graph: %s" % trigger
         raise RuntimeError(msg)
 
-    return new_main_fig, get_app_data_args
+    return new_main_fig
 
 
 if __name__ == "__main__":

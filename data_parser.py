@@ -1,19 +1,21 @@
 """Parses sample file for data used in viz."""
 
+from base64 import b64decode
 from collections import Counter
 import csv
 from datetime import datetime
+from io import StringIO
+from json import loads
 
 
-def get_app_data(sample_file_path, delimiter, node_id, track, date_attr,
-                 date_format, label_attr, attr_link_list, links_across_y,
-                 max_day_range, null_vals, node_symbol_attr=None,
-                 node_color_attr=None, y_key=None, selected_nodes=None,
-                 xaxis_range=None, yaxis_range=None):
-    """Get data from sample file that is used to generate viz.
+def get_app_data(sample_file_base64_str, config_file_base64_str,
+                 selected_nodes=None, xaxis_range=None, yaxis_range=None):
+    """Get data from sample file that is used to generate viz. TODO
 
-    :param sample_file_path: Path to sample file
-    :type sample_file_path: str
+    :param sample_file_base64_str: Path to sample file TODO
+    :type sample_file_base64_str: str
+    :param config_file_base64_str: TODO
+    :type config_file_base64_str: TODO
     :param delimiter: Delimiter in sample file
     :type delimiter: str
     :param node_id: Sample file attr encoded by presence of different
@@ -55,40 +57,49 @@ def get_app_data(sample_file_path, delimiter, node_id, track, date_attr,
     if selected_nodes is None:
         selected_nodes = {}
 
-    sample_data_dict = get_sample_data_dict(sample_file_path,
-                                            delimiter,
-                                            node_id,
-                                            date_attr,
-                                            date_format,
-                                            null_vals)
+    sample_file_str = b64decode(sample_file_base64_str).decode("utf-8")
+
+    config_file_str = b64decode(config_file_base64_str).decode("utf-8")
+    config_file_dict = loads(config_file_str)
+
+    sample_data_dict = get_sample_data_dict(sample_file_str,
+                                            config_file_dict["delimiter"],
+                                            config_file_dict["node_id"],
+                                            config_file_dict["date_attr"],
+                                            config_file_dict["date_format"],
+                                            config_file_dict["null_vals"])
     enumerated_samples = enumerate(sample_data_dict)
     selected_samples = \
         {k: None for i, k in enumerated_samples if str(i) in selected_nodes}
 
-    date_list = [v[date_attr] for v in sample_data_dict.values()]
+    date_list =\
+        [v[config_file_dict["date_attr"]] for v in sample_data_dict.values()]
     date_x_vals_dict = {
         e: i+1 for i, e in enumerate(dict.fromkeys(sorted(date_list)))
     }
     main_fig_nodes_x_dict = \
         get_main_fig_nodes_x_dict(sample_data_dict,
-                                  date_attr=date_attr,
+                                  date_attr=config_file_dict["date_attr"],
                                   date_list=date_list,
                                   date_x_vals_dict=date_x_vals_dict)
 
-    track_list = [v[track] for v in sample_data_dict.values()]
-    sorted_track_list = get_sorted_track_list(track_list, y_key=y_key)
+    track_list = \
+        [v[config_file_dict["track"]] for v in sample_data_dict.values()]
+    sorted_track_list = \
+        get_sorted_track_list(track_list, y_key=config_file_dict["y_key"])
     track_y_vals_dict = {
         e: i+1 for i, e in enumerate(dict.fromkeys(sorted_track_list))
     }
 
     main_fig_nodes_y_dict = \
         get_main_fig_nodes_y_dict(sample_data_dict,
-                                  date_attr=date_attr,
+                                  date_attr=config_file_dict["date_attr"],
                                   date_list=date_list,
-                                  track=track,
+                                  track=config_file_dict["track"],
                                   track_list=track_list,
                                   track_y_vals_dict=track_y_vals_dict)
 
+    node_symbol_attr = config_file_dict["node_symbol_attr"]
     if node_symbol_attr:
         node_symbol_attr_list = \
             [v[node_symbol_attr] for v in sample_data_dict.values()]
@@ -107,6 +118,7 @@ def get_app_data(sample_file_path, delimiter, node_id, track, date_attr,
     else:
         main_fig_nodes_marker_opacity = 1
 
+    node_color_attr = config_file_dict["node_color_attr"]
     if node_color_attr:
         node_color_attr_list = \
             [v[node_color_attr] for v in sample_data_dict.values()]
@@ -121,18 +133,23 @@ def get_app_data(sample_file_path, delimiter, node_id, track, date_attr,
         xaxis_range = [0.5, len(date_x_vals_dict) + 0.5]
     if not yaxis_range:
         yaxis_range = [0.5, len(track_y_vals_dict) + 0.5]
-    sample_links_dict = \
-        get_sample_links_dict(attr_link_list=attr_link_list,
-                              sample_data_dict=sample_data_dict,
-                              track=track,
-                              links_across_y=links_across_y,
-                              max_day_range=max_day_range,
-                              main_fig_nodes_x_dict=main_fig_nodes_x_dict,
-                              main_fig_nodes_y_dict=main_fig_nodes_y_dict,
-                              null_vals=null_vals,
-                              selected_samples=selected_samples,
-                              xaxis_range=xaxis_range,
-                              yaxis_range=yaxis_range)
+    sample_links_dict = get_sample_links_dict(
+        attr_link_list=config_file_dict["attr_link_list"],
+        sample_data_dict=sample_data_dict,
+        track=config_file_dict["track"],
+        links_across_y=config_file_dict["links_across_y"],
+        max_day_range=config_file_dict["max_day_range"],
+        main_fig_nodes_x_dict=main_fig_nodes_x_dict,
+        main_fig_nodes_y_dict=main_fig_nodes_y_dict,
+        null_vals=config_file_dict["null_vals"],
+        selected_samples=selected_samples,
+        xaxis_range=xaxis_range,
+        yaxis_range=yaxis_range
+    )
+
+    label_attr = config_file_dict["label_attr"]
+    main_fig_nodes_text = \
+        ["<b>%s</b>" % v[label_attr] for v in sample_data_dict.values()]
 
     app_data = {
         "node_shape_legend_fig_nodes_y":
@@ -164,7 +181,7 @@ def get_app_data(sample_file_path, delimiter, node_id, track, date_attr,
         "main_fig_nodes_marker_opacity":
             main_fig_nodes_marker_opacity,
         "main_fig_nodes_text":
-            ["<b>%s</b>" % v[label_attr] for v in sample_data_dict.values()],
+            main_fig_nodes_text,
         "sample_links_dict": sample_links_dict,
         "node_color_attr_dict": node_color_attr_dict
     }
@@ -190,20 +207,21 @@ def get_sorted_track_list(track_list, y_key=None):
     """
     if y_key == "int":
         y_key = int
-    elif y_key is not None:
-        msg = 'Currently only accept "int" as a y_key, or its default arg ' \
-              '``None``.'
+    elif y_key == "str":
+        y_key = str
+    else:
+        msg = 'Currently only accept "int" or "str" as y_key values'
         raise ValueError(msg)
 
     return sorted(track_list, key=y_key)
 
 
-def get_sample_data_dict(sample_file_path, delimiter, node_id, date,
+def get_sample_data_dict(sample_file_str, delimiter, node_id, date,
                          date_format, null_vals):
     """Parse sample data file into dict obj.
 
-    :param sample_file_path: Path to sample file
-    :type sample_file_path: str
+    :param sample_file_str: Path to sample file TODO
+    :type sample_file_str: str
     :param delimiter: Delimiter in sample file
     :type delimiter: str
     :param node_id: Sample file attr encoded by presence of different
@@ -219,17 +237,17 @@ def get_sample_data_dict(sample_file_path, delimiter, node_id, date,
     :rtype: dict
     """
     sample_data_dict = {}
-    with open(sample_file_path) as fp:
-        reader = csv.DictReader(fp, delimiter=delimiter)
-        for row in reader:
-            sample_id = row[node_id]
-            if sample_id in null_vals:
-                continue
+    reader = csv.DictReader(StringIO(sample_file_str),
+                            delimiter=delimiter)
+    for row in reader:
+        sample_id = row[node_id]
+        if sample_id in null_vals:
+            continue
 
-            row["datetime_obj"] = datetime.strptime(row[date], date_format)
-            row[date] = row["datetime_obj"].strftime("%Y-%m-%d")
+        row["datetime_obj"] = datetime.strptime(row[date], date_format)
+        row[date] = row["datetime_obj"].strftime("%Y-%m-%d")
 
-            sample_data_dict[sample_id] = row
+        sample_data_dict[sample_id] = row
     return sample_data_dict
 
 
