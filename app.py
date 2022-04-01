@@ -51,15 +51,55 @@ def launch_app(_):
             className="my-1"
         ),
         dbc.Row(
-            dbc.Col(
-                children=dcc.Graph(
-                    figure={},
-                    id="main-graph",
-                    style={"height": "80vh", "width": "80vw"}
+            children=[
+                dbc.Col(
+                    children=dcc.Graph(
+                        figure={},
+                        id="main-graph",
+                        style={"height": "80vh", "width": "80vw"}
+                    ),
                 ),
-                id="main-col",
-            )
+                dbc.Col(
+                    children=[
+                        dbc.Row(
+                            dbc.Col(
+                                dcc.Graph(
+                                    figure={},
+                                    id="node-shape-legend-graph",
+                                    config={"displayModeBar": False},
+                                    style={"height": "25vh"}
+
+                                ),
+                            ),
+                        ),
+                        dbc.Row(
+                            dbc.Col(
+                                dcc.Graph(
+                                    figure={},
+                                    id="link-legend-graph",
+                                    config={"displayModeBar": False},
+                                    style={"height": "25vh"}
+
+                                ),
+                            ),
+                        ),
+                        dbc.Row(
+                            dbc.Col(
+                                dcc.Graph(
+                                    figure={},
+                                    id="node-color-legend-graph",
+                                    config={"displayModeBar": False},
+                                    style={"height": "25vh"}
+
+                                ),
+                            ),
+                        )
+                    ],
+                    width=2
+                )
+            ]
         ),
+        # TODO probably a separate file for modal generation later
         dbc.Modal(
             [
                 dbc.ModalHeader("Upload data"),
