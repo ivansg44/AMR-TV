@@ -392,10 +392,12 @@ def update_main_graph(selected_nodes, relayout_data, _, sample_file_contents,
             app_data = get_app_data(sample_file_base64_str,
                                     config_file_base64_str,
                                     xaxis_range=[x1, x2],
-                                    yaxis_range=[y1, y2])
+                                    yaxis_range=[y1, y2],
+                                    selected_nodes=selected_nodes)
         except KeyError:
             app_data = get_app_data(sample_file_base64_str,
-                                    config_file_base64_str)
+                                    config_file_base64_str,
+                                    selected_nodes=selected_nodes)
 
         new_main_fig = get_main_fig(app_data)
     elif trigger == "viz-btn.n_clicks":
