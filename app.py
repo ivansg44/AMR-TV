@@ -39,7 +39,9 @@ app.layout = dbc.Container(
 def launch_app(_):
     """Populate empty container after launch.
 
-    This includes an empty fig, and upload btn.
+    :param _: Application launched in browser
+    :return: Several empty figs for the viz to be, and an upload btn
+    :rtype: list
     """
     children = [
         dbc.Row(
@@ -131,165 +133,6 @@ def launch_app(_):
     return children
 
 
-# @app.callback(
-#     output=Output("main-container", "children"),
-#     inputs=Input("first-launch", "data")
-# )
-# def launch_app(_):
-#     """Populate empty container after launch."""
-#     show_legend = True
-#     height = "100vh"
-#     width = "80vw"
-# 
-#     # # "senterica_clusters_11042021.tsv"
-#     # get_app_data_args = {
-#     #     "sample_file_path": "senterica_clusters_11042021.tsv",
-#     #     "delimiter": "\t",
-#     #     "node_id": "Sample",
-#     #     "track": "site_order",
-#     #     "date_attr": "collection_date",
-#     #     "date_format": "%Y-%m-%d %H:%M:%S",
-#     #     "label_attr": "Sample",
-#     #     "attr_link_list": ["Cluster"],
-#     #     "links_across_y": True,
-#     #     "max_day_range": 5000000,
-#     #     "null_vals": ["", "-"],
-#     #     "selected_nodes": {}
-#     #     "y_key": int
-#     # }
-# 
-#     # # "senterica_clusters_12012021.tsv"
-#     # get_app_data_args = {
-#     #     "sample_file_path": "senterica_clusters_12012021.tsv",
-#     #     "delimiter": "\t",
-#     #     "node_id": "Sample",
-#     #     "track": "site_order",
-#     #     "date_attr": "collection_date",
-#     #     "date_format": "%Y-%m-%d %H:%M:%S",
-#     #     "label_attr": "Sample",
-#     #     "attr_link_list": [
-#     #         # "threshold_5",
-#     #         "threshold_10",
-#     #         # "threshold_20",
-#     #         # "threshold_50",
-#     #         # "threshold_100",
-#     #         # "threshold_200",
-#     #         # "threshold_1000",
-#     #     ],
-#     #     "node_color_attr": "serovar",
-#     #     "node_symbol_attr": "serovar",
-#     #     "links_across_y": True,
-#     #     "max_day_range": 14,
-#     #     "null_vals": ["", "-"],
-#     #     "selected_nodes": {},
-#     #     "y_key": "int"
-#     # }
-# 
-#     # "sample_data.csv"
-#     get_app_data_args = {
-#         "sample_file_path": "sample_data.csv",
-#         "delimiter": ",",
-#         "node_id": "Sample ID / Isolate",
-#         "track": "Location",
-#         "date_attr": "Date of collection",
-#         "date_format": "%B %Y",
-#         "label_attr": "Patient ID",
-#         "attr_link_list": [
-#             "F1: MLST type",
-#             "Resitance gene type",
-#             "SNPs_homozygous",
-#             "Left_flanks;Right_flanks",
-#             "mash_neighbor_cluster",
-#             "rep_type(s)"
-#         ],
-#         "node_color_attr": "mash_neighbor_cluster",
-#         "node_symbol_attr": "Organism",
-#         "links_across_y": True,
-#         "max_day_range": 60,
-#         "null_vals": ["", "-"],
-#         "selected_nodes": {}
-#     }
-# 
-#     app_data = get_app_data(**get_app_data_args)
-# 
-#     children = [
-#         dbc.Col(
-#             children=dcc.Graph(
-#                 figure=get_main_fig(app_data),
-#                 id="main-graph",
-#                 # config={"displayModeBar": False},
-#                 style={"height": height, "width": width}
-#             ),
-#             id="main-col",
-#         )
-#     ]
-# 
-#     if show_legend:
-#         node_symbol_legend_fig = get_node_symbol_legend_fig(app_data)
-#         link_legend_fig = get_link_legend_fig(app_data)
-#         node_color_legend_fig = get_node_color_legend_fig(app_data)
-#         node_color_legend_fig_height = \
-#             "%svh" % (len(app_data["node_color_attr_dict"]) * 5)
-# 
-#         children.append(
-#             dbc.Col(
-#                 children=[
-#                     dbc.Row(
-#                         dbc.Col(
-#                             dcc.Graph(
-#                                 figure=node_symbol_legend_fig,
-#                                 id="node-shape-legend-graph",
-#                                 config={"displayModeBar": False},
-#                                 style={"height": "25vh"}
-# 
-#                             ),
-#                             id="node-shape-legend-col"
-#                         ),
-#                         id="node-shape-legend-row"
-#                     ),
-#                     dbc.Row(
-#                         dbc.Col(
-#                             dcc.Graph(
-#                                 figure=link_legend_fig,
-#                                 id="link-legend-graph",
-#                                 config={"displayModeBar": False},
-#                                 style={"height": "25vh"}
-# 
-#                             ),
-#                             id="link-legend-col"
-#                         ),
-#                         id="link-legend-row"
-#                     ),
-#                     dbc.Row(
-#                         dbc.Col(
-#                             dcc.Graph(
-#                                 figure=node_color_legend_fig,
-#                                 id="node-color-legend-graph",
-#                                 config={"displayModeBar": False},
-#                                 style={
-#                                     "height": node_color_legend_fig_height
-#                                 }
-# 
-#                             ),
-#                             id="node-color-legend-col"
-#                         ),
-#                         id="node-color-legend-row"
-#                     )
-#                 ],
-#                 id="legend-col",
-#                 width=2
-#             )
-#         )
-# 
-#     return [
-#         dbc.Row(
-#             children=children
-#         ),
-#         dcc.Store(id="get-app-data-args", data=get_app_data_args),
-#         dcc.Store(id="selected-nodes", data={})
-#     ]
-
-
 @app.callback(
     Output("upload-data-modal", "is_open"),
     inputs=[
@@ -299,12 +142,18 @@ def launch_app(_):
     prevent_intial_call=True
 )
 def toggle_upload_data_modal(_, __):
-    """TODO
+    """Toggle upload data modal.
 
-    :param _:
-    :param __:
-    :return:
-    :rtype:
+    Current triggers:
+
+    * Clicking upload data btn -> open
+    * New data vized -> closed
+
+    :param _: Upload btn clicked
+    :param __: New data viz
+    :return: Whether modal is open or closed
+    :rtype: bool
+    :raise RuntimeError: Unexpected trigger trying to toggle modal
     """
     ctx = dash.callback_context
     trigger = ctx.triggered[0]["prop_id"]
@@ -326,8 +175,20 @@ def toggle_upload_data_modal(_, __):
     Input("upload-sample-file", "filename"),
     prevent_initial_call=True
 )
-def process_sample_file_upload(_, filename):
-    """TODO"""
+def edit_modal_after_sample_file_upload(_, filename):
+    """Edit upload data modal css after user uploads sample file.
+
+    Current changes:
+
+    * Filename replaces content of upload sample file btn
+    * Upload sample file btn color changes
+
+    :param _: User uploaded sample file
+    :param filename: Sample filename
+    :type filename: str
+    :return: Text inside upload sample file btn, and btn color
+    :rtype: (str, str)
+    """
     return filename, "success"
 
 
@@ -338,7 +199,7 @@ def process_sample_file_upload(_, filename):
     Input("upload-config-file", "filename"),
     prevent_initial_call=True
 )
-def process_config_file_upload(_, filename):
+def edit_modal_after_config_file_upload(_, filename):
     """TODO"""
     return filename, "success"
 
