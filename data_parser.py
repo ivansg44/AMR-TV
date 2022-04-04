@@ -151,6 +151,13 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     main_fig_nodes_text = \
         ["<b>%s</b>" % v[label_attr] for v in sample_data_dict.values()]
 
+    if selected_samples:
+        ss = selected_samples
+        main_fig_nodes_textfont_color = \
+            ["black" if k in ss else "grey" for k in sample_data_dict]
+    else:
+        main_fig_nodes_textfont_color = "black"
+
     app_data = {
         "node_shape_legend_fig_nodes_y":
             list(range(len(node_symbol_attr_dict))),
@@ -182,6 +189,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
             main_fig_nodes_marker_opacity,
         "main_fig_nodes_text":
             main_fig_nodes_text,
+        "main_fig_nodes_textfont_color":
+            main_fig_nodes_textfont_color,
         "sample_links_dict": sample_links_dict,
         "node_color_attr_dict": node_color_attr_dict
     }
