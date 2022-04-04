@@ -56,7 +56,7 @@ def launch_app(_):
                     children=dcc.Graph(
                         figure={},
                         id="main-graph",
-                        style={"height": "80vh", "width": "80vw"}
+                        style={"height": "90vh", "width": "80vw"}
                     ),
                 ),
                 dbc.Col(
@@ -67,7 +67,7 @@ def launch_app(_):
                                     figure={},
                                     id="node-shape-legend-graph",
                                     config={"displayModeBar": False},
-                                    style={"height": "25vh"}
+                                    style={"height": "30vh"}
 
                                 ),
                             ),
@@ -78,7 +78,7 @@ def launch_app(_):
                                     figure={},
                                     id="link-legend-graph",
                                     config={"displayModeBar": False},
-                                    style={"height": "25vh"}
+                                    style={"height": "30vh"}
 
                                 ),
                             ),
@@ -89,7 +89,7 @@ def launch_app(_):
                                     figure={},
                                     id="node-color-legend-graph",
                                     config={"displayModeBar": False},
-                                    style={"height": "25vh"}
+                                    style={"height": "30vh"}
 
                                 ),
                             ),
