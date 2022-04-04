@@ -427,12 +427,17 @@ def update_ranges(relayout_data):
         State("upload-sample-file", "contents"),
         State("upload-config-file", "contents")
     ],
-    output=Output("main-graph", "figure"),
+    output=[
+        Output("main-graph", "figure"),
+        Output("node-shape-legend-graph", "figure"),
+        Output("link-legend-graph", "figure"),
+        Output("node-color-legend-graph", "figure"),
+    ],
     prevent_initial_call=True
 )
-def update_main_graph(selected_nodes, xaxis_range, yaxis_range, _,
-                      sample_file_contents, config_file_contents):
-    """Update main graph after page launch.
+def update_main_viz(selected_nodes, xaxis_range, yaxis_range, _,
+                    sample_file_contents, config_file_contents):
+    """Update main graph after page launch.TODO
 
     Current triggers:TODO
 
@@ -477,7 +482,14 @@ def update_main_graph(selected_nodes, xaxis_range, yaxis_range, _,
         msg = "Unexpected trigger trying to update main graph: %s" % trigger
         raise RuntimeError(msg)
 
-    return new_main_fig
+    node_symbol_legend_fig = get_node_symbol_legend_fig(app_data)
+    link_legend_fig = get_link_legend_fig(app_data)
+    node_color_legend_fig = get_node_color_legend_fig(app_data)
+
+    return (new_main_fig,
+            node_symbol_legend_fig,
+            link_legend_fig,
+            node_color_legend_fig)
 
 
 if __name__ == "__main__":
