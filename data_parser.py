@@ -10,41 +10,14 @@ from json import loads
 
 def get_app_data(sample_file_base64_str, config_file_base64_str,
                  selected_nodes=None, xaxis_range=None, yaxis_range=None):
-    """Get data from sample file that is used to generate viz. TODO
+    """Get data from uploaded file that is used to generate viz.
 
-    :param sample_file_base64_str: Path to sample file TODO
+    :param sample_file_base64_str: Base64 encoded str corresponding to
+        contents of user uploaded sample file.
     :type sample_file_base64_str: str
-    :param config_file_base64_str: TODO
-    :type config_file_base64_str: TODO
-    :param delimiter: Delimiter in sample file
-    :type delimiter: str
-    :param node_id: Sample file attr encoded by presence of different
-        nodes.
-    :type node_id: str
-    :param track: Sample file attr encoded by y-axis
-    :type track: str
-    :param date_attr: Sample file attr encoded by sample date/x-axis
-    :type date_attr: str
-    :param date_format: 1989 C format code used when parsing date attr
-    :type date_format: str
-    :param label_attr: Sample file attr encoded by node labels
-    :type label_attr: str
-    :param attr_link_list: Sample file attrs encoded by different link
-        types.
-    :type attr_link_list: list[str]
-    :param links_across_y: Whether to viz links across tracks
-    :type links_across_y: bool
-    :param max_day_range: Max number of days allowed b/w sample dates
-        for two nodes when drawing links.
-    :type max_day_range: int
-    :param null_vals: Vals to treat as null in sample data
-    :type null_vals: list[str]
-    :param node_symbol_attr: Sample date attr encoded by node symbol
-    :type node_symbol_attr: str
-    :param node_color_attr: Sample date attr encoded by node color
-    :type node_color_attr: str
-    :param y_key: Python-specific key used to sort vals along y-axis
-    :type y_key: str
+    :param config_file_base64_str: Base64 encoded str corresponding to
+        contents of user uploaded config file.
+    :type config_file_base64_str: str
     :param selected_nodes: Nodes selected by user
     :type selected_nodes: dict
     :param xaxis_range: Main graph x-axis min and max val
@@ -229,7 +202,8 @@ def get_sample_data_dict(sample_file_str, delimiter, node_id, date,
                          date_format, null_vals):
     """Parse sample data file into dict obj.
 
-    :param sample_file_str: Path to sample file TODO
+    :param sample_file_str: Str corresponding to contents of user
+        uploaded sample file.
     :type sample_file_str: str
     :param delimiter: Delimiter in sample file
     :type delimiter: str
