@@ -200,7 +200,19 @@ def edit_modal_after_sample_file_upload(_, filename):
     prevent_initial_call=True
 )
 def edit_modal_after_config_file_upload(_, filename):
-    """TODO"""
+    """Edit upload data modal css after user uploads config file.
+
+    Current changes:
+
+    * Filename replaces content of upload config file btn
+    * Upload config file btn color changes
+
+    :param _: User uploaded config file
+    :param filename: Config filename
+    :type filename: str
+    :return: Text inside upload config file btn, and btn color
+    :rtype: (str, str)
+    """
     return filename, "success"
 
 
@@ -211,7 +223,15 @@ def edit_modal_after_config_file_upload(_, filename):
     prevent_initial_call=True
 )
 def toggle_viz_btn_color(sample_file_contents, config_file_contents):
-    """"TODO"""
+    """"Edit viz btn color after user uploads all files.
+
+    :param sample_file_contents: Contents of uploaded sample file
+    :type sample_file_contents: str
+    :param config_file_contents: Contents of upload config file
+    :type config_file_contents: str
+    :return: New viz btn color
+    :rtype: str
+    """
     if None not in [sample_file_contents, config_file_contents]:
         return "primary"
     else:
@@ -260,12 +280,12 @@ def select_nodes(click_data, selected_nodes):
     prevent_initial_call=True
 )
 def update_ranges(relayout_data):
-    """TODO
+    """Update xaxis and yaxis range browser vars after relayout.
 
     :param relayout_data: Information on graph after zooming/panning
     :type relayout_data: dict
-    :return: TODO
-    :rtype: TODO
+    :return: New xaxis and yaxis ranges
+    :rtype: (list, list)
     """
     try:
         x1 = relayout_data["xaxis.range[0]"]
@@ -298,25 +318,27 @@ def update_ranges(relayout_data):
 )
 def update_main_viz(selected_nodes, xaxis_range, yaxis_range, _,
                     sample_file_contents, config_file_contents):
-    """Update main graph after page launch.TODO
+    """Update main graph and legends.
 
-    Current triggers:TODO
+    Current triggers:
 
-    * Select nodes browser var updated
-    * User zooms/pans across graph
+    * User clicks viz btn (after uploading data)
+    * User selects node
+    * User zooms/pans across main graph
 
     :param selected_nodes: Currently selected nodes
     :type selected_nodes: dict
-    :param xaxis_range: TODO
-    :type xaxis_range: TODO
-    :param yaxis_range: TODO
-    :type yaxis_range: TODO
-    :param sample_file_contents: TODO
-    :type sample_file_contents: TODO
-    :param config_file_contents: TODO
-    :type config_file_contents: TODO
-    :return: New main graph and new args for getting app data
-    :rtype: (plotly.graph_objects.Figure, dict)
+    :param xaxis_range: [xmin, xmax]
+    :type xaxis_range: list
+    :param yaxis_range: [ymin, ymax]
+    :type yaxis_range: list
+    :param _: User clicked viz btn
+    :param sample_file_contents: Contents of uploaded sample file
+    :type sample_file_contents: str
+    :param config_file_contents: Contents of uploaded config file
+    :type config_file_contents: str
+    :return: New main graph and legends
+    :rtype: tuple[plotly.graph_objects.Figure]
     """
     ctx = dash.callback_context
     trigger = ctx.triggered[0]["prop_id"]
