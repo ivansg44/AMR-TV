@@ -290,18 +290,31 @@ def launch_app(_):
 
 @app.callback(
     Output("upload-data-modal", "is_open"),
-    Input("upload-data-btn", "n_clicks"),
+    inputs=[
+        Input("upload-data-btn", "n_clicks"),
+        Input("main-graph", "figure"),
+    ],
     prevent_intial_call=True
 )
-def toggle_upload_data_modal(n_clicks):
+def toggle_upload_data_modal(_, __):
     """TODO
 
-    :param n_clicks:
-    :type n_clicks:
+    :param _:
+    :param __:
     :return:
     :rtype:
     """
-    return n_clicks
+    ctx = dash.callback_context
+    trigger = ctx.triggered[0]["prop_id"]
+    if trigger == ".":
+        raise PreventUpdate
+    elif trigger == "upload-data-btn.n_clicks":
+        return True
+    elif trigger == "main-graph.figure":
+        return False
+    else:
+        msg = "Unexpected trigger trying to toggle modal: %s" % trigger
+        raise RuntimeError(msg)
 
 
 @app.callback(
