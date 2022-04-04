@@ -123,6 +123,8 @@ def launch_app(_):
             id="upload-data-modal"
         ),
         dcc.Store(id="selected-nodes", data={}),
+        dcc.Store(id="xaxis-range"),
+        dcc.Store(id="yaxis-range"),
         dcc.Store("new-upload")
     ]
 
@@ -389,9 +391,36 @@ def select_nodes(click_data, selected_nodes):
 
 
 @app.callback(
+    inputs=Input("main-graph", "relayoutData"),
+    output=[
+        Output("xaxis-range", "data"),
+        Output("yaxis-range", "data")
+    ],
+    prevent_initial_call=True
+)
+def update_ranges(relayout_data):
+    """TODO
+
+    :param relayout_data: Information on graph after zooming/panning
+    :type relayout_data: dict
+    :return: TODO
+    :rtype: TODO
+    """
+    try:
+        x1 = relayout_data["xaxis.range[0]"]
+        x2 = relayout_data["xaxis.range[1]"]
+        y1 = relayout_data["yaxis.range[0]"]
+        y2 = relayout_data["yaxis.range[1]"]
+        return [x1, x2], [y1, y2]
+    except KeyError:
+        return None, None
+
+
+@app.callback(
     inputs=[
         Input("selected-nodes", "data"),
-        Input("main-graph", "relayoutData"),
+        Input("xaxis-range", "data"),
+        Input("yaxis-range", "data"),
         Input("viz-btn", "n_clicks")
     ],
     state=[
@@ -401,8 +430,8 @@ def select_nodes(click_data, selected_nodes):
     output=Output("main-graph", "figure"),
     prevent_initial_call=True
 )
-def update_main_graph(selected_nodes, relayout_data, _, sample_file_contents,
-                      config_file_contents):
+def update_main_graph(selected_nodes, xaxis_range, yaxis_range, _,
+                      sample_file_contents, config_file_contents):
     """Update main graph after page launch.
 
     Current triggers:TODO
@@ -412,8 +441,10 @@ def update_main_graph(selected_nodes, relayout_data, _, sample_file_contents,
 
     :param selected_nodes: Currently selected nodes
     :type selected_nodes: dict
-    :param relayout_data: Information on graph after zooming/panning
-    :type relayout_data: dict
+    :param xaxis_range: TODO
+    :type xaxis_range: TODO
+    :param yaxis_range: TODO
+    :type yaxis_range: TODO
     :param sample_file_contents: TODO
     :type sample_file_contents: TODO
     :param config_file_contents: TODO
@@ -428,30 +459,16 @@ def update_main_graph(selected_nodes, relayout_data, _, sample_file_contents,
         raise PreventUpdate
 
     sample_file_base64_str = sample_file_contents.split(",")[1]
-
     config_file_base64_str = config_file_contents.split(",")[1]
 
-    if trigger == "selected-nodes.data":
+    if trigger in ["selected-nodes.data",
+                   "xaxis-range.data",
+                   "yaxis-range.data"]:
         app_data = get_app_data(sample_file_base64_str,
                                 config_file_base64_str,
+                                xaxis_range=xaxis_range,
+                                yaxis_range=yaxis_range,
                                 selected_nodes=selected_nodes)
-        new_main_fig = get_main_fig(app_data)
-    elif trigger == "main-graph.relayoutData":
-        try:
-            x1 = relayout_data["xaxis.range[0]"]
-            x2 = relayout_data["xaxis.range[1]"]
-            y1 = relayout_data["yaxis.range[0]"]
-            y2 = relayout_data["yaxis.range[1]"]
-            app_data = get_app_data(sample_file_base64_str,
-                                    config_file_base64_str,
-                                    xaxis_range=[x1, x2],
-                                    yaxis_range=[y1, y2],
-                                    selected_nodes=selected_nodes)
-        except KeyError:
-            app_data = get_app_data(sample_file_base64_str,
-                                    config_file_base64_str,
-                                    selected_nodes=selected_nodes)
-
         new_main_fig = get_main_fig(app_data)
     elif trigger == "viz-btn.n_clicks":
         app_data = get_app_data(sample_file_base64_str, config_file_base64_str)
