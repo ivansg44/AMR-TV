@@ -1,5 +1,4 @@
 {
-  "sample_file_path": "sample_data.csv",
   "delimiter": ",",
   "node_id": "Sample ID / Isolate",
   "track": "Location",
