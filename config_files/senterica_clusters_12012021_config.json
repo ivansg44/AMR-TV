@@ -1,0 +1,18 @@
+{
+  "delimiter": "\t",
+  "node_id": "Sample",
+  "track": "site_order",
+  "date_attr": "collection_date",
+  "date_format": "%Y-%m-%d %H:%M:%S",
+  "label_attr": "Sample",
+  "attr_link_list": [
+    "threshold_10"
+  ],
+  "node_color_attr": "serovar",
+  "node_symbol_attr": "serovar",
+  "links_across_y": "True",
+  "max_day_range": 14,
+  "null_vals": ["", "-"],
+  "selected_nodes": {},
+  "y_key": "int"
+}

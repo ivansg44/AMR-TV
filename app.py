@@ -37,158 +37,205 @@ app.layout = dbc.Container(
     inputs=Input("first-launch", "data")
 )
 def launch_app(_):
-    """Populate empty container after launch."""
-    show_legend = True
-    height = "100vh"
-    width = "80vw"
+    """Populate empty container after launch.
 
-    # # "senterica_clusters_11042021.tsv"
-    # get_app_data_args = {
-    #     "sample_file_path": "senterica_clusters_11042021.tsv",
-    #     "delimiter": "\t",
-    #     "node_id": "Sample",
-    #     "track": "site_order",
-    #     "date_attr": "collection_date",
-    #     "date_format": "%Y-%m-%d %H:%M:%S",
-    #     "label_attr": "Sample",
-    #     "attr_link_list": ["Cluster"],
-    #     "links_across_y": True,
-    #     "max_day_range": 5000000,
-    #     "null_vals": ["", "-"],
-    #     "selected_nodes": {}
-    #     "y_key": int
-    # }
-
-    # # "senterica_clusters_12012021.tsv"
-    # get_app_data_args = {
-    #     "sample_file_path": "senterica_clusters_12012021.tsv",
-    #     "delimiter": "\t",
-    #     "node_id": "Sample",
-    #     "track": "site_order",
-    #     "date_attr": "collection_date",
-    #     "date_format": "%Y-%m-%d %H:%M:%S",
-    #     "label_attr": "Sample",
-    #     "attr_link_list": [
-    #         # "threshold_5",
-    #         "threshold_10",
-    #         # "threshold_20",
-    #         # "threshold_50",
-    #         # "threshold_100",
-    #         # "threshold_200",
-    #         # "threshold_1000",
-    #     ],
-    #     "node_color_attr": "serovar",
-    #     "node_symbol_attr": "serovar",
-    #     "links_across_y": True,
-    #     "max_day_range": 14,
-    #     "null_vals": ["", "-"],
-    #     "selected_nodes": {},
-    #     "y_key": "int"
-    # }
-
-    # "sample_data.csv"
-    get_app_data_args = {
-        "sample_file_path": "sample_data.csv",
-        "delimiter": ",",
-        "node_id": "Sample ID / Isolate",
-        "track": "Location",
-        "date_attr": "Date of collection",
-        "date_format": "%B %Y",
-        "label_attr": "Patient ID",
-        "attr_link_list": [
-            "F1: MLST type",
-            "Resitance gene type",
-            "SNPs_homozygous",
-            "Left_flanks;Right_flanks",
-            "mash_neighbor_cluster",
-            "rep_type(s)"
-        ],
-        "node_color_attr": "mash_neighbor_cluster",
-        "node_symbol_attr": "Organism",
-        "links_across_y": True,
-        "max_day_range": 60,
-        "null_vals": ["", "-"],
-        "selected_nodes": {}
-    }
-
-    app_data = get_app_data(**get_app_data_args)
-
+    :param _: Application launched in browser
+    :return: Several empty figs for the viz to be, and an upload btn
+    :rtype: list
+    """
     children = [
-        dbc.Col(
-            children=dcc.Graph(
-                figure=get_main_fig(app_data),
-                id="main-graph",
-                # config={"displayModeBar": False},
-                style={"height": height, "width": width}
-            ),
-            id="main-col",
-        )
-    ]
-
-    if show_legend:
-        node_symbol_legend_fig = get_node_symbol_legend_fig(app_data)
-        link_legend_fig = get_link_legend_fig(app_data)
-        node_color_legend_fig = get_node_color_legend_fig(app_data)
-        node_color_legend_fig_height = \
-            "%svh" % (len(app_data["node_color_attr_dict"]) * 5)
-
-        children.append(
-            dbc.Col(
-                children=[
-                    dbc.Row(
-                        dbc.Col(
-                            dcc.Graph(
-                                figure=node_symbol_legend_fig,
-                                id="node-shape-legend-graph",
-                                config={"displayModeBar": False},
-                                style={"height": "25vh"}
-
-                            ),
-                            id="node-shape-legend-col"
-                        ),
-                        id="node-shape-legend-row"
-                    ),
-                    dbc.Row(
-                        dbc.Col(
-                            dcc.Graph(
-                                figure=link_legend_fig,
-                                id="link-legend-graph",
-                                config={"displayModeBar": False},
-                                style={"height": "25vh"}
-
-                            ),
-                            id="link-legend-col"
-                        ),
-                        id="link-legend-row"
-                    ),
-                    dbc.Row(
-                        dbc.Col(
-                            dcc.Graph(
-                                figure=node_color_legend_fig,
-                                id="node-color-legend-graph",
-                                config={"displayModeBar": False},
-                                style={
-                                    "height": node_color_legend_fig_height
-                                }
-
-                            ),
-                            id="node-color-legend-col"
-                        ),
-                        id="node-color-legend-row"
-                    )
-                ],
-                id="legend-col",
-                width=2
-            )
-        )
-
-    return [
         dbc.Row(
-            children=children
+            dbc.Col(
+                dbc.Button("Upload data",
+                           id="upload-data-btn",
+                           color="primary")
+            ),
+            className="my-1"
         ),
-        dcc.Store(id="get-app-data-args", data=get_app_data_args),
-        dcc.Store(id="selected-nodes", data={})
+        dbc.Row(
+            children=[
+                dbc.Col(
+                    children=dcc.Graph(
+                        figure={},
+                        id="main-graph",
+                        style={"height": "90vh", "width": "80vw"}
+                    ),
+                ),
+                dbc.Col(
+                    children=[
+                        dbc.Row(
+                            dbc.Col(
+                                dcc.Graph(
+                                    figure={},
+                                    id="node-shape-legend-graph",
+                                    config={"displayModeBar": False},
+                                    style={"height": "30vh"}
+
+                                ),
+                            ),
+                        ),
+                        dbc.Row(
+                            dbc.Col(
+                                dcc.Graph(
+                                    figure={},
+                                    id="link-legend-graph",
+                                    config={"displayModeBar": False},
+                                    style={"height": "30vh"}
+
+                                ),
+                            ),
+                        ),
+                        dbc.Row(
+                            dbc.Col(
+                                dcc.Graph(
+                                    figure={},
+                                    id="node-color-legend-graph",
+                                    config={"displayModeBar": False},
+                                    style={"height": "30vh"}
+
+                                ),
+                            ),
+                        )
+                    ],
+                    width=2
+                )
+            ]
+        ),
+        # TODO probably a separate file for modal generation later
+        dbc.Modal(
+            [
+                dbc.ModalHeader("Upload data"),
+                dbc.ModalBody([
+                    dcc.Upload(
+                        dbc.Button("Select sample data file",
+                                   id="select-sample-file-btn"),
+                        id="upload-sample-file"
+                    ),
+                    dcc.Upload(
+                        dbc.Button("Select config file",
+                                   id="select-config-file-btn"),
+                        id="upload-config-file",
+                        className="mt-1"
+                    )
+                ]),
+                dbc.ModalFooter(
+                    dbc.Button("Visualize", id="viz-btn")
+                )
+            ],
+            id="upload-data-modal"
+        ),
+        dcc.Store(id="selected-nodes", data={}),
+        dcc.Store(id="xaxis-range"),
+        dcc.Store(id="yaxis-range"),
+        dcc.Store("new-upload")
     ]
+
+    return children
+
+
+@app.callback(
+    Output("upload-data-modal", "is_open"),
+    inputs=[
+        Input("upload-data-btn", "n_clicks"),
+        Input("main-graph", "figure"),
+    ],
+    prevent_intial_call=True
+)
+def toggle_upload_data_modal(_, __):
+    """Toggle upload data modal.
+
+    Current triggers:
+
+    * Clicking upload data btn -> open
+    * New data vized -> closed
+
+    :param _: Upload btn clicked
+    :param __: New data viz
+    :return: Whether modal is open or closed
+    :rtype: bool
+    :raise RuntimeError: Unexpected trigger trying to toggle modal
+    """
+    ctx = dash.callback_context
+    trigger = ctx.triggered[0]["prop_id"]
+    if trigger == ".":
+        raise PreventUpdate
+    elif trigger == "upload-data-btn.n_clicks":
+        return True
+    elif trigger == "main-graph.figure":
+        return False
+    else:
+        msg = "Unexpected trigger trying to toggle modal: %s" % trigger
+        raise RuntimeError(msg)
+
+
+@app.callback(
+    Output("select-sample-file-btn", "children"),
+    Output("select-sample-file-btn", "color"),
+    Input("upload-sample-file", "contents"),
+    Input("upload-sample-file", "filename"),
+    prevent_initial_call=True
+)
+def edit_modal_after_sample_file_upload(_, filename):
+    """Edit upload data modal css after user uploads sample file.
+
+    Current changes:
+
+    * Filename replaces content of upload sample file btn
+    * Upload sample file btn color changes
+
+    :param _: User uploaded sample file
+    :param filename: Sample filename
+    :type filename: str
+    :return: Text inside upload sample file btn, and btn color
+    :rtype: (str, str)
+    """
+    return filename, "success"
+
+
+@app.callback(
+    Output("select-config-file-btn", "children"),
+    Output("select-config-file-btn", "color"),
+    Input("upload-config-file", "contents"),
+    Input("upload-config-file", "filename"),
+    prevent_initial_call=True
+)
+def edit_modal_after_config_file_upload(_, filename):
+    """Edit upload data modal css after user uploads config file.
+
+    Current changes:
+
+    * Filename replaces content of upload config file btn
+    * Upload config file btn color changes
+
+    :param _: User uploaded config file
+    :param filename: Config filename
+    :type filename: str
+    :return: Text inside upload config file btn, and btn color
+    :rtype: (str, str)
+    """
+    return filename, "success"
+
+
+@app.callback(
+    Output("viz-btn", "color"),
+    Input("upload-sample-file", "contents"),
+    Input("upload-config-file", "contents"),
+    prevent_initial_call=True
+)
+def toggle_viz_btn_color(sample_file_contents, config_file_contents):
+    """"Edit viz btn color after user uploads all files.
+
+    :param sample_file_contents: Contents of uploaded sample file
+    :type sample_file_contents: str
+    :param config_file_contents: Contents of upload config file
+    :type config_file_contents: str
+    :return: New viz btn color
+    :rtype: str
+    """
+    if None not in [sample_file_contents, config_file_contents]:
+        return "primary"
+    else:
+        return "secondary"
 
 
 @app.callback(
@@ -211,9 +258,9 @@ def select_nodes(click_data, selected_nodes):
     :param click_data: Information on node clicked by user
     :type click_data: dict
     :param selected_nodes: Currently selected nodes
-    :type selected_nodes: list[str]
-    :return: New list of selected nodes
-    :rtype: list[str]
+    :type selected_nodes: dict
+    :return: New table of selected nodes
+    :rtype: dict
     """
     new_selected_nodes = selected_nodes
     clicked_node = str(click_data["points"][0]["pointIndex"])
@@ -225,59 +272,107 @@ def select_nodes(click_data, selected_nodes):
 
 
 @app.callback(
-    inputs=[
-        Input("selected-nodes", "data"),
-        Input("main-graph", "relayoutData")
-    ],
-    state=[
-        State("get-app-data-args", "data")
-    ],
+    inputs=Input("main-graph", "relayoutData"),
     output=[
-        Output("main-graph", "figure"),
-        Output("get-app-data-args", "data")
+        Output("xaxis-range", "data"),
+        Output("yaxis-range", "data")
     ],
     prevent_initial_call=True
 )
-def update_main_graph(selected_nodes, relayout_data, get_app_data_args):
-    """Update main graph after page launch.
+def update_ranges(relayout_data):
+    """Update xaxis and yaxis range browser vars after relayout.
+
+    :param relayout_data: Information on graph after zooming/panning
+    :type relayout_data: dict
+    :return: New xaxis and yaxis ranges
+    :rtype: (list, list)
+    """
+    try:
+        x1 = relayout_data["xaxis.range[0]"]
+        x2 = relayout_data["xaxis.range[1]"]
+        y1 = relayout_data["yaxis.range[0]"]
+        y2 = relayout_data["yaxis.range[1]"]
+        return [x1, x2], [y1, y2]
+    except KeyError:
+        return None, None
+
+
+@app.callback(
+    inputs=[
+        Input("selected-nodes", "data"),
+        Input("xaxis-range", "data"),
+        Input("yaxis-range", "data"),
+        Input("viz-btn", "n_clicks")
+    ],
+    state=[
+        State("upload-sample-file", "contents"),
+        State("upload-config-file", "contents")
+    ],
+    output=[
+        Output("main-graph", "figure"),
+        Output("node-shape-legend-graph", "figure"),
+        Output("link-legend-graph", "figure"),
+        Output("node-color-legend-graph", "figure"),
+    ],
+    prevent_initial_call=True
+)
+def update_main_viz(selected_nodes, xaxis_range, yaxis_range, _,
+                    sample_file_contents, config_file_contents):
+    """Update main graph and legends.
 
     Current triggers:
 
-    * Select nodes browser var updated
-    * User zooms/pans across graph
+    * User clicks viz btn (after uploading data)
+    * User selects node
+    * User zooms/pans across main graph
 
     :param selected_nodes: Currently selected nodes
-    :type selected_nodes: list[str]
-    :param relayout_data: Information on graph after zooming/panning
-    :type relayout_data: dict
-    :param get_app_data_args: Args previously passed to get app data fn
-    :type get_app_data_args: dict
-    :return: New main graph and new args for getting app data
-    :rtype: (plotly.graph_objects.Figure, dict)
+    :type selected_nodes: dict
+    :param xaxis_range: [xmin, xmax]
+    :type xaxis_range: list
+    :param yaxis_range: [ymin, ymax]
+    :type yaxis_range: list
+    :param _: User clicked viz btn
+    :param sample_file_contents: Contents of uploaded sample file
+    :type sample_file_contents: str
+    :param config_file_contents: Contents of uploaded config file
+    :type config_file_contents: str
+    :return: New main graph and legends
+    :rtype: tuple[plotly.graph_objects.Figure]
     """
     ctx = dash.callback_context
     trigger = ctx.triggered[0]["prop_id"]
 
-    if trigger == "selected-nodes.data":
-        get_app_data_args["selected_nodes"] = selected_nodes
-        new_main_fig = get_main_fig(get_app_data(**get_app_data_args))
-    elif trigger == "main-graph.relayoutData":
-        try:
-            x1 = relayout_data["xaxis.range[0]"]
-            x2 = relayout_data["xaxis.range[1]"]
-            y1 = relayout_data["yaxis.range[0]"]
-            y2 = relayout_data["yaxis.range[1]"]
-        except KeyError:
-            raise PreventUpdate
+    if None in [sample_file_contents, config_file_contents]:
+        raise PreventUpdate
 
-        get_app_data_args["xaxis_range"] = [x1, x2]
-        get_app_data_args["yaxis_range"] = [y1, y2]
-        new_main_fig = get_main_fig(get_app_data(**get_app_data_args))
+    sample_file_base64_str = sample_file_contents.split(",")[1]
+    config_file_base64_str = config_file_contents.split(",")[1]
+
+    if trigger in ["selected-nodes.data",
+                   "xaxis-range.data",
+                   "yaxis-range.data"]:
+        app_data = get_app_data(sample_file_base64_str,
+                                config_file_base64_str,
+                                xaxis_range=xaxis_range,
+                                yaxis_range=yaxis_range,
+                                selected_nodes=selected_nodes)
+        new_main_fig = get_main_fig(app_data)
+    elif trigger == "viz-btn.n_clicks":
+        app_data = get_app_data(sample_file_base64_str, config_file_base64_str)
+        new_main_fig = get_main_fig(app_data)
     else:
         msg = "Unexpected trigger trying to update main graph: %s" % trigger
         raise RuntimeError(msg)
 
-    return new_main_fig, get_app_data_args
+    node_symbol_legend_fig = get_node_symbol_legend_fig(app_data)
+    link_legend_fig = get_link_legend_fig(app_data)
+    node_color_legend_fig = get_node_color_legend_fig(app_data)
+
+    return (new_main_fig,
+            node_symbol_legend_fig,
+            link_legend_fig,
+            node_color_legend_fig)
 
 
 if __name__ == "__main__":

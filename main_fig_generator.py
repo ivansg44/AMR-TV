@@ -27,7 +27,7 @@ def get_main_fig_nodes(app_data):
         },
         text=app_data["main_fig_nodes_text"],
         textfont={
-            "color": "black",
+            "color": app_data["main_fig_nodes_textfont_color"],
             "size": 16
         }
     )
