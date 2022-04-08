@@ -285,7 +285,7 @@ def update_ranges(relayout_data):
     :param relayout_data: Information on graph after zooming/panning
     :type relayout_data: dict
     :return: New xaxis and yaxis ranges
-    :rtype: (list, list)
+    :rtype: (list, list) TODO
     """
     try:
         x1 = relayout_data["xaxis.range[0]"]
@@ -294,7 +294,7 @@ def update_ranges(relayout_data):
         y2 = relayout_data["yaxis.range[1]"]
         return [x1, x2], [y1, y2]
     except KeyError:
-        return None, None
+        raise PreventUpdate
 
 
 @app.callback(
