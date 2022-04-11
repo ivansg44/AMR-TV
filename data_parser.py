@@ -613,9 +613,10 @@ def get_main_fig_nodes_y_dict(sample_data_dict, date_attr, date_list, track,
 
 
 def get_main_fig_facet_x(default_xaxis_range, num_of_facets):
-    """Get x vals for lines used to split main graph by tracks.TODO
+    """Get x vals for lines used to split main graph by tracks.
 
-    :param default_xaxis_range: Main graph x-axis min and max val
+    :param default_xaxis_range: Main graph x-axis min and max val,
+        without any zooming or panning.
     :type default_xaxis_range: list
     :param num_of_facets: Number of lines to draw (number of tracks-1)
     :type num_of_facets: int
