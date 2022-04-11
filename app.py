@@ -5,6 +5,7 @@ Running this script launches the application.
 
 import dash
 from dash import Dash
+from dash.dash import no_update
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
@@ -127,6 +128,7 @@ def launch_app(_):
         dcc.Store(id="selected-nodes", data={}),
         dcc.Store(id="xaxis-range"),
         dcc.Store(id="yaxis-range"),
+        dcc.Store(id="dragmode", data="zoom"),
         dcc.Store("new-upload")
     ]
 
@@ -273,13 +275,15 @@ def select_nodes(click_data, selected_nodes):
 
 @app.callback(
     inputs=Input("main-graph", "relayoutData"),
+    state= State("dragmode", "data"),
     output=[
         Output("xaxis-range", "data"),
-        Output("yaxis-range", "data")
+        Output("yaxis-range", "data"),
+        Output("dragmode", "data")
     ],
     prevent_initial_call=True
 )
-def update_ranges(relayout_data):
+def update_ranges(relayout_data, dragmode):
     """Update xaxis and yaxis range browser vars after relayout.
 
     :param relayout_data: Information on graph after zooming/panning
@@ -287,15 +291,29 @@ def update_ranges(relayout_data):
     :return: New xaxis and yaxis ranges
     :rtype: (list, list) TODO
     """
+    if "autosize" in relayout_data:
+        raise PreventUpdate
+
+    autorange_keys = ["xaxis.autorange", "yaxis.autorange"]
+    if any(k in relayout_data for k in autorange_keys):
+        return None, None, "zoom"
+
+    showspikes_keys = ["xaxis.showspikes", "yaxis.showspikes"]
+    if any(k in relayout_data for k in showspikes_keys):
+        raise PreventUpdate
+
+    if "dragmode" in relayout_data:
+        return no_update, no_update, relayout_data["dragmode"]
+
     try:
         x1 = relayout_data["xaxis.range[0]"]
         x2 = relayout_data["xaxis.range[1]"]
         y1 = relayout_data["yaxis.range[0]"]
         y2 = relayout_data["yaxis.range[1]"]
-        return [x1, x2], [y1, y2]
     except KeyError:
-        raise PreventUpdate
+        return None, None, no_update
 
+    return [x1, x2], [y1, y2], dragmode
 
 @app.callback(
     inputs=[
@@ -306,7 +324,8 @@ def update_ranges(relayout_data):
     ],
     state=[
         State("upload-sample-file", "contents"),
-        State("upload-config-file", "contents")
+        State("upload-config-file", "contents"),
+        State("dragmode", "data")
     ],
     output=[
         Output("main-graph", "figure"),
@@ -317,8 +336,8 @@ def update_ranges(relayout_data):
     prevent_initial_call=True
 )
 def update_main_viz(selected_nodes, xaxis_range, yaxis_range, _,
-                    sample_file_contents, config_file_contents):
-    """Update main graph and legends.
+                    sample_file_contents, config_file_contents, dragmode):
+    """Update main graph and legends.TODO
 
     Current triggers:
 
@@ -342,6 +361,10 @@ def update_main_viz(selected_nodes, xaxis_range, yaxis_range, _,
     """
     ctx = dash.callback_context
     trigger = ctx.triggered[0]["prop_id"]
+
+    if trigger in ["xaxis-range.data", "yaxis-range.data"]:
+        if dragmode == "pan":
+            raise PreventUpdate
 
     if None in [sample_file_contents, config_file_contents]:
         raise PreventUpdate
