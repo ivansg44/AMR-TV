@@ -102,10 +102,12 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         node_color_attr_dict = {}
         main_fig_nodes_marker_color = "lightgrey"
 
+    default_xaxis_range = [0.5, len(date_x_vals_dict) + 0.5]
+    default_yaxis_range = [0.5, len(track_y_vals_dict) + 0.5]
     if not xaxis_range:
-        xaxis_range = [0.5, len(date_x_vals_dict) + 0.5]
+        xaxis_range = default_xaxis_range
     if not yaxis_range:
-        yaxis_range = [0.5, len(track_y_vals_dict) + 0.5]
+        yaxis_range = default_yaxis_range
     sample_links_dict = get_sample_links_dict(
         attr_link_list=config_file_dict["attr_link_list"],
         sample_data_dict=sample_data_dict,
@@ -171,8 +173,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     num_of_facets = len(app_data["main_fig_yaxis_tickvals"]) - 1
     app_data["main_fig_facet_y"] =\
         get_main_fig_facet_y(num_of_facets)
-    app_data["main_fig_facet_x"] =\
-        get_main_fig_facet_x(app_data["main_fig_xaxis_range"], num_of_facets)
+    app_data["main_fig_facet_x"] = \
+        get_main_fig_facet_x(default_xaxis_range, num_of_facets)
 
     return app_data
 
@@ -610,11 +612,12 @@ def get_main_fig_nodes_y_dict(sample_data_dict, date_attr, date_list, track,
     return main_fig_nodes_y_dict
 
 
-def get_main_fig_facet_x(main_fig_xaxis_range, num_of_facets):
+def get_main_fig_facet_x(default_xaxis_range, num_of_facets):
     """Get x vals for lines used to split main graph by tracks.
 
-    :param main_fig_xaxis_range: Main graph x-axis min and max val
-    :type main_fig_xaxis_range: list
+    :param default_xaxis_range: Main graph x-axis min and max val,
+        without any zooming or panning.
+    :type default_xaxis_range: list
     :param num_of_facets: Number of lines to draw (number of tracks-1)
     :type num_of_facets: int
     :return: List of x vals Plotly needs to draw lines splitting main
@@ -622,7 +625,7 @@ def get_main_fig_facet_x(main_fig_xaxis_range, num_of_facets):
     :rtype: list
     """
     main_fig_facet_x = []
-    [xmin, xmax] = main_fig_xaxis_range
+    [xmin, xmax] = default_xaxis_range
     for i in range(0, num_of_facets):
         main_fig_facet_x += [xmin, xmax, None]
     return main_fig_facet_x
