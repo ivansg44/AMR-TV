@@ -109,6 +109,15 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     if not yaxis_range:
         yaxis_range = default_yaxis_range
 
+    sample_links_dict = get_sample_links_dict(
+        sample_data_dict,
+        attr_link_list=config_file_dict["attr_link_list"],
+        track=config_file_dict["track"],
+        links_across_y=config_file_dict["links_across_y"],
+        max_day_range=config_file_dict["max_day_range"],
+        null_vals=config_file_dict["null_vals"]
+    )
+
     # sample_links_dict = get_sample_links_dict(
     #     attr_link_list=config_file_dict["attr_link_list"],
     #     sample_data_dict=sample_data_dict,
@@ -308,129 +317,171 @@ def get_node_color_attr_dict(node_color_attr_list):
     return node_color_attr_dict
 
 
-def get_sample_links_dict(attr_link_list, sample_data_dict, track,
-                          links_across_y, max_day_range, main_fig_nodes_x_dict,
-                          main_fig_nodes_y_dict, null_vals, selected_samples,
-                          xaxis_range, yaxis_range):
-    """Get nested dict containing info on links b/w samples.
+def get_sample_links_dict(sample_data_dict, attr_link_list, track,
+                          links_across_y, max_day_range, null_vals):
+    """TODO"""
+    sample_links_dict = {k: [] for k in attr_link_list}
+    sample_list = list(sample_data_dict.keys())
 
-    This includes whether the links are opaque or transparent.
-
-    :param attr_link_list: Sample file attrs encoded by different link
-        types.
-    :type attr_link_list: list[str]
-    :param sample_data_dict: Sample file data parsed into dict obj
-    :rtype: dict
-    :param track: Sample file attr encoded by y-axis
-    :type track: str
-    :param links_across_y: Whether to viz links across tracks
-    :type links_across_y: bool
-    :param max_day_range: Max number of days allowed b/w sample dates
-        for two nodes when drawing links.
-    :type max_day_range: int
-    :param main_fig_nodes_x_dict: Dict mapping nodes to x vals
-    :type main_fig_nodes_x_dict: dict
-    :param main_fig_nodes_y_dict: Dict mapping nodes to y vals
-    :type main_fig_nodes_y_dict: dict
-    :param null_vals: Vals to treat as null in sample data
-    :type null_vals: list[str]
-    :param selected_samples: User-selected samples
-    :type selected_samples: dict
-    :param xaxis_range: Main graph x-axis min and max val
-    :type xaxis_range: list
-    :param yaxis_range: Main graph y-axis min and max val
-    :type yaxis_range: list
-    :return: Nested dict containing info on links b/w samples
-    :rtype: dict
-    """
-    available_link_color_dash_combos = [
-        ((27, 158, 119), "solid"), ((217, 95, 2), "solid"),
-        ((117, 112, 179), "solid"), ((27, 158, 119), "dot"),
-        ((217, 95, 2), "dot"), ((117, 112, 179), "dot"),
-    ]
-    next_index_in_color_dash_list = 0
-    if len(attr_link_list) > len(available_link_color_dash_combos):
-        msg = "Not enough unique edge patterns for different attributes"
-        raise IndexError(msg)
-
-    x_offset_interval = (xaxis_range[1] - xaxis_range[0]) / 300
-    x_offset = 0 - (len(attr_link_list) * (x_offset_interval / 2))
-    y_offset_interval = (yaxis_range[1] - yaxis_range[0]) / 300
-    y_offset = 0 - (len(attr_link_list) * (y_offset_interval / 2))
-
-    sample_links_dict = {}
     for attr in attr_link_list:
-        sample_links_list = \
-            get_sample_links_list(sample_data_dict=sample_data_dict,
-                                  track=track,
-                                  attr=attr,
-                                  links_across_y=links_across_y,
-                                  max_day_range=max_day_range,
-                                  null_vals=null_vals)
-        sample_links_dict[attr] = {
-            "opaque": {},
-            "transparent": {}
-        }
+        attr_list = attr.split(";")
 
-        if selected_samples:
-            opaque_sample_links_list = []
-            transparent_sample_links_list = []
-            for (x, y) in sample_links_list:
-                if x in selected_samples or y in selected_samples:
-                    opaque_sample_links_list.append((x, y))
-                else:
-                    transparent_sample_links_list.append((x, y))
-        else:
-            opaque_sample_links_list = sample_links_list
-            transparent_sample_links_list = []
+        for i in range(len(sample_list)):
+            sample = sample_list[i]
 
-        opaque_link_list_x = \
-            get_link_list_x(link_list=opaque_sample_links_list,
-                            main_fig_nodes_x_dict=main_fig_nodes_x_dict)
-        opaque_link_list_y = \
-            get_link_list_y(link_list=opaque_sample_links_list,
-                            main_fig_nodes_y_dict=main_fig_nodes_y_dict)
-        for i in range(0, len(opaque_link_list_y), 3):
-            [y1, y2] = opaque_link_list_y[i:i+2]
-            if y1 == y2:
-                opaque_link_list_y[i] += y_offset
-                opaque_link_list_y[i+1] += y_offset
-            if y1 != y2:
-                opaque_link_list_x[i] += x_offset
-                opaque_link_list_x[i+1] += x_offset
-        sample_links_dict[attr]["opaque"]["x"] = opaque_link_list_x
-        sample_links_dict[attr]["opaque"]["y"] = opaque_link_list_y
-        sample_links_dict[attr]["opaque"]["color"] = \
-            available_link_color_dash_combos[next_index_in_color_dash_list][0]
-        sample_links_dict[attr]["opaque"]["dash"] = \
-            available_link_color_dash_combos[next_index_in_color_dash_list][1]
+            sample_attr_list = \
+                [sample_data_dict[sample][v] for v in attr_list]
+            if any(v in null_vals for v in sample_attr_list):
+                continue
 
-        transparent_link_list_x = \
-            get_link_list_x(link_list=transparent_sample_links_list,
-                            main_fig_nodes_x_dict=main_fig_nodes_x_dict)
-        transparent_link_list_y = \
-            get_link_list_y(link_list=transparent_sample_links_list,
-                            main_fig_nodes_y_dict=main_fig_nodes_y_dict)
-        for i in range(0, len(transparent_link_list_y), 3):
-            [y1, y2] = transparent_link_list_y[i:i+2]
-            if y1 == y2:
-                transparent_link_list_y[i] += y_offset
-                transparent_link_list_y[i+1] += y_offset
-            if y1 != y2:
-                transparent_link_list_x[i] += x_offset
-                transparent_link_list_x[i+1] += x_offset
-        sample_links_dict[attr]["transparent"]["x"] = transparent_link_list_x
-        sample_links_dict[attr]["transparent"]["y"] = transparent_link_list_y
-        sample_links_dict[attr]["transparent"]["color"] = \
-            available_link_color_dash_combos[next_index_in_color_dash_list][0]
-        sample_links_dict[attr]["transparent"]["dash"] = \
-            available_link_color_dash_combos[next_index_in_color_dash_list][1]
+            for j in range(i+1, len(sample_list)):
+                other_sample = sample_list[j]
 
-        x_offset += x_offset_interval
-        y_offset += y_offset_interval
-        next_index_in_color_dash_list += 1
+                sample_track = sample_data_dict[sample][track]
+                sample_datetime = sample_data_dict[sample]["datetime_obj"]
+                other_track = sample_data_dict[other_sample][track]
+                other_datetime = sample_data_dict[other_sample]["datetime_obj"]
+
+                if not links_across_y and sample_track != other_track:
+                    continue
+
+                day_range_datetime = other_datetime - sample_datetime
+                day_range = abs(day_range_datetime.days)
+                if max_day_range < day_range:
+                    continue
+
+                other_sample_attr_list = \
+                    [sample_data_dict[other_sample][v] for v in attr_list]
+
+                if sample_attr_list == other_sample_attr_list:
+                    sample_links_dict[attr].append((sample, other_sample))
 
     return sample_links_dict
+
+
+# def get_sample_links_dict(attr_link_list, sample_data_dict, track,
+#                           links_across_y, max_day_range, main_fig_nodes_x_dict,
+#                           main_fig_nodes_y_dict, null_vals, selected_samples,
+#                           xaxis_range, yaxis_range):
+#     """Get nested dict containing info on links b/w samples.
+# 
+#     This includes whether the links are opaque or transparent.
+# 
+#     :param attr_link_list: Sample file attrs encoded by different link
+#         types.
+#     :type attr_link_list: list[str]
+#     :param sample_data_dict: Sample file data parsed into dict obj
+#     :rtype: dict
+#     :param track: Sample file attr encoded by y-axis
+#     :type track: str
+#     :param links_across_y: Whether to viz links across tracks
+#     :type links_across_y: bool
+#     :param max_day_range: Max number of days allowed b/w sample dates
+#         for two nodes when drawing links.
+#     :type max_day_range: int
+#     :param main_fig_nodes_x_dict: Dict mapping nodes to x vals
+#     :type main_fig_nodes_x_dict: dict
+#     :param main_fig_nodes_y_dict: Dict mapping nodes to y vals
+#     :type main_fig_nodes_y_dict: dict
+#     :param null_vals: Vals to treat as null in sample data
+#     :type null_vals: list[str]
+#     :param selected_samples: User-selected samples
+#     :type selected_samples: dict
+#     :param xaxis_range: Main graph x-axis min and max val
+#     :type xaxis_range: list
+#     :param yaxis_range: Main graph y-axis min and max val
+#     :type yaxis_range: list
+#     :return: Nested dict containing info on links b/w samples
+#     :rtype: dict
+#     """
+#     available_link_color_dash_combos = [
+#         ((27, 158, 119), "solid"), ((217, 95, 2), "solid"),
+#         ((117, 112, 179), "solid"), ((27, 158, 119), "dot"),
+#         ((217, 95, 2), "dot"), ((117, 112, 179), "dot"),
+#     ]
+#     next_index_in_color_dash_list = 0
+#     if len(attr_link_list) > len(available_link_color_dash_combos):
+#         msg = "Not enough unique edge patterns for different attributes"
+#         raise IndexError(msg)
+# 
+#     x_offset_interval = (xaxis_range[1] - xaxis_range[0]) / 300
+#     x_offset = 0 - (len(attr_link_list) * (x_offset_interval / 2))
+#     y_offset_interval = (yaxis_range[1] - yaxis_range[0]) / 300
+#     y_offset = 0 - (len(attr_link_list) * (y_offset_interval / 2))
+# 
+#     sample_links_dict = {}
+#     for attr in attr_link_list:
+#         sample_links_list = \
+#             get_sample_links_list(sample_data_dict=sample_data_dict,
+#                                   track=track,
+#                                   attr=attr,
+#                                   links_across_y=links_across_y,
+#                                   max_day_range=max_day_range,
+#                                   null_vals=null_vals)
+#         sample_links_dict[attr] = {
+#             "opaque": {},
+#             "transparent": {}
+#         }
+# 
+#         if selected_samples:
+#             opaque_sample_links_list = []
+#             transparent_sample_links_list = []
+#             for (x, y) in sample_links_list:
+#                 if x in selected_samples or y in selected_samples:
+#                     opaque_sample_links_list.append((x, y))
+#                 else:
+#                     transparent_sample_links_list.append((x, y))
+#         else:
+#             opaque_sample_links_list = sample_links_list
+#             transparent_sample_links_list = []
+# 
+#         opaque_link_list_x = \
+#             get_link_list_x(link_list=opaque_sample_links_list,
+#                             main_fig_nodes_x_dict=main_fig_nodes_x_dict)
+#         opaque_link_list_y = \
+#             get_link_list_y(link_list=opaque_sample_links_list,
+#                             main_fig_nodes_y_dict=main_fig_nodes_y_dict)
+#         for i in range(0, len(opaque_link_list_y), 3):
+#             [y1, y2] = opaque_link_list_y[i:i+2]
+#             if y1 == y2:
+#                 opaque_link_list_y[i] += y_offset
+#                 opaque_link_list_y[i+1] += y_offset
+#             if y1 != y2:
+#                 opaque_link_list_x[i] += x_offset
+#                 opaque_link_list_x[i+1] += x_offset
+#         sample_links_dict[attr]["opaque"]["x"] = opaque_link_list_x
+#         sample_links_dict[attr]["opaque"]["y"] = opaque_link_list_y
+#         sample_links_dict[attr]["opaque"]["color"] = \
+#             available_link_color_dash_combos[next_index_in_color_dash_list][0]
+#         sample_links_dict[attr]["opaque"]["dash"] = \
+#             available_link_color_dash_combos[next_index_in_color_dash_list][1]
+# 
+#         transparent_link_list_x = \
+#             get_link_list_x(link_list=transparent_sample_links_list,
+#                             main_fig_nodes_x_dict=main_fig_nodes_x_dict)
+#         transparent_link_list_y = \
+#             get_link_list_y(link_list=transparent_sample_links_list,
+#                             main_fig_nodes_y_dict=main_fig_nodes_y_dict)
+#         for i in range(0, len(transparent_link_list_y), 3):
+#             [y1, y2] = transparent_link_list_y[i:i+2]
+#             if y1 == y2:
+#                 transparent_link_list_y[i] += y_offset
+#                 transparent_link_list_y[i+1] += y_offset
+#             if y1 != y2:
+#                 transparent_link_list_x[i] += x_offset
+#                 transparent_link_list_x[i+1] += x_offset
+#         sample_links_dict[attr]["transparent"]["x"] = transparent_link_list_x
+#         sample_links_dict[attr]["transparent"]["y"] = transparent_link_list_y
+#         sample_links_dict[attr]["transparent"]["color"] = \
+#             available_link_color_dash_combos[next_index_in_color_dash_list][0]
+#         sample_links_dict[attr]["transparent"]["dash"] = \
+#             available_link_color_dash_combos[next_index_in_color_dash_list][1]
+# 
+#         x_offset += x_offset_interval
+#         y_offset += y_offset_interval
+#         next_index_in_color_dash_list += 1
+# 
+#     return sample_links_dict
 
 
 def get_sample_links_list(sample_data_dict, track, attr, links_across_y,
