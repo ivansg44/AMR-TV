@@ -45,39 +45,40 @@ def get_main_fig_link_graphs(app_data):
     :return: List of plotly scatter obj used to draw links in main fig
     :rtype: list[go.Scatter]
     """
-    link_graphs = []
-    for attr in app_data["sample_links_dict"]:
-        opaque_link_dict = app_data["sample_links_dict"][attr]["opaque"]
-        (r, g, b) = opaque_link_dict["color"]
-        link_graphs.append(
-            go.Scatter(
-                x=[x if x else None for x in opaque_link_dict["x"]],
-                y=[y if y else None for y in opaque_link_dict["y"]],
-                mode="lines",
-                line={
-                    "width": 3,
-                    "color": "rgb(%s, %s, %s)" % (r, g, b),
-                    "dash": opaque_link_dict["dash"]
-                }
-            )
-        )
-
-        transparent_link_dict = \
-            app_data["sample_links_dict"][attr]["transparent"]
-        (r, g, b) = transparent_link_dict["color"]
-        link_graphs.append(
-            go.Scatter(
-                x=[x if x else None for x in transparent_link_dict["x"]],
-                y=[y if y else None for y in transparent_link_dict["y"]],
-                mode="lines",
-                line={
-                    "width": 3,
-                    "color": "rgba(%s, %s, %s, 0.01)" % (r, g, b),
-                    "dash": opaque_link_dict["dash"]
-                }
-            )
-        )
-    return link_graphs
+    # link_graphs = []
+    # for attr in app_data["sample_links_dict"]:
+    #     opaque_link_dict = app_data["sample_links_dict"][attr]["opaque"]
+    #     (r, g, b) = opaque_link_dict["color"]
+    #     link_graphs.append(
+    #         go.Scatter(
+    #             x=[x if x else None for x in opaque_link_dict["x"]],
+    #             y=[y if y else None for y in opaque_link_dict["y"]],
+    #             mode="lines",
+    #             line={
+    #                 "width": 3,
+    #                 "color": "rgb(%s, %s, %s)" % (r, g, b),
+    #                 "dash": opaque_link_dict["dash"]
+    #             }
+    #         )
+    #     )
+    # 
+    #     transparent_link_dict = \
+    #         app_data["sample_links_dict"][attr]["transparent"]
+    #     (r, g, b) = transparent_link_dict["color"]
+    #     link_graphs.append(
+    #         go.Scatter(
+    #             x=[x if x else None for x in transparent_link_dict["x"]],
+    #             y=[y if y else None for y in transparent_link_dict["y"]],
+    #             mode="lines",
+    #             line={
+    #                 "width": 3,
+    #                 "color": "rgba(%s, %s, %s, 0.01)" % (r, g, b),
+    #                 "dash": opaque_link_dict["dash"]
+    #             }
+    #         )
+    #     )
+    # return link_graphs
+    return []
 
 
 def get_main_fig_facet_lines(app_data):

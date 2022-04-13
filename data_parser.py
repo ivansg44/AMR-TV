@@ -108,19 +108,20 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         xaxis_range = default_xaxis_range
     if not yaxis_range:
         yaxis_range = default_yaxis_range
-    sample_links_dict = get_sample_links_dict(
-        attr_link_list=config_file_dict["attr_link_list"],
-        sample_data_dict=sample_data_dict,
-        track=config_file_dict["track"],
-        links_across_y=config_file_dict["links_across_y"],
-        max_day_range=config_file_dict["max_day_range"],
-        main_fig_nodes_x_dict=main_fig_nodes_x_dict,
-        main_fig_nodes_y_dict=main_fig_nodes_y_dict,
-        null_vals=config_file_dict["null_vals"],
-        selected_samples=selected_samples,
-        xaxis_range=xaxis_range,
-        yaxis_range=yaxis_range
-    )
+
+    # sample_links_dict = get_sample_links_dict(
+    #     attr_link_list=config_file_dict["attr_link_list"],
+    #     sample_data_dict=sample_data_dict,
+    #     track=config_file_dict["track"],
+    #     links_across_y=config_file_dict["links_across_y"],
+    #     max_day_range=config_file_dict["max_day_range"],
+    #     main_fig_nodes_x_dict=main_fig_nodes_x_dict,
+    #     main_fig_nodes_y_dict=main_fig_nodes_y_dict,
+    #     null_vals=config_file_dict["null_vals"],
+    #     selected_samples=selected_samples,
+    #     xaxis_range=xaxis_range,
+    #     yaxis_range=yaxis_range
+    # )
 
     label_attr = config_file_dict["label_attr"]
     main_fig_nodes_text = \
@@ -166,7 +167,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
             main_fig_nodes_text,
         "main_fig_nodes_textfont_color":
             main_fig_nodes_textfont_color,
-        "sample_links_dict": sample_links_dict,
+        # "sample_links_dict": sample_links_dict,
         "node_color_attr_dict": node_color_attr_dict
     }
 

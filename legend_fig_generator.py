@@ -108,26 +108,27 @@ def get_link_legend_fig(app_data):
     :return: Plotly figure object that shows link legend in viz
     :rtype: go.Figure
     """
-    fig = go.Figure(
-        data=get_link_legend_fig_links(app_data),
-        layout={
-            "margin": {
-                "l": 0, "r": 0, "t": 0, "b": 0, "pad": 0
-            },
-            "xaxis": {
-                "visible": False,
-                "fixedrange": True
-            },
-            "yaxis": {
-                "visible": False,
-                "fixedrange": True,
-                "range": [-0.5, len(app_data["sample_links_dict"])]
-            },
-            "showlegend": False,
-            "plot_bgcolor": "white"
-        }
-    )
-    return fig
+    # fig = go.Figure(
+    #     data=get_link_legend_fig_links(app_data),
+    #     layout={
+    #         "margin": {
+    #             "l": 0, "r": 0, "t": 0, "b": 0, "pad": 0
+    #         },
+    #         "xaxis": {
+    #             "visible": False,
+    #             "fixedrange": True
+    #         },
+    #         "yaxis": {
+    #             "visible": False,
+    #             "fixedrange": True,
+    #             "range": [-0.5, len(app_data["sample_links_dict"])]
+    #         },
+    #         "showlegend": False,
+    #         "plot_bgcolor": "white"
+    #     }
+    # )
+    # return fig
+    return {}
 
 
 def get_node_color_legend_fig_nodes(app_data):
