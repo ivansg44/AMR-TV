@@ -110,13 +110,21 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         yaxis_range = default_yaxis_range
 
     sample_links_dict = get_sample_links_dict(
-        sample_data_dict,
+        sample_data_dict=sample_data_dict,
         attr_link_list=config_file_dict["attr_link_list"],
         track=config_file_dict["track"],
         links_across_y=config_file_dict["links_across_y"],
         max_day_range=config_file_dict["max_day_range"],
         null_vals=config_file_dict["null_vals"]
     )
+
+    main_fig_base_links_dict = get_main_fig_base_links_dict(
+        sample_links_dict=sample_links_dict,
+        main_fig_nodes_x_dict=main_fig_nodes_x_dict,
+        main_fig_nodes_y_dict=main_fig_nodes_y_dict,
+        selected_samples=selected_samples
+    )
+
 
     # sample_links_dict = get_sample_links_dict(
     #     attr_link_list=config_file_dict["attr_link_list"],
@@ -177,7 +185,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         "main_fig_nodes_textfont_color":
             main_fig_nodes_textfont_color,
         # "sample_links_dict": sample_links_dict,
-        "node_color_attr_dict": node_color_attr_dict
+        "node_color_attr_dict": node_color_attr_dict,
+        "main_fig_base_links_dict": main_fig_base_links_dict
     }
 
     num_of_facets = len(app_data["main_fig_yaxis_tickvals"]) - 1
@@ -357,6 +366,37 @@ def get_sample_links_dict(sample_data_dict, attr_link_list, track,
                     sample_links_dict[attr].append((sample, other_sample))
 
     return sample_links_dict
+
+
+def get_main_fig_base_links_dict(sample_links_dict, main_fig_nodes_x_dict,
+                                 main_fig_nodes_y_dict, selected_samples):
+    """TODO"""
+    ret = {"opaque": {"x": [], "y": []}, "transparent": {"x": [], "y": []}}
+    seen_links = set()
+    for attr in sample_links_dict:
+        for link_tuple in sample_links_dict[attr]:
+            if link_tuple in seen_links:
+                continue
+
+            seen_links.add(link_tuple)
+            (sample, other_sample) = link_tuple
+            x = [main_fig_nodes_x_dict[sample],
+                 main_fig_nodes_x_dict[other_sample],
+                 None]
+            y = [main_fig_nodes_y_dict[sample],
+                 main_fig_nodes_y_dict[other_sample],
+                 None]
+
+            selected_link = \
+                sample in selected_samples or other_sample in selected_samples
+            if selected_samples and not selected_link:
+                ret["transparent"]["x"] += x
+                ret["transparent"]["y"] += y
+            else:
+                ret["opaque"]["x"] += x
+                ret["opaque"]["y"] += y
+
+    return ret
 
 
 # def get_sample_links_dict(attr_link_list, sample_data_dict, track,
