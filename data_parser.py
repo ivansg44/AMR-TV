@@ -6,6 +6,7 @@ import csv
 from datetime import datetime
 from io import StringIO
 from json import loads
+from math import sqrt
 
 
 def get_app_data(sample_file_base64_str, config_file_base64_str,
@@ -129,7 +130,9 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         sample_links_dict=sample_links_dict,
         main_fig_nodes_x_dict=main_fig_nodes_x_dict,
         main_fig_nodes_y_dict=main_fig_nodes_y_dict,
-        selected_samples=selected_samples
+        selected_samples=selected_samples,
+        xaxis_range=xaxis_range,
+        yaxis_range=yaxis_range
     )
 
     # sample_links_dict = get_sample_links_dict(
@@ -410,7 +413,8 @@ def get_main_fig_base_links_dict(sample_links_dict, main_fig_nodes_x_dict,
 
 
 def get_main_fig_attr_links_dict(sample_links_dict, main_fig_nodes_x_dict,
-                                 main_fig_nodes_y_dict, selected_samples):
+                                 main_fig_nodes_y_dict, selected_samples,
+                                 xaxis_range, yaxis_range):
     """TODO"""
     ret = {}
     for attr in sample_links_dict:
@@ -424,7 +428,13 @@ def get_main_fig_attr_links_dict(sample_links_dict, main_fig_nodes_x_dict,
             y0 = main_fig_nodes_y_dict[sample]
             x1 = main_fig_nodes_x_dict[other_sample]
             y1 = main_fig_nodes_y_dict[other_sample]
-            t = 0.1
+
+            d = sqrt((x1-x0)**2 + (y1-y0)**2)
+            dt = min((xaxis_range[1]-xaxis_range[0]),
+                     (yaxis_range[1]-yaxis_range[0]))
+            dt /= 30
+
+            t = dt / d
             xt = (1-t)*x0 + t*x1
             yt = (1-t)*y0 + t*y1
 
