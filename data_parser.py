@@ -430,22 +430,25 @@ def get_main_fig_attr_links_dict(sample_links_dict, main_fig_nodes_x_dict,
             y1 = main_fig_nodes_y_dict[other_sample]
 
             d = sqrt((x1-x0)**2 + (y1-y0)**2)
-            dt = min((xaxis_range[1]-xaxis_range[0]),
-                     (yaxis_range[1]-yaxis_range[0]))
-            dt /= 30
+
+            min_axis_range = min((xaxis_range[1]-xaxis_range[0]),
+                                 (yaxis_range[1]-yaxis_range[0]))
+            dt = min_axis_range / 30
 
             t = dt / d
-            xt = (1-t)*x0 + t*x1
-            yt = (1-t)*y0 + t*y1
+            xt1 = (1-t)*x0 + t*x1
+            yt1 = (1-t)*y0 + t*y1
+            xt2 = (1-t)*x1 + t*x0
+            yt2 = (1-t)*y1 + t*y0
 
             selected_link = \
                 sample in selected_samples or other_sample in selected_samples
             if selected_samples and not selected_link:
-                ret[attr]["transparent"]["x"] += [xt, x1, None]
-                ret[attr]["transparent"]["y"] += [yt, y1, None]
+                ret[attr]["transparent"]["x"] += [xt1, xt2, None]
+                ret[attr]["transparent"]["y"] += [yt1, yt2, None]
             else:
-                ret[attr]["opaque"]["x"] += [xt, x1, None]
-                ret[attr]["opaque"]["y"] += [yt, y1, None]
+                ret[attr]["opaque"]["x"] += [xt1, xt2, None]
+                ret[attr]["opaque"]["y"] += [yt1, yt2, None]
 
     return ret
 
