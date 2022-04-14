@@ -125,6 +125,12 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         selected_samples=selected_samples
     )
 
+    main_fig_attr_links_dict = get_main_fig_attr_links_dict(
+        sample_links_dict=sample_links_dict,
+        main_fig_nodes_x_dict=main_fig_nodes_x_dict,
+        main_fig_nodes_y_dict=main_fig_nodes_y_dict,
+        selected_samples=selected_samples
+    )
 
     # sample_links_dict = get_sample_links_dict(
     #     attr_link_list=config_file_dict["attr_link_list"],
@@ -186,7 +192,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
             main_fig_nodes_textfont_color,
         # "sample_links_dict": sample_links_dict,
         "node_color_attr_dict": node_color_attr_dict,
-        "main_fig_base_links_dict": main_fig_base_links_dict
+        "main_fig_base_links_dict": main_fig_base_links_dict,
+        "main_fig_attr_links_dict": main_fig_attr_links_dict
     }
 
     num_of_facets = len(app_data["main_fig_yaxis_tickvals"]) - 1
@@ -395,6 +402,37 @@ def get_main_fig_base_links_dict(sample_links_dict, main_fig_nodes_x_dict,
             else:
                 ret["opaque"]["x"] += x
                 ret["opaque"]["y"] += y
+
+    return ret
+
+
+def get_main_fig_attr_links_dict(sample_links_dict, main_fig_nodes_x_dict,
+                                 main_fig_nodes_y_dict, selected_samples):
+    """TODO"""
+    ret = {}
+    for attr in sample_links_dict:
+        ret[attr] = {
+            "opaque": {"x": [], "y": []},
+            "transparent": {"x": [], "y": []}
+        }
+
+        for (sample, other_sample) in sample_links_dict[attr]:
+            x0 = main_fig_nodes_x_dict[sample]
+            y0 = main_fig_nodes_y_dict[sample]
+            x1 = main_fig_nodes_x_dict[other_sample]
+            y1 = main_fig_nodes_y_dict[other_sample]
+            t = 0.1
+            xt = (1-t)*x0 + t*x1
+            yt = (1-t)*y0 + t*y1
+
+            selected_link = \
+                sample in selected_samples or other_sample in selected_samples
+            if selected_samples and not selected_link:
+                ret[attr]["transparent"]["x"] += [xt, x1, None]
+                ret[attr]["transparent"]["y"] += [yt, y1, None]
+            else:
+                ret[attr]["opaque"]["x"] += [xt, x1, None]
+                ret[attr]["opaque"]["y"] += [yt, y1, None]
 
     return ret
 
