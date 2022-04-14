@@ -370,7 +370,10 @@ def get_sample_links_dict(sample_data_dict, attr_link_list, track,
                     [sample_data_dict[other_sample][v] for v in attr_list]
 
                 if sample_attr_list == other_sample_attr_list:
-                    sample_links_dict[attr].append((sample, other_sample))
+                    if other_datetime > sample_datetime:
+                        sample_links_dict[attr].append((sample, other_sample))
+                    else:
+                        sample_links_dict[attr].append((other_sample, sample))
 
     return sample_links_dict
 
