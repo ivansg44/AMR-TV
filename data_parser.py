@@ -429,6 +429,16 @@ def get_main_fig_attr_links_dict(sample_links_dict, main_fig_nodes_x_dict,
             x1 = main_fig_nodes_x_dict[other_sample]
             y1 = main_fig_nodes_y_dict[other_sample]
 
+            try:
+                perpendicular_slope = - (x1-x0)/(y1-y0)
+                x0 += 0.005
+                x1 += 0.005
+                y0 += perpendicular_slope * 0.005
+                y1 += perpendicular_slope * 0.005
+            except ZeroDivisionError:
+                y0 += 0.005
+                y1 += 0.005
+
             d = sqrt((x1-x0)**2 + (y1-y0)**2)
 
             min_axis_range = min((xaxis_range[1]-xaxis_range[0]),

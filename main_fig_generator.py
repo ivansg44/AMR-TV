@@ -79,7 +79,7 @@ def get_main_fig_attr_link_graphs(app_data):
             y=[y if y else None for y in opaque_y],
             mode="lines",
             line={
-                "width": 3,
+                "width": 2,
                 "color": "red"
             }
         )
@@ -88,7 +88,7 @@ def get_main_fig_attr_link_graphs(app_data):
             y=[y if y else None for y in transparent_y],
             mode="lines",
             line={
-                "width": 3,
+                "width": 2,
                 "color": "white"
             }
         )
