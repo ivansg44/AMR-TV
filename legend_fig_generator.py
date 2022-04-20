@@ -76,8 +76,9 @@ def get_link_legend_fig_links(app_data):
     :rtype: list[go.Scatter]
     """
     links = []
-    for i, attr in enumerate(app_data["sample_links_dict"]):
-        link_dict = app_data["sample_links_dict"][attr]["opaque"]
+    for i, attr in enumerate(app_data["main_fig_attr_links_dict"]):
+        (r, g, b) = app_data["attr_color_dash_dict"][attr][0]
+        dash = app_data["attr_color_dash_dict"][attr][1]
         links.append(
             go.Scatter(
                 x=[0, 1],
@@ -85,8 +86,8 @@ def get_link_legend_fig_links(app_data):
                 mode="lines+text",
                 line={
                     "width": 3,
-                    "color": "rgb(%s, %s, %s)" % link_dict["color"],
-                    "dash": link_dict["dash"]
+                    "color": "rgb(%s, %s, %s)" % (r, g, b),
+                    "dash": dash
                 },
                 text=["<b>%s</b>" % attr, None],
                 textfont={
@@ -108,27 +109,26 @@ def get_link_legend_fig(app_data):
     :return: Plotly figure object that shows link legend in viz
     :rtype: go.Figure
     """
-    # fig = go.Figure(
-    #     data=get_link_legend_fig_links(app_data),
-    #     layout={
-    #         "margin": {
-    #             "l": 0, "r": 0, "t": 0, "b": 0, "pad": 0
-    #         },
-    #         "xaxis": {
-    #             "visible": False,
-    #             "fixedrange": True
-    #         },
-    #         "yaxis": {
-    #             "visible": False,
-    #             "fixedrange": True,
-    #             "range": [-0.5, len(app_data["sample_links_dict"])]
-    #         },
-    #         "showlegend": False,
-    #         "plot_bgcolor": "white"
-    #     }
-    # )
-    # return fig
-    return {}
+    fig = go.Figure(
+        data=get_link_legend_fig_links(app_data),
+        layout={
+            "margin": {
+                "l": 0, "r": 0, "t": 0, "b": 0, "pad": 0
+            },
+            "xaxis": {
+                "visible": False,
+                "fixedrange": True
+            },
+            "yaxis": {
+                "visible": False,
+                "fixedrange": True,
+                "range": [-0.5, len(app_data["main_fig_attr_links_dict"])]
+            },
+            "showlegend": False,
+            "plot_bgcolor": "white"
+        }
+    )
+    return fig
 
 
 def get_node_color_legend_fig_nodes(app_data):
