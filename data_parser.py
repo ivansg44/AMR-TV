@@ -119,6 +119,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         null_vals=config_file_dict["null_vals"]
     )
 
+    attr_color_dash_dict = get_attr_color_dash_dict(sample_links_dict)
+
     main_fig_base_links_dict = get_main_fig_base_links_dict(
         sample_links_dict=sample_links_dict,
         main_fig_nodes_x_dict=main_fig_nodes_x_dict,
@@ -196,7 +198,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         # "sample_links_dict": sample_links_dict,
         "node_color_attr_dict": node_color_attr_dict,
         "main_fig_base_links_dict": main_fig_base_links_dict,
-        "main_fig_attr_links_dict": main_fig_attr_links_dict
+        "main_fig_attr_links_dict": main_fig_attr_links_dict,
+        "attr_color_dash_dict": attr_color_dash_dict
     }
 
     num_of_facets = len(app_data["main_fig_yaxis_tickvals"]) - 1
@@ -409,6 +412,21 @@ def get_main_fig_base_links_dict(sample_links_dict, main_fig_nodes_x_dict,
                 ret["opaque"]["x"] += x
                 ret["opaque"]["y"] += y
 
+    return ret
+
+
+def get_attr_color_dash_dict(sample_links_dict):
+    """TODO"""
+    available_link_color_dash_combos = [
+        ((27, 158, 119), "solid"), ((217, 95, 2), "solid"),
+        ((117, 112, 179), "solid"), ((27, 158, 119), "dot"),
+        ((217, 95, 2), "dot"), ((117, 112, 179), "dot"),
+    ]
+    if len(sample_links_dict) > len(available_link_color_dash_combos):
+        msg = "Not enough unique edge patterns for different attributes"
+        raise IndexError(msg)
+    zip_obj = zip(sample_links_dict.keys(), available_link_color_dash_combos)
+    ret = {k: v for (k, v) in zip_obj}
     return ret
 
 

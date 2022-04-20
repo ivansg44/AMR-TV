@@ -73,6 +73,7 @@ def get_main_fig_attr_link_graphs(app_data):
             app_data["main_fig_attr_links_dict"][attr]["transparent"]["x"]
         transparent_y = \
             app_data["main_fig_attr_links_dict"][attr]["transparent"]["y"]
+        (r, g, b) = app_data["attr_color_dash_dict"][attr][0]
 
         opaque_graph = go.Scatter(
             x=[x if x else None for x in opaque_x],
@@ -80,7 +81,7 @@ def get_main_fig_attr_link_graphs(app_data):
             mode="lines",
             line={
                 "width": 2,
-                "color": "red"
+                "color": "rgb(%s,%s,%s)" % (r, g, b)
             }
         )
         transparent_graph = go.Scatter(
@@ -89,7 +90,7 @@ def get_main_fig_attr_link_graphs(app_data):
             mode="lines",
             line={
                 "width": 2,
-                "color": "white"
+                "color": "rgba(%s,%s,%s, 0.5)" % (r, g, b)
             }
         )
         ret += [opaque_graph, transparent_graph]
