@@ -417,6 +417,8 @@ def get_main_fig_attr_links_dict(sample_links_dict, main_fig_nodes_x_dict,
                                  xaxis_range, yaxis_range):
     """TODO"""
     ret = {}
+    translation_dict = {}
+    unit_parallel_translation = 0.005
     for attr in sample_links_dict:
         ret[attr] = {
             "opaque": {"x": [], "y": []},
@@ -424,6 +426,22 @@ def get_main_fig_attr_links_dict(sample_links_dict, main_fig_nodes_x_dict,
         }
 
         for (sample, other_sample) in sample_links_dict[attr]:
+            if (sample, other_sample) in translation_dict:
+                old_multiplier = translation_dict[(sample, other_sample)]
+                if old_multiplier == 0:
+                    translation_dict[(sample, other_sample)] = 1
+                elif old_multiplier > 0:
+                    translation_dict[(sample, other_sample)] *= -1
+                else:
+                    translation_dict[(sample, other_sample)] *= -1
+                    translation_dict[(sample, other_sample)] += 1
+                multiplier = translation_dict[(sample, other_sample)]
+            else:
+                multiplier = 0
+                translation_dict[(sample, other_sample)] = multiplier
+
+            parallel_translation = multiplier * unit_parallel_translation
+
             x0 = main_fig_nodes_x_dict[sample]
             y0 = main_fig_nodes_y_dict[sample]
             x1 = main_fig_nodes_x_dict[other_sample]
@@ -431,13 +449,13 @@ def get_main_fig_attr_links_dict(sample_links_dict, main_fig_nodes_x_dict,
 
             try:
                 perpendicular_slope = - (x1-x0)/(y1-y0)
-                x0 += 0.005
-                x1 += 0.005
-                y0 += perpendicular_slope * 0.005
-                y1 += perpendicular_slope * 0.005
+                x0 += parallel_translation
+                x1 += parallel_translation
+                y0 += perpendicular_slope * parallel_translation
+                y1 += perpendicular_slope * parallel_translation
             except ZeroDivisionError:
-                y0 += 0.005
-                y1 += 0.005
+                y0 += parallel_translation
+                y1 += parallel_translation
 
             d = sqrt((x1-x0)**2 + (y1-y0)**2)
 
