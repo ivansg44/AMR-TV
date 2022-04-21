@@ -466,14 +466,14 @@ def get_main_fig_attr_links_dict(sample_links_dict, main_fig_nodes_x_dict,
             y1 = main_fig_nodes_y_dict[other_sample]
 
             try:
-                perpendicular_slope = - (x1-x0)/(y1-y0)
+                perpendicular_slope = (y1 - y0) / (x1 - x0)
                 x0 += parallel_translation
                 x1 += parallel_translation
-                y0 += perpendicular_slope * parallel_translation
-                y1 += perpendicular_slope * parallel_translation
+                y0 += (-1 / perpendicular_slope) * parallel_translation
+                y1 += (-1 / perpendicular_slope) * parallel_translation
             except ZeroDivisionError:
-                y0 += parallel_translation
-                y1 += parallel_translation
+                x0 += parallel_translation
+                x1 += parallel_translation
 
             d = sqrt((x1-x0)**2 + (y1-y0)**2)
 
