@@ -436,7 +436,7 @@ def get_main_fig_attr_links_dict(sample_links_dict, main_fig_nodes_x_dict,
     """TODO"""
     ret = {}
     translation_dict = {}
-    unit_parallel_translation = 0.005
+    unit_parallel_translation = (yaxis_range[1] - yaxis_range[0]) / 200
     for attr in sample_links_dict:
         ret[attr] = {
             "opaque": {"x": [], "y": []},
