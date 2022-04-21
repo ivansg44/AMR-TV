@@ -81,7 +81,7 @@ def get_main_fig_attr_link_graphs(app_data):
             y=[y if y else None for y in opaque_y],
             mode="lines",
             line={
-                "width": 2,
+                "width": 3,
                 "color": "rgb(%s,%s,%s)" % (r, g, b),
                 "dash": dash
             }
@@ -91,7 +91,7 @@ def get_main_fig_attr_link_graphs(app_data):
             y=[y if y else None for y in transparent_y],
             mode="lines",
             line={
-                "width": 2,
+                "width": 3,
                 "color": "rgba(%s,%s,%s, 0.5)" % (r, g, b),
                 "dash": dash
             }
