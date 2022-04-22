@@ -472,11 +472,14 @@ def get_main_fig_attr_links_dict(sample_links_dict, main_fig_nodes_x_dict,
                 y0 += parallel_translation
                 y1 += parallel_translation
             else:
-                x0 += parallel_translation
-                x1 += parallel_translation
-                perpendicular_slope = (y1 - y0) / (x1 - x0)
-                y0 += (-1 / perpendicular_slope) * parallel_translation
-                y1 += (-1 / perpendicular_slope) * parallel_translation
+                inverse_perpendicular_slope = (x1 - x0) / (y1 - y0)
+                numerator = parallel_translation**2
+                denominator = 1 + inverse_perpendicular_slope**2
+                x_translation = sqrt(numerator/denominator)
+                x0 += x_translation
+                x1 += x_translation
+                y0 += -inverse_perpendicular_slope * x_translation
+                y1 += -inverse_perpendicular_slope * x_translation
 
             d = sqrt((x1-x0)**2 + (y1-y0)**2)
 
