@@ -74,53 +74,6 @@ def get_main_fig_attr_link_graphs(app_data):
     return ret
 
 
-def get_main_fig_link_graphs(app_data):
-    """Get plotly scatter objs of different links in main fig.
-
-    Basically, a list of different scatter objs that draw the links.
-    One scatter obj per link type.
-
-    :param app_data: ``data_parser.get_app_data`` ret val
-    :type app_data: dict
-    :return: List of plotly scatter obj used to draw links in main fig
-    :rtype: list[go.Scatter]
-    """
-    # link_graphs = []
-    # for attr in app_data["sample_links_dict"]:
-    #     opaque_link_dict = app_data["sample_links_dict"][attr]["opaque"]
-    #     (r, g, b) = opaque_link_dict["color"]
-    #     link_graphs.append(
-    #         go.Scatter(
-    #             x=[x if x else None for x in opaque_link_dict["x"]],
-    #             y=[y if y else None for y in opaque_link_dict["y"]],
-    #             mode="lines",
-    #             line={
-    #                 "width": 3,
-    #                 "color": "rgb(%s, %s, %s)" % (r, g, b),
-    #                 "dash": opaque_link_dict["dash"]
-    #             }
-    #         )
-    #     )
-    # 
-    #     transparent_link_dict = \
-    #         app_data["sample_links_dict"][attr]["transparent"]
-    #     (r, g, b) = transparent_link_dict["color"]
-    #     link_graphs.append(
-    #         go.Scatter(
-    #             x=[x if x else None for x in transparent_link_dict["x"]],
-    #             y=[y if y else None for y in transparent_link_dict["y"]],
-    #             mode="lines",
-    #             line={
-    #                 "width": 3,
-    #                 "color": "rgba(%s, %s, %s, 0.01)" % (r, g, b),
-    #                 "dash": opaque_link_dict["dash"]
-    #             }
-    #         )
-    #     )
-    # return link_graphs
-    return []
-
-
 def get_main_fig_facet_lines(app_data):
     """Get plotly scatter obj of facet lines in main fig.
 
@@ -151,7 +104,6 @@ def get_main_fig(app_data):
     :rtype: go.Figure
     """
     main_fig_attr_link_graphs = get_main_fig_attr_link_graphs(app_data)
-    # main_fig_link_graphs = get_main_fig_link_graphs(app_data)
     fig = go.Figure(
         data=main_fig_attr_link_graphs + [
             get_main_fig_nodes(app_data),
