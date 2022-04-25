@@ -129,6 +129,9 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         yaxis_range=yaxis_range
     )
 
+    main_fig_attr_link_tips_dict = \
+        get_main_fig_attr_link_tips_dict(main_fig_attr_links_dict)
+
     label_attr = config_file_dict["label_attr"]
     main_fig_nodes_text = \
         ["<b>%s</b>" % v[label_attr] for v in sample_data_dict.values()]
@@ -175,7 +178,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
             main_fig_nodes_textfont_color,
         "node_color_attr_dict": node_color_attr_dict,
         "main_fig_attr_links_dict": main_fig_attr_links_dict,
-        "attr_color_dash_dict": attr_color_dash_dict
+        "attr_color_dash_dict": attr_color_dash_dict,
+        "main_fig_attr_link_tips_dict": main_fig_attr_link_tips_dict
     }
 
     num_of_facets = len(app_data["main_fig_yaxis_tickvals"]) - 1
@@ -437,6 +441,57 @@ def get_main_fig_attr_links_dict(sample_links_dict, main_fig_nodes_x_dict,
                 ret[attr]["opaque"]["x"] += [x0, x1, None]
                 ret[attr]["opaque"]["y"] += [y0, y1, None]
 
+    return ret
+
+
+def get_main_fig_attr_link_tips_dict(main_fig_attr_links_dict):
+    """TODO"""
+    ret = {
+        "opaque": {
+            "x": [],
+            "y": []
+        },
+        "transparent": {
+            "x": [],
+            "y": []
+        },
+    }
+    shortest_link = 100000
+    for attr in main_fig_attr_links_dict:
+        opaque_dict = main_fig_attr_links_dict[attr]["opaque"]
+        for i in range(0, len(opaque_dict["x"]), 3):
+            [x0, x1] = opaque_dict["x"][i:i+2]
+            [y0, y1] = opaque_dict["y"][i:i+2]
+            shortest_link = min(shortest_link,
+                                sqrt((x1 - x0)**2 + (y1 - y0)**2))
+    dt = shortest_link * 0.25
+
+    for attr in main_fig_attr_links_dict:
+        opaque_dict = main_fig_attr_links_dict[attr]["opaque"]
+        for i in range(0, len(opaque_dict["x"]), 3):
+            [x0, x1] = opaque_dict["x"][i:i+2]
+            [y0, y1] = opaque_dict["y"][i:i+2]
+            d = sqrt((x1 - x0)**2 + (y1 - y0)**2)
+            t = dt / d
+            xt0 = (1 - t)*x0 + t*x1
+            yt0 = (1 - t)*y0 + t*y1
+            xt1 = (1 - t)*x1 + t*x0
+            yt1 = (1 - t)*y1 + t*y0
+            ret["opaque"]["x"] += \
+                [x0, xt0, None, xt1, x1, None]
+            ret["opaque"]["y"] += \
+                [y0, yt0, None, yt1, y1, None]
+
+        transparent_dict = main_fig_attr_links_dict[attr]["transparent"]
+        for i in range(0, len(transparent_dict["x"]), 3):
+            [x1, x2] = transparent_dict["x"][i:i+2]
+            [y1, y2] = transparent_dict["y"][i:i+2]
+            x_diff = x2 - x1
+            y_diff = y2 - y1
+            ret["transparent"]["x"] += \
+                [x1, x1+(x_diff*0.1), None, x2-(x_diff*0.1), x2, None]
+            ret["transparent"]["y"] += \
+                [y1, y1+(y_diff*0.1), None, y2-(y_diff*0.1), y2, None]
     return ret
 
 

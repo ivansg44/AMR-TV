@@ -74,6 +74,39 @@ def get_main_fig_attr_link_graphs(app_data):
     return ret
 
 
+def get_main_fig_attr_link_tip_graphs(app_data):
+    """TODO"""
+    opaque_x = \
+        app_data["main_fig_attr_link_tips_dict"]["opaque"]["x"]
+    opaque_y = \
+        app_data["main_fig_attr_link_tips_dict"]["opaque"]["y"]
+    transparent_x = \
+        app_data["main_fig_attr_link_tips_dict"]["transparent"]["x"]
+    transparent_y = \
+        app_data["main_fig_attr_link_tips_dict"]["transparent"]["y"]
+
+    opaque_graph = go.Scatter(
+        x=[x if x else None for x in opaque_x],
+        y=[y if y else None for y in opaque_y],
+        mode="lines",
+        line={
+            "width": 3,
+            "color": "black"
+        }
+    )
+    transparent_graph = go.Scatter(
+        x=[x if x else None for x in transparent_x],
+        y=[y if y else None for y in transparent_y],
+        mode="lines",
+        line={
+            "width": 3,
+            "color": "lightgrey"
+        }
+    )
+
+    return [opaque_graph, transparent_graph]
+
+
 def get_main_fig_facet_lines(app_data):
     """Get plotly scatter obj of facet lines in main fig.
 
@@ -104,8 +137,9 @@ def get_main_fig(app_data):
     :rtype: go.Figure
     """
     main_fig_attr_link_graphs = get_main_fig_attr_link_graphs(app_data)
+    main_fig_attr_link_tip_graphs = get_main_fig_attr_link_tip_graphs(app_data)
     fig = go.Figure(
-        data=main_fig_attr_link_graphs + [
+        data=main_fig_attr_link_graphs + main_fig_attr_link_tip_graphs + [
             get_main_fig_nodes(app_data),
             get_main_fig_facet_lines(app_data)
         ],
