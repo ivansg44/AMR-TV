@@ -321,7 +321,27 @@ def get_node_color_attr_dict(node_color_attr_list):
 
 def get_sample_links_dict(sample_data_dict, attr_link_list, track,
                           links_across_y, max_day_range, null_vals):
-    """TODO"""
+    """Get a dict of all links to viz in main graph.
+
+    The keys in the dict are different attrs. The values are a list of
+    tuples containing two samples with a shared val for that attr.
+
+    :param sample_data_dict: ``get_sample_data_dict`` ret val
+    :type sample_data_dict: dict
+    :param attr_link_list: list of attrs to include in ret dict
+    :type attr_link_list: list[str]
+    :param track: attr encoded as a track along y-axis
+    :type track: str
+    :param links_across_y: Whether we consider links across different
+        tracks.
+    :type links_across_y: bool
+    :param max_day_range: Maximum day range to still consider links
+    :type max_day_range: int
+    :param null_vals: List of null vals in sample data
+    :type null_vals: list
+    :return: Dict detailing links to viz in main graph
+    :rtype: dict
+    """
     sample_links_dict = {k: [] for k in attr_link_list}
     sample_list = list(sample_data_dict.keys())
 
@@ -365,7 +385,14 @@ def get_sample_links_dict(sample_data_dict, attr_link_list, track,
 
 
 def get_attr_color_dash_dict(sample_links_dict):
-    """TODO"""
+    """Get dict assigning color/dash combo to attrs vized as links.
+
+    :param sample_links_dict: ``get_sample_links_dict`` ret val
+    :type sample_links_dict: dict
+    :return: Dict with attrs vized as links as keys,
+        and a unique color/dash combo as vals.
+    :rtype: dict
+    """
     available_link_color_dash_combos = [
         ((27, 158, 119), "solid"), ((217, 95, 2), "solid"),
         ((117, 112, 179), "solid"), ((27, 158, 119), "dot"),
@@ -382,7 +409,21 @@ def get_attr_color_dash_dict(sample_links_dict):
 def get_main_fig_attr_links_dict(sample_links_dict, main_fig_nodes_x_dict,
                                  main_fig_nodes_y_dict, selected_samples,
                                  yaxis_range):
-    """TODO"""
+    """Get dict with info used by Plotly to viz links in main graph.
+
+    :param sample_links_dict: ``get_sample_links_dict`` ret val
+    :type sample_links_dict: dict
+    :param main_fig_nodes_x_dict: ``get_main_fig_nodes_x_dict`` ret val
+    :type main_fig_nodes_x_dict: dict
+    :param main_fig_nodes_y_dict: ``get_main_fig_nodes_y_dict`` ret val
+    :type main_fig_nodes_y_dict: dict
+    :param selected_samples: Samples selected by users
+    :type selected_samples: list[str]
+    :param yaxis_range: Main graph y-axis min and max val
+    :type yaxis_range: list
+    :return: Dict with info used by Plotly to viz links in main graph
+    :rtype: dict
+    """
     ret = {}
     translation_dict = {}
     unit_parallel_translation = (yaxis_range[1] - yaxis_range[0]) / 200
@@ -445,7 +486,15 @@ def get_main_fig_attr_links_dict(sample_links_dict, main_fig_nodes_x_dict,
 
 
 def get_main_fig_attr_link_tips_dict(main_fig_attr_links_dict):
-    """TODO"""
+    """Get dict used to draw black tips on links in main viz.
+
+    :param main_fig_attr_links_dict: ``get_main_fig_attr_links_dict``
+        ret val.
+    :type main_fig_attr_links_dict: dict
+    :return: Dict with info used by plotly to draw black tips on main
+        viz.
+    :rtype: dict
+    """
     ret = {
         "opaque": {
             "x": [],

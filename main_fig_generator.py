@@ -35,7 +35,16 @@ def get_main_fig_nodes(app_data):
 
 
 def get_main_fig_attr_link_graphs(app_data):
-    """TODO"""
+    """Get plotly scatter objs of links in main fig.
+
+    This is basically a list of different scatter objs--one for each
+    attr.
+
+    :param app_data: ``data_parser.get_app_data`` ret val
+    :type app_data: dict
+    :return: Plotly scatter objs of links in main fig
+    :rtype: list[go.Scatter]
+    """
     ret = []
     for attr in app_data["main_fig_attr_links_dict"]:
         opaque_x = \
@@ -75,7 +84,16 @@ def get_main_fig_attr_link_graphs(app_data):
 
 
 def get_main_fig_attr_link_tip_graphs(app_data):
-    """TODO"""
+    """Get plotly scatter objs of lin tips in main fig.
+
+    This is basically a list of different scatter objs--one for each
+    attr.
+
+    :param app_data: ``data_parser.get_app_data`` ret val
+    :type app_data: dict
+    :return: Plotly scatter objs of link tips in main fig
+    :rtype: list[go.Scatter]
+    """
     opaque_x = \
         app_data["main_fig_attr_link_tips_dict"]["opaque"]["x"]
     opaque_y = \
