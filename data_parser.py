@@ -520,6 +520,8 @@ def get_main_fig_attr_link_tips_dict(main_fig_attr_links_dict):
         for i in range(0, len(opaque_dict["x"]), 3):
             [x0, x1] = opaque_dict["x"][i:i+2]
             [y0, y1] = opaque_dict["y"][i:i+2]
+
+            # https://math.stackexchange.com/a/1630886
             d = sqrt((x1 - x0)**2 + (y1 - y0)**2)
             t = dt / d
             xt0 = (1 - t)*x0 + t*x1
