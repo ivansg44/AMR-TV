@@ -121,19 +121,11 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
 
     attr_color_dash_dict = get_attr_color_dash_dict(sample_links_dict)
 
-    main_fig_base_links_dict = get_main_fig_base_links_dict(
-        sample_links_dict=sample_links_dict,
-        main_fig_nodes_x_dict=main_fig_nodes_x_dict,
-        main_fig_nodes_y_dict=main_fig_nodes_y_dict,
-        selected_samples=selected_samples
-    )
-
     main_fig_attr_links_dict = get_main_fig_attr_links_dict(
         sample_links_dict=sample_links_dict,
         main_fig_nodes_x_dict=main_fig_nodes_x_dict,
         main_fig_nodes_y_dict=main_fig_nodes_y_dict,
         selected_samples=selected_samples,
-        xaxis_range=xaxis_range,
         yaxis_range=yaxis_range
     )
 
@@ -197,7 +189,6 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
             main_fig_nodes_textfont_color,
         # "sample_links_dict": sample_links_dict,
         "node_color_attr_dict": node_color_attr_dict,
-        "main_fig_base_links_dict": main_fig_base_links_dict,
         "main_fig_attr_links_dict": main_fig_attr_links_dict,
         "attr_color_dash_dict": attr_color_dash_dict
     }
@@ -384,37 +375,6 @@ def get_sample_links_dict(sample_data_dict, attr_link_list, track,
     return sample_links_dict
 
 
-def get_main_fig_base_links_dict(sample_links_dict, main_fig_nodes_x_dict,
-                                 main_fig_nodes_y_dict, selected_samples):
-    """TODO"""
-    ret = {"opaque": {"x": [], "y": []}, "transparent": {"x": [], "y": []}}
-    seen_links = set()
-    for attr in sample_links_dict:
-        for link_tuple in sample_links_dict[attr]:
-            if link_tuple in seen_links:
-                continue
-
-            seen_links.add(link_tuple)
-            (sample, other_sample) = link_tuple
-            x = [main_fig_nodes_x_dict[sample],
-                 main_fig_nodes_x_dict[other_sample],
-                 None]
-            y = [main_fig_nodes_y_dict[sample],
-                 main_fig_nodes_y_dict[other_sample],
-                 None]
-
-            selected_link = \
-                sample in selected_samples or other_sample in selected_samples
-            if selected_samples and not selected_link:
-                ret["transparent"]["x"] += x
-                ret["transparent"]["y"] += y
-            else:
-                ret["opaque"]["x"] += x
-                ret["opaque"]["y"] += y
-
-    return ret
-
-
 def get_attr_color_dash_dict(sample_links_dict):
     """TODO"""
     available_link_color_dash_combos = [
@@ -432,7 +392,7 @@ def get_attr_color_dash_dict(sample_links_dict):
 
 def get_main_fig_attr_links_dict(sample_links_dict, main_fig_nodes_x_dict,
                                  main_fig_nodes_y_dict, selected_samples,
-                                 xaxis_range, yaxis_range):
+                                 yaxis_range):
     """TODO"""
     ret = {}
     translation_dict = {}
@@ -483,26 +443,14 @@ def get_main_fig_attr_links_dict(sample_links_dict, main_fig_nodes_x_dict,
                 y0 += -inverse_perpendicular_slope * x_translation
                 y1 += -inverse_perpendicular_slope * x_translation
 
-            d = sqrt((x1-x0)**2 + (y1-y0)**2)
-
-            min_axis_range = min((xaxis_range[1]-xaxis_range[0]),
-                                 (yaxis_range[1]-yaxis_range[0]))
-            dt = min_axis_range / 30
-
-            t = dt / d
-            xt1 = (1-t)*x0 + t*x1
-            yt1 = (1-t)*y0 + t*y1
-            xt2 = (1-t)*x1 + t*x0
-            yt2 = (1-t)*y1 + t*y0
-
             selected_link = \
                 sample in selected_samples or other_sample in selected_samples
             if selected_samples and not selected_link:
-                ret[attr]["transparent"]["x"] += [xt1, xt2, None]
-                ret[attr]["transparent"]["y"] += [yt1, yt2, None]
+                ret[attr]["transparent"]["x"] += [x0, x1, None]
+                ret[attr]["transparent"]["y"] += [y0, y1, None]
             else:
-                ret[attr]["opaque"]["x"] += [xt1, xt2, None]
-                ret[attr]["opaque"]["y"] += [yt1, yt2, None]
+                ret[attr]["opaque"]["x"] += [x0, x1, None]
+                ret[attr]["opaque"]["y"] += [y0, y1, None]
 
     return ret
 
