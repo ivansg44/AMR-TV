@@ -34,50 +34,95 @@ def get_main_fig_nodes(app_data):
     return nodes
 
 
-def get_main_fig_link_graphs(app_data):
-    """Get plotly scatter objs of different links in main fig.
+def get_main_fig_attr_link_graphs(app_data):
+    """Get plotly scatter objs of links in main fig.
 
-    Basically, a list of different scatter objs that draw the links.
-    One scatter obj per link type.
+    This is basically a list of different scatter objs--one for each
+    attr.
 
     :param app_data: ``data_parser.get_app_data`` ret val
     :type app_data: dict
-    :return: List of plotly scatter obj used to draw links in main fig
+    :return: Plotly scatter objs of links in main fig
     :rtype: list[go.Scatter]
     """
-    link_graphs = []
-    for attr in app_data["sample_links_dict"]:
-        opaque_link_dict = app_data["sample_links_dict"][attr]["opaque"]
-        (r, g, b) = opaque_link_dict["color"]
-        link_graphs.append(
-            go.Scatter(
-                x=[x if x else None for x in opaque_link_dict["x"]],
-                y=[y if y else None for y in opaque_link_dict["y"]],
-                mode="lines",
-                line={
-                    "width": 3,
-                    "color": "rgb(%s, %s, %s)" % (r, g, b),
-                    "dash": opaque_link_dict["dash"]
-                }
-            )
-        )
+    ret = []
+    for attr in app_data["main_fig_attr_links_dict"]:
+        opaque_x = \
+            app_data["main_fig_attr_links_dict"][attr]["opaque"]["x"]
+        opaque_y = \
+            app_data["main_fig_attr_links_dict"][attr]["opaque"]["y"]
+        transparent_x = \
+            app_data["main_fig_attr_links_dict"][attr]["transparent"]["x"]
+        transparent_y = \
+            app_data["main_fig_attr_links_dict"][attr]["transparent"]["y"]
+        (r, g, b) = app_data["attr_color_dash_dict"][attr][0]
+        dash = app_data["attr_color_dash_dict"][attr][1]
 
-        transparent_link_dict = \
-            app_data["sample_links_dict"][attr]["transparent"]
-        (r, g, b) = transparent_link_dict["color"]
-        link_graphs.append(
-            go.Scatter(
-                x=[x if x else None for x in transparent_link_dict["x"]],
-                y=[y if y else None for y in transparent_link_dict["y"]],
-                mode="lines",
-                line={
-                    "width": 3,
-                    "color": "rgba(%s, %s, %s, 0.01)" % (r, g, b),
-                    "dash": opaque_link_dict["dash"]
-                }
-            )
+        opaque_graph = go.Scatter(
+            x=[x if x else None for x in opaque_x],
+            y=[y if y else None for y in opaque_y],
+            mode="lines",
+            line={
+                "width": 3,
+                "color": "rgb(%s,%s,%s)" % (r, g, b),
+                "dash": dash
+            }
         )
-    return link_graphs
+        transparent_graph = go.Scatter(
+            x=[x if x else None for x in transparent_x],
+            y=[y if y else None for y in transparent_y],
+            mode="lines",
+            line={
+                "width": 3,
+                "color": "rgba(%s,%s,%s, 0.5)" % (r, g, b),
+                "dash": dash
+            }
+        )
+        ret += [opaque_graph, transparent_graph]
+
+    return ret
+
+
+def get_main_fig_attr_link_tip_graphs(app_data):
+    """Get plotly scatter objs of lin tips in main fig.
+
+    This is basically a list of different scatter objs--one for each
+    attr.
+
+    :param app_data: ``data_parser.get_app_data`` ret val
+    :type app_data: dict
+    :return: Plotly scatter objs of link tips in main fig
+    :rtype: list[go.Scatter]
+    """
+    opaque_x = \
+        app_data["main_fig_attr_link_tips_dict"]["opaque"]["x"]
+    opaque_y = \
+        app_data["main_fig_attr_link_tips_dict"]["opaque"]["y"]
+    transparent_x = \
+        app_data["main_fig_attr_link_tips_dict"]["transparent"]["x"]
+    transparent_y = \
+        app_data["main_fig_attr_link_tips_dict"]["transparent"]["y"]
+
+    opaque_graph = go.Scatter(
+        x=[x if x else None for x in opaque_x],
+        y=[y if y else None for y in opaque_y],
+        mode="lines",
+        line={
+            "width": 3,
+            "color": "black"
+        }
+    )
+    transparent_graph = go.Scatter(
+        x=[x if x else None for x in transparent_x],
+        y=[y if y else None for y in transparent_y],
+        mode="lines",
+        line={
+            "width": 3,
+            "color": "lightgrey"
+        }
+    )
+
+    return [opaque_graph, transparent_graph]
 
 
 def get_main_fig_facet_lines(app_data):
@@ -109,9 +154,10 @@ def get_main_fig(app_data):
     :return: Plotly figure object that shows main fig in viz
     :rtype: go.Figure
     """
-    main_fig_link_graphs = get_main_fig_link_graphs(app_data)
+    main_fig_attr_link_graphs = get_main_fig_attr_link_graphs(app_data)
+    main_fig_attr_link_tip_graphs = get_main_fig_attr_link_tip_graphs(app_data)
     fig = go.Figure(
-        data=main_fig_link_graphs + [
+        data=main_fig_attr_link_graphs + main_fig_attr_link_tip_graphs + [
             get_main_fig_nodes(app_data),
             get_main_fig_facet_lines(app_data)
         ],
