@@ -1,15 +1,15 @@
 {
   "delimiter": "\t",
   "node_id": "sample id",
-  "track": "sequence type",
+  "track": "incompatibility group",
   "date_attr": "sample date",
   "date_format": "%B %Y",
-  "label_attr": "sample id",
+  "label_attr": "sequence type",
   "attr_link_list": [
     "Tn4401 variant",
     "Tn4401 isoform"
   ],
-  "node_color_attr": "incompatibility group",
+  "node_color_attr": "",
   "node_symbol_attr": "species",
   "links_across_y": 1,
   "max_day_range": 6000,
