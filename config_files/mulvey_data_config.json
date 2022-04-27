@@ -6,7 +6,8 @@
   "date_format": "%B %Y",
   "label_attr": "sample id",
   "attr_link_list": [
-    "Tn4401 variant"
+    "Tn4401 variant",
+    "Tn4401 isoform"
   ],
   "node_color_attr": "incompatibility group",
   "node_symbol_attr": "species",
