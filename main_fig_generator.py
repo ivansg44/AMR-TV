@@ -155,7 +155,10 @@ def get_main_fig(app_data):
     :rtype: go.Figure
     """
     main_fig_attr_link_graphs = get_main_fig_attr_link_graphs(app_data)
-    main_fig_attr_link_tip_graphs = get_main_fig_attr_link_tip_graphs(app_data)
+    # TODO decide what to do with these
+    # main_fig_attr_link_tip_graphs = \
+    #     get_main_fig_attr_link_tip_graphs(app_data)
+    main_fig_attr_link_tip_graphs = []
     fig = go.Figure(
         data=main_fig_attr_link_graphs + main_fig_attr_link_tip_graphs + [
             get_main_fig_nodes(app_data),
