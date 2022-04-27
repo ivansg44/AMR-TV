@@ -1,0 +1,17 @@
+{
+  "delimiter": "\t",
+  "node_id": "sample id",
+  "track": "hospital ward",
+  "date_attr": "sample date",
+  "date_format": "%B %d %Y",
+  "label_attr": "species",
+  "attr_link_list": [
+    "bla_OXA-48"
+  ],
+  "node_color_attr": "patient id",
+  "node_symbol_attr": "species",
+  "links_across_y": 1,
+  "max_day_range": 30,
+  "null_vals": [],
+  "y_key": "str"
+}
