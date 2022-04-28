@@ -1,10 +1,10 @@
 {
   "delimiter": "\t",
   "node_id": "sample id",
-  "track": "incompatibility group",
+  "track": "sequence type",
   "date_attr": "sample date",
   "date_format": "%B %Y",
-  "label_attr": "sequence type",
+  "label_attr": "sample id",
   "attr_link_list": [
     "Tn4401 variant",
     "Tn4401 isoform"

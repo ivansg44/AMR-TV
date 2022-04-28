@@ -15,7 +15,7 @@
   ],
   "node_color_attr": "mash_neighbor_cluster",
   "node_symbol_attr": "Organism",
-  "links_across_y": 0,
+  "links_across_y": 1,
   "max_day_range": 60,
   "null_vals": ["", "-"],
   "y_key": "str"
