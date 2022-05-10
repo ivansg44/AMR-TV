@@ -1,7 +1,8 @@
 {
   "delimiter": ",",
   "node_id": "Sample ID / Isolate",
-  "track": "Location",
+  "primary_y": "Location",
+  "secondary_y": "rep_type(s)",
   "date_attr": "Date of collection",
   "date_format": "%B %Y",
   "label_attr": "Patient ID",
@@ -10,12 +11,11 @@
     "Resitance gene type",
     "SNPs_homozygous",
     "Left_flanks;Right_flanks",
-    "mash_neighbor_cluster",
-    "rep_type(s)"
+    "mash_neighbor_cluster"
   ],
   "node_color_attr": "mash_neighbor_cluster",
   "node_symbol_attr": "Organism",
-  "links_across_y": 1,
+  "links_across_y": 0,
   "max_day_range": 60,
   "null_vals": ["", "-"],
   "y_key": "str"

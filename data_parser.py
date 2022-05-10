@@ -57,8 +57,14 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
                                   date_list=date_list,
                                   date_x_vals_dict=date_x_vals_dict)
 
-    track_list = \
-        [v[config_file_dict["track"]] for v in sample_data_dict.values()]
+    primary_y_list = \
+        [v[config_file_dict["primary_y"]] for v in sample_data_dict.values()]
+    if config_file_dict["secondary_y"]:
+        secondary_y_list = [v[config_file_dict["secondary_y"]]
+                            for v in sample_data_dict.values()]
+        track_list = list(zip(primary_y_list, secondary_y_list))
+    else:
+        track_list = [(y,) for y in primary_y_list]
     sorted_track_list = \
         get_sorted_track_list(track_list, y_key=config_file_dict["y_key"])
     track_y_vals_dict = {
@@ -69,7 +75,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         get_main_fig_nodes_y_dict(sample_data_dict,
                                   date_attr=config_file_dict["date_attr"],
                                   date_list=date_list,
-                                  track=config_file_dict["track"],
+                                  primary_y=config_file_dict["primary_y"],
+                                  secondary_y=config_file_dict["secondary_y"],
                                   track_list=track_list,
                                   track_y_vals_dict=track_y_vals_dict)
 
@@ -113,7 +120,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     sample_links_dict = get_sample_links_dict(
         sample_data_dict=sample_data_dict,
         attr_link_list=config_file_dict["attr_link_list"],
-        track=config_file_dict["track"],
+        primary_y=config_file_dict["primary_y"],
         links_across_y=config_file_dict["links_across_y"],
         max_day_range=config_file_dict["max_day_range"],
         null_vals=config_file_dict["null_vals"]
@@ -182,17 +189,18 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         "main_fig_attr_link_tips_dict": main_fig_attr_link_tips_dict
     }
 
-    num_of_facets = len(app_data["main_fig_yaxis_tickvals"]) - 1
     app_data["main_fig_facet_y"] =\
-        get_main_fig_facet_y(num_of_facets)
+        get_main_fig_facet_y(app_data["main_fig_yaxis_ticktext"])
     app_data["main_fig_facet_x"] = \
-        get_main_fig_facet_x(default_xaxis_range, num_of_facets)
+        get_main_fig_facet_x(default_xaxis_range, primary_y_list)
 
     return app_data
 
 
 def get_sorted_track_list(track_list, y_key=None):
     """Get a sorted list of tracks assigned across all nodes.
+
+    If there is a secondary y, we sort by primary and then secondary.
 
     :param track_list: List of tracks assigned across all nodes
     :type track_list: list[str]
@@ -202,9 +210,17 @@ def get_sorted_track_list(track_list, y_key=None):
     :rtype: list[str]
     """
     if y_key == "int":
-        y_key = int
+        def y_key(pair):
+            if len(pair) == 2:
+                return (int(pair[0]), int(pair[1]))
+            else:
+                return int(pair[0])
     elif y_key == "str":
-        y_key = str
+        def y_key(pair):
+            if len(pair) == 2:
+                return (str(pair[0]), str(pair[1]))
+            else:
+                return str(pair[0])
     else:
         msg = 'Currently only accept "int" or "str" as y_key values'
         raise ValueError(msg)
@@ -319,7 +335,7 @@ def get_node_color_attr_dict(node_color_attr_list):
     return node_color_attr_dict
 
 
-def get_sample_links_dict(sample_data_dict, attr_link_list, track,
+def get_sample_links_dict(sample_data_dict, attr_link_list, primary_y,
                           links_across_y, max_day_range, null_vals):
     """Get a dict of all links to viz in main graph.
 
@@ -330,8 +346,11 @@ def get_sample_links_dict(sample_data_dict, attr_link_list, track,
     :type sample_data_dict: dict
     :param attr_link_list: list of attrs to include in ret dict
     :type attr_link_list: list[str]
-    :param track: attr encoded as a track along y-axis
-    :type track: str
+    :param primary_y: attr encoded as one part of a track along y-axis
+    :type primary_y: str
+    :param secondary_y: attr encoded as second part of a track along
+        y-axis.
+    :type secondary_y: str
     :param links_across_y: Whether we consider links across different
         tracks.
     :type links_across_y: bool
@@ -359,12 +378,12 @@ def get_sample_links_dict(sample_data_dict, attr_link_list, track,
             for j in range(i+1, len(sample_list)):
                 other_sample = sample_list[j]
 
-                sample_track = sample_data_dict[sample][track]
+                sample_primary_y = sample_data_dict[sample][primary_y]
                 sample_datetime = sample_data_dict[sample]["datetime_obj"]
-                other_track = sample_data_dict[other_sample][track]
+                other_primary_y = sample_data_dict[other_sample][primary_y]
                 other_datetime = sample_data_dict[other_sample]["datetime_obj"]
 
-                if not links_across_y and sample_track != other_track:
+                if not links_across_y and sample_primary_y != other_primary_y:
                     continue
 
                 day_range_datetime = other_datetime - sample_datetime
@@ -585,8 +604,9 @@ def get_main_fig_nodes_x_dict(sample_data_dict, date_attr, date_list,
     return main_fig_nodes_x_dict
 
 
-def get_main_fig_nodes_y_dict(sample_data_dict, date_attr, date_list, track,
-                              track_list, track_y_vals_dict):
+def get_main_fig_nodes_y_dict(sample_data_dict, date_attr, date_list,
+                              primary_y, secondary_y, track_list,
+                              track_y_vals_dict):
     """Get dict mapping nodes to y vals.
 
     :param sample_data_dict: Sample file data parsed into dict obj
@@ -595,8 +615,12 @@ def get_main_fig_nodes_y_dict(sample_data_dict, date_attr, date_list, track,
     :type date_attr: str
     :param date_list: List of sample dates wrt all nodes
     :type date_list: list
-    :param track: Sample file attr encoded by y-axis
-    :type track: str
+    :param primary_y: Sample file attr encoded as one part of track by
+        y-axis.
+    :type primary_y: str
+    :param secondary_y: Sample file attr encoded as second part of
+        track by y-axis.
+    :type secondary_y: str
     :param track_list: List of track vals wrt all nodes
     :type track_list: list
     :param track_y_vals_dict: Dict mapping tracks to numerical y vals
@@ -611,7 +635,12 @@ def get_main_fig_nodes_y_dict(sample_data_dict, date_attr, date_list, track,
     main_fig_nodes_y_dict = {}
     for sample in sample_data_dict:
         sample_date = sample_data_dict[sample][date_attr]
-        sample_track = sample_data_dict[sample][track]
+        sample_primary_y = sample_data_dict[sample][primary_y]
+        if secondary_y:
+            sample_track = \
+                (sample_primary_y, sample_data_dict[sample][secondary_y])
+        else:
+            sample_track = (sample_primary_y,)
         [stagger, multiplier] = helper_obj[(sample_date, sample_track)]
 
         unstaggered_y = track_y_vals_dict[sample_track]
@@ -624,35 +653,42 @@ def get_main_fig_nodes_y_dict(sample_data_dict, date_attr, date_list, track,
     return main_fig_nodes_y_dict
 
 
-def get_main_fig_facet_x(default_xaxis_range, num_of_facets):
-    """Get x vals for lines used to split main graph by tracks.
+def get_main_fig_facet_x(default_xaxis_range, primary_y_list):
+    """Get x vals for lines used to split main graph by primary y.
 
     :param default_xaxis_range: Main graph x-axis min and max val,
         without any zooming or panning.
     :type default_xaxis_range: list
-    :param num_of_facets: Number of lines to draw (number of tracks-1)
-    :type num_of_facets: int
+    :param primary_y_list: List of primary y vals for samples
+    :type primary_y_list: list
     :return: List of x vals Plotly needs to draw lines splitting main
         graph by tracks.
     :rtype: list
     """
     main_fig_facet_x = []
+    num_of_facets = len(set(primary_y_list)) - 1
     [xmin, xmax] = default_xaxis_range
     for i in range(0, num_of_facets):
         main_fig_facet_x += [xmin, xmax, None]
     return main_fig_facet_x
 
 
-def get_main_fig_facet_y(num_of_facets):
-    """Get y vals for lines used to split main graph by tracks.
+def get_main_fig_facet_y(main_fig_yaxis_ticktext):
+    """Get y vals for lines used to split main graph by primary y.
 
-    :param num_of_facets: Number of lines to draw (number of tracks-1)
-    :type num_of_facets: int
+    :param main_fig_yaxis_ticktext: Tick labels in main graph
+    :type main_fig_yaxis_ticktext: list[tuple]
     :return: List of y vals Plotly needs to draw lines splitting main
         graph by tracks.
     :rtype: list
     """
     main_fig_facet_y = []
-    for i in range(0, num_of_facets):
-        main_fig_facet_y += [i+1.5, i+1.5, None]
+    last_primary_y = ""
+    for i, ticktext in enumerate(main_fig_yaxis_ticktext):
+        if i == 0:
+            last_primary_y = ticktext[0]
+            continue
+        if ticktext[0] != last_primary_y:
+            main_fig_facet_y += [i+0.5, i+0.5, None]
+            last_primary_y = ticktext[0]
     return main_fig_facet_y
