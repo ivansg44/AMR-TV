@@ -1,0 +1,26 @@
+patient_id	location	date	subtree	family	role
+P1	scbu	Jan 5 2021	1	n/a	infant
+P2	scbu	Jan 15 2021	2	n/a	infant
+P3	scbu	Jan 15 2021	2	n/a	infant
+P4	scbu	Jan 30 2021	3	n/a	infant
+P5	scbu	Feb 10 2021	4	n/a	infant
+P6	scbu	Feb 25 2021	5	n/a	infant
+P7	scbu	Apr 11 2021	6	n/a	infant
+P8	scbu	Apr 16 2021	7	1	infant
+P9	scbu	May 6 2021	4	n/a	infant
+P10	scbu	May 11 2021	8	n/a	infant
+P11	scbu	Jun 25 2021	4	n/a	infant
+P12	scbu	Jun 25 2021	4	n/a	infant
+P13	scbu	Jun 25 2021	9	n/a	infant
+P14	scbu	Jul 5 2021	10	2	infant
+P15	scbu	Sep 18 2021	4	n/a	infant
+P16	scbu	Feb 15 2021	3	3	infant
+P17	scbu	Apr 16 2021	11	n/a	infant
+P19	maternity ward	Feb 15 2021	3	3	mother
+P20	maternity ward	Feb 15 2021	12	4	mother
+P21	maternity ward	Apr 16 2021	7	n/a	mother
+P22	maternity ward	Apr 16 2021	7	1	mother
+P23	community	Jul 25 2021	10	2	mother
+P25	community	Nov 22 2021	7	1	partner
+P26	community	Nov 27 2021	12	4	partner
+H	scbu	Aug 14 2021	4	n/a	healthcare worker
