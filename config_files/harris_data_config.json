@@ -2,7 +2,7 @@
   "delimiter": "\t",
   "node_id": "patient_id",
   "primary_y": "location",
-  "secondary_y": "",
+  "secondary_y": "patient_id",
   "date_attr": "date",
   "date_format": "%b %d %Y",
   "label_attr": "patient_id",
