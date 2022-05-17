@@ -163,7 +163,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         "main_fig_yaxis_tickvals":
             list(range(1, len(track_y_vals_dict) + 1)),
         "main_fig_yaxis_ticktext":
-            list(track_y_vals_dict.keys()),
+            ["<br>".join(k) for k in track_y_vals_dict],
         "main_fig_nodes_x":
             [main_fig_nodes_x_dict[k] for k in sample_data_dict],
         "main_fig_nodes_y":
@@ -181,13 +181,11 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         "node_color_attr_dict": node_color_attr_dict,
         "main_fig_attr_links_dict": main_fig_attr_links_dict,
         "attr_color_dash_dict": attr_color_dash_dict,
-        "main_fig_attr_link_tips_dict": main_fig_attr_link_tips_dict
+        "main_fig_attr_link_tips_dict": main_fig_attr_link_tips_dict,
+        "main_fig_facet_x":
+            get_main_fig_facet_x(default_xaxis_range, primary_y_list),
+        "main_fig_facet_y": get_main_fig_facet_y(track_y_vals_dict)
     }
-
-    app_data["main_fig_facet_y"] =\
-        get_main_fig_facet_y(app_data["main_fig_yaxis_ticktext"])
-    app_data["main_fig_facet_x"] = \
-        get_main_fig_facet_x(default_xaxis_range, primary_y_list)
 
     return app_data
 
@@ -673,18 +671,18 @@ def get_main_fig_facet_x(default_xaxis_range, primary_y_list):
     return main_fig_facet_x
 
 
-def get_main_fig_facet_y(main_fig_yaxis_ticktext):
+def get_main_fig_facet_y(track_y_vals_dict):
     """Get y vals for lines used to split main graph by primary y.
 
-    :param main_fig_yaxis_ticktext: Tick labels in main graph
-    :type main_fig_yaxis_ticktext: list[tuple]
+    :param track_y_vals_dict: Dict mapping tracks to numerical y vals
+    :type track_y_vals_dict: dict
     :return: List of y vals Plotly needs to draw lines splitting main
         graph by tracks.
     :rtype: list
     """
     main_fig_facet_y = []
     last_primary_y = ""
-    for i, ticktext in enumerate(main_fig_yaxis_ticktext):
+    for i, ticktext in enumerate(track_y_vals_dict):
         if i == 0:
             last_primary_y = ticktext[0]
             continue
