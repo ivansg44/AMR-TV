@@ -1,8 +1,10 @@
 {
   "delimiter": "\t",
   "node_id": "sample id",
-  "primary_y": "incompatibility group",
-  "secondary_y": "sequence type",
+  "y_axes": [
+    "incompatibility group",
+    "sequence type"
+  ],
   "date_attr": "sample date",
   "date_format": "%B %Y",
   "label_attr": "sample id",

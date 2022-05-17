@@ -44,7 +44,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
                                             config_file_dict["null_vals"])
     enumerated_samples = enumerate(sample_data_dict)
     selected_samples = \
-        {k: None for i, k in enumerated_samples if str(i) in selected_nodes}
+        {k for i, k in enumerated_samples if str(i) in selected_nodes}
 
     date_list =\
         [v[config_file_dict["date_attr"]] for v in sample_data_dict.values()]
@@ -58,13 +58,9 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
                                   date_x_vals_dict=date_x_vals_dict)
 
     primary_y_list = \
-        [v[config_file_dict["primary_y"]] for v in sample_data_dict.values()]
-    if config_file_dict["secondary_y"]:
-        secondary_y_list = [v[config_file_dict["secondary_y"]]
-                            for v in sample_data_dict.values()]
-        track_list = list(zip(primary_y_list, secondary_y_list))
-    else:
-        track_list = [(y,) for y in primary_y_list]
+        [v[config_file_dict["y_axes"][0]] for v in sample_data_dict.values()]
+    track_list = \
+        get_unsorted_track_list(sample_data_dict, config_file_dict["y_axes"])
     sorted_track_list = \
         get_sorted_track_list(track_list, y_key=config_file_dict["y_key"])
     track_y_vals_dict = {
@@ -75,8 +71,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         get_main_fig_nodes_y_dict(sample_data_dict,
                                   date_attr=config_file_dict["date_attr"],
                                   date_list=date_list,
-                                  primary_y=config_file_dict["primary_y"],
-                                  secondary_y=config_file_dict["secondary_y"],
+                                  y_axes=config_file_dict["y_axes"],
                                   track_list=track_list,
                                   track_y_vals_dict=track_y_vals_dict)
 
@@ -120,7 +115,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     sample_links_dict = get_sample_links_dict(
         sample_data_dict=sample_data_dict,
         attr_link_list=config_file_dict["attr_link_list"],
-        primary_y=config_file_dict["primary_y"],
+        primary_y=config_file_dict["y_axes"][0],
         links_across_y=config_file_dict["links_across_y"],
         max_day_range=config_file_dict["max_day_range"],
         null_vals=config_file_dict["null_vals"]
@@ -197,30 +192,47 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     return app_data
 
 
+def get_unsorted_track_list(sample_data_dict, y_axes):
+    """Get an unsorted list of tracks assigned across all nodes.
+
+    If the y axes selected are "ham", "spam", and "eggs", the tracks
+    are (sample_1_ham, sample_1_spam, sample_1_eggs),
+    (sample_2_ham, sample_2_spam, sample_2_eggs), ...
+
+    :param sample_data_dict: ``get_sample_data_dict`` ret val
+    :type sample_data_dict: dict
+    :param y_axes: List of attrs to use as hierarchical y axes
+    :type y_axes: list[str]
+    :return: Unsorted list of tracks assigned across all nodes
+    :rtype: list[tuple[str]]
+    """
+    lists_to_zip = []
+    vals = sample_data_dict.values()
+    for axis in y_axes:
+        lists_to_zip.append([val[axis] for val in vals])
+    ret = list(zip(*lists_to_zip))
+    return ret
+
+
 def get_sorted_track_list(track_list, y_key=None):
     """Get a sorted list of tracks assigned across all nodes.
 
-    If there is a secondary y, we sort by primary and then secondary.
+    If there is more than one attr used to develop the tracks, we sort
+    the tracks in the order the attrs are listed in the config file.
 
     :param track_list: List of tracks assigned across all nodes
     :type track_list: list[str]
     :param y_key: Python-specific key used to sort tracks
     :type y_key: str
     :return: Sorted list of tracks assigned across all nodes
-    :rtype: list[str]
+    :rtype: list[tuple[str]]
     """
     if y_key == "int":
-        def y_key(pair):
-            if len(pair) == 2:
-                return (int(pair[0]), int(pair[1]))
-            else:
-                return int(pair[0])
+        def y_key(_track_list):
+            return [int(track) for track in _track_list]
     elif y_key == "str":
-        def y_key(pair):
-            if len(pair) == 2:
-                return (str(pair[0]), str(pair[1]))
-            else:
-                return str(pair[0])
+        def y_key(_track_list):
+            return [str(track) for track in _track_list]
     else:
         msg = 'Currently only accept "int" or "str" as y_key values'
         raise ValueError(msg)
@@ -348,9 +360,6 @@ def get_sample_links_dict(sample_data_dict, attr_link_list, primary_y,
     :type attr_link_list: list[str]
     :param primary_y: attr encoded as one part of a track along y-axis
     :type primary_y: str
-    :param secondary_y: attr encoded as second part of a track along
-        y-axis.
-    :type secondary_y: str
     :param links_across_y: Whether we consider links across different
         tracks.
     :type links_across_y: bool
@@ -437,7 +446,7 @@ def get_main_fig_attr_links_dict(sample_links_dict, main_fig_nodes_x_dict,
     :param main_fig_nodes_y_dict: ``get_main_fig_nodes_y_dict`` ret val
     :type main_fig_nodes_y_dict: dict
     :param selected_samples: Samples selected by users
-    :type selected_samples: list[str]
+    :type selected_samples: set[str]
     :param yaxis_range: Main graph y-axis min and max val
     :type yaxis_range: list
     :return: Dict with info used by Plotly to viz links in main graph
@@ -605,8 +614,7 @@ def get_main_fig_nodes_x_dict(sample_data_dict, date_attr, date_list,
 
 
 def get_main_fig_nodes_y_dict(sample_data_dict, date_attr, date_list,
-                              primary_y, secondary_y, track_list,
-                              track_y_vals_dict):
+                              y_axes, track_list, track_y_vals_dict):
     """Get dict mapping nodes to y vals.
 
     :param sample_data_dict: Sample file data parsed into dict obj
@@ -615,12 +623,8 @@ def get_main_fig_nodes_y_dict(sample_data_dict, date_attr, date_list,
     :type date_attr: str
     :param date_list: List of sample dates wrt all nodes
     :type date_list: list
-    :param primary_y: Sample file attr encoded as one part of track by
-        y-axis.
-    :type primary_y: str
-    :param secondary_y: Sample file attr encoded as second part of
-        track by y-axis.
-    :type secondary_y: str
+    :param y_axes: List of attrs to use as hierarchical y axes
+    :type y_axes: list[str]
     :param track_list: List of track vals wrt all nodes
     :type track_list: list
     :param track_y_vals_dict: Dict mapping tracks to numerical y vals
@@ -635,12 +639,8 @@ def get_main_fig_nodes_y_dict(sample_data_dict, date_attr, date_list,
     main_fig_nodes_y_dict = {}
     for sample in sample_data_dict:
         sample_date = sample_data_dict[sample][date_attr]
-        sample_primary_y = sample_data_dict[sample][primary_y]
-        if secondary_y:
-            sample_track = \
-                (sample_primary_y, sample_data_dict[sample][secondary_y])
-        else:
-            sample_track = (sample_primary_y,)
+        sample_track = \
+            tuple((sample_data_dict[sample][axis] for axis in y_axes))
         [stagger, multiplier] = helper_obj[(sample_date, sample_track)]
 
         unstaggered_y = track_y_vals_dict[sample_track]
