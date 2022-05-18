@@ -224,6 +224,8 @@ def sorting_key(track):
     """
     ret = []
     for attr_val in track:
+        if attr_val is "n/a":
+            continue
         try:
             ret.append(int(attr_val))
         except ValueError:
@@ -259,6 +261,7 @@ def get_sample_data_dict(sample_file_str, delimiter, node_id, date,
         sample_id = row[node_id]
         if sample_id in null_vals:
             continue
+        row = {k: ("n/a" if row[k] in null_vals else row[k]) for k in row}
 
         row["datetime_obj"] = datetime.strptime(row[date], date_format)
         row[date] = row["datetime_obj"].strftime("%Y-%m-%d")
