@@ -1,8 +1,10 @@
 {
   "delimiter": ",",
   "node_id": "Sample ID / Isolate",
-  "primary_y": "Location",
-  "secondary_y": "rep_type(s)",
+  "y_axes": [
+    "Location",
+    "rep_type(s)"
+  ],
   "date_attr": "Date of collection",
   "date_format": "%B %Y",
   "label_attr": "Patient ID",
@@ -17,6 +19,5 @@
   "node_symbol_attr": "Organism",
   "links_across_y": 0,
   "max_day_range": 60,
-  "null_vals": ["", "-"],
-  "y_key": "str"
+  "null_vals": ["", "-"]
 }
