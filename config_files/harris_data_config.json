@@ -1,19 +1,19 @@
 {
   "delimiter": "\t",
   "node_id": "patient_id",
-  "primary_y": "location",
-  "secondary_y": "patient_id",
+  "y_axes": [
+    "subtree",
+    "location"
+  ],
   "date_attr": "date",
   "date_format": "%b %d %Y",
   "label_attr": "patient_id",
   "attr_link_list": [
-    "subtree",
     "family"
   ],
   "node_color_attr": "",
   "node_symbol_attr": "role",
   "links_across_y": 1,
   "max_day_range": 6000,
-  "null_vals": ["n/a"],
-  "y_key": "str"
+  "null_vals": ["n/a"]
 }
