@@ -61,8 +61,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         [v[config_file_dict["y_axes"][0]] for v in sample_data_dict.values()]
     track_list = \
         get_unsorted_track_list(sample_data_dict, config_file_dict["y_axes"])
-    sorted_track_list = \
-        get_sorted_track_list(track_list, y_key=config_file_dict["y_key"])
+    sorted_track_list = sorted(track_list, key=sorting_key)
     track_y_vals_dict = {
         e: i+1 for i, e in enumerate(dict.fromkeys(sorted_track_list))
     }
@@ -212,30 +211,24 @@ def get_unsorted_track_list(sample_data_dict, y_axes):
     return ret
 
 
-def get_sorted_track_list(track_list, y_key=None):
-    """Get a sorted list of tracks assigned across all nodes.
+def sorting_key(track):
+    """Call ``str`` or ``int`` on each val in track.
 
-    If there is more than one attr used to develop the tracks, we sort
-    the tracks in the order the attrs are listed in the config file.
+    This fn allows us to sort tracks in the main graph by the str and
+    int vals of their attr vals.
 
-    :param track_list: List of tracks assigned across all nodes
-    :type track_list: list[str]
-    :param y_key: Python-specific key used to sort tracks
-    :type y_key: str
-    :return: Sorted list of tracks assigned across all nodes
-    :rtype: list[tuple[str]]
+    :param track: List of attr vals found in a track
+    :type track: tuple[str]
+    :return: List of attrs after calling str or int on them
+    :rtype: list[str]
     """
-    if y_key == "int":
-        def y_key(_track_list):
-            return [int(track) for track in _track_list]
-    elif y_key == "str":
-        def y_key(_track_list):
-            return [str(track) for track in _track_list]
-    else:
-        msg = 'Currently only accept "int" or "str" as y_key values'
-        raise ValueError(msg)
-
-    return sorted(track_list, key=y_key)
+    ret = []
+    for attr_val in track:
+        try:
+            ret.append(int(attr_val))
+        except ValueError:
+            ret.append(str(attr_val))
+    return ret
 
 
 def get_sample_data_dict(sample_file_str, delimiter, node_id, date,

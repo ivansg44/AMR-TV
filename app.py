@@ -71,7 +71,6 @@ def launch_app(_):
                                     id="node-shape-legend-graph",
                                     config={"displayModeBar": False},
                                     style={"height": "30vh"}
-
                                 ),
                             ),
                         ),
