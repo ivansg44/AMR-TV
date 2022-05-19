@@ -264,6 +264,8 @@ def get_sample_data_dict(sample_file_str, delimiter, node_id, date,
         sample_id = row[node_id]
         if sample_id in null_vals:
             continue
+        if row[date] in null_vals:
+            continue
         row = {k: ("n/a" if row[k] in null_vals else row[k]) for k in row}
 
         row["datetime_obj"] = datetime.strptime(row[date], date_format)
