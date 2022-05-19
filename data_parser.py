@@ -227,7 +227,7 @@ def sorting_key(track):
     """
     ret = []
     for attr_val in track:
-        if attr_val is "n/a":
+        if attr_val == "n/a":
             continue
         try:
             ret.append(int(attr_val))
