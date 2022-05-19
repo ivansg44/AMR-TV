@@ -144,6 +144,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     else:
         main_fig_nodes_textfont_color = "black"
 
+    main_fig_height = get_main_fig_height(date_list, track_list)
+
     app_data = {
         "node_shape_legend_fig_nodes_y":
             list(range(len(node_symbol_attr_dict))),
@@ -183,7 +185,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         "main_fig_attr_link_tips_dict": main_fig_attr_link_tips_dict,
         "main_fig_facet_x":
             get_main_fig_facet_x(default_xaxis_range, primary_y_list),
-        "main_fig_facet_y": get_main_fig_facet_y(track_y_vals_dict)
+        "main_fig_facet_y": get_main_fig_facet_y(track_y_vals_dict),
+        "main_fig_height": main_fig_height
     }
 
     return app_data
@@ -686,3 +689,23 @@ def get_main_fig_facet_y(track_y_vals_dict):
             main_fig_facet_y += [i+0.5, i+0.5, None]
             last_primary_y = ticktext[0]
     return main_fig_facet_y
+
+
+def get_main_fig_height(date_list, track_list):
+    """Return height for main fig.
+
+    This is an absolute (not relative height). This takes into account
+    the number of tracks you need to visualize, and the amount of y
+    staggering.
+
+    :param date_list: List of sample dates wrt all nodes
+    :type date_list: list
+    :param track_list: List of track vals wrt all nodes
+    :type track_list: list
+    :return: Height for main fig
+    :rtype: int
+    """
+    date_track_zip_list = list(zip(date_list, track_list))
+    max_overlapping_y_vals = max(Counter(date_track_zip_list).values())
+
+    return len(set(track_list)) * 24 * (5 + max_overlapping_y_vals)

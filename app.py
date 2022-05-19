@@ -339,6 +339,7 @@ def update_ranges(relayout_data, dragmode):
     ],
     output=[
         Output("main-graph", "figure"),
+        Output("main-graph", "style"),
         Output("node-shape-legend-graph", "figure"),
         Output("link-legend-graph", "figure"),
         Output("node-color-legend-graph", "figure"),
@@ -368,7 +369,7 @@ def update_main_viz(selected_nodes, xaxis_range, yaxis_range, _,
     :type config_file_contents: str
     :param dragmode: Current dragmode for main graph Plotly fig
     :type dragmode: str
-    :return: New main graph and legends
+    :return: New main graph (including height) and legends
     :rtype: tuple[plotly.graph_objects.Figure]
     """
     ctx = dash.callback_context
@@ -401,11 +402,13 @@ def update_main_viz(selected_nodes, xaxis_range, yaxis_range, _,
         msg = "Unexpected trigger trying to update main graph: %s" % trigger
         raise RuntimeError(msg)
 
+    main_fig_style = {"height": app_data["main_fig_height"], "width": "80vw"}
     node_symbol_legend_fig = get_node_symbol_legend_fig(app_data)
     link_legend_fig = get_link_legend_fig(app_data)
     node_color_legend_fig = get_node_color_legend_fig(app_data)
 
     return (new_main_fig,
+            main_fig_style,
             node_symbol_legend_fig,
             link_legend_fig,
             node_color_legend_fig)
