@@ -31,4 +31,6 @@ def eval_(node):
     elif isinstance(node, ast.UnaryOp):
         return OPERATORS[type(node.op)](eval_(node.operand))
     else:
-        raise TypeError(node)
+        raise TypeError("Encountered value that was not a number or operator "
+                        "when parsing weight expression. Did you reference a "
+                        "categorical attribute?")

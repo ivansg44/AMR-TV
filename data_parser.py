@@ -7,7 +7,9 @@ from datetime import datetime
 from io import StringIO
 from json import loads
 from math import sqrt
+from re import compile
 
+from expression_evaluator import eval_expr
 
 def get_app_data(sample_file_base64_str, config_file_base64_str,
                  selected_nodes=None, xaxis_range=None, yaxis_range=None):
@@ -117,7 +119,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         primary_y=config_file_dict["y_axes"][0],
         links_across_y=config_file_dict["links_across_y"],
         max_day_range=config_file_dict["max_day_range"],
-        null_vals=config_file_dict["null_vals"]
+        null_vals=config_file_dict["null_vals"],
+        weights=config_file_dict["weights"]
     )
 
     attr_color_dash_dict = get_attr_color_dash_dict(sample_links_dict)
@@ -347,8 +350,9 @@ def get_node_color_attr_dict(node_color_attr_list):
 
 
 def get_sample_links_dict(sample_data_dict, attr_link_list, primary_y,
-                          links_across_y, max_day_range, null_vals):
+                          links_across_y, max_day_range, null_vals, weights):
     """Get a dict of all links to viz in main graph.
+    TODO
 
     The keys in the dict are different attrs. The values are a list of
     tuples containing two samples with a shared val for that attr.
@@ -369,8 +373,9 @@ def get_sample_links_dict(sample_data_dict, attr_link_list, primary_y,
     :return: Dict detailing links to viz in main graph
     :rtype: dict
     """
-    sample_links_dict = {k: [] for k in attr_link_list}
+    sample_links_dict = {k: {} for k in attr_link_list}
     sample_list = list(sample_data_dict.keys())
+    regex_obj = compile("!.*?!|@.*?@")
 
     for attr in attr_link_list:
         attr_list = attr.split(";")
@@ -403,10 +408,32 @@ def get_sample_links_dict(sample_data_dict, attr_link_list, primary_y,
                     [sample_data_dict[other_sample][v] for v in attr_list]
 
                 if sample_attr_list == other_sample_attr_list:
-                    if other_datetime > sample_datetime:
-                        sample_links_dict[attr].append((sample, other_sample))
+                    if attr in weights:
+                        def repl_fn(match_obj):
+                            match = match_obj.group(0)
+                            if match[0] == "!":
+                                exp_attr = match.strip("!")
+                                return sample_data_dict[sample][exp_attr]
+                            elif match[0] == "@":
+                                exp_attr = match.strip("@")
+                                return sample_data_dict[other_sample][exp_attr]
+                            else:
+                                msg = "Unexpected regex match obj when " \
+                                      "parsing weight expression: " + match
+                                raise RuntimeError(msg)
+
+                        weight_exp = weights[attr]
+                        subbed_exp = regex_obj.sub(repl_fn, weight_exp)
+                        link_weight = eval_expr(subbed_exp)
                     else:
-                        sample_links_dict[attr].append((other_sample, sample))
+                        link_weight = 0
+
+                    if other_datetime > sample_datetime:
+                        sample_links_dict[attr][(sample, other_sample)] = \
+                            link_weight
+                    else:
+                        sample_links_dict[attr][(sample, other_sample)] = \
+                            link_weight
 
     return sample_links_dict
 
