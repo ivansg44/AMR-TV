@@ -83,6 +83,54 @@ def get_main_fig_attr_link_graphs(app_data):
     return ret
 
 
+def get_main_fig_attr_link_label_graphs(app_data):
+    """Get plotly scatter objs of links labels in main fig.
+
+    This is basically a list of different scatter objs--one for each
+    attr label type.
+
+    :param app_data: ``data_parser.get_app_data`` ret val
+    :type app_data: dict
+    :return: Plotly scatter objs of link labels in main fig
+    :rtype: list[go.Scatter]
+    """
+    ret = []
+    for attr in app_data["main_fig_attr_link_labels_dict"]:
+        opaque_dict = \
+            app_data["main_fig_attr_link_labels_dict"][attr]["opaque"]
+        opaque_x = opaque_dict["x"]
+        opaque_y = opaque_dict["y"]
+        opaque_text = opaque_dict["text"]
+        transparent_dict = \
+            app_data["main_fig_attr_link_labels_dict"][attr]["transparent"]
+        transparent_x = transparent_dict["x"]
+        transparent_y = transparent_dict["y"]
+        transparent_text = transparent_dict["text"]
+        (r, g, b) = app_data["attr_color_dash_dict"][attr][0]
+
+        opaque_graph = go.Scatter(
+            x=opaque_x,
+            y=opaque_y,
+            text=opaque_text,
+            mode="text",
+            textfont={
+                "color": "rgb(%s,%s,%s)" % (r, g, b),
+                "size": 16
+            }
+        )
+
+        transparent_graph = go.Scatter(
+            x=transparent_x,
+            y=transparent_y,
+            text=transparent_text,
+            mode="text"
+        )
+
+        ret += [opaque_graph, transparent_graph]
+
+    return ret
+
+
 def get_main_fig_attr_link_tip_graphs(app_data):
     """Get plotly scatter objs of lin tips in main fig.
 
@@ -158,9 +206,10 @@ def get_main_fig(app_data):
     # TODO decide what to do with these
     # main_fig_attr_link_tip_graphs = \
     #     get_main_fig_attr_link_tip_graphs(app_data)
-    main_fig_attr_link_tip_graphs = []
+    main_fig_attr_link_label_graphs = \
+        get_main_fig_attr_link_label_graphs(app_data)
     fig = go.Figure(
-        data=main_fig_attr_link_graphs + main_fig_attr_link_tip_graphs + [
+        data=main_fig_attr_link_graphs + main_fig_attr_link_label_graphs + [
             get_main_fig_nodes(app_data),
             get_main_fig_facet_lines(app_data)
         ],

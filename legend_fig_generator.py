@@ -79,6 +79,10 @@ def get_link_legend_fig_links(app_data):
     for i, attr in enumerate(app_data["main_fig_attr_links_dict"]):
         (r, g, b) = app_data["attr_color_dash_dict"][attr][0]
         dash = app_data["attr_color_dash_dict"][attr][1]
+        if attr in app_data["main_fig_attr_link_labels_dict"]:
+            label = attr + " (weighted)"
+        else:
+            label = attr
         links.append(
             go.Scatter(
                 x=[0, 1],
@@ -89,7 +93,7 @@ def get_link_legend_fig_links(app_data):
                     "color": "rgb(%s, %s, %s)" % (r, g, b),
                     "dash": dash
                 },
-                text=["<b>%s</b>" % attr, None],
+                text=["<b>%s</b>" % label, None],
                 textfont={
                     "color": "black",
                     "size": 16

@@ -9,10 +9,15 @@
   "date_attr": "sample date",
   "date_format": "%B %Y",
   "label_attr": "sample id",
-  "attr_link_list": [],
+  "attr_link_list": [
+    "sequence type"
+  ],
   "node_color_attr": "",
   "node_symbol_attr": "species",
   "links_across_y": 0,
   "max_day_range": 6000,
-  "null_vals": [""]
+  "null_vals": [""],
+  "weights": {
+    "sequence type": "@SNV distance@-!SNV distance!"
+  }
 }

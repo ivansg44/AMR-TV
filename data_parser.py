@@ -7,7 +7,9 @@ from datetime import datetime
 from io import StringIO
 from json import loads
 from math import sqrt
+from re import compile
 
+from expression_evaluator import eval_expr
 
 def get_app_data(sample_file_base64_str, config_file_base64_str,
                  selected_nodes=None, xaxis_range=None, yaxis_range=None):
@@ -117,7 +119,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         primary_y=config_file_dict["y_axes"][0],
         links_across_y=config_file_dict["links_across_y"],
         max_day_range=config_file_dict["max_day_range"],
-        null_vals=config_file_dict["null_vals"]
+        null_vals=config_file_dict["null_vals"],
+        weights=config_file_dict["weights"]
     )
 
     attr_color_dash_dict = get_attr_color_dash_dict(sample_links_dict)
@@ -128,6 +131,15 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         main_fig_nodes_y_dict=main_fig_nodes_y_dict,
         selected_samples=selected_samples,
         yaxis_range=yaxis_range
+    )
+
+    main_fig_attr_link_labels_dict = get_main_fig_attr_link_labels_dict(
+        sample_links_dict=sample_links_dict,
+        main_fig_nodes_x_dict=main_fig_nodes_x_dict,
+        main_fig_nodes_y_dict=main_fig_nodes_y_dict,
+        selected_samples=selected_samples,
+        yaxis_range=yaxis_range,
+        weights=config_file_dict["weights"]
     )
 
     main_fig_attr_link_tips_dict = \
@@ -181,6 +193,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
             main_fig_nodes_textfont_color,
         "node_color_attr_dict": node_color_attr_dict,
         "main_fig_attr_links_dict": main_fig_attr_links_dict,
+        "main_fig_attr_link_labels_dict": main_fig_attr_link_labels_dict,
         "attr_color_dash_dict": attr_color_dash_dict,
         "main_fig_attr_link_tips_dict": main_fig_attr_link_tips_dict,
         "main_fig_facet_x":
@@ -347,11 +360,13 @@ def get_node_color_attr_dict(node_color_attr_list):
 
 
 def get_sample_links_dict(sample_data_dict, attr_link_list, primary_y,
-                          links_across_y, max_day_range, null_vals):
+                          links_across_y, max_day_range, null_vals, weights):
     """Get a dict of all links to viz in main graph.
 
-    The keys in the dict are different attrs. The values are a list of
-    tuples containing two samples with a shared val for that attr.
+    The keys in the dict are different attrs. The values are a nested
+    dict. The keys in the nested dict are tuples containing two samples
+    with a shared val for the attr key in the outer dict. The values in
+    the nested dict are weights assigned to that link.
 
     :param sample_data_dict: ``get_sample_data_dict`` ret val
     :type sample_data_dict: dict
@@ -366,11 +381,15 @@ def get_sample_links_dict(sample_data_dict, attr_link_list, primary_y,
     :type max_day_range: int
     :param null_vals: List of null vals in sample data
     :type null_vals: list
+    :param weights: Dictionary of expressions used to assign weights to
+        specific attr links
+    :type weights: dict
     :return: Dict detailing links to viz in main graph
     :rtype: dict
     """
-    sample_links_dict = {k: [] for k in attr_link_list}
+    sample_links_dict = {k: {} for k in attr_link_list}
     sample_list = list(sample_data_dict.keys())
+    regex_obj = compile("!.*?!|@.*?@")
 
     for attr in attr_link_list:
         attr_list = attr.split(";")
@@ -403,10 +422,32 @@ def get_sample_links_dict(sample_data_dict, attr_link_list, primary_y,
                     [sample_data_dict[other_sample][v] for v in attr_list]
 
                 if sample_attr_list == other_sample_attr_list:
-                    if other_datetime > sample_datetime:
-                        sample_links_dict[attr].append((sample, other_sample))
+                    if attr in weights:
+                        def repl_fn(match_obj):
+                            match = match_obj.group(0)
+                            if match[0] == "!":
+                                exp_attr = match.strip("!")
+                                return sample_data_dict[sample][exp_attr]
+                            elif match[0] == "@":
+                                exp_attr = match.strip("@")
+                                return sample_data_dict[other_sample][exp_attr]
+                            else:
+                                msg = "Unexpected regex match obj when " \
+                                      "parsing weight expression: " + match
+                                raise RuntimeError(msg)
+
+                        weight_exp = weights[attr]
+                        subbed_exp = regex_obj.sub(repl_fn, weight_exp)
+                        link_weight = eval_expr(subbed_exp)
                     else:
-                        sample_links_dict[attr].append((other_sample, sample))
+                        link_weight = 0
+
+                    if other_datetime > sample_datetime:
+                        sample_links_dict[attr][(sample, other_sample)] = \
+                            link_weight
+                    else:
+                        sample_links_dict[attr][(sample, other_sample)] = \
+                            link_weight
 
     return sample_links_dict
 
@@ -508,6 +549,102 @@ def get_main_fig_attr_links_dict(sample_links_dict, main_fig_nodes_x_dict,
             else:
                 ret[attr]["opaque"]["x"] += [x0, x1, None]
                 ret[attr]["opaque"]["y"] += [y0, y1, None]
+
+    return ret
+
+
+def get_main_fig_attr_link_labels_dict(sample_links_dict,
+                                       main_fig_nodes_x_dict,
+                                       main_fig_nodes_y_dict, selected_samples,
+                                       yaxis_range, weights):
+    """Get dict with info used by Plotly to viz link labels.
+
+    TODO: there may be a better way to do this. Certainly, the code
+          used to calculate the midpoints does not need to be repeated
+          each loop. We'll keep it there in case we decide to translate
+          different labels parallel-wise later.
+
+    Current logic:
+    * Put labels parallel to midpoint of centermost line between nodes
+    * Multiple labels occupy the same vertical plane--offsetted along
+      x-axis only
+
+    :param sample_links_dict: ``get_sample_links_dict`` ret val
+    :type sample_links_dict: dict
+    :param main_fig_nodes_x_dict: ``get_main_fig_nodes_x_dict`` ret val
+    :type main_fig_nodes_x_dict: dict
+    :param main_fig_nodes_y_dict: ``get_main_fig_nodes_y_dict`` ret val
+    :type main_fig_nodes_y_dict: dict
+    :param selected_samples: Samples selected by users
+    :type selected_samples: set[str]
+    :param yaxis_range: Main graph y-axis min and max val
+    :type yaxis_range: list
+    :param weights: Dictionary of expressions used to assign weights to
+        specific attr links
+    :type weights: dict
+    :return: Dict with info used by Plotly to viz links in main graph
+    :rtype: dict
+    """
+    ret = {}
+    label_count_dict = {}
+    min_multiplier = len(sample_links_dict)/2 + 1
+    unit_parallel_translation = (yaxis_range[1] - yaxis_range[0]) / 100
+    parallel_translation = min_multiplier * unit_parallel_translation
+    for attr in sample_links_dict:
+        if attr not in weights:
+            continue
+
+        ret[attr] = {
+            "opaque": {"x": [], "y": [], "text": []},
+            "transparent": {"x": [], "y": [], "text": []}
+        }
+
+        for (sample, other_sample) in sample_links_dict[attr]:
+            if (sample, other_sample) in label_count_dict:
+                label_count_dict[(sample, other_sample)] += 1
+                label_count = label_count_dict[(sample, other_sample)]
+            else:
+                label_count = 1
+                label_count_dict[(sample, other_sample)] = label_count
+
+            x0 = main_fig_nodes_x_dict[sample]
+            y0 = main_fig_nodes_y_dict[sample]
+            x1 = main_fig_nodes_x_dict[other_sample]
+            y1 = main_fig_nodes_y_dict[other_sample]
+
+            if (x1 - x0) == 0:
+                x0 += parallel_translation
+                x1 += parallel_translation
+            elif (y1 - y0) == 0:
+                y0 += parallel_translation
+                y1 += parallel_translation
+            else:
+                inverse_perpendicular_slope = (x1 - x0) / (y1 - y0)
+                numerator = parallel_translation**2
+                denominator = 1 + inverse_perpendicular_slope**2
+                x_translation = sqrt(numerator/denominator)
+                if parallel_translation < 0:
+                    x_translation *= -1
+                x0 += x_translation
+                x1 += x_translation
+                y0 += -inverse_perpendicular_slope * x_translation
+                y1 += -inverse_perpendicular_slope * x_translation
+
+            xmid = (x0 + x1) / 2 + \
+                   (label_count - 1) * 3 * unit_parallel_translation
+            ymid = (y0 + y1) / 2
+            weight = sample_links_dict[attr][(sample, other_sample)]
+
+            selected_link = \
+                sample in selected_samples or other_sample in selected_samples
+            if selected_samples and not selected_link:
+                ret[attr]["transparent"]["x"].append(xmid)
+                ret[attr]["transparent"]["y"].append(ymid)
+                ret[attr]["transparent"]["text"].append(weight)
+            else:
+                ret[attr]["opaque"]["x"].append(xmid)
+                ret[attr]["opaque"]["y"].append(ymid)
+                ret[attr]["opaque"]["text"].append(weight)
 
     return ret
 
