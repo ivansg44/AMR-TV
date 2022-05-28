@@ -18,12 +18,24 @@ OPERATORS = {
 
 
 def eval_expr(expr):
-    """TODO"""
+    """Evaluate str expression consisting of constants and arithmetic.
+
+    :param expr: AST node containing simple arithmetic and constants
+    :type expr: str
+    :return: Evaluated value of expr
+    :rtype: str
+    """
     return eval_(ast.parse(expr, mode='eval').body)
 
 
 def eval_(node):
-    """TODO"""
+    """Parse leaf AST nodes sent from ``eval_expr``.
+
+    :param node: AST
+    :type node: ast.expr
+    :return: Evaluation of leaf node
+    :rtype: str
+    """
     if isinstance(node, ast.Num):
         return node.n
     elif isinstance(node, ast.BinOp):
