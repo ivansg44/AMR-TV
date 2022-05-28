@@ -11,6 +11,7 @@ from re import compile
 
 from expression_evaluator import eval_expr
 
+
 def get_app_data(sample_file_base64_str, config_file_base64_str,
                  selected_nodes=None, xaxis_range=None, yaxis_range=None):
     """Get data from uploaded file that is used to generate viz.
