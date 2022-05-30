@@ -16,5 +16,11 @@
   "links_across_y": 1,
   "max_day_range": 6000,
   "null_vals": ["n/a"],
-  "weights": {}
+  "weights": {},
+  "weight_filters": {
+    "not_equal": {},
+    "less_than": {},
+    "greater_than": {}
+  },
+  "attr_val_filters": {}
 }

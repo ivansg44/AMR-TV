@@ -11,6 +11,7 @@ from re import compile
 
 from expression_evaluator import eval_expr
 
+
 def get_app_data(sample_file_base64_str, config_file_base64_str,
                  selected_nodes=None, xaxis_range=None, yaxis_range=None):
     """Get data from uploaded file that is used to generate viz.
@@ -120,7 +121,9 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         links_across_y=config_file_dict["links_across_y"],
         max_day_range=config_file_dict["max_day_range"],
         null_vals=config_file_dict["null_vals"],
-        weights=config_file_dict["weights"]
+        weights=config_file_dict["weights"],
+        weight_filters=config_file_dict["weight_filters"],
+        attr_val_filters=config_file_dict["attr_val_filters"]
     )
 
     attr_color_dash_dict = get_attr_color_dash_dict(sample_links_dict)
@@ -360,13 +363,17 @@ def get_node_color_attr_dict(node_color_attr_list):
 
 
 def get_sample_links_dict(sample_data_dict, attr_link_list, primary_y,
-                          links_across_y, max_day_range, null_vals, weights):
+                          links_across_y, max_day_range, null_vals, weights,
+                          weight_filters, attr_val_filters):
     """Get a dict of all links to viz in main graph.
 
     The keys in the dict are different attrs. The values are a nested
     dict. The keys in the nested dict are tuples containing two samples
     with a shared val for the attr key in the outer dict. The values in
     the nested dict are weights assigned to that link.
+
+    We filter out certain links using ``weight_filters`` and
+    ``attr_val_filters``.
 
     :param sample_data_dict: ``get_sample_data_dict`` ret val
     :type sample_data_dict: dict
@@ -384,6 +391,9 @@ def get_sample_links_dict(sample_data_dict, attr_link_list, primary_y,
     :param weights: Dictionary of expressions used to assign weights to
         specific attr links
     :type weights: dict
+    :param attr_val_filters: Dictionary of vals to ignore for certain
+        attrs, when generating links.
+    :type attr_val_filters: dict
     :return: Dict detailing links to viz in main graph
     :rtype: dict
     """
@@ -400,6 +410,15 @@ def get_sample_links_dict(sample_data_dict, attr_link_list, primary_y,
             sample_attr_list = \
                 [sample_data_dict[sample][v] for v in attr_list]
             if any(v in null_vals for v in sample_attr_list):
+                continue
+            # Bit of a complex comprehension. Basically, we remove any
+            # values in sample_attr_list that are belong to a val
+            # specified for the attr in attr_val_filters.
+            sample_attr_list = \
+                [y for x, y in zip(attr_list, sample_attr_list)
+                 if
+                 x not in attr_val_filters or y not in attr_val_filters[x]]
+            if not sample_attr_list:
                 continue
 
             for j in range(i+1, len(sample_list)):
@@ -420,6 +439,11 @@ def get_sample_links_dict(sample_data_dict, attr_link_list, primary_y,
 
                 other_sample_attr_list = \
                     [sample_data_dict[other_sample][v] for v in attr_list]
+                # See sample_attr_list comment
+                other_sample_attr_list = \
+                    [y for x, y in zip(attr_list, other_sample_attr_list)
+                     if
+                     x not in attr_val_filters or y not in attr_val_filters[x]]
 
                 if sample_attr_list == other_sample_attr_list:
                     if attr in weights:
@@ -439,6 +463,19 @@ def get_sample_links_dict(sample_data_dict, attr_link_list, primary_y,
                         weight_exp = weights[attr]
                         subbed_exp = regex_obj.sub(repl_fn, weight_exp)
                         link_weight = eval_expr(subbed_exp)
+
+                        if attr in weight_filters["not_equal"]:
+                            neq = weight_filters["not_equal"][attr]
+                            if link_weight == neq:
+                                continue
+                        if attr in weight_filters["less_than"]:
+                            le = weight_filters["less_than"][attr]
+                            if link_weight < le:
+                                continue
+                        if attr in weight_filters["greater_than"]:
+                            ge = weight_filters["greater_than"][attr]
+                            if link_weight > ge:
+                                continue
                     else:
                         link_weight = 0
 
