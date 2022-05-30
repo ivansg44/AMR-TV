@@ -19,5 +19,10 @@
   "null_vals": [""],
   "weights": {
     "sequence type": "@SNV distance@-!SNV distance!"
+  },
+  "weight_filters": {
+    "not_equal": {},
+    "less_than": {},
+    "greater_than": {}
   }
 }

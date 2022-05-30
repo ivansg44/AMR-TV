@@ -121,7 +121,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         links_across_y=config_file_dict["links_across_y"],
         max_day_range=config_file_dict["max_day_range"],
         null_vals=config_file_dict["null_vals"],
-        weights=config_file_dict["weights"]
+        weights=config_file_dict["weights"],
+        weight_filters=config_file_dict["weight_filters"]
     )
 
     attr_color_dash_dict = get_attr_color_dash_dict(sample_links_dict)
@@ -361,8 +362,10 @@ def get_node_color_attr_dict(node_color_attr_list):
 
 
 def get_sample_links_dict(sample_data_dict, attr_link_list, primary_y,
-                          links_across_y, max_day_range, null_vals, weights):
+                          links_across_y, max_day_range, null_vals, weights,
+                          weight_filters):
     """Get a dict of all links to viz in main graph.
+    TODO
 
     The keys in the dict are different attrs. The values are a nested
     dict. The keys in the nested dict are tuples containing two samples
@@ -440,6 +443,19 @@ def get_sample_links_dict(sample_data_dict, attr_link_list, primary_y,
                         weight_exp = weights[attr]
                         subbed_exp = regex_obj.sub(repl_fn, weight_exp)
                         link_weight = eval_expr(subbed_exp)
+
+                        if attr in weight_filters["not_equal"]:
+                            neq = weight_filters["not_equal"][attr]
+                            if link_weight == neq:
+                                continue
+                        if attr in weight_filters["less_than"]:
+                            le = weight_filters["less_than"][attr]
+                            if link_weight < le:
+                                continue
+                        if attr in weight_filters["greater_than"]:
+                            ge = weight_filters["greater_than"][attr]
+                            if link_weight > ge:
+                                continue
                     else:
                         link_weight = 0
 
