@@ -21,5 +21,6 @@
     "not_equal": {},
     "less_than": {},
     "greater_than": {}
-  }
+  },
+  "attr_val_filters": {}
 }
