@@ -43,7 +43,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
                                             config_file_dict["delimiter"],
                                             config_file_dict["node_id"],
                                             config_file_dict["date_attr"],
-                                            config_file_dict["date_format"],
+                                            config_file_dict["date_input"],
+                                            config_file_dict["date_output"],
                                             config_file_dict["null_vals"])
     enumerated_samples = enumerate(sample_data_dict)
     selected_samples = \
@@ -51,9 +52,10 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
 
     date_list =\
         [v[config_file_dict["date_attr"]] for v in sample_data_dict.values()]
-    date_x_vals_dict = {
-        e: i+1 for i, e in enumerate(dict.fromkeys(sorted(date_list)))
-    }
+    datetime_list =\
+        [v["datetime_obj"] for v in sample_data_dict.values()]
+    date_x_vals_dict = get_date_x_vals_dict(date_list=date_list,
+                                            datetime_list=datetime_list)
     main_fig_nodes_x_dict = \
         get_main_fig_nodes_x_dict(sample_data_dict,
                                   date_attr=config_file_dict["date_attr"],
@@ -253,7 +255,7 @@ def sorting_key(track):
 
 
 def get_sample_data_dict(sample_file_str, delimiter, node_id, date,
-                         date_format, null_vals):
+                         date_input, date_output, null_vals):
     """Parse sample data file into dict obj.
 
     :param sample_file_str: Str corresponding to contents of user
@@ -266,8 +268,12 @@ def get_sample_data_dict(sample_file_str, delimiter, node_id, date,
     :type node_id: str
     :param date: Sample file attr encoded by sample date/x-axis
     :type date: str
-    :param date_format: 1989 C format code used when parsing date attr
-    :type date_format: str
+    :param date_input: 1989 C format code used when parsing date attr
+        from sample data.
+    :type date_input: str
+    :param date_output: 1989 C format code sample data dates are
+        converted to (useful for binning dates if needed).
+    :type date_input: str
     :param null_vals: Vals to treat as null in sample data
     :type null_vals: list[str]
     :return: Sample file data parsed into dict obj
@@ -284,8 +290,8 @@ def get_sample_data_dict(sample_file_str, delimiter, node_id, date,
             continue
         row = {k: ("n/a" if row[k] in null_vals else row[k]) for k in row}
 
-        row["datetime_obj"] = datetime.strptime(row[date], date_format)
-        row[date] = row["datetime_obj"].strftime("%Y-%m-%d")
+        row["datetime_obj"] = datetime.strptime(row[date], date_input)
+        row[date] = row["datetime_obj"].strftime(date_output)
 
         sample_data_dict[sample_id] = row
     return sample_data_dict
@@ -744,6 +750,23 @@ def get_main_fig_attr_link_tips_dict(main_fig_attr_links_dict):
                 [x1, x1+(x_diff*0.1), None, x2-(x_diff*0.1), x2, None]
             ret["transparent"]["y"] += \
                 [y1, y1+(y_diff*0.1), None, y2-(y_diff*0.1), y2, None]
+    return ret
+
+
+def get_date_x_vals_dict(date_list, datetime_list):
+    """Get dict mapping dates to numerical x vals.
+
+    :param date_list: List of sample dates wrt all nodes
+    :type date_list: list
+    :param datetime_list: List of sample datetime objs wrt all nodes
+    :type datetime_list: list
+    :return: Dict mapping dates to numerical x vals
+    :rtype: dict
+    """
+    date_datetime_zip_list = zip(datetime_list, date_list)
+    sorted_date_list = [date for (_, date) in sorted(date_datetime_zip_list)]
+    sorted_date_table = dict.fromkeys(sorted_date_list)
+    ret = {e: i+1 for i, e in enumerate(sorted_date_table)}
     return ret
 
 

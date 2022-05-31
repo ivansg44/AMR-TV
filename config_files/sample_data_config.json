@@ -6,7 +6,8 @@
     "rep_type(s)"
   ],
   "date_attr": "Date of collection",
-  "date_format": "%B %Y",
+  "date_input": "%B %Y",
+  "date_output": "%B %Y",
   "label_attr": "Patient ID",
   "attr_link_list": [
     "F1: MLST type",
