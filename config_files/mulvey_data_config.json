@@ -7,7 +7,8 @@
     "Tn4401 variant"
   ],
   "date_attr": "sample date",
-  "date_format": "%B %Y",
+  "date_input": "%B %Y",
+  "date_output": "%B %Y",
   "label_attr": "sample id",
   "attr_link_list": [
     "sequence type"
