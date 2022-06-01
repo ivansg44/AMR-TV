@@ -66,11 +66,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         [v[config_file_dict["y_axes"][0]] for v in sample_data_dict.values()]
     track_list = \
         get_unsorted_track_list(sample_data_dict, config_file_dict["y_axes"])
-    sorted_track_list = sorted(track_list, key=sorting_key)
-    track_y_vals_dict = {
-        e: i+1 for i, e in enumerate(dict.fromkeys(sorted_track_list))
-    }
-
+    track_y_vals_dict = get_track_y_vals_dict(track_list=track_list,
+                                              date_list=date_list)
     main_fig_nodes_y_dict = \
         get_main_fig_nodes_y_dict(sample_data_dict,
                                   date_attr=config_file_dict["date_attr"],
@@ -110,7 +107,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         main_fig_nodes_marker_color = "lightgrey"
 
     default_xaxis_range = [0.5, len(date_x_vals_dict) + 0.5]
-    default_yaxis_range = [0.5, len(track_y_vals_dict) + 0.5]
+    default_yaxis_range = [0.5, list(track_y_vals_dict.values())[-1] + 0.5]
     if not xaxis_range:
         xaxis_range = default_xaxis_range
     if not yaxis_range:
@@ -179,7 +176,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         "main_fig_xaxis_ticktext":
             list(date_x_vals_dict.keys()),
         "main_fig_yaxis_tickvals":
-            list(range(1, len(track_y_vals_dict) + 1)),
+            list(track_y_vals_dict.values()),
         "main_fig_yaxis_ticktext":
             ["<br>".join(k) for k in track_y_vals_dict],
         "main_fig_nodes_x":
@@ -807,6 +804,28 @@ def get_main_fig_nodes_x_dict(sample_data_dict, date_attr, date_list,
         helper_obj[sample_date][1] += 1
 
     return main_fig_nodes_x_dict
+
+
+def get_track_y_vals_dict(track_list, date_list):
+    """TODO"""
+    max_node_count_at_track_dict = {}
+    track_date_node_count_dict = Counter(zip(track_list, date_list))
+    for (track, date) in track_date_node_count_dict:
+        node_count = track_date_node_count_dict[(track, date)]
+        if track in max_node_count_at_track_dict:
+            old_count = max_node_count_at_track_dict[track]
+            if node_count > old_count:
+                max_node_count_at_track_dict[track] = node_count
+        else:
+            max_node_count_at_track_dict[track] = node_count
+
+    ret = {}
+    last_track_top_boundary = 0
+    for track in sorted(max_node_count_at_track_dict, key=sorting_key):
+        node_count = max_node_count_at_track_dict[track]
+        ret[track] = last_track_top_boundary + 1 + (node_count - 1)/2
+        last_track_top_boundary += node_count
+    return ret
 
 
 def get_main_fig_nodes_y_dict(sample_data_dict, date_attr, date_list,
