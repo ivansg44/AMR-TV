@@ -62,8 +62,6 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
                                   date_list=date_list,
                                   date_x_vals_dict=date_x_vals_dict)
 
-    primary_y_list = \
-        [v[config_file_dict["y_axes"][0]] for v in sample_data_dict.values()]
     track_list = \
         get_unsorted_track_list(sample_data_dict, config_file_dict["y_axes"])
     track_date_node_count_dict = Counter(zip(track_list, date_list))
@@ -201,8 +199,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         "attr_color_dash_dict": attr_color_dash_dict,
         "main_fig_attr_link_tips_dict": main_fig_attr_link_tips_dict,
         "main_fig_primary_facet_x":
-            # TODO primary y list needed?
-            get_main_fig_primary_facet_x(default_xaxis_range, primary_y_list),
+            get_main_fig_primary_facet_x(default_xaxis_range, track_list),
         "main_fig_primary_facet_y":
             get_main_fig_primary_facet_y(max_node_count_at_track_dict),
         "main_fig_height": main_fig_height
@@ -877,7 +874,7 @@ def get_main_fig_nodes_y_dict(sample_data_dict, date_attr,
     return main_fig_nodes_y_dict
 
 
-def get_main_fig_primary_facet_x(default_xaxis_range, primary_y_list):
+def get_main_fig_primary_facet_x(default_xaxis_range, track_list):
     """Get x vals for lines used to split main graph by primary y.
 
     :param default_xaxis_range: Main graph x-axis min and max val,
@@ -890,7 +887,7 @@ def get_main_fig_primary_facet_x(default_xaxis_range, primary_y_list):
     :rtype: list
     """
     main_fig_facet_x = []
-    num_of_facets = len(set(primary_y_list)) - 1
+    num_of_facets = len(set([track[0] for track in track_list])) - 1
     [xmin, xmax] = default_xaxis_range
     for i in range(0, num_of_facets):
         main_fig_facet_x += [xmin, xmax, None]
