@@ -66,15 +66,17 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         [v[config_file_dict["y_axes"][0]] for v in sample_data_dict.values()]
     track_list = \
         get_unsorted_track_list(sample_data_dict, config_file_dict["y_axes"])
-    track_y_vals_dict = get_track_y_vals_dict(track_list=track_list,
-                                              date_list=date_list)
-    main_fig_nodes_y_dict = \
-        get_main_fig_nodes_y_dict(sample_data_dict,
-                                  date_attr=config_file_dict["date_attr"],
-                                  date_list=date_list,
-                                  y_axes=config_file_dict["y_axes"],
-                                  track_list=track_list,
-                                  track_y_vals_dict=track_y_vals_dict)
+    track_date_node_count_dict = Counter(zip(track_list, date_list))
+    max_node_count_at_track_dict = \
+        get_max_node_count_at_track_dict(track_date_node_count_dict)
+    track_y_vals_dict = get_track_y_vals_dict(max_node_count_at_track_dict)
+    main_fig_nodes_y_dict = get_main_fig_nodes_y_dict(
+        sample_data_dict,
+        date_attr=config_file_dict["date_attr"],
+        track_date_node_count_dict=track_date_node_count_dict,
+        y_axes=config_file_dict["y_axes"],
+        track_y_vals_dict=track_y_vals_dict
+    )
 
     node_symbol_attr = config_file_dict["node_symbol_attr"]
     if node_symbol_attr:
@@ -198,9 +200,11 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         "main_fig_attr_link_labels_dict": main_fig_attr_link_labels_dict,
         "attr_color_dash_dict": attr_color_dash_dict,
         "main_fig_attr_link_tips_dict": main_fig_attr_link_tips_dict,
-        "main_fig_facet_x":
-            get_main_fig_facet_x(default_xaxis_range, primary_y_list),
-        "main_fig_facet_y": get_main_fig_facet_y(track_y_vals_dict),
+        "main_fig_primary_facet_x":
+            # TODO primary y list needed?
+            get_main_fig_primary_facet_x(default_xaxis_range, primary_y_list),
+        "main_fig_primary_facet_y":
+            get_main_fig_primary_facet_y(max_node_count_at_track_dict),
         "main_fig_height": main_fig_height
     }
 
@@ -806,31 +810,37 @@ def get_main_fig_nodes_x_dict(sample_data_dict, date_attr, date_list,
     return main_fig_nodes_x_dict
 
 
-def get_track_y_vals_dict(track_list, date_list):
+def get_max_node_count_at_track_dict(track_date_node_count_dict):
     """TODO"""
-    max_node_count_at_track_dict = {}
-    track_date_node_count_dict = Counter(zip(track_list, date_list))
+    unsorted_ret = {}
     for (track, date) in track_date_node_count_dict:
         node_count = track_date_node_count_dict[(track, date)]
-        if track in max_node_count_at_track_dict:
-            old_count = max_node_count_at_track_dict[track]
+        if track in unsorted_ret:
+            old_count = unsorted_ret[track]
             if node_count > old_count:
-                max_node_count_at_track_dict[track] = node_count
+                unsorted_ret[track] = node_count
         else:
-            max_node_count_at_track_dict[track] = node_count
+            unsorted_ret[track] = node_count
+    ret = {k: unsorted_ret[k] for k in sorted(unsorted_ret, key=sorting_key)}
+    return ret
 
+
+def get_track_y_vals_dict(max_node_count_at_track_dict):
+    """TODO"""
     ret = {}
     last_track_top_boundary = 0
-    for track in sorted(max_node_count_at_track_dict, key=sorting_key):
+    for track in max_node_count_at_track_dict:
         node_count = max_node_count_at_track_dict[track]
         ret[track] = last_track_top_boundary + 1 + (node_count - 1)/2
         last_track_top_boundary += node_count
     return ret
 
 
-def get_main_fig_nodes_y_dict(sample_data_dict, date_attr, date_list,
-                              y_axes, track_list, track_y_vals_dict):
+def get_main_fig_nodes_y_dict(sample_data_dict, date_attr,
+                              track_date_node_count_dict, y_axes,
+                              track_y_vals_dict):
     """Get dict mapping nodes to y vals.
+    TODO can we get rid of track_date_node_count_dict?
 
     :param sample_data_dict: Sample file data parsed into dict obj
     :rtype: dict
@@ -847,28 +857,27 @@ def get_main_fig_nodes_y_dict(sample_data_dict, date_attr, date_list,
     :return: Dict mapping nodes to y vals
     :rtype: dict
     """
-    date_track_zip_list = list(zip(date_list, track_list))
     helper_obj = \
-        {k: [1/(v+1), 1] for k, v in Counter(date_track_zip_list).items()}
+        {k: [1/(v+1), 1] for k, v in track_date_node_count_dict.items()}
 
     main_fig_nodes_y_dict = {}
     for sample in sample_data_dict:
         sample_date = sample_data_dict[sample][date_attr]
         sample_track = \
             tuple((sample_data_dict[sample][axis] for axis in y_axes))
-        [stagger, multiplier] = helper_obj[(sample_date, sample_track)]
+        [stagger, multiplier] = helper_obj[(sample_track, sample_date)]
 
         unstaggered_y = track_y_vals_dict[sample_track]
         lowest_y = unstaggered_y - 0.5
         staggered_y = lowest_y + (stagger * multiplier)
 
         main_fig_nodes_y_dict[sample] = staggered_y
-        helper_obj[(sample_date, sample_track)][1] += 1
+        helper_obj[(sample_track, sample_date)][1] += 1
 
     return main_fig_nodes_y_dict
 
 
-def get_main_fig_facet_x(default_xaxis_range, primary_y_list):
+def get_main_fig_primary_facet_x(default_xaxis_range, primary_y_list):
     """Get x vals for lines used to split main graph by primary y.
 
     :param default_xaxis_range: Main graph x-axis min and max val,
@@ -888,8 +897,9 @@ def get_main_fig_facet_x(default_xaxis_range, primary_y_list):
     return main_fig_facet_x
 
 
-def get_main_fig_facet_y(track_y_vals_dict):
+def get_main_fig_primary_facet_y(max_node_count_at_track_dict):
     """Get y vals for lines used to split main graph by primary y.
+    TODO
 
     :param track_y_vals_dict: Dict mapping tracks to numerical y vals
     :type track_y_vals_dict: dict
@@ -898,14 +908,16 @@ def get_main_fig_facet_y(track_y_vals_dict):
     :rtype: list
     """
     main_fig_facet_y = []
-    last_primary_y = ""
-    for i, ticktext in enumerate(track_y_vals_dict):
-        if i == 0:
-            last_primary_y = ticktext[0]
-            continue
-        if ticktext[0] != last_primary_y:
-            main_fig_facet_y += [i+0.5, i+0.5, None]
-            last_primary_y = ticktext[0]
+    last_primary_y_seen = None
+    y_acc = 0
+    for track in max_node_count_at_track_dict:
+        primary_y = track[0]
+        if last_primary_y_seen is None:
+            last_primary_y_seen = primary_y
+        elif primary_y != last_primary_y_seen:
+            main_fig_facet_y += [y_acc+0.5, y_acc+0.5, None]
+            last_primary_y_seen = primary_y
+        y_acc += max_node_count_at_track_dict[track]
     return main_fig_facet_y
 
 

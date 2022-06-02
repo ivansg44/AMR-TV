@@ -173,8 +173,8 @@ def get_main_fig_attr_link_tip_graphs(app_data):
     return [opaque_graph, transparent_graph]
 
 
-def get_main_fig_facet_lines(app_data):
-    """Get plotly scatter obj of facet lines in main fig.
+def get_main_fig_primary_facet_lines(app_data):
+    """Get plotly scatter obj of facet lines in main fig.TODO
 
     These are the lines that split the main graph into tracks.
 
@@ -184,8 +184,8 @@ def get_main_fig_facet_lines(app_data):
     :rtype: go.Scatter
     """
     lines = go.Scatter(
-        x=app_data["main_fig_facet_x"],
-        y=app_data["main_fig_facet_y"],
+        x=app_data["main_fig_primary_facet_x"],
+        y=app_data["main_fig_primary_facet_y"],
         mode="lines",
         line={
             "color": "grey"
@@ -211,7 +211,7 @@ def get_main_fig(app_data):
     fig = go.Figure(
         data=main_fig_attr_link_graphs + main_fig_attr_link_label_graphs + [
             get_main_fig_nodes(app_data),
-            get_main_fig_facet_lines(app_data)
+            get_main_fig_primary_facet_lines(app_data)
         ],
         layout={
             "margin": {
