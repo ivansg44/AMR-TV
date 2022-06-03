@@ -13,7 +13,7 @@
   ],
   "node_color_attr": "serovar",
   "node_symbol_attr": "serovar",
-  "links_across_y": "True",
+  "links_across_primary_y": "True",
   "max_day_range": 14,
   "null_vals": ["", "-"],
   "weights": {},

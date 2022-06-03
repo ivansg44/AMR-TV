@@ -121,7 +121,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         sample_data_dict=sample_data_dict,
         attr_link_list=config_file_dict["attr_link_list"],
         primary_y=config_file_dict["y_axes"][0],
-        links_across_y=config_file_dict["links_across_y"],
+        links_across_primary_y=config_file_dict["links_across_primary_y"],
         max_day_range=config_file_dict["max_day_range"],
         null_vals=config_file_dict["null_vals"],
         weights=config_file_dict["weights"],
@@ -378,8 +378,8 @@ def get_node_color_attr_dict(node_color_attr_list):
 
 
 def get_sample_links_dict(sample_data_dict, attr_link_list, primary_y,
-                          links_across_y, max_day_range, null_vals, weights,
-                          weight_filters, attr_val_filters):
+                          links_across_primary_y, max_day_range, null_vals,
+                          weights, weight_filters, attr_val_filters):
     """Get a dict of all links to viz in main graph.
 
     The keys in the dict are different attrs. The values are a nested
@@ -396,9 +396,9 @@ def get_sample_links_dict(sample_data_dict, attr_link_list, primary_y,
     :type attr_link_list: list[str]
     :param primary_y: attr encoded as one part of a track along y-axis
     :type primary_y: str
-    :param links_across_y: Whether we consider links across different
-        tracks.
-    :type links_across_y: bool
+    :param links_across_primary_y: Whether we consider links across
+        different primary y vals.
+    :type links_across_primary_y: bool
     :param max_day_range: Maximum day range to still consider links
     :type max_day_range: int
     :param null_vals: List of null vals in sample data
@@ -444,8 +444,9 @@ def get_sample_links_dict(sample_data_dict, attr_link_list, primary_y,
                 other_primary_y = sample_data_dict[other_sample][primary_y]
                 other_datetime = sample_data_dict[other_sample]["datetime_obj"]
 
-                if not links_across_y and sample_primary_y != other_primary_y:
-                    continue
+                if not links_across_primary_y:
+                    if sample_primary_y != other_primary_y:
+                        continue
 
                 day_range_datetime = other_datetime - sample_datetime
                 day_range = abs(day_range_datetime.days)
