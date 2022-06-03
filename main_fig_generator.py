@@ -194,6 +194,21 @@ def get_main_fig_primary_facet_lines(app_data):
     return lines
 
 
+def get_main_fig_secondary_facet_lines(app_data):
+    """TODO"""
+    lines = go.Scatter(
+        x=app_data["main_fig_secondary_facet_x"],
+        y=app_data["main_fig_secondary_facet_y"],
+        mode="lines",
+        line={
+            "color": "grey",
+            "dash": "dot",
+            "width": 1
+        }
+    )
+    return lines
+
+
 def get_main_fig(app_data):
     """Get main fig in viz.
 
@@ -211,6 +226,7 @@ def get_main_fig(app_data):
     fig = go.Figure(
         data=main_fig_attr_link_graphs + main_fig_attr_link_label_graphs + [
             get_main_fig_nodes(app_data),
+            get_main_fig_secondary_facet_lines(app_data),
             get_main_fig_primary_facet_lines(app_data)
         ],
         layout={

@@ -76,6 +76,10 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         track_y_vals_dict=track_y_vals_dict
     )
 
+    num_of_primary_facets = \
+        len({k[0] for k in max_node_count_at_track_dict}) - 1
+    num_of_secondary_facets = len(max_node_count_at_track_dict.keys()) - 1
+
     node_symbol_attr = config_file_dict["node_symbol_attr"]
     if node_symbol_attr:
         node_symbol_attr_list = \
@@ -199,11 +203,18 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         "attr_color_dash_dict": attr_color_dash_dict,
         "main_fig_attr_link_tips_dict": main_fig_attr_link_tips_dict,
         "main_fig_primary_facet_x":
-            get_main_fig_primary_facet_x(default_xaxis_range, track_list),
+            get_main_fig_primary_facet_x(default_xaxis_range,
+                                         num_of_primary_facets),
         "main_fig_primary_facet_y":
             get_main_fig_primary_facet_y(max_node_count_at_track_dict),
+        "main_fig_secondary_facet_x":
+            get_main_fig_secondary_facet_x(default_xaxis_range,
+                                           num_of_secondary_facets),
+        "main_fig_secondary_facet_y":
+            get_main_fig_secondary_facet_y(max_node_count_at_track_dict),
         "main_fig_height": main_fig_height
     }
+    # TODO SECONDARY X Y DIFF SIZES
 
     return app_data
 
@@ -874,8 +885,9 @@ def get_main_fig_nodes_y_dict(sample_data_dict, date_attr,
     return main_fig_nodes_y_dict
 
 
-def get_main_fig_primary_facet_x(default_xaxis_range, track_list):
+def get_main_fig_primary_facet_x(default_xaxis_range, num_of_facets):
     """Get x vals for lines used to split main graph by primary y.
+    TODO
 
     :param default_xaxis_range: Main graph x-axis min and max val,
         without any zooming or panning.
@@ -887,7 +899,6 @@ def get_main_fig_primary_facet_x(default_xaxis_range, track_list):
     :rtype: list
     """
     main_fig_facet_x = []
-    num_of_facets = len(set([track[0] for track in track_list])) - 1
     [xmin, xmax] = default_xaxis_range
     for i in range(0, num_of_facets):
         main_fig_facet_x += [xmin, xmax, None]
@@ -916,6 +927,25 @@ def get_main_fig_primary_facet_y(max_node_count_at_track_dict):
             last_primary_y_seen = primary_y
         y_acc += max_node_count_at_track_dict[track]
     return main_fig_facet_y
+
+
+def get_main_fig_secondary_facet_x(default_xaxis_range, num_of_facets):
+    """TODO"""
+    main_fig_facet_x = []
+    [xmin, xmax] = default_xaxis_range
+    for i in range(0, num_of_facets):
+        main_fig_facet_x += [xmin, xmax, None]
+    return main_fig_facet_x
+
+
+def get_main_fig_secondary_facet_y(max_node_count_at_track_dict):
+    """TODO"""
+    main_fig_facet_y = []
+    y_acc = 0
+    for track in max_node_count_at_track_dict:
+        y_acc += max_node_count_at_track_dict[track]
+        main_fig_facet_y += [y_acc+0.5, y_acc+0.5, None]
+    return main_fig_facet_y[:-3]
 
 
 def get_main_fig_height(date_list, track_list):
