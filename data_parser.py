@@ -215,7 +215,6 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
             get_main_fig_secondary_facet_y(max_node_count_at_track_dict),
         "main_fig_height": main_fig_height
     }
-    # TODO SECONDARY X Y DIFF SIZES
 
     return app_data
 
@@ -821,7 +820,14 @@ def get_main_fig_nodes_x_dict(sample_data_dict, date_attr, date_list,
 
 
 def get_max_node_count_at_track_dict(track_date_node_count_dict):
-    """TODO"""
+    """Get the max number of nodes at one date in every track.
+
+    :param track_date_node_count_dict: Number of nodes at each track
+        and date combination.
+    :type track_date_node_count_dict: dict
+    :return: Maximum number of nodes at a single date within each track
+    :rtype: dict
+    """
     unsorted_ret = {}
     for (track, date) in track_date_node_count_dict:
         node_count = track_date_node_count_dict[(track, date)]
@@ -836,7 +842,14 @@ def get_max_node_count_at_track_dict(track_date_node_count_dict):
 
 
 def get_track_y_vals_dict(max_node_count_at_track_dict):
-    """TODO"""
+    """Get the y val at the center of each track on the main graph.
+
+    :param max_node_count_at_track_dict: Maximum number of nodes at a
+        single date within each track.
+    :type max_node_count_at_track_dict: dict
+    :return: Dict mapping tracks to numerical y vals
+    :rtype: dict
+    """
     ret = {}
     last_track_top_boundary = 0
     for track in max_node_count_at_track_dict:
@@ -851,18 +864,19 @@ def get_main_fig_nodes_y_dict(sample_data_dict, date_attr,
                               max_node_count_at_track_dict, y_axes,
                               track_y_vals_dict):
     """Get dict mapping nodes to y vals.
-    TODO
 
     :param sample_data_dict: Sample file data parsed into dict obj
     :rtype: dict
     :param date_attr: Sample file attr encoded by sample date/x-axis
     :type date_attr: str
-    :param date_list: List of sample dates wrt all nodes
-    :type date_list: list
+    :param track_date_node_count_dict: Number of nodes at each track
+        and date combination.
+    :type track_date_node_count_dict: dict
+    :param max_node_count_at_track_dict: Maximum number of nodes at a
+        single date within each track.
+    :type max_node_count_at_track_dict: dict
     :param y_axes: List of attrs to use as hierarchical y axes
     :type y_axes: list[str]
-    :param track_list: List of track vals wrt all nodes
-    :type track_list: list
     :param track_y_vals_dict: Dict mapping tracks to numerical y vals
     :type track_y_vals_dict: dict
     :return: Dict mapping nodes to y vals
@@ -890,15 +904,16 @@ def get_main_fig_nodes_y_dict(sample_data_dict, date_attr,
 
 def get_main_fig_primary_facet_x(default_xaxis_range, num_of_facets):
     """Get x vals for lines used to split main graph by primary y.
-    TODO
+
+    The primary y is the first y attr used to generate tracks.
 
     :param default_xaxis_range: Main graph x-axis min and max val,
         without any zooming or panning.
     :type default_xaxis_range: list
-    :param primary_y_list: List of primary y vals for samples
-    :type primary_y_list: list
+    :param num_of_facets: Number of lines to draw
+    :type num_of_facets: int
     :return: List of x vals Plotly needs to draw lines splitting main
-        graph by tracks.
+        graph by primary y vals.
     :rtype: list
     """
     main_fig_facet_x = []
@@ -910,12 +925,14 @@ def get_main_fig_primary_facet_x(default_xaxis_range, num_of_facets):
 
 def get_main_fig_primary_facet_y(max_node_count_at_track_dict):
     """Get y vals for lines used to split main graph by primary y.
-    TODO
 
-    :param track_y_vals_dict: Dict mapping tracks to numerical y vals
-    :type track_y_vals_dict: dict
+    The primary y is the first y attr used to generate tracks.
+
+    :param max_node_count_at_track_dict: Maximum number of nodes at a
+        single date within each track.
+    :type max_node_count_at_track_dict: dict
     :return: List of y vals Plotly needs to draw lines splitting main
-        graph by tracks.
+        graph by primary y vals.
     :rtype: list
     """
     main_fig_facet_y = []
@@ -933,7 +950,17 @@ def get_main_fig_primary_facet_y(max_node_count_at_track_dict):
 
 
 def get_main_fig_secondary_facet_x(default_xaxis_range, num_of_facets):
-    """TODO"""
+    """Get x vals for lines used to split main graph into tracks.
+
+    :param default_xaxis_range: Main graph x-axis min and max val,
+        without any zooming or panning.
+    :type default_xaxis_range: list
+    :param num_of_facets: Number of lines to draw
+    :type num_of_facets: int
+    :return: List of x vals Plotly needs to draw lines splitting main
+        graph by tracks.
+    :rtype: list
+    """
     main_fig_facet_x = []
     [xmin, xmax] = default_xaxis_range
     for i in range(0, num_of_facets):
@@ -942,7 +969,15 @@ def get_main_fig_secondary_facet_x(default_xaxis_range, num_of_facets):
 
 
 def get_main_fig_secondary_facet_y(max_node_count_at_track_dict):
-    """TODO"""
+    """Get y vals for lines used to split main graph into tracks.
+
+    :param max_node_count_at_track_dict: Maximum number of nodes at a
+        single date within each track.
+    :type max_node_count_at_track_dict: dict
+    :return: List of y vals Plotly needs to draw lines splitting main
+        graph by tracks.
+    :rtype: list
+    """
     main_fig_facet_y = []
     y_acc = 0
     for track in max_node_count_at_track_dict:
@@ -952,16 +987,16 @@ def get_main_fig_secondary_facet_y(max_node_count_at_track_dict):
 
 
 def get_main_fig_height(max_node_count_at_track_dict):
-    """Return height for main fig.TODO
+    """Return height for main fig.
 
     This is an absolute (not relative height). This takes into account
-    the number of tracks you need to visualize, and the amount of y
-    staggering.
+    the number of tracks you need to visualize, and also increases
+    space per track if you are encoding more than 2 attrs along the
+    y-axis.
 
-    :param date_list: List of sample dates wrt all nodes
-    :type date_list: list
-    :param track_list: List of track vals wrt all nodes
-    :type track_list: list
+    :param max_node_count_at_track_dict: Maximum number of nodes at a
+        single date within each track.
+    :type max_node_count_at_track_dict: dict
     :return: Height for main fig
     :rtype: int
     """

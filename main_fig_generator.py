@@ -174,13 +174,15 @@ def get_main_fig_attr_link_tip_graphs(app_data):
 
 
 def get_main_fig_primary_facet_lines(app_data):
-    """Get plotly scatter obj of facet lines in main fig.TODO
+    """Get plotly scatter obj of primary facet lines in main fig.
 
-    These are the lines that split the main graph into tracks.
+    These are the lines that split the main graph by the first
+    (primary) val in each track.
 
     :param app_data: ``data_parser.get_app_data`` ret val
     :type app_data: dict
-    :return: Plotly scatter obj used to draw facet lines in main fig
+    :return: Plotly scatter obj used to draw primary facet lines in
+        main fig.
     :rtype: go.Scatter
     """
     lines = go.Scatter(
@@ -195,7 +197,16 @@ def get_main_fig_primary_facet_lines(app_data):
 
 
 def get_main_fig_secondary_facet_lines(app_data):
-    """TODO"""
+    """Get plotly scatter obj of secondary facet lines in main fig.
+
+    These are the lines that split the main graph into tracks.
+
+    :param app_data: ``data_parser.get_app_data`` ret val
+    :type app_data: dict
+    :return: Plotly scatter obj used to draw secondary facet lines in
+        main fig.
+    :rtype: go.Scatter
+    """
     lines = go.Scatter(
         x=app_data["main_fig_secondary_facet_x"],
         y=app_data["main_fig_secondary_facet_y"],
