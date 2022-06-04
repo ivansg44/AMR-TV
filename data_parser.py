@@ -72,6 +72,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         sample_data_dict,
         date_attr=config_file_dict["date_attr"],
         track_date_node_count_dict=track_date_node_count_dict,
+        max_node_count_at_track_dict=max_node_count_at_track_dict,
         y_axes=config_file_dict["y_axes"],
         track_y_vals_dict=track_y_vals_dict
     )
@@ -111,7 +112,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         main_fig_nodes_marker_color = "lightgrey"
 
     default_xaxis_range = [0.5, len(date_x_vals_dict) + 0.5]
-    default_yaxis_range = [0.5, list(track_y_vals_dict.values())[-1] + 0.5]
+    default_yaxis_range = [0.5, sum(max_node_count_at_track_dict.values())+0.5]
     if not xaxis_range:
         xaxis_range = default_xaxis_range
     if not yaxis_range:
@@ -162,7 +163,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     else:
         main_fig_nodes_textfont_color = "black"
 
-    main_fig_height = get_main_fig_height(date_list, track_list)
+    main_fig_height = get_main_fig_height(max_node_count_at_track_dict)
 
     app_data = {
         "node_shape_legend_fig_nodes_y":
@@ -846,10 +847,11 @@ def get_track_y_vals_dict(max_node_count_at_track_dict):
 
 
 def get_main_fig_nodes_y_dict(sample_data_dict, date_attr,
-                              track_date_node_count_dict, y_axes,
+                              track_date_node_count_dict,
+                              max_node_count_at_track_dict, y_axes,
                               track_y_vals_dict):
     """Get dict mapping nodes to y vals.
-    TODO can we get rid of track_date_node_count_dict?
+    TODO
 
     :param sample_data_dict: Sample file data parsed into dict obj
     :rtype: dict
@@ -866,8 +868,8 @@ def get_main_fig_nodes_y_dict(sample_data_dict, date_attr,
     :return: Dict mapping nodes to y vals
     :rtype: dict
     """
-    helper_obj = \
-        {k: [1/(v+1), 1] for k, v in track_date_node_count_dict.items()}
+    helper_obj = {k: [max_node_count_at_track_dict[k[0]]/(v+1), 1]
+                  for k, v in track_date_node_count_dict.items()}
 
     main_fig_nodes_y_dict = {}
     for sample in sample_data_dict:
@@ -877,7 +879,7 @@ def get_main_fig_nodes_y_dict(sample_data_dict, date_attr,
         [stagger, multiplier] = helper_obj[(sample_track, sample_date)]
 
         unstaggered_y = track_y_vals_dict[sample_track]
-        lowest_y = unstaggered_y - 0.5
+        lowest_y = unstaggered_y - max_node_count_at_track_dict[sample_track]/2
         staggered_y = lowest_y + (stagger * multiplier)
 
         main_fig_nodes_y_dict[sample] = staggered_y
@@ -949,8 +951,8 @@ def get_main_fig_secondary_facet_y(max_node_count_at_track_dict):
     return main_fig_facet_y[:-3]
 
 
-def get_main_fig_height(date_list, track_list):
-    """Return height for main fig.
+def get_main_fig_height(max_node_count_at_track_dict):
+    """Return height for main fig.TODO
 
     This is an absolute (not relative height). This takes into account
     the number of tracks you need to visualize, and the amount of y
@@ -963,7 +965,7 @@ def get_main_fig_height(date_list, track_list):
     :return: Height for main fig
     :rtype: int
     """
-    date_track_zip_list = list(zip(date_list, track_list))
-    max_overlapping_y_vals = max(Counter(date_track_zip_list).values())
+    num_of_rows = sum(max_node_count_at_track_dict.values())
+    num_of_y_axis_attrs = len(next(iter(max_node_count_at_track_dict)))
 
-    return len(set(track_list)) * 24 * (5 + max_overlapping_y_vals)
+    return num_of_rows * (72 + (num_of_y_axis_attrs - 2) * 24)
