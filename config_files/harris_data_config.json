@@ -14,7 +14,7 @@
   ],
   "node_color_attr": "",
   "node_symbol_attr": "role",
-  "links_across_y": 1,
+  "links_across_primary_y": 1,
   "max_day_range": 6000,
   "null_vals": ["n/a"],
   "weights": {},
