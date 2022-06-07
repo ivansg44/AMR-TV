@@ -404,7 +404,8 @@ def update_main_viz(selected_nodes, xaxis_range, yaxis_range, _,
         msg = "Unexpected trigger trying to update main graph: %s" % trigger
         raise RuntimeError(msg)
 
-    main_fig_style = {"height": app_data["main_fig_height"], "width": "80vw"}
+    main_fig_style = {"height": app_data["main_fig_height"],
+                      "width": app_data["main_fig_width"]}
     node_symbol_legend_fig = get_node_symbol_legend_fig(app_data)
     link_legend_fig = get_link_legend_fig(app_data)
     node_color_legend_fig = get_node_color_legend_fig(app_data)
