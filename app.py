@@ -58,9 +58,11 @@ def launch_app(_):
                 dbc.Col(
                     children=dcc.Graph(
                         figure={},
-                        id="main-graph",
-                        style={"height": "90vh", "width": "80vw"}
+                        id="main-graph"
                     ),
+                    style={"height": "90vh",
+                           "width": "80vw",
+                           "overflow": "scroll"}
                 ),
                 dbc.Col(
                     children=[
