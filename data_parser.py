@@ -164,6 +164,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         main_fig_nodes_textfont_color = "black"
 
     main_fig_height = get_main_fig_height(max_node_count_at_track_dict)
+    main_fig_width = len(date_x_vals_dict) * 144
 
     app_data = {
         "node_shape_legend_fig_nodes_y":
@@ -213,7 +214,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
                                            num_of_secondary_facets),
         "main_fig_secondary_facet_y":
             get_main_fig_secondary_facet_y(max_node_count_at_track_dict),
-        "main_fig_height": main_fig_height
+        "main_fig_height": main_fig_height,
+        "main_fig_width": main_fig_width
     }
 
     return app_data
