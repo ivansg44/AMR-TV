@@ -242,24 +242,37 @@ def get_unsorted_track_list(sample_data_dict, y_axes):
 
 
 def sorting_key(track):
-    """Call ``str`` or ``int`` on each val in track.
+    """Convert each val in a track to a tuple.
 
-    This fn allows us to sort tracks in the main graph by the str and
-    int vals of their attr vals.
+    The necessity of this is due to columns potentially having both int
+    and str vals. Inspiration from:
+    https://stackoverflow.com/a/34757358/11472358
+
+    We sort as follows:
+
+    * "n/a" comes first
+    * Sort ints next
+    * Sort strs last
 
     :param track: List of attr vals found in a track
-    :type track: tuple[str]
-    :return: List of attrs after calling str or int on them
-    :rtype: list[str]
+    :type track: tuple[int|str]
+    :return: List of tuples mapped to each attr val in track
+    :rtype: list[tuple]
     """
     ret = []
     for attr_val in track:
-        if attr_val == "n/a":
-            continue
         try:
-            ret.append(int(attr_val))
+            ret.append((
+                attr_val == "n/a",
+                0,
+                int(attr_val)
+             ))
         except ValueError:
-            ret.append(str(attr_val))
+            ret.append((
+                attr_val == "n/a",
+                1,
+                attr_val
+             ))
     return ret
 
 
