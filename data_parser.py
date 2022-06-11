@@ -598,7 +598,7 @@ def get_main_fig_attr_links_dict(sample_links_dict, main_fig_nodes_x_dict,
     :type main_fig_width: int
     :param link_parallel_translation: Min distance links between the
         same nodes must be parallel translated.
-    :type link_parallel_translation: int
+    :type link_parallel_translation: float
     :return: Dict with info used by Plotly to viz links in main graph
     :rtype: dict
     """
@@ -693,7 +693,7 @@ def get_main_fig_attr_link_labels_dict(sample_links_dict,
     :type main_fig_width: int
     :param link_parallel_translation: Min distance links between the
         same nodes must be parallel translated.
-    :type link_parallel_translation: int
+    :type link_parallel_translation: float
     :param weights: Dictionary of expressions used to assign weights to
         specific attr links
     :type weights: dict
