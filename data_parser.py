@@ -439,7 +439,15 @@ def get_sample_links_dict(sample_data_dict, attr_link_list, primary_y,
     regex_obj = compile("!.*?!|@.*?@")
 
     for attr in attr_link_list:
-        attr_list = attr.split(";")
+        attr_list = []
+        disjoint_match_list = []
+        for attr_list_val in attr.split(";"):
+            if attr_list_val[0] == "~":
+                disjoint_match_list.append(True)
+                attr_list.append(attr_list_val[1:])
+            else:
+                disjoint_match_list.append(False)
+                attr_list.append(attr_list_val)
 
         for i in range(len(sample_list)):
             sample = sample_list[i]
@@ -483,7 +491,19 @@ def get_sample_links_dict(sample_data_dict, attr_link_list, primary_y,
                      if
                      x not in attr_val_filters or y not in attr_val_filters[x]]
 
-                if sample_attr_list == other_sample_attr_list:
+                an_iterator = zip(sample_attr_list,
+                                  other_sample_attr_list,
+                                  disjoint_match_list)
+                is_a_link = True
+                for sample_val, other_val, disjoint in an_iterator:
+                    if disjoint and sample_val == other_val:
+                        is_a_link = False
+                        break
+                    elif not disjoint and sample_val != other_val:
+                        is_a_link = False
+                        break
+
+                if is_a_link:
                     if attr in weights:
                         def repl_fn(match_obj):
                             match = match_obj.group(0)
