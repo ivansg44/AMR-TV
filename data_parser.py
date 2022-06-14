@@ -173,6 +173,10 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     else:
         main_fig_nodes_textfont_color = "black"
 
+    main_fig_yaxis_ticktext = \
+        ["<br>".join(["null" if e is None else e for e in k])
+         for k in track_y_vals_dict]
+
     app_data = {
         "node_shape_legend_fig_nodes_y":
             list(range(len(node_symbol_attr_dict))),
@@ -191,7 +195,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         "main_fig_yaxis_tickvals":
             list(track_y_vals_dict.values()),
         "main_fig_yaxis_ticktext":
-            ["<br>".join(k) for k in track_y_vals_dict],
+            main_fig_yaxis_ticktext,
         "main_fig_nodes_x":
             [main_fig_nodes_x_dict[k] for k in sample_data_dict],
         "main_fig_nodes_y":
@@ -259,7 +263,7 @@ def sorting_key(track):
 
     We sort as follows:
 
-    * "n/a" comes first
+    * None comes first
     * Sort ints next
     * Sort strs last
 
@@ -272,13 +276,13 @@ def sorting_key(track):
     for attr_val in track:
         try:
             ret.append((
-                attr_val == "n/a",
+                attr_val is None,
                 0,
                 int(attr_val)
              ))
-        except ValueError:
+        except (TypeError, ValueError):
             ret.append((
-                attr_val == "n/a",
+                attr_val is None,
                 1,
                 attr_val
              ))
@@ -319,7 +323,7 @@ def get_sample_data_dict(sample_file_str, delimiter, node_id, date,
             continue
         if row[date] in null_vals:
             continue
-        row = {k: ("n/a" if row[k] in null_vals else row[k]) for k in row}
+        row = {k: (None if row[k] in null_vals else row[k]) for k in row}
 
         row["datetime_obj"] = datetime.strptime(row[date], date_input)
         row[date] = row["datetime_obj"].strftime(date_output)
