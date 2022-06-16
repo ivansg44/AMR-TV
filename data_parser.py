@@ -464,8 +464,6 @@ def get_sample_links_dict(sample_data_dict, attr_link_list, primary_y,
                  x not in attr_val_filters or y not in attr_val_filters[x]
                  else None
                  for x, y in zip(attr_list, sample_attr_list)]
-            if not sample_attr_list:
-                continue
 
             for j in range(i+1, len(sample_list)):
                 other_sample = sample_list[j]
