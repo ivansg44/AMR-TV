@@ -130,7 +130,6 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         primary_y=config_file_dict["y_axes"][0],
         links_across_primary_y=config_file_dict["links_across_primary_y"],
         max_day_range=config_file_dict["max_day_range"],
-        null_vals=config_file_dict["null_vals"],
         weights=config_file_dict["weights"],
         weight_filters=config_file_dict["weight_filters"],
         attr_val_filters=config_file_dict["attr_val_filters"]
@@ -404,8 +403,8 @@ def get_node_color_attr_dict(node_color_attr_list):
 
 
 def get_sample_links_dict(sample_data_dict, attr_link_list, primary_y,
-                          links_across_primary_y, max_day_range, null_vals,
-                          weights, weight_filters, attr_val_filters):
+                          links_across_primary_y, max_day_range, weights,
+                          weight_filters, attr_val_filters):
     """Get a dict of all links to viz in main graph.
 
     The keys in the dict are different attrs. The values are a nested
@@ -427,8 +426,6 @@ def get_sample_links_dict(sample_data_dict, attr_link_list, primary_y,
     :type links_across_primary_y: bool
     :param max_day_range: Maximum day range to still consider links
     :type max_day_range: int
-    :param null_vals: List of null vals in sample data
-    :type null_vals: list
     :param weights: Dictionary of expressions used to assign weights to
         specific attr links
     :type weights: dict
@@ -458,15 +455,15 @@ def get_sample_links_dict(sample_data_dict, attr_link_list, primary_y,
 
             sample_attr_list = \
                 [sample_data_dict[sample][v] for v in attr_list]
-            if any(v in null_vals for v in sample_attr_list):
-                continue
-            # Bit of a complex comprehension. Basically, we remove any
-            # values in sample_attr_list that are belong to a val
-            # specified for the attr in attr_val_filters.
+            # Bit of a complex comprehension. Basically, we replace any
+            # values in sample_attr_list that belong to a val specified
+            # for the attr in attr_val_filters with ``None``.
             sample_attr_list = \
-                [y for x, y in zip(attr_list, sample_attr_list)
+                [y
                  if
-                 x not in attr_val_filters or y not in attr_val_filters[x]]
+                 x not in attr_val_filters or y not in attr_val_filters[x]
+                 else None
+                 for x, y in zip(attr_list, sample_attr_list)]
             if not sample_attr_list:
                 continue
 
@@ -491,23 +488,27 @@ def get_sample_links_dict(sample_data_dict, attr_link_list, primary_y,
                     [sample_data_dict[other_sample][v] for v in attr_list]
                 # See sample_attr_list comment
                 other_sample_attr_list = \
-                    [y for x, y in zip(attr_list, other_sample_attr_list)
+                    [y
                      if
-                     x not in attr_val_filters or y not in attr_val_filters[x]]
+                     x not in attr_val_filters or y not in attr_val_filters[x]
+                     else None
+                     for x, y in zip(attr_list, other_sample_attr_list)]
 
                 an_iterator = zip(sample_attr_list,
                                   other_sample_attr_list,
                                   disjoint_match_list)
-                is_a_link = True
+                matches = []
                 for sample_val, other_val, disjoint in an_iterator:
-                    if disjoint and sample_val == other_val:
-                        is_a_link = False
-                        break
+                    if None in {sample_val, other_val}:
+                        matches.append(False)
+                    elif disjoint and sample_val == other_val:
+                        matches.append(False)
                     elif not disjoint and sample_val != other_val:
-                        is_a_link = False
-                        break
+                        matches.append(False)
+                    else:
+                        matches.append(True)
 
-                if is_a_link:
+                if all(matches):
                     if attr in weights:
                         def repl_fn(match_obj):
                             match = match_obj.group(0)
