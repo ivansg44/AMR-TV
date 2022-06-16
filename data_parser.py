@@ -440,9 +440,15 @@ def get_sample_links_dict(sample_data_dict, attr_link_list, primary_y,
     regex_obj = compile("!.*?!|@.*?@")
 
     for attr in attr_link_list:
+        looking_for_any_overlap = False
+        if attr[0] == "(" and attr[-1] == ")":
+            looking_for_any_overlap = True
+
         attr_list = []
         disjoint_match_list = []
-        for attr_list_val in attr.split(";"):
+        attr_split = \
+            (attr[1:-1] if looking_for_any_overlap else attr).split(";")
+        for attr_list_val in attr_split:
             if attr_list_val[0] == "~":
                 disjoint_match_list.append(True)
                 attr_list.append(attr_list_val[1:])
@@ -506,7 +512,9 @@ def get_sample_links_dict(sample_data_dict, attr_link_list, primary_y,
                     else:
                         matches.append(True)
 
-                if all(matches):
+                is_a_link = \
+                    any(matches) if looking_for_any_overlap else all(matches)
+                if is_a_link:
                     if attr in weights:
                         def repl_fn(match_obj):
                             match = match_obj.group(0)
