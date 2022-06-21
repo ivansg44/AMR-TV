@@ -55,8 +55,7 @@ def get_main_fig_attr_link_graphs(app_data):
             app_data["main_fig_attr_links_dict"][attr]["transparent"]["x"]
         transparent_y = \
             app_data["main_fig_attr_links_dict"][attr]["transparent"]["y"]
-        (r, g, b) = app_data["attr_color_dash_dict"][attr][0]
-        dash = app_data["attr_color_dash_dict"][attr][1]
+        (r, g, b) = app_data["attr_link_color_dict"][attr]
 
         opaque_graph = go.Scatter(
             x=[x if x else None for x in opaque_x],
@@ -64,8 +63,7 @@ def get_main_fig_attr_link_graphs(app_data):
             mode="lines",
             line={
                 "width": 3,
-                "color": "rgb(%s,%s,%s)" % (r, g, b),
-                "dash": dash
+                "color": "rgb(%s,%s,%s)" % (r, g, b)
             }
         )
         transparent_graph = go.Scatter(
@@ -74,8 +72,7 @@ def get_main_fig_attr_link_graphs(app_data):
             mode="lines",
             line={
                 "width": 3,
-                "color": "rgba(%s,%s,%s, 0.5)" % (r, g, b),
-                "dash": dash
+                "color": "rgba(%s,%s,%s, 0.5)" % (r, g, b)
             }
         )
         ret += [opaque_graph, transparent_graph]
@@ -106,7 +103,7 @@ def get_main_fig_attr_link_label_graphs(app_data):
         transparent_x = transparent_dict["x"]
         transparent_y = transparent_dict["y"]
         transparent_text = transparent_dict["text"]
-        (r, g, b) = app_data["attr_color_dash_dict"][attr][0]
+        (r, g, b) = app_data["attr_link_color_dict"][attr]
 
         opaque_graph = go.Scatter(
             x=opaque_x,

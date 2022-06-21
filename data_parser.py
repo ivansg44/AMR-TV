@@ -135,7 +135,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         attr_val_filters=config_file_dict["attr_val_filters"]
     )
 
-    attr_color_dash_dict = get_attr_color_dash_dict(sample_links_dict)
+    attr_link_color_dict = get_attr_link_color_dict(sample_links_dict)
 
     main_fig_attr_links_dict = get_main_fig_attr_links_dict(
         sample_links_dict=sample_links_dict,
@@ -212,7 +212,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         "node_color_attr_dict": node_color_attr_dict,
         "main_fig_attr_links_dict": main_fig_attr_links_dict,
         "main_fig_attr_link_labels_dict": main_fig_attr_link_labels_dict,
-        "attr_color_dash_dict": attr_color_dash_dict,
+        "attr_link_color_dict": attr_link_color_dict,
         "main_fig_attr_link_tips_dict": main_fig_attr_link_tips_dict,
         "main_fig_primary_facet_x":
             get_main_fig_primary_facet_x(default_xaxis_range,
@@ -558,24 +558,28 @@ def get_sample_links_dict(sample_data_dict, attr_link_list, primary_y,
     return sample_links_dict
 
 
-def get_attr_color_dash_dict(sample_links_dict):
-    """Get dict assigning color/dash combo to attrs vized as links.
+def get_attr_link_color_dict(sample_links_dict):
+    """Get dict assigning color to attrs vized as links.
+
+    # TODO: color blind safe? Color/pattern combos get confusing
 
     :param sample_links_dict: ``get_sample_links_dict`` ret val
     :type sample_links_dict: dict
-    :return: Dict with attrs vized as links as keys,
-        and a unique color/dash combo as vals.
+    :return: Dict with attrs vized as links as keys, and a unique color
+        as vals.
     :rtype: dict
     """
-    available_link_color_dash_combos = [
-        ((27, 158, 119), "solid"), ((217, 95, 2), "solid"),
-        ((117, 112, 179), "solid"), ((27, 158, 119), "dot"),
-        ((217, 95, 2), "dot"), ((117, 112, 179), "dot"),
+    available_attr_link_color_list = [
+        (228, 26, 28),
+        (55, 126, 184),
+        (77, 175, 74),
+        (152, 78, 163),
+        (255, 127, 0)
     ]
-    if len(sample_links_dict) > len(available_link_color_dash_combos):
-        msg = "Not enough unique edge patterns for different attributes"
+    if len(sample_links_dict) > len(available_attr_link_color_list):
+        msg = "Not enough unique colors for different attributes"
         raise IndexError(msg)
-    zip_obj = zip(sample_links_dict.keys(), available_link_color_dash_combos)
+    zip_obj = zip(sample_links_dict.keys(), available_attr_link_color_list)
     ret = {k: v for (k, v) in zip_obj}
     return ret
 
