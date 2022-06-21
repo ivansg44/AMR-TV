@@ -77,8 +77,7 @@ def get_link_legend_fig_links(app_data):
     """
     links = []
     for i, attr in enumerate(app_data["main_fig_attr_links_dict"]):
-        (r, g, b) = app_data["attr_color_dash_dict"][attr][0]
-        dash = app_data["attr_color_dash_dict"][attr][1]
+        (r, g, b) = app_data["attr_link_color_dict"][attr]
         if attr in app_data["main_fig_attr_link_labels_dict"]:
             label = attr + " (weighted)"
         else:
@@ -90,8 +89,7 @@ def get_link_legend_fig_links(app_data):
                 mode="lines+text",
                 line={
                     "width": 3,
-                    "color": "rgb(%s, %s, %s)" % (r, g, b),
-                    "dash": dash
+                    "color": "rgb(%s, %s, %s)" % (r, g, b)
                 },
                 text=["<b>%s</b>" % label, None],
                 textfont={
