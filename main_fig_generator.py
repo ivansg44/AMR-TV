@@ -29,7 +29,9 @@ def get_main_fig_nodes(app_data):
         textfont={
             "color": app_data["main_fig_nodes_textfont_color"],
             "size": 16
-        }
+        },
+        hoverinfo="text",
+        hovertext=app_data["main_fig_nodes_hovertext"]
     )
     return nodes
 
