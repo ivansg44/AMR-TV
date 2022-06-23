@@ -111,6 +111,10 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         node_color_attr_dict = {}
         main_fig_nodes_marker_color = "lightgrey"
 
+    main_fig_nodes_hovertext = \
+        get_main_fig_nodes_hovertext(sample_data_dict,
+                                     config_file_dict["attr_link_list"])
+
     default_xaxis_range = [0.5, len(date_x_vals_dict) + 0.5]
     default_yaxis_range = [0.5, sum(max_node_count_at_track_dict.values())+0.5]
     if not xaxis_range:
@@ -209,6 +213,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
             main_fig_nodes_text,
         "main_fig_nodes_textfont_color":
             main_fig_nodes_textfont_color,
+        "main_fig_nodes_hovertext":
+            main_fig_nodes_hovertext,
         "node_color_attr_dict": node_color_attr_dict,
         "main_fig_attr_links_dict": main_fig_attr_links_dict,
         "main_fig_attr_link_labels_dict": main_fig_attr_link_labels_dict,
@@ -996,6 +1002,36 @@ def get_main_fig_nodes_y_dict(sample_data_dict, date_attr,
         helper_obj[(sample_track, sample_date)][1] += 1
 
     return main_fig_nodes_y_dict
+
+
+def get_main_fig_nodes_hovertext(sample_data_dict, attr_link_list):
+    """Get hovertext for nodes in main fig.
+
+    :param sample_data_dict: Sample file data parsed into dict obj
+    :type sample_data_dict: dict
+    :param attr_link_list: list of attrs to include in ret dict
+    :type attr_link_list: list[str]
+    :return: List of d3-formatted text to display on hover across all
+        nodes in main fig.
+    :rtype: list[str]
+    """
+    ret = []
+    for sample in sample_data_dict:
+        sample_data = sample_data_dict[sample]
+        sample_label_vals = []
+        for attr in attr_link_list:
+            if attr[0] == "(" and attr[-1] == ")":
+                attr_list = attr[1:-1].split(";")
+            else:
+                attr_list = attr.split(";")
+            attr_list = [e[1:] if e[0] == "~" else e for e in attr_list]
+            attr_list_vals = [sample_data[e] for e in attr_list]
+            attr_ = ";".join(attr_list)
+            attr_val = \
+                ";".join(["null" if e is None else e for e in attr_list_vals])
+            sample_label_vals.append("<b>%s</b>: %s" % (attr_, attr_val))
+        ret.append("<br>".join(sample_label_vals))
+    return ret
 
 
 def get_main_fig_primary_facet_x(default_xaxis_range, num_of_facets):

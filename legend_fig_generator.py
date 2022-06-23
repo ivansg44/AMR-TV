@@ -124,7 +124,7 @@ def get_link_legend_fig(app_data):
             "yaxis": {
                 "visible": False,
                 "fixedrange": True,
-                "range": [-0.5, len(app_data["main_fig_attr_links_dict"])]
+                "range": [len(app_data["main_fig_attr_links_dict"]), -0.5]
             },
             "showlegend": False,
             "plot_bgcolor": "white"
