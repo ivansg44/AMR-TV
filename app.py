@@ -56,13 +56,29 @@ def launch_app(_):
         dbc.Row(
             children=[
                 dbc.Col(
-                    children=dcc.Graph(
-                        figure={},
-                        id="main-graph"
-                    ),
-                    style={"height": "90vh",
-                           "width": "80vw",
-                           "overflow": "scroll"}
+                    dbc.Tabs(
+                        children=[
+                            dbc.Tab(
+                                dcc.Graph(
+                                    figure={},
+                                    id="main-graph"
+                                ),
+                                label="Zoomed in",
+                                style={"height": "90vh",
+                                       "width": "80vw",
+                                       "overflow": "scroll"}
+                            ),
+                            dbc.Tab(
+                                dcc.Graph(
+                                    figure={},
+                                    id="zoomed-out-main-graph"
+                                ),
+                                label="Zoomed out",
+                                style={"height": "90vh",
+                                       "width": "80vw"}
+                            )
+                        ]
+                    )
                 ),
                 dbc.Col(
                     children=[
