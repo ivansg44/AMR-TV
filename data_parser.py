@@ -111,8 +111,15 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         node_color_attr_dict = {}
         main_fig_nodes_marker_color = "lightgrey"
 
+    label_attr = config_file_dict["label_attr"]
+    main_fig_nodes_text = \
+        ["<b>%s</b>" % v[label_attr] for v in sample_data_dict.values()]
+
     main_fig_nodes_hovertext = \
         get_main_fig_nodes_hovertext(sample_data_dict,
+                                     main_fig_nodes_text,
+                                     date_list,
+                                     track_list,
                                      config_file_dict["attr_link_list"])
 
     default_xaxis_range = [0.5, len(date_x_vals_dict) + 0.5]
@@ -164,10 +171,6 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
 
     main_fig_attr_link_tips_dict = \
         get_main_fig_attr_link_tips_dict(main_fig_attr_links_dict)
-
-    label_attr = config_file_dict["label_attr"]
-    main_fig_nodes_text = \
-        ["<b>%s</b>" % v[label_attr] for v in sample_data_dict.values()]
 
     if selected_samples:
         ss = selected_samples
@@ -1004,8 +1007,9 @@ def get_main_fig_nodes_y_dict(sample_data_dict, date_attr,
     return main_fig_nodes_y_dict
 
 
-def get_main_fig_nodes_hovertext(sample_data_dict, attr_link_list):
-    """Get hovertext for nodes in main fig.
+def get_main_fig_nodes_hovertext(sample_data_dict, main_fig_nodes_text,
+                                 date_list, track_list, attr_link_list):
+    """Get hovertext for nodes in main fig.TODO
 
     :param sample_data_dict: Sample file data parsed into dict obj
     :type sample_data_dict: dict
@@ -1016,9 +1020,12 @@ def get_main_fig_nodes_hovertext(sample_data_dict, attr_link_list):
     :rtype: list[str]
     """
     ret = []
-    for sample in sample_data_dict:
+    for i, sample in enumerate(sample_data_dict):
         sample_data = sample_data_dict[sample]
-        sample_label_vals = []
+        sample_label_vals = [main_fig_nodes_text[i],
+                             date_list[i],
+                             str(track_list[i]),
+                             ""]
         for attr in attr_link_list:
             if attr[0] == "(" and attr[-1] == ")":
                 attr_list = attr[1:-1].split(";")
