@@ -219,25 +219,15 @@ def get_main_fig_secondary_facet_lines(app_data):
     return lines
 
 
-def get_main_fig(app_data):
-    """Get main fig in viz.
-
-    :param app_data: ``data_parser.get_app_data`` ret val
-    :type app_data: dict
-    :return: Plotly figure object that shows main fig in viz
-    :rtype: go.Figure
-    """
-    main_fig_attr_link_graphs = get_main_fig_attr_link_graphs(app_data)
-    # TODO decide what to do with these
-    # main_fig_attr_link_tip_graphs = \
-    #     get_main_fig_attr_link_tip_graphs(app_data)
-    main_fig_attr_link_label_graphs = \
-        get_main_fig_attr_link_label_graphs(app_data)
-    fig = go.Figure(
-        data=main_fig_attr_link_graphs + main_fig_attr_link_label_graphs + [
-            get_main_fig_nodes(app_data),
-            get_main_fig_secondary_facet_lines(app_data),
-            get_main_fig_primary_facet_lines(app_data)
+def get_main_fig(app_data, nodes_graph,attr_link_graphs,
+                 attr_link_label_graphs, primary_facet_lines_graph,
+                 secondary_facet_lines_graph):
+    """TODO"""
+    ret = go.Figure(
+        data=attr_link_graphs + attr_link_label_graphs + [
+              nodes_graph,
+              secondary_facet_lines_graph,
+              primary_facet_lines_graph
         ],
         layout={
             "margin": {
@@ -267,4 +257,64 @@ def get_main_fig(app_data):
             "plot_bgcolor": "white"
         },
     )
-    return fig
+    return ret
+
+
+def get_zoomed_out_main_fig(app_data, nodes_graph, attr_link_graphs):
+    """TODO"""
+    ret = go.Figure(
+        data=attr_link_graphs + [nodes_graph],
+        layout={
+            "margin": {
+                "l": 0, "r": 0, "t": 0, "b": 0
+            },
+            "showlegend": False,
+            "xaxis": {
+                "range": app_data["main_fig_xaxis_range"],
+                "tickmode": "array",
+                "tickvals": app_data["main_fig_xaxis_tickvals"],
+                "visible": False
+            },
+            "yaxis": {
+                "range": app_data["main_fig_yaxis_range"],
+                "tickmode": "array",
+                "tickvals": app_data["main_fig_yaxis_tickvals"],
+                "visible": False
+            },
+            "plot_bgcolor": "white"
+        },
+    )
+
+    ret.update_traces(marker_size=8)
+    ret.update_traces(mode="markers",
+                      selector={"mode": "markers+text"})
+    ret.update_traces(line_width=1)
+
+    return ret
+
+
+def get_main_figs(app_data):
+    """Get main fig in viz.TODO
+
+    :param app_data: ``data_parser.get_app_data`` ret val
+    :type app_data: dict
+    :return: Plotly figure object that shows main fig in viz
+    :rtype: go.Figure
+    """
+    nodes_graph = get_main_fig_nodes(app_data)
+    attr_link_graphs = get_main_fig_attr_link_graphs(app_data)
+    attr_link_label_graphs = get_main_fig_attr_link_label_graphs(app_data)
+    primary_facet_lines_graph = get_main_fig_primary_facet_lines(app_data)
+    secondary_facet_lines_graph = get_main_fig_secondary_facet_lines(app_data)
+
+    main_fig = get_main_fig(app_data,
+                            nodes_graph,
+                            attr_link_graphs,
+                            attr_link_label_graphs,
+                            primary_facet_lines_graph,
+                            secondary_facet_lines_graph)
+    zoomed_out_main_fig = get_zoomed_out_main_fig(app_data,
+                                                  nodes_graph,
+                                                  attr_link_graphs)
+
+    return main_fig, zoomed_out_main_fig

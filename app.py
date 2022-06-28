@@ -12,7 +12,7 @@ import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 
 from data_parser import get_app_data
-from main_fig_generator import get_main_fig
+from main_fig_generator import get_main_figs
 from legend_fig_generator import (get_node_symbol_legend_fig,
                                   get_link_legend_fig,
                                   get_node_color_legend_fig)
@@ -71,7 +71,9 @@ def launch_app(_):
                             dbc.Tab(
                                 dcc.Graph(
                                     figure={},
-                                    id="zoomed-out-main-graph"
+                                    id="zoomed-out-main-graph",
+                                    style={"height": "85vh",
+                                           "width": "75vw"}
                                 ),
                                 label="Zoomed out",
                                 style={"height": "90vh",
@@ -358,6 +360,7 @@ def update_ranges(relayout_data, dragmode):
     output=[
         Output("main-graph", "figure"),
         Output("main-graph", "style"),
+        Output("zoomed-out-main-graph", "figure"),
         Output("node-shape-legend-graph", "figure"),
         Output("link-legend-graph", "figure"),
         Output("node-color-legend-graph", "figure"),
@@ -366,7 +369,7 @@ def update_ranges(relayout_data, dragmode):
 )
 def update_main_viz(selected_nodes, xaxis_range, yaxis_range, _,
                     sample_file_contents, config_file_contents, dragmode):
-    """Update main graph and legends.
+    """Update main graph and legends. TODO
 
     Current triggers:
 
@@ -412,22 +415,23 @@ def update_main_viz(selected_nodes, xaxis_range, yaxis_range, _,
                                 xaxis_range=xaxis_range,
                                 yaxis_range=yaxis_range,
                                 selected_nodes=selected_nodes)
-        new_main_fig = get_main_fig(app_data)
+        main_fig, zoomed_out_main_fig = get_main_figs(app_data)
     elif trigger == "viz-btn.n_clicks":
         app_data = get_app_data(sample_file_base64_str, config_file_base64_str)
-        new_main_fig = get_main_fig(app_data)
+        main_fig, zoomed_out_main_fig = get_main_figs(app_data)
     else:
         msg = "Unexpected trigger trying to update main graph: %s" % trigger
         raise RuntimeError(msg)
 
     main_fig_style = {"height": app_data["main_fig_height"],
-                      "width": app_data["main_fig_width"]}
+                                "width": app_data["main_fig_width"]}
     node_symbol_legend_fig = get_node_symbol_legend_fig(app_data)
     link_legend_fig = get_link_legend_fig(app_data)
     node_color_legend_fig = get_node_color_legend_fig(app_data)
 
-    return (new_main_fig,
+    return (main_fig,
             main_fig_style,
+            zoomed_out_main_fig,
             node_symbol_legend_fig,
             link_legend_fig,
             node_color_legend_fig)
