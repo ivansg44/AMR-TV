@@ -61,7 +61,8 @@ def launch_app(_):
                             dbc.Tab(
                                 dcc.Graph(
                                     figure={},
-                                    id="main-graph"
+                                    id="main-graph",
+                                    config={"displayModeBar": False}
                                 ),
                                 label="Zoomed in",
                                 style={"height": "90vh",
@@ -72,6 +73,7 @@ def launch_app(_):
                                 dcc.Graph(
                                     figure={},
                                     id="zoomed-out-main-graph",
+                                    config={"displayModeBar": False},
                                     style={"height": "85vh",
                                            "width": "75vw"}
                                 ),
@@ -145,6 +147,7 @@ def launch_app(_):
             id="upload-data-modal"
         ),
         dcc.Store(id="selected-nodes", data={}),
+        # TODO remove ranges and dragmode
         dcc.Store(id="xaxis-range"),
         dcc.Store(id="yaxis-range"),
         dcc.Store(id="dragmode", data="zoom"),
@@ -304,6 +307,7 @@ def select_nodes(click_data, selected_nodes):
 )
 def update_ranges(relayout_data, dragmode):
     """Update axes range and drag mode browser vars after relayout.
+    TODO remove this
 
     :param relayout_data: Information on graph after automatic Plotly-
         or user-driven layout updates
@@ -370,6 +374,7 @@ def update_ranges(relayout_data, dragmode):
 def update_main_viz(selected_nodes, xaxis_range, yaxis_range, _,
                     sample_file_contents, config_file_contents, dragmode):
     """Update main graph and legends. TODO
+    TODO remove dragmode
 
     Current triggers:
 

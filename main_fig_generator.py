@@ -236,6 +236,7 @@ def get_main_fig(app_data, nodes_graph,attr_link_graphs,
             "showlegend": False,
             "xaxis": {
                 "range": app_data["main_fig_xaxis_range"],
+                "fixedrange": True,
                 "tickmode": "array",
                 "tickvals": app_data["main_fig_xaxis_tickvals"],
                 "ticktext": app_data["main_fig_xaxis_ticktext"],
@@ -246,6 +247,7 @@ def get_main_fig(app_data, nodes_graph,attr_link_graphs,
             },
             "yaxis": {
                 "range": app_data["main_fig_yaxis_range"],
+                "fixedrange": True,
                 "tickmode": "array",
                 "tickvals": app_data["main_fig_yaxis_tickvals"],
                 "ticktext": app_data["main_fig_yaxis_ticktext"],
@@ -271,12 +273,14 @@ def get_zoomed_out_main_fig(app_data, nodes_graph, attr_link_graphs):
             "showlegend": False,
             "xaxis": {
                 "range": app_data["main_fig_xaxis_range"],
+                "fixedrange": True,
                 "tickmode": "array",
                 "tickvals": app_data["main_fig_xaxis_tickvals"],
                 "visible": False
             },
             "yaxis": {
                 "range": app_data["main_fig_yaxis_range"],
+                "fixedrange": True,
                 "tickmode": "array",
                 "tickvals": app_data["main_fig_yaxis_tickvals"],
                 "visible": False
