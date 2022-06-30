@@ -6,7 +6,7 @@ Running this script launches the application.
 import dash
 from dash import Dash
 from dash.dash import no_update
-from dash.dependencies import Input, Output, State
+from dash.dependencies import ClientsideFunction, Input, Output, State
 from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
@@ -64,6 +64,8 @@ def launch_app(_):
                                     id="main-graph",
                                     config={"displayModeBar": False}
                                 ),
+                                id="main-graph-tab",
+                                tab_id="main-graph-tab",
                                 label="Zoomed in",
                                 style={"height": "90vh",
                                        "width": "80vw",
@@ -77,11 +79,13 @@ def launch_app(_):
                                     style={"height": "85vh",
                                            "width": "75vw"}
                                 ),
+                                id="zoomed-out-main-graph-tab",
                                 label="Zoomed out",
                                 style={"height": "90vh",
                                        "width": "80vw"}
                             )
-                        ]
+                        ],
+                        id="main-viz-tabs"
                     )
                 ),
                 dbc.Col(
@@ -441,6 +445,17 @@ def update_main_viz(selected_nodes, xaxis_range, yaxis_range, _,
             link_legend_fig,
             node_color_legend_fig)
 
+
+app.clientside_callback(
+    ClientsideFunction(
+        namespace="clientside",
+        function_name="scrollToNode"
+    ),
+    Output("main-viz-tabs", "active_tab"),
+    Output("zoomed-out-main-graph", "clickData"),
+    Input("zoomed-out-main-graph", "clickData"),
+    prevent_initial_call=True
+)
 
 if __name__ == "__main__":
     app.run_server(debug=True)
