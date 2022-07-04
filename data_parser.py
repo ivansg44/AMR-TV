@@ -13,7 +13,7 @@ from expression_evaluator import eval_expr
 
 
 def get_app_data(sample_file_base64_str, config_file_base64_str,
-                 selected_nodes=None, xaxis_range=None, yaxis_range=None):
+                 selected_nodes=None):
     """Get data from uploaded file that is used to generate viz.
 
     :param sample_file_base64_str: Base64 encoded str corresponding to
@@ -24,10 +24,6 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     :type config_file_base64_str: str
     :param selected_nodes: Nodes selected by user
     :type selected_nodes: dict
-    :param xaxis_range: Main graph x-axis min and max val
-    :type xaxis_range: list
-    :param yaxis_range: Main graph y-axis min and max val
-    :type yaxis_range: list
     :return: Data derived from sample data, used to generate viz
     :rtype: dict
     """
@@ -111,22 +107,22 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         node_color_attr_dict = {}
         main_fig_nodes_marker_color = "lightgrey"
 
+    label_attr = config_file_dict["label_attr"]
+    main_fig_nodes_text = \
+        ["<b>%s</b>" % v[label_attr] for v in sample_data_dict.values()]
+
     main_fig_nodes_hovertext = \
         get_main_fig_nodes_hovertext(sample_data_dict,
+                                     main_fig_nodes_text,
+                                     date_list,
+                                     track_list,
                                      config_file_dict["attr_link_list"])
 
-    default_xaxis_range = [0.5, len(date_x_vals_dict) + 0.5]
-    default_yaxis_range = [0.5, sum(max_node_count_at_track_dict.values())+0.5]
-    if not xaxis_range:
-        xaxis_range = default_xaxis_range
-    if not yaxis_range:
-        yaxis_range = default_yaxis_range
+    xaxis_range = [0.5, len(date_x_vals_dict) + 0.5]
+    yaxis_range = [0.5, sum(max_node_count_at_track_dict.values())+0.5]
 
     main_fig_height = get_main_fig_height(max_node_count_at_track_dict)
     main_fig_width = len(date_x_vals_dict) * 144
-
-    link_parallel_translation = \
-        get_link_parallel_translation(default_yaxis_range, yaxis_range)
 
     sample_links_dict = get_sample_links_dict(
         sample_data_dict=sample_data_dict,
@@ -147,8 +143,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         main_fig_nodes_y_dict=main_fig_nodes_y_dict,
         selected_samples=selected_samples,
         main_fig_height=main_fig_height,
-        main_fig_width=main_fig_width,
-        link_parallel_translation=link_parallel_translation
+        main_fig_width=main_fig_width
     )
 
     main_fig_attr_link_labels_dict = get_main_fig_attr_link_labels_dict(
@@ -158,16 +153,11 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         selected_samples=selected_samples,
         main_fig_height=main_fig_height,
         main_fig_width=main_fig_width,
-        link_parallel_translation=link_parallel_translation,
         weights=config_file_dict["weights"]
     )
 
     main_fig_attr_link_tips_dict = \
         get_main_fig_attr_link_tips_dict(main_fig_attr_links_dict)
-
-    label_attr = config_file_dict["label_attr"]
-    main_fig_nodes_text = \
-        ["<b>%s</b>" % v[label_attr] for v in sample_data_dict.values()]
 
     if selected_samples:
         ss = selected_samples
@@ -221,12 +211,11 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         "attr_link_color_dict": attr_link_color_dict,
         "main_fig_attr_link_tips_dict": main_fig_attr_link_tips_dict,
         "main_fig_primary_facet_x":
-            get_main_fig_primary_facet_x(default_xaxis_range,
-                                         num_of_primary_facets),
+            get_main_fig_primary_facet_x(xaxis_range, num_of_primary_facets),
         "main_fig_primary_facet_y":
             get_main_fig_primary_facet_y(max_node_count_at_track_dict),
         "main_fig_secondary_facet_x":
-            get_main_fig_secondary_facet_x(default_xaxis_range,
+            get_main_fig_secondary_facet_x(xaxis_range,
                                            num_of_secondary_facets),
         "main_fig_secondary_facet_y":
             get_main_fig_secondary_facet_y(max_node_count_at_track_dict),
@@ -590,39 +579,9 @@ def get_attr_link_color_dict(sample_links_dict):
     return ret
 
 
-def get_link_parallel_translation(default_yaxis_range, yaxis_range):
-    """Get min distance 2 links b/w same nodes are parallel shifted.
-
-    We want the min distance when the main graph is not zoomed in to be
-    0.05 wrt the scale of the y-axis. As the fig is zoomed in, we want
-    the distance to remain the same on the computer screen, so we
-    adjust accordingly.
-
-    :param default_yaxis_range: y-axis range when main graph first
-        loads.
-    :type default_yaxis_range: list
-    :param yaxis_range: Main graph y-axis min and max val
-    :type yaxis_range: list
-    :return: Min parallel translation distance b/w two links connecting
-        the same nodes.
-    :rtype: float
-    """
-    default_yaxis_range_len = default_yaxis_range[1] - default_yaxis_range[0]
-
-    # a is a variable we will multiply by zoomed in y-axis range lens
-    # to get a zoomed in min distance.
-    a = 0.05 / default_yaxis_range_len
-
-    yaxis_range_len = yaxis_range[1] - yaxis_range[0]
-    ret = yaxis_range_len * a
-
-    return ret
-
-
 def get_main_fig_attr_links_dict(sample_links_dict, main_fig_nodes_x_dict,
                                  main_fig_nodes_y_dict, selected_samples,
-                                 main_fig_height, main_fig_width,
-                                 link_parallel_translation):
+                                 main_fig_height, main_fig_width):
     """Get dict with info used by Plotly to viz links in main graph.
 
     :param sample_links_dict: ``get_sample_links_dict`` ret val
@@ -637,14 +596,12 @@ def get_main_fig_attr_links_dict(sample_links_dict, main_fig_nodes_x_dict,
     :type main_fig_height: int
     :param main_fig_width: Width for main fig
     :type main_fig_width: int
-    :param link_parallel_translation: Min distance links between the
-        same nodes must be parallel translated.
-    :type link_parallel_translation: float
     :return: Dict with info used by Plotly to viz links in main graph
     :rtype: dict
     """
     ret = {}
     translation_dict = {}
+    link_parallel_translation = 0.05
     for attr in sample_links_dict:
         ret[attr] = {
             "opaque": {"x": [], "y": []},
@@ -707,7 +664,7 @@ def get_main_fig_attr_link_labels_dict(sample_links_dict,
                                        main_fig_nodes_x_dict,
                                        main_fig_nodes_y_dict, selected_samples,
                                        main_fig_height, main_fig_width,
-                                       link_parallel_translation, weights):
+                                       weights):
     """Get dict with info used by Plotly to viz link labels.
 
     TODO: there may be a better way to do this. Certainly, the code
@@ -732,9 +689,6 @@ def get_main_fig_attr_link_labels_dict(sample_links_dict,
     :type main_fig_height: int
     :param main_fig_width: Width for main fig
     :type main_fig_width: int
-    :param link_parallel_translation: Min distance links between the
-        same nodes must be parallel translated.
-    :type link_parallel_translation: float
     :param weights: Dictionary of expressions used to assign weights to
         specific attr links
     :type weights: dict
@@ -744,6 +698,7 @@ def get_main_fig_attr_link_labels_dict(sample_links_dict,
     ret = {}
     label_count_dict = {}
     min_multiplier = len(sample_links_dict)/2 + 1
+    link_parallel_translation = 0.05
     total_translation = min_multiplier * link_parallel_translation
     for attr in sample_links_dict:
         if attr not in weights:
@@ -1004,11 +959,18 @@ def get_main_fig_nodes_y_dict(sample_data_dict, date_attr,
     return main_fig_nodes_y_dict
 
 
-def get_main_fig_nodes_hovertext(sample_data_dict, attr_link_list):
+def get_main_fig_nodes_hovertext(sample_data_dict, main_fig_nodes_text,
+                                 date_list, track_list, attr_link_list):
     """Get hovertext for nodes in main fig.
 
     :param sample_data_dict: Sample file data parsed into dict obj
     :type sample_data_dict: dict
+    :param main_fig_nodes_text: List of node labels wrt all nodes
+    :type main_fig_nodes_text: list[str]
+    :param date_list: List of sample dates wrt all nodes
+    :type date_list: list
+    :param track_list: List of sample tracks wrt all nodes
+    :type track_list: list
     :param attr_link_list: list of attrs to include in ret dict
     :type attr_link_list: list[str]
     :return: List of d3-formatted text to display on hover across all
@@ -1016,9 +978,12 @@ def get_main_fig_nodes_hovertext(sample_data_dict, attr_link_list):
     :rtype: list[str]
     """
     ret = []
-    for sample in sample_data_dict:
+    for i, sample in enumerate(sample_data_dict):
         sample_data = sample_data_dict[sample]
-        sample_label_vals = []
+        sample_label_vals = [main_fig_nodes_text[i],
+                             date_list[i],
+                             str(track_list[i]),
+                             ""]
         for attr in attr_link_list:
             if attr[0] == "(" and attr[-1] == ")":
                 attr_list = attr[1:-1].split(";")
@@ -1034,14 +999,13 @@ def get_main_fig_nodes_hovertext(sample_data_dict, attr_link_list):
     return ret
 
 
-def get_main_fig_primary_facet_x(default_xaxis_range, num_of_facets):
+def get_main_fig_primary_facet_x(xaxis_range, num_of_facets):
     """Get x vals for lines used to split main graph by primary y.
 
     The primary y is the first y attr used to generate tracks.
 
-    :param default_xaxis_range: Main graph x-axis min and max val,
-        without any zooming or panning.
-    :type default_xaxis_range: list
+    :param xaxis_range: Main graph x-axis min and max val
+    :type xaxis_range: list
     :param num_of_facets: Number of lines to draw
     :type num_of_facets: int
     :return: List of x vals Plotly needs to draw lines splitting main
@@ -1049,7 +1013,7 @@ def get_main_fig_primary_facet_x(default_xaxis_range, num_of_facets):
     :rtype: list
     """
     main_fig_facet_x = []
-    [xmin, xmax] = default_xaxis_range
+    [xmin, xmax] = xaxis_range
     for i in range(0, num_of_facets):
         main_fig_facet_x += [xmin, xmax, None]
     return main_fig_facet_x
@@ -1081,12 +1045,11 @@ def get_main_fig_primary_facet_y(max_node_count_at_track_dict):
     return main_fig_facet_y
 
 
-def get_main_fig_secondary_facet_x(default_xaxis_range, num_of_facets):
+def get_main_fig_secondary_facet_x(xaxis_range, num_of_facets):
     """Get x vals for lines used to split main graph into tracks.
 
-    :param default_xaxis_range: Main graph x-axis min and max val,
-        without any zooming or panning.
-    :type default_xaxis_range: list
+    :param xaxis_range: Main graph x-axis min and max val
+    :type xaxis_range: list
     :param num_of_facets: Number of lines to draw
     :type num_of_facets: int
     :return: List of x vals Plotly needs to draw lines splitting main
@@ -1094,7 +1057,7 @@ def get_main_fig_secondary_facet_x(default_xaxis_range, num_of_facets):
     :rtype: list
     """
     main_fig_facet_x = []
-    [xmin, xmax] = default_xaxis_range
+    [xmin, xmax] = xaxis_range
     for i in range(0, num_of_facets):
         main_fig_facet_x += [xmin, xmax, None]
     return main_fig_facet_x

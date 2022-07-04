@@ -6,13 +6,13 @@ Running this script launches the application.
 import dash
 from dash import Dash
 from dash.dash import no_update
-from dash.dependencies import Input, Output, State
+from dash.dependencies import ClientsideFunction, Input, Output, State
 from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 
 from data_parser import get_app_data
-from main_fig_generator import get_main_fig
+from main_fig_generator import get_main_figs
 from legend_fig_generator import (get_node_symbol_legend_fig,
                                   get_link_legend_fig,
                                   get_node_color_legend_fig)
@@ -56,13 +56,37 @@ def launch_app(_):
         dbc.Row(
             children=[
                 dbc.Col(
-                    children=dcc.Graph(
-                        figure={},
-                        id="main-graph"
-                    ),
-                    style={"height": "90vh",
-                           "width": "80vw",
-                           "overflow": "scroll"}
+                    dbc.Tabs(
+                        children=[
+                            dbc.Tab(
+                                dcc.Graph(
+                                    figure={},
+                                    id="main-graph",
+                                    config={"displayModeBar": False}
+                                ),
+                                id="main-graph-tab",
+                                tab_id="main-graph-tab",
+                                label="Zoomed in",
+                                style={"height": "90vh",
+                                       "width": "80vw",
+                                       "overflow": "scroll"}
+                            ),
+                            dbc.Tab(
+                                dcc.Graph(
+                                    figure={},
+                                    id="zoomed-out-main-graph",
+                                    config={"displayModeBar": False},
+                                    style={"height": "85vh",
+                                           "width": "75vw"}
+                                ),
+                                id="zoomed-out-main-graph-tab",
+                                label="Zoomed out",
+                                style={"height": "90vh",
+                                       "width": "80vw"}
+                            )
+                        ],
+                        id="main-viz-tabs"
+                    )
                 ),
                 dbc.Col(
                     children=[
@@ -127,9 +151,6 @@ def launch_app(_):
             id="upload-data-modal"
         ),
         dcc.Store(id="selected-nodes", data={}),
-        dcc.Store(id="xaxis-range"),
-        dcc.Store(id="yaxis-range"),
-        dcc.Store(id="dragmode", data="zoom"),
         dcc.Store("new-upload")
     ]
 
@@ -275,112 +296,45 @@ def select_nodes(click_data, selected_nodes):
 
 
 @app.callback(
-    inputs=Input("main-graph", "relayoutData"),
-    state= State("dragmode", "data"),
-    output=[
-        Output("xaxis-range", "data"),
-        Output("yaxis-range", "data"),
-        Output("dragmode", "data")
-    ],
-    prevent_initial_call=True
-)
-def update_ranges(relayout_data, dragmode):
-    """Update axes range and drag mode browser vars after relayout.
-
-    :param relayout_data: Information on graph after automatic Plotly-
-        or user-driven layout updates
-    :type relayout_data: dict
-    :param dragmode: Current dragmode of main graph Plotly fig
-    :type dragmode: str
-    :return: New xaxis and yaxis ranges, and new dragmode
-    :rtype: (list, list, str)
-    :raises PreventUpdate: In certain situations, we do not want to
-        update anything.
-    """
-    # Fires when figure first loads
-    if "autosize" in relayout_data:
-        raise PreventUpdate
-
-    # When fig gets autoscaled or reset
-    autorange_keys = ["xaxis.autorange", "yaxis.autorange"]
-    if any(k in relayout_data for k in autorange_keys):
-        return None, None, "zoom"
-
-    # User decides to show spikes
-    showspikes_keys = ["xaxis.showspikes", "yaxis.showspikes"]
-    if any(k in relayout_data for k in showspikes_keys):
-        raise PreventUpdate
-
-    # Switching b/w zoom, pan, lasso, etc.
-    if "dragmode" in relayout_data:
-        return no_update, no_update, relayout_data["dragmode"]
-
-    try:
-        x1 = relayout_data["xaxis.range[0]"]
-        x2 = relayout_data["xaxis.range[1]"]
-        y1 = relayout_data["yaxis.range[0]"]
-        y2 = relayout_data["yaxis.range[1]"]
-    except KeyError:
-        return None, None, no_update
-
-    # Range actually got modified
-    return [x1, x2], [y1, y2], dragmode
-
-
-@app.callback(
     inputs=[
         Input("selected-nodes", "data"),
-        Input("xaxis-range", "data"),
-        Input("yaxis-range", "data"),
         Input("viz-btn", "n_clicks")
     ],
     state=[
         State("upload-sample-file", "contents"),
-        State("upload-config-file", "contents"),
-        State("dragmode", "data")
+        State("upload-config-file", "contents")
     ],
     output=[
         Output("main-graph", "figure"),
         Output("main-graph", "style"),
+        Output("zoomed-out-main-graph", "figure"),
         Output("node-shape-legend-graph", "figure"),
         Output("link-legend-graph", "figure"),
         Output("node-color-legend-graph", "figure"),
     ],
     prevent_initial_call=True
 )
-def update_main_viz(selected_nodes, xaxis_range, yaxis_range, _,
-                    sample_file_contents, config_file_contents, dragmode):
-    """Update main graph and legends.
+def update_main_viz(selected_nodes, _, sample_file_contents,
+                    config_file_contents):
+    """Update main graph, zoomed-out main graph, and legends.
 
     Current triggers:
 
     * User clicks viz btn (after uploading data)
-    * User selects node
-    * User zooms/pans across main graph
+    * User selects node in main graph
 
     :param selected_nodes: Currently selected nodes
     :type selected_nodes: dict
-    :param xaxis_range: [xmin, xmax]
-    :type xaxis_range: list
-    :param yaxis_range: [ymin, ymax]
-    :type yaxis_range: list
     :param _: User clicked viz btn
     :param sample_file_contents: Contents of uploaded sample file
     :type sample_file_contents: str
     :param config_file_contents: Contents of uploaded config file
     :type config_file_contents: str
-    :param dragmode: Current dragmode for main graph Plotly fig
-    :type dragmode: str
     :return: New main graph (including height) and legends
     :rtype: tuple[plotly.graph_objects.Figure]
     """
     ctx = dash.callback_context
     trigger = ctx.triggered[0]["prop_id"]
-
-    # Do not update if range changed due to user panning graph
-    if trigger in ["xaxis-range.data", "yaxis-range.data"]:
-        if dragmode == "pan":
-            raise PreventUpdate
 
     if None in [sample_file_contents, config_file_contents]:
         raise PreventUpdate
@@ -388,34 +342,44 @@ def update_main_viz(selected_nodes, xaxis_range, yaxis_range, _,
     sample_file_base64_str = sample_file_contents.split(",")[1]
     config_file_base64_str = config_file_contents.split(",")[1]
 
-    if trigger in ["selected-nodes.data",
-                   "xaxis-range.data",
-                   "yaxis-range.data"]:
+    if trigger == "selected-nodes.data":
         app_data = get_app_data(sample_file_base64_str,
                                 config_file_base64_str,
-                                xaxis_range=xaxis_range,
-                                yaxis_range=yaxis_range,
                                 selected_nodes=selected_nodes)
-        new_main_fig = get_main_fig(app_data)
+        main_fig, zoomed_out_main_fig = get_main_figs(app_data)
     elif trigger == "viz-btn.n_clicks":
         app_data = get_app_data(sample_file_base64_str, config_file_base64_str)
-        new_main_fig = get_main_fig(app_data)
+        main_fig, zoomed_out_main_fig = get_main_figs(app_data)
     else:
         msg = "Unexpected trigger trying to update main graph: %s" % trigger
         raise RuntimeError(msg)
 
     main_fig_style = {"height": app_data["main_fig_height"],
-                      "width": app_data["main_fig_width"]}
+                                "width": app_data["main_fig_width"]}
     node_symbol_legend_fig = get_node_symbol_legend_fig(app_data)
     link_legend_fig = get_link_legend_fig(app_data)
     node_color_legend_fig = get_node_color_legend_fig(app_data)
 
-    return (new_main_fig,
+    return (main_fig,
             main_fig_style,
+            zoomed_out_main_fig,
             node_symbol_legend_fig,
             link_legend_fig,
             node_color_legend_fig)
 
+
+# Switch to main graph tab and scroll to corresponding node, after
+# clicking node in zoomed-out main graph.
+app.clientside_callback(
+    ClientsideFunction(
+        namespace="clientside",
+        function_name="scrollToNode"
+    ),
+    Output("main-viz-tabs", "active_tab"),
+    Output("zoomed-out-main-graph", "clickData"),
+    Input("zoomed-out-main-graph", "clickData"),
+    prevent_initial_call=True
+)
 
 if __name__ == "__main__":
     app.run_server(debug=True)
