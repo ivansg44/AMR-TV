@@ -961,10 +961,16 @@ def get_main_fig_nodes_y_dict(sample_data_dict, date_attr,
 
 def get_main_fig_nodes_hovertext(sample_data_dict, main_fig_nodes_text,
                                  date_list, track_list, attr_link_list):
-    """Get hovertext for nodes in main fig.TODO
+    """Get hovertext for nodes in main fig.
 
     :param sample_data_dict: Sample file data parsed into dict obj
     :type sample_data_dict: dict
+    :param main_fig_nodes_text: List of node labels wrt all nodes
+    :type main_fig_nodes_text: list[str]
+    :param date_list: List of sample dates wrt all nodes
+    :type date_list: list
+    :param track_list: List of sample tracks wrt all nodes
+    :type track_list: list
     :param attr_link_list: list of attrs to include in ret dict
     :type attr_link_list: list[str]
     :return: List of d3-formatted text to display on hover across all

@@ -5,7 +5,13 @@
 window.dash_clientside = Object.assign({}, window.dash_clientside, {
   clientside: {
     /**
-     * TODO
+     * Switch to main graph, and scroll to corresponding node, after
+     * user clicks node in zoomed-out main graph.
+     * @param {Object} clickData Plotly object containing info on last node
+     *     clicked in zoomed-out main graph.
+     * @return {Array.<?string>} The id of the main graph tab, which is made
+     *     active, and a null value, which is used to reset the last node
+     *     clicked.
      */
     scrollToNode: (clickData) => {
       const mainGraph = document.getElementById('main-graph');

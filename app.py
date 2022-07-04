@@ -316,12 +316,12 @@ def select_nodes(click_data, selected_nodes):
 )
 def update_main_viz(selected_nodes, _, sample_file_contents,
                     config_file_contents):
-    """Update main graph and legends. TODO
+    """Update main graph, zoomed-out main graph, and legends.
 
     Current triggers:
 
     * User clicks viz btn (after uploading data)
-    * User selects node
+    * User selects node in main graph
 
     :param selected_nodes: Currently selected nodes
     :type selected_nodes: dict
@@ -368,6 +368,8 @@ def update_main_viz(selected_nodes, _, sample_file_contents,
             node_color_legend_fig)
 
 
+# Switch to main graph tab and scroll to corresponding node, after
+# clicking node in zoomed-out main graph.
 app.clientside_callback(
     ClientsideFunction(
         namespace="clientside",
