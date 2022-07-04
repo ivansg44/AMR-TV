@@ -49,35 +49,20 @@ def get_main_fig_attr_link_graphs(app_data):
     """
     ret = []
     for attr in app_data["main_fig_attr_links_dict"]:
-        opaque_x = \
-            app_data["main_fig_attr_links_dict"][attr]["opaque"]["x"]
-        opaque_y = \
-            app_data["main_fig_attr_links_dict"][attr]["opaque"]["y"]
-        transparent_x = \
-            app_data["main_fig_attr_links_dict"][attr]["transparent"]["x"]
-        transparent_y = \
-            app_data["main_fig_attr_links_dict"][attr]["transparent"]["y"]
+        attr_x = app_data["main_fig_attr_links_dict"][attr]["x"]
+        attr_y = app_data["main_fig_attr_links_dict"][attr]["y"]
         (r, g, b) = app_data["attr_link_color_dict"][attr]
 
-        opaque_graph = go.Scatter(
-            x=[x if x else None for x in opaque_x],
-            y=[y if y else None for y in opaque_y],
+        attr_graph = go.Scatter(
+            x=[x if x else None for x in attr_x],
+            y=[y if y else None for y in attr_y],
             mode="lines",
             line={
                 "width": 3,
                 "color": "rgb(%s,%s,%s)" % (r, g, b)
             }
         )
-        transparent_graph = go.Scatter(
-            x=[x if x else None for x in transparent_x],
-            y=[y if y else None for y in transparent_y],
-            mode="lines",
-            line={
-                "width": 3,
-                "color": "rgba(%s,%s,%s, 0.5)" % (r, g, b)
-            }
-        )
-        ret += [opaque_graph, transparent_graph]
+        ret += [attr_graph]
 
     return ret
 
@@ -95,22 +80,15 @@ def get_main_fig_attr_link_label_graphs(app_data):
     """
     ret = []
     for attr in app_data["main_fig_attr_link_labels_dict"]:
-        opaque_dict = \
-            app_data["main_fig_attr_link_labels_dict"][attr]["opaque"]
-        opaque_x = opaque_dict["x"]
-        opaque_y = opaque_dict["y"]
-        opaque_text = opaque_dict["text"]
-        transparent_dict = \
-            app_data["main_fig_attr_link_labels_dict"][attr]["transparent"]
-        transparent_x = transparent_dict["x"]
-        transparent_y = transparent_dict["y"]
-        transparent_text = transparent_dict["text"]
+        attr_x = app_data["main_fig_attr_link_labels_dict"][attr]["x"]
+        attr_y = app_data["main_fig_attr_link_labels_dict"][attr]["y"]
+        attr_text = app_data["main_fig_attr_link_labels_dict"][attr]["text"]
         (r, g, b) = app_data["attr_link_color_dict"][attr]
 
-        opaque_graph = go.Scatter(
-            x=opaque_x,
-            y=opaque_y,
-            text=opaque_text,
+        attr_graph = go.Scatter(
+            x=attr_x,
+            y=attr_y,
+            text=attr_text,
             mode="text",
             textfont={
                 "color": "rgb(%s,%s,%s)" % (r, g, b),
@@ -118,58 +96,9 @@ def get_main_fig_attr_link_label_graphs(app_data):
             }
         )
 
-        transparent_graph = go.Scatter(
-            x=transparent_x,
-            y=transparent_y,
-            text=transparent_text,
-            mode="text"
-        )
-
-        ret += [opaque_graph, transparent_graph]
+        ret += [attr_graph]
 
     return ret
-
-
-def get_main_fig_attr_link_tip_graphs(app_data):
-    """Get plotly scatter objs of lin tips in main fig.
-
-    This is basically a list of different scatter objs--one for each
-    attr.
-
-    :param app_data: ``data_parser.get_app_data`` ret val
-    :type app_data: dict
-    :return: Plotly scatter objs of link tips in main fig
-    :rtype: list[go.Scatter]
-    """
-    opaque_x = \
-        app_data["main_fig_attr_link_tips_dict"]["opaque"]["x"]
-    opaque_y = \
-        app_data["main_fig_attr_link_tips_dict"]["opaque"]["y"]
-    transparent_x = \
-        app_data["main_fig_attr_link_tips_dict"]["transparent"]["x"]
-    transparent_y = \
-        app_data["main_fig_attr_link_tips_dict"]["transparent"]["y"]
-
-    opaque_graph = go.Scatter(
-        x=[x if x else None for x in opaque_x],
-        y=[y if y else None for y in opaque_y],
-        mode="lines",
-        line={
-            "width": 3,
-            "color": "black"
-        }
-    )
-    transparent_graph = go.Scatter(
-        x=[x if x else None for x in transparent_x],
-        y=[y if y else None for y in transparent_y],
-        mode="lines",
-        line={
-            "width": 3,
-            "color": "lightgrey"
-        }
-    )
-
-    return [opaque_graph, transparent_graph]
 
 
 def get_main_fig_primary_facet_lines(app_data):

@@ -156,9 +156,6 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         weights=config_file_dict["weights"]
     )
 
-    main_fig_attr_link_tips_dict = \
-        get_main_fig_attr_link_tips_dict(main_fig_attr_links_dict)
-
     if selected_samples:
         ss = selected_samples
         main_fig_nodes_textfont_color = \
@@ -209,7 +206,6 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         "main_fig_attr_links_dict": main_fig_attr_links_dict,
         "main_fig_attr_link_labels_dict": main_fig_attr_link_labels_dict,
         "attr_link_color_dict": attr_link_color_dict,
-        "main_fig_attr_link_tips_dict": main_fig_attr_link_tips_dict,
         "main_fig_primary_facet_x":
             get_main_fig_primary_facet_x(xaxis_range, num_of_primary_facets),
         "main_fig_primary_facet_y":
@@ -603,12 +599,14 @@ def get_main_fig_attr_links_dict(sample_links_dict, main_fig_nodes_x_dict,
     translation_dict = {}
     link_parallel_translation = 0.05
     for attr in sample_links_dict:
-        ret[attr] = {
-            "opaque": {"x": [], "y": []},
-            "transparent": {"x": [], "y": []}
-        }
+        ret[attr] = {"x": [], "y": []}
 
         for (sample, other_sample) in sample_links_dict[attr]:
+            selected_link = \
+                sample in selected_samples or other_sample in selected_samples
+            if selected_samples and not selected_link:
+                continue
+
             if (sample, other_sample) in translation_dict:
                 old_multiplier = translation_dict[(sample, other_sample)]
                 if old_multiplier == 0:
@@ -648,14 +646,8 @@ def get_main_fig_attr_links_dict(sample_links_dict, main_fig_nodes_x_dict,
                 y0 += -inverse_perpendicular_slope * x_translation
                 y1 += -inverse_perpendicular_slope * x_translation
 
-            selected_link = \
-                sample in selected_samples or other_sample in selected_samples
-            if selected_samples and not selected_link:
-                ret[attr]["transparent"]["x"] += [x0, x1, None]
-                ret[attr]["transparent"]["y"] += [y0, y1, None]
-            else:
-                ret[attr]["opaque"]["x"] += [x0, x1, None]
-                ret[attr]["opaque"]["y"] += [y0, y1, None]
+            ret[attr]["x"] += [x0, x1, None]
+            ret[attr]["y"] += [y0, y1, None]
 
     return ret
 
@@ -704,12 +696,14 @@ def get_main_fig_attr_link_labels_dict(sample_links_dict,
         if attr not in weights:
             continue
 
-        ret[attr] = {
-            "opaque": {"x": [], "y": [], "text": []},
-            "transparent": {"x": [], "y": [], "text": []}
-        }
+        ret[attr] = {"x": [], "y": [], "text": []}
 
         for (sample, other_sample) in sample_links_dict[attr]:
+            selected_link = \
+                sample in selected_samples or other_sample in selected_samples
+            if selected_samples and not selected_link:
+                continue
+
             if (sample, other_sample) in label_count_dict:
                 label_count_dict[(sample, other_sample)] += 1
                 label_count = label_count_dict[(sample, other_sample)]
@@ -745,78 +739,10 @@ def get_main_fig_attr_link_labels_dict(sample_links_dict,
             ymid = (y0 + y1) / 2
             weight = sample_links_dict[attr][(sample, other_sample)]
 
-            selected_link = \
-                sample in selected_samples or other_sample in selected_samples
-            if selected_samples and not selected_link:
-                ret[attr]["transparent"]["x"].append(xmid)
-                ret[attr]["transparent"]["y"].append(ymid)
-                ret[attr]["transparent"]["text"].append(weight)
-            else:
-                ret[attr]["opaque"]["x"].append(xmid)
-                ret[attr]["opaque"]["y"].append(ymid)
-                ret[attr]["opaque"]["text"].append(weight)
+            ret[attr]["x"].append(xmid)
+            ret[attr]["y"].append(ymid)
+            ret[attr]["text"].append(weight)
 
-    return ret
-
-
-def get_main_fig_attr_link_tips_dict(main_fig_attr_links_dict):
-    """Get dict used to draw black tips on links in main viz.
-
-    :param main_fig_attr_links_dict: ``get_main_fig_attr_links_dict``
-        ret val.
-    :type main_fig_attr_links_dict: dict
-    :return: Dict with info used by plotly to draw black tips on main
-        viz.
-    :rtype: dict
-    """
-    ret = {
-        "opaque": {
-            "x": [],
-            "y": []
-        },
-        "transparent": {
-            "x": [],
-            "y": []
-        },
-    }
-    shortest_link = 100000
-    for attr in main_fig_attr_links_dict:
-        opaque_dict = main_fig_attr_links_dict[attr]["opaque"]
-        for i in range(0, len(opaque_dict["x"]), 3):
-            [x0, x1] = opaque_dict["x"][i:i+2]
-            [y0, y1] = opaque_dict["y"][i:i+2]
-            shortest_link = min(shortest_link,
-                                sqrt((x1 - x0)**2 + (y1 - y0)**2))
-    dt = shortest_link * 0.25
-
-    for attr in main_fig_attr_links_dict:
-        opaque_dict = main_fig_attr_links_dict[attr]["opaque"]
-        for i in range(0, len(opaque_dict["x"]), 3):
-            [x0, x1] = opaque_dict["x"][i:i+2]
-            [y0, y1] = opaque_dict["y"][i:i+2]
-
-            # https://math.stackexchange.com/a/1630886
-            d = sqrt((x1 - x0)**2 + (y1 - y0)**2)
-            t = dt / d
-            xt0 = (1 - t)*x0 + t*x1
-            yt0 = (1 - t)*y0 + t*y1
-            xt1 = (1 - t)*x1 + t*x0
-            yt1 = (1 - t)*y1 + t*y0
-            ret["opaque"]["x"] += \
-                [x0, xt0, None, xt1, x1, None]
-            ret["opaque"]["y"] += \
-                [y0, yt0, None, yt1, y1, None]
-
-        transparent_dict = main_fig_attr_links_dict[attr]["transparent"]
-        for i in range(0, len(transparent_dict["x"]), 3):
-            [x1, x2] = transparent_dict["x"][i:i+2]
-            [y1, y2] = transparent_dict["y"][i:i+2]
-            x_diff = x2 - x1
-            y_diff = y2 - y1
-            ret["transparent"]["x"] += \
-                [x1, x1+(x_diff*0.1), None, x2-(x_diff*0.1), x2, None]
-            ret["transparent"]["y"] += \
-                [y1, y1+(y_diff*0.1), None, y2-(y_diff*0.1), y2, None]
     return ret
 
 
