@@ -210,7 +210,8 @@ def get_main_fig(app_data, nodes_graph, attr_link_graphs,
     return ret
 
 
-def get_zoomed_out_main_fig(app_data, nodes_graph, attr_link_graphs):
+def get_zoomed_out_main_fig(app_data, nodes_graph, attr_link_graphs,
+                            primary_facet_lines_graph):
     """Get zoomed out main fig in viz.
 
     :param app_data: ``data_parser.get_app_data`` ret val
@@ -219,11 +220,14 @@ def get_zoomed_out_main_fig(app_data, nodes_graph, attr_link_graphs):
     :type nodes_graph: go.Scatter
     :param attr_link_graphs: Plotly scatter objs of links in main fig
     :type attr_link_graphs: list[go.Scatter]
+    :param primary_facet_lines_graph: Plotly scatter obj used to draw primary
+        facet lines in main fig.
+    :type primary_facet_lines_graph: go.Scatter
     :return: Plotly figure obj showing zoomed-out main fig in viz
     :rtype: go.Figure
     """
     ret = go.Figure(
-        data=attr_link_graphs + [nodes_graph],
+        data=attr_link_graphs + [nodes_graph, primary_facet_lines_graph],
         layout={
             "margin": {
                 "l": 0, "r": 0, "t": 0, "b": 0
@@ -278,6 +282,7 @@ def get_main_figs(app_data):
                             secondary_facet_lines_graph)
     zoomed_out_main_fig = get_zoomed_out_main_fig(app_data,
                                                   nodes_graph,
-                                                  attr_link_graphs)
+                                                  attr_link_graphs,
+                                                  primary_facet_lines_graph)
 
     return main_fig, zoomed_out_main_fig
