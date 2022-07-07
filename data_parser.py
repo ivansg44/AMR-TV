@@ -223,35 +223,43 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
 
 
 def get_unsorted_track_list(sample_data_dict, y_axes):
-    """Get an unsorted list of tracks assigned across all nodes.
+    """Get an unsorted list of tracks assigned across all nodes.TODO
 
-    If the y axes selected are "ham", "spam", and "eggs", the tracks
-    are (sample_1_ham, sample_1_spam, sample_1_eggs),
-    (sample_2_ham, sample_2_spam, sample_2_eggs), ...
+    Each track consists of a tuple of tuples. The inner tuples map to the inner lists of attrs specified in the config file y axes field. Each inner tuple permutation represents 1 val in the overall track represented by the outer tuple.
+
+    If the y axes selected are ["ham"], ["spam", "foo"], and ["eggs"], the tracks
+    are ((sample_1_ham,), (sample_1_spam, sample_1_foo,), (sample_1_eggs),),
+    ((sample_2_ham,), (sample_2_spam, sample_2_foo,), (sample_2_eggs,),). We use tuples because they are hashable, which allows us to plug in the ret val into a counter.
 
     :param sample_data_dict: ``get_sample_data_dict`` ret val
     :type sample_data_dict: dict
-    :param y_axes: List of attrs to use as hierarchical y axes
+    :param y_axes: List of lists, with each inner list corresponding to a permutation of attrs to use as 1 value in the overall track represented by the outer list. We ultimately switch to tuples in this fn.
     :type y_axes: list[str]
     :return: Unsorted list of tracks assigned across all nodes
-    :rtype: list[tuple[str]]
+    :rtype: list[tuple[tuple[str]]]
     """
     lists_to_zip = []
     vals = sample_data_dict.values()
-    for axis in y_axes:
-        lists_to_zip.append([val[axis] for val in vals])
+    for axis_list in y_axes:
+        lists_to_zip.append([tuple([i[j] for j in axis_list]) for i in vals])
     ret = list(zip(*lists_to_zip))
     return ret
 
 
 def sorting_key(track):
-    """Convert each val in a track to a tuple.
+    """Map track to a list of lists of tuples, for sorting purposes.TODO
 
-    The necessity of this is due to columns potentially having both int
-    and str vals. Inspiration from:
+    Basically, if a track is
+    ``(("ham",), ("spam", "foo",), ("eggs",),)``, we return
+    ``[[(tuple for ham,)], [(tuple for spam,), (tuple for foo,)],
+    [(tuple for eggs,)],]``. Each tuple consists of several values to
+    make sorting different tracks, which have may have vals of mixed
+    types for the same attr, easier.
+
+    Inspiration from:
     https://stackoverflow.com/a/34757358/11472358
 
-    We sort as follows:
+    We sort vals as follows:
 
     * None comes first
     * Sort ints next
@@ -263,19 +271,22 @@ def sorting_key(track):
     :rtype: list[tuple]
     """
     ret = []
-    for attr_val in track:
-        try:
-            ret.append((
-                attr_val is None,
-                0,
-                int(attr_val)
-             ))
-        except (TypeError, ValueError):
-            ret.append((
-                attr_val is None,
-                1,
-                attr_val
-             ))
+    for attr_tuple in track:
+        inner_ret = []
+        for attr in attr_tuple:
+            try:
+                inner_ret.append((
+                    attr is None,
+                    0,
+                    int(attr)
+                ))
+            except (TypeError, ValueError):
+                inner_ret.append((
+                    attr is None,
+                    1,
+                    attr
+                ))
+        ret.append(inner_ret)
     return ret
 
 
@@ -803,7 +814,7 @@ def get_main_fig_nodes_x_dict(sample_data_dict, date_attr, date_list,
 
 
 def get_max_node_count_at_track_dict(track_date_node_count_dict):
-    """Get the max number of nodes at one date in every track.
+    """Get the max number of nodes at one date in every track.TODO
 
     :param track_date_node_count_dict: Number of nodes at each track
         and date combination.
