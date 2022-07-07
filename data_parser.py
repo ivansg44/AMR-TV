@@ -1,4 +1,4 @@
-"""Parses sample file for data used in viz."""
+"""Parses sample file for data used in viz.TODO all docstrings for types"""
 
 from base64 import b64decode
 from collections import Counter
@@ -67,9 +67,9 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     main_fig_nodes_y_dict = get_main_fig_nodes_y_dict(
         sample_data_dict,
         date_attr=config_file_dict["date_attr"],
+        track_list=track_list,
         track_date_node_count_dict=track_date_node_count_dict,
         max_node_count_at_track_dict=max_node_count_at_track_dict,
-        y_axes=config_file_dict["y_axes"],
         track_y_vals_dict=track_y_vals_dict
     )
 
@@ -853,11 +853,10 @@ def get_track_y_vals_dict(max_node_count_at_track_dict):
     return ret
 
 
-def get_main_fig_nodes_y_dict(sample_data_dict, date_attr,
+def get_main_fig_nodes_y_dict(sample_data_dict, date_attr, track_list,
                               track_date_node_count_dict,
-                              max_node_count_at_track_dict, y_axes,
-                              track_y_vals_dict):
-    """Get dict mapping nodes to y vals.
+                              max_node_count_at_track_dict, track_y_vals_dict):
+    """Get dict mapping nodes to y vals.TODO
 
     :param sample_data_dict: Sample file data parsed into dict obj
     :rtype: dict
@@ -880,10 +879,9 @@ def get_main_fig_nodes_y_dict(sample_data_dict, date_attr,
                   for k, v in track_date_node_count_dict.items()}
 
     main_fig_nodes_y_dict = {}
-    for sample in sample_data_dict:
+    for i, sample in enumerate(sample_data_dict):
         sample_date = sample_data_dict[sample][date_attr]
-        sample_track = \
-            tuple((sample_data_dict[sample][axis] for axis in y_axes))
+        sample_track = track_list[i]
         [stagger, multiplier] = helper_obj[(sample_track, sample_date)]
 
         unstaggered_y = track_y_vals_dict[sample_track]
