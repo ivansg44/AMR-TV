@@ -42,14 +42,13 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
                                             config_file_dict["date_input"],
                                             config_file_dict["date_output"],
                                             config_file_dict["null_vals"])
+    sample_data_vals = sample_data_dict.values()
     enumerated_samples = enumerate(sample_data_dict)
     selected_samples = \
         {k for i, k in enumerated_samples if str(i) in selected_nodes}
 
-    date_list =\
-        [v[config_file_dict["date_attr"]] for v in sample_data_dict.values()]
-    datetime_list =\
-        [v["datetime_obj"] for v in sample_data_dict.values()]
+    date_list = [v[config_file_dict["date_attr"]] for v in sample_data_vals]
+    datetime_list = [v["datetime_obj"] for v in sample_data_vals]
     date_x_vals_dict = get_date_x_vals_dict(date_list=date_list,
                                             datetime_list=datetime_list)
     main_fig_nodes_x_dict = \
@@ -80,7 +79,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     node_symbol_attr = config_file_dict["node_symbol_attr"]
     if node_symbol_attr:
         node_symbol_attr_list = \
-            [v[node_symbol_attr] for v in sample_data_dict.values()]
+            [tuple([v[e] for e in node_symbol_attr]) for v in sample_data_vals]
         node_symbol_attr_dict = \
             get_node_symbol_attr_dict(node_symbol_attr_list)
         main_fig_nodes_marker_symbol = \
@@ -98,8 +97,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
 
     node_color_attr = config_file_dict["node_color_attr"]
     if node_color_attr:
-        node_color_attr_list = \
-            [v[node_color_attr] for v in sample_data_dict.values()]
+        node_color_attr_list = [v[node_color_attr] for v in sample_data_vals]
         node_color_attr_dict = get_node_color_attr_dict(node_color_attr_list)
         main_fig_nodes_marker_color = \
             [node_color_attr_dict[v] for v in node_color_attr_list]
@@ -109,7 +107,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
 
     label_attr = config_file_dict["label_attr"]
     main_fig_nodes_text = \
-        ["<b>%s</b>" % v[label_attr] for v in sample_data_dict.values()]
+        ["<b>%s</b>" % v[label_attr] for v in sample_data_vals]
 
     main_fig_nodes_hovertext = \
         get_main_fig_nodes_hovertext(sample_data_dict,
