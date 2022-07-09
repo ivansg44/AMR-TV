@@ -97,7 +97,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
 
     node_color_attr = config_file_dict["node_color_attr"]
     if node_color_attr:
-        node_color_attr_list = [v[node_color_attr] for v in sample_data_vals]
+        node_color_attr_list = \
+            [tuple([v[e] for e in node_color_attr]) for v in sample_data_vals]
         node_color_attr_dict = get_node_color_attr_dict(node_color_attr_list)
         main_fig_nodes_marker_color = \
             [node_color_attr_dict[v] for v in node_color_attr_list]
@@ -107,14 +108,15 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
 
     label_attr = config_file_dict["label_attr"]
     main_fig_nodes_text = \
-        ["<b>%s</b>" % v[label_attr] for v in sample_data_vals]
+        ["<br>".join(["<b>%s</b>" % v[e] for e in label_attr])
+         for v in sample_data_vals]
 
     main_fig_nodes_hovertext = \
         get_main_fig_nodes_hovertext(sample_data_dict,
                                      main_fig_nodes_text,
                                      date_list,
                                      track_list,
-                                     config_file_dict["attr_link_list"])
+                                     config_file_dict["links_config"])
 
     xaxis_range = [0.5, len(date_x_vals_dict) + 0.5]
     yaxis_range = [0.5, sum(max_node_count_at_track_dict.values())+0.5]
@@ -893,7 +895,7 @@ def get_main_fig_nodes_y_dict(sample_data_dict, date_attr, track_list,
 
 
 def get_main_fig_nodes_hovertext(sample_data_dict, main_fig_nodes_text,
-                                 date_list, track_list, attr_link_list):
+                                 date_list, track_list, links_config):
     """Get hovertext for nodes in main fig.
 
     :param sample_data_dict: Sample file data parsed into dict obj
@@ -911,23 +913,26 @@ def get_main_fig_nodes_hovertext(sample_data_dict, main_fig_nodes_text,
     :rtype: list[str]
     """
     ret = []
+    link_label_attrs_dict = {}
+    for link_label in links_config:
+        link_label_attrs = links_config[link_label]
+        link_label_attrs_dict[link_label] = \
+            dict.fromkeys(link_label_attrs["all_eq"]
+                          + link_label_attrs["all_neq"]
+                          + link_label_attrs["any_eq"])
     for i, sample in enumerate(sample_data_dict):
         sample_data = sample_data_dict[sample]
         sample_label_vals = [main_fig_nodes_text[i],
                              date_list[i],
                              str(track_list[i]),
                              ""]
-        for attr in attr_link_list:
-            if attr[0] == "(" and attr[-1] == ")":
-                attr_list = attr[1:-1].split(";")
-            else:
-                attr_list = attr.split(";")
-            attr_list = [e[1:] if e[0] == "~" else e for e in attr_list]
-            attr_list_vals = [sample_data[e] for e in attr_list]
-            attr_ = ";".join(attr_list)
-            attr_val = \
-                ";".join(["null" if e is None else e for e in attr_list_vals])
-            sample_label_vals.append("<b>%s</b>: %s" % (attr_, attr_val))
+        for link_label in links_config:
+            sample_label_vals.append("<b>" + link_label + "</b>:")
+            attrs = link_label_attrs_dict[link_label]
+            attr_vals = \
+                ["null" if e is None else sample_data[e] for e in attrs]
+            sample_label_vals += \
+                ["%s: %s" % (i, j) for i, j in zip(attrs, attr_vals)]
         ret.append("<br>".join(sample_label_vals))
     return ret
 
