@@ -163,9 +163,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     else:
         main_fig_nodes_textfont_color = "black"
 
-    main_fig_yaxis_ticktext = \
-        ["<br>".join(["null" if e is None else e for e in k])
-         for k in track_y_vals_dict]
+    main_fig_yaxis_ticktext = get_main_fig_yaxis_ticktext(track_y_vals_dict)
 
     app_data = {
         "node_shape_legend_fig_nodes_y":
@@ -844,6 +842,20 @@ def get_track_y_vals_dict(max_node_count_at_track_dict):
         node_count = max_node_count_at_track_dict[track]
         ret[track] = last_track_top_boundary + 1 + (node_count - 1)/2
         last_track_top_boundary += node_count
+    return ret
+
+
+def get_main_fig_yaxis_ticktext(track_y_vals_dict):
+    """TODO"""
+    ["<br>".join(["; ".join(["null" if k is None else k for k in j]) for j in i]) for i in track_y_vals_dict]
+    ret = []
+    for track in track_y_vals_dict:
+        inner_ret = []
+        for inner_track in track:
+            inner_ret.append(
+                "; ".join(["null" if e is None else e for e in inner_track])
+            )
+        ret.append("<br>".join(inner_ret))
     return ret
 
 
