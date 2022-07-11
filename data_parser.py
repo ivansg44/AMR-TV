@@ -126,7 +126,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
 
     sample_links_dict = get_sample_links_dict(
         sample_data_dict=sample_data_dict,
-        attr_link_list=config_file_dict["attr_link_list"],
+        links_config=config_file_dict["links_config"],
         primary_y=config_file_dict["y_axes"][0],
         links_across_primary_y=config_file_dict["links_across_primary_y"],
         max_day_range=config_file_dict["max_day_range"],
@@ -404,7 +404,7 @@ def get_node_color_attr_dict(node_color_attr_list):
     return node_color_attr_dict
 
 
-def get_sample_links_dict(sample_data_dict, attr_link_list, primary_y,
+def get_sample_links_dict(sample_data_dict, links_config, primary_y,
                           links_across_primary_y, max_day_range, weights,
                           weight_filters, attr_val_filters):
     """Get a dict of all links to viz in main graph.
@@ -437,124 +437,118 @@ def get_sample_links_dict(sample_data_dict, attr_link_list, primary_y,
     :return: Dict detailing links to viz in main graph
     :rtype: dict
     """
-    sample_links_dict = {k: {} for k in attr_link_list}
+    sample_links_dict = {k: {} for k in links_config}
     sample_list = list(sample_data_dict.keys())
     regex_obj = compile("!.*?!|@.*?@")
 
-    for attr in attr_link_list:
-        looking_for_any_overlap = False
-        if attr[0] == "(" and attr[-1] == ")":
-            looking_for_any_overlap = True
+    def get_sample_attr_list(sample_data, link_config_list):
+        """TODO"""
+        return [None
+                if (e in link_attr_filters
+                    and link_attr_filters[e] == sample_data[e])
+                else sample_data[e]
+                for e in link_config_list]
 
-        attr_list = []
-        disjoint_match_list = []
-        attr_split = \
-            (attr[1:-1] if looking_for_any_overlap else attr).split(";")
-        for attr_list_val in attr_split:
-            if attr_list_val[0] == "~":
-                disjoint_match_list.append(True)
-                attr_list.append(attr_list_val[1:])
-            else:
-                disjoint_match_list.append(False)
-                attr_list.append(attr_list_val)
+    for link_label in links_config:
+        link_attr_filters = attr_val_filters[link_label]
+
+        all_eq_list = links_config[link_label]["all_eq"]
+        all_neq_list = links_config[link_label]["all_neq"]
+        any_eq_list = links_config[link_label]["any_eq"]
 
         for i in range(len(sample_list)):
-            sample = sample_list[i]
+            sample_i = sample_list[i]
+            sample_i_data = sample_data_dict[sample_i]
+            sample_i_all_eq_list = \
+                get_sample_attr_list(sample_i_data, all_eq_list)
+            sample_i_all_neq_list = \
+                get_sample_attr_list(sample_i_data, all_neq_list)
+            sample_i_any_eq_list = \
+                get_sample_attr_list(sample_i_data, any_eq_list)
 
-            sample_attr_list = \
-                [sample_data_dict[sample][v] for v in attr_list]
-            # Bit of a complex comprehension. Basically, we replace any
-            # values in sample_attr_list that belong to a val specified
-            # for the attr in attr_val_filters with ``None``.
-            sample_attr_list = \
-                [y
-                 if
-                 x not in attr_val_filters or y not in attr_val_filters[x]
-                 else None
-                 for x, y in zip(attr_list, sample_attr_list)]
+            for j in range(i + 1, len(sample_list)):
+                sample_j = sample_list[j]
+                sample_j_data = sample_data_dict[sample_j]
 
-            for j in range(i+1, len(sample_list)):
-                other_sample = sample_list[j]
-
-                sample_primary_y = sample_data_dict[sample][primary_y]
-                sample_datetime = sample_data_dict[sample]["datetime_obj"]
-                other_primary_y = sample_data_dict[other_sample][primary_y]
-                other_datetime = sample_data_dict[other_sample]["datetime_obj"]
+                sample_i_primary_y = [sample_i_data[e] for e in primary_y]
+                sample_i_datetime = sample_i_data["datetime_obj"]
+                sample_j_primary_y = [sample_j_data[e] for e in primary_y]
+                sample_j_datetime = sample_j_data["datetime_obj"]
 
                 if not links_across_primary_y:
-                    if sample_primary_y != other_primary_y:
+                    if sample_i_primary_y != sample_j_primary_y:
                         continue
 
-                day_range_datetime = other_datetime - sample_datetime
+                day_range_datetime = sample_j_datetime - sample_i_datetime
                 day_range = abs(day_range_datetime.days)
                 if max_day_range < day_range:
                     continue
 
-                other_sample_attr_list = \
-                    [sample_data_dict[other_sample][v] for v in attr_list]
-                # See sample_attr_list comment
-                other_sample_attr_list = \
-                    [y
-                     if
-                     x not in attr_val_filters or y not in attr_val_filters[x]
-                     else None
-                     for x, y in zip(attr_list, other_sample_attr_list)]
+                sample_j_all_eq_list = \
+                    get_sample_attr_list(sample_j_data, all_eq_list)
+                sample_j_all_neq_list = \
+                    get_sample_attr_list(sample_j_data, all_neq_list)
+                sample_j_any_eq_list = \
+                    get_sample_attr_list(sample_j_data, any_eq_list)
 
-                an_iterator = zip(sample_attr_list,
-                                  other_sample_attr_list,
-                                  disjoint_match_list)
-                matches = []
-                for sample_val, other_val, disjoint in an_iterator:
-                    if None in {sample_val, other_val}:
-                        matches.append(False)
-                    elif disjoint and sample_val == other_val:
-                        matches.append(False)
-                    elif not disjoint and sample_val != other_val:
-                        matches.append(False)
-                    else:
-                        matches.append(True)
+                all_eq_zip_obj = \
+                    zip(sample_i_all_eq_list, sample_j_all_eq_list)
+                all_neq_zip_obj = \
+                    zip(sample_i_all_neq_list, sample_j_all_neq_list)
+                any_eq_zip_obj = \
+                    zip(sample_i_any_eq_list, sample_j_any_eq_list)
 
-                is_a_link = \
-                    any(matches) if looking_for_any_overlap else all(matches)
-                if is_a_link:
-                    if attr in weights:
+                all_eq = all([i == j for (i, j) in all_eq_zip_obj])
+                all_neq = all([i != j for (i, j) in all_neq_zip_obj])
+
+                # Unfortunately, any(empty list) returns False. So we
+                # need to unpack the generator.
+                any_eq_zip_list = list(any_eq_zip_obj)
+                if len(any_eq_zip_list):
+                    any_eq = any([i == j for (i, j) in any_eq_zip_list])
+                else:
+                    any_eq = True
+
+                if all_eq and all_neq and any_eq:
+                    if link_label in weights:
                         def repl_fn(match_obj):
+                            """TODO"""
                             match = match_obj.group(0)
                             if match[0] == "!":
                                 exp_attr = match.strip("!")
-                                return sample_data_dict[sample][exp_attr]
+                                return sample_i_data[exp_attr]
                             elif match[0] == "@":
                                 exp_attr = match.strip("@")
-                                return sample_data_dict[other_sample][exp_attr]
+                                return sample_j_data[exp_attr]
                             else:
                                 msg = "Unexpected regex match obj when " \
                                       "parsing weight expression: " + match
                                 raise RuntimeError(msg)
 
-                        weight_exp = weights[attr]
+                        weight_exp = weights[link_label]
                         subbed_exp = regex_obj.sub(repl_fn, weight_exp)
                         link_weight = eval_expr(subbed_exp)
 
-                        if attr in weight_filters["not_equal"]:
-                            neq = weight_filters["not_equal"][attr]
+                        if link_label in weight_filters["not_equal"]:
+                            neq = weight_filters["not_equal"][link_label]
                             if link_weight == neq:
                                 continue
-                        if attr in weight_filters["less_than"]:
-                            le = weight_filters["less_than"][attr]
+                        if link_label in weight_filters["less_than"]:
+                            le = weight_filters["less_than"][link_label]
                             if link_weight < le:
                                 continue
-                        if attr in weight_filters["greater_than"]:
-                            ge = weight_filters["greater_than"][attr]
+                        if link_label in weight_filters["greater_than"]:
+                            ge = weight_filters["greater_than"][link_label]
                             if link_weight > ge:
                                 continue
                     else:
                         link_weight = 0
 
-                    if other_datetime > sample_datetime:
-                        sample_links_dict[attr][(sample, other_sample)] = \
+                    if sample_j_datetime > sample_i_datetime:
+                        sample_links_dict[link_label][(sample_i, sample_j)] = \
                             link_weight
                     else:
-                        sample_links_dict[attr][(sample, other_sample)] = \
+                        sample_links_dict[link_label][(sample_j, sample_i)] = \
                             link_weight
 
     return sample_links_dict
