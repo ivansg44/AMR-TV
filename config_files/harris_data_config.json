@@ -2,18 +2,22 @@
   "delimiter": "\t",
   "node_id": "patient_id",
   "y_axes": [
-    "subtree",
-    "location"
+    ["subtree"],
+    ["location"]
   ],
   "date_attr": "date",
   "date_input": "%b %d %Y",
   "date_output": "%d-%m-%Y",
-  "label_attr": "patient_id",
-  "attr_link_list": [
-    "family"
-  ],
-  "node_color_attr": "",
-  "node_symbol_attr": "role",
+  "label_attr": ["patient_id"],
+  "links_config": {
+    "same family": {
+      "all_eq": ["family"],
+      "all_neq": [],
+      "any_eq": []
+    }
+  },
+  "node_color_attr": [],
+  "node_symbol_attr": ["role"],
   "links_across_primary_y": 1,
   "max_day_range": 6000,
   "null_vals": ["n/a"],

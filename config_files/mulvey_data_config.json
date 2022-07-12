@@ -2,25 +2,33 @@
   "delimiter": "\t",
   "node_id": "sample id",
   "y_axes": [
-    "incompatibility group",
-    "sequence type",
-    "Tn4401 variant"
+    ["incompatibility group"],
+    ["sequence type"],
+    ["Tn4401 variant"]
   ],
   "date_attr": "sample date",
   "date_input": "%B %Y",
   "date_output": "%B %Y",
-  "label_attr": "sample id",
-  "attr_link_list": [
-    "sequence type",
-    "~sequence type;incompatibility group"
-  ],
-  "node_color_attr": "",
-  "node_symbol_attr": "species",
+  "label_attr": ["sample id"],
+  "links_config": {
+    "SNP distance": {
+      "all_eq": ["sequence type"],
+      "all_neq": [],
+      "any_eq": []
+    },
+    "potential plasmid transfer": {
+      "all_eq": ["incompatibility group"],
+      "all_neq": ["sequence type"],
+      "any_eq": []
+    }
+  },
+  "node_color_attr": [],
+  "node_symbol_attr": ["species"],
   "links_across_primary_y": 1,
   "max_day_range": 6000,
   "null_vals": [""],
   "weights": {
-    "sequence type": "@SNV distance@-!SNV distance!"
+    "SNP distance": "@SNV distance@-!SNV distance!"
   },
   "weight_filters": {
     "not_equal": {},
