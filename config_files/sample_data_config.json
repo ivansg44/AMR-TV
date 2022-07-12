@@ -2,22 +2,42 @@
   "delimiter": ",",
   "node_id": "Sample ID / Isolate",
   "y_axes": [
-    "Location",
-    "rep_type(s)"
+    ["Location"],
+    ["rep_type(s)"]
   ],
   "date_attr": "Date of collection",
   "date_input": "%B %Y",
   "date_output": "%B %Y",
-  "label_attr": "Patient ID",
-  "attr_link_list": [
-    "F1: MLST type",
-    "Resitance gene type",
-    "SNPs_homozygous",
-    "Left_flanks;Right_flanks",
-    "mash_neighbor_cluster"
-  ],
-  "node_color_attr": "mash_neighbor_cluster",
-  "node_symbol_attr": "Organism",
+  "label_attr": ["Patient ID"],
+  "links_config": {
+    "F1: MLST type": {
+      "all_eq": ["F1: MLST type"],
+      "all_neq": [],
+      "any_eq": []
+    },
+    "Resitance gene type": {
+      "all_eq": ["Resitance gene type"],
+      "all_neq": [],
+      "any_eq": []
+    },
+    "SNPs_homozygous": {
+      "all_eq": ["SNPs_homozygous"],
+      "all_neq": [],
+      "any_eq": []
+    },
+    "Left_flanks;Right_flanks": {
+      "all_eq": ["Left_flanks", "Right_flanks"],
+      "all_neq": [],
+      "any_eq": []
+    },
+    "mash_neighbor_cluster": {
+      "all_eq": ["mash_neighbor_cluster"],
+      "all_neq": [],
+      "any_eq": []
+    }
+  },
+  "node_color_attr": ["mash_neighbor_cluster"],
+  "node_symbol_attr": ["Organism"],
   "links_across_primary_y": 0,
   "max_day_range": 60,
   "null_vals": ["", "-"],
