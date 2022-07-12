@@ -439,16 +439,18 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
     sample_list = list(sample_data_dict.keys())
     regex_obj = compile("!.*?!|@.*?@")
 
-    def get_sample_attr_list(sample_data, link_config_list):
+    def get_sample_attr_list(sample_data, link_config_list, filters):
         """TODO"""
         return [None
-                if (e in link_attr_filters
-                    and link_attr_filters[e] == sample_data[e])
+                if (e in filters and filters[e] == sample_data[e])
                 else sample_data[e]
                 for e in link_config_list]
 
     for link_label in links_config:
-        link_attr_filters = attr_val_filters[link_label]
+        try:
+            link_attr_filters = attr_val_filters[link_label]
+        except KeyError:
+            link_attr_filters = []
 
         all_eq_list = links_config[link_label]["all_eq"]
         all_neq_list = links_config[link_label]["all_neq"]
@@ -457,12 +459,15 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
         for i in range(len(sample_list)):
             sample_i = sample_list[i]
             sample_i_data = sample_data_dict[sample_i]
-            sample_i_all_eq_list = \
-                get_sample_attr_list(sample_i_data, all_eq_list)
-            sample_i_all_neq_list = \
-                get_sample_attr_list(sample_i_data, all_neq_list)
-            sample_i_any_eq_list = \
-                get_sample_attr_list(sample_i_data, any_eq_list)
+            sample_i_all_eq_list = get_sample_attr_list(sample_i_data,
+                                                        all_eq_list,
+                                                        link_attr_filters)
+            sample_i_all_neq_list = get_sample_attr_list(sample_i_data,
+                                                         all_neq_list,
+                                                         link_attr_filters)
+            sample_i_any_eq_list = get_sample_attr_list(sample_i_data,
+                                                        any_eq_list,
+                                                        link_attr_filters)
 
             for j in range(i + 1, len(sample_list)):
                 sample_j = sample_list[j]
@@ -482,12 +487,15 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
                 if max_day_range < day_range:
                     continue
 
-                sample_j_all_eq_list = \
-                    get_sample_attr_list(sample_j_data, all_eq_list)
-                sample_j_all_neq_list = \
-                    get_sample_attr_list(sample_j_data, all_neq_list)
-                sample_j_any_eq_list = \
-                    get_sample_attr_list(sample_j_data, any_eq_list)
+                sample_j_all_eq_list = get_sample_attr_list(sample_j_data,
+                                                            all_eq_list,
+                                                            link_attr_filters)
+                sample_j_all_neq_list = get_sample_attr_list(sample_j_data,
+                                                             all_neq_list,
+                                                             link_attr_filters)
+                sample_j_any_eq_list = get_sample_attr_list(sample_j_data,
+                                                            any_eq_list,
+                                                            link_attr_filters)
 
                 all_eq_zip_obj = \
                     zip(sample_i_all_eq_list, sample_j_all_eq_list)
@@ -496,16 +504,18 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
                 any_eq_zip_obj = \
                     zip(sample_i_any_eq_list, sample_j_any_eq_list)
 
-                all_eq = all([i == j for (i, j) in all_eq_zip_obj])
-                all_neq = all([i != j for (i, j) in all_neq_zip_obj])
+                all_eq = all(
+                    [i == j and i is not None for (i, j) in all_eq_zip_obj]
+                )
+                all_neq = all(
+                    [i != j and i is not None for (i, j) in all_neq_zip_obj]
+                )
 
                 # Unfortunately, any(empty list) returns False. So we
-                # need to unpack the generator.
-                any_eq_zip_list = list(any_eq_zip_obj)
-                if len(any_eq_zip_list):
-                    any_eq = any([i == j for (i, j) in any_eq_zip_list])
-                else:
-                    any_eq = True
+                # need to an intermediate variable.
+                any_eq_matches = \
+                    [i == j and i is not None for (i, j) in any_eq_zip_obj]
+                any_eq = any(any_eq_matches) if len(any_eq_matches) else True
 
                 if all_eq and all_neq and any_eq:
                     if link_label in weights:
