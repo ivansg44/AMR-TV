@@ -423,20 +423,22 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
                           weight_filters, attr_val_filters):
     """Get a dict of all links to viz in main graph.
 
-    The keys in the dict are different attrs. The values are a nested
-    dict. The keys in the nested dict are tuples containing two samples
-    with a shared val for the attr key in the outer dict. The values in
-    the nested dict are weights assigned to that link.
+    The keys in the dict are different link labels. The values are a
+    nested dict. The keys in the nested dict are tuples containing two
+    samples that satisfy the criteria for that link b/w them. The
+    values in the nested dict are weights assigned to the link b/w
+    these nodes.
 
     We filter out certain links using ``weight_filters`` and
     ``attr_val_filters``.
 
     :param sample_data_dict: ``get_sample_data_dict`` ret val
     :type sample_data_dict: dict
-    :param attr_link_list: list of attrs to include in ret dict
-    :type attr_link_list: list[str]
-    :param primary_y: attr encoded as one part of a track along y-axis
-    :type primary_y: str
+    :param links_config: dict of criteria for different user-specified
+        links.
+    :type links_config: dict
+    :param primary_y: First list specified by user in y-axes
+    :type primary_y: list[str]
     :param links_across_primary_y: Whether we consider links across
         different primary y vals.
     :type links_across_primary_y: bool
@@ -445,8 +447,11 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
     :param weights: Dictionary of expressions used to assign weights to
         specific attr links
     :type weights: dict
+    :param weight_filters: Dictionary of criteria for filtering out
+        certain links by weight.
+    :type weight_filters: dict
     :param attr_val_filters: Dictionary of vals to ignore for certain
-        attrs, when generating links.
+        link labels, when generating links b/w nodes.
     :type attr_val_filters: dict
     :return: Dict detailing links to viz in main graph
     :rtype: dict
@@ -456,7 +461,8 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
     regex_obj = compile("!.*?!|@.*?@")
 
     def get_sample_attr_list(sample_data, link_config_list, filters):
-        """TODO"""
+        # Get the attr values for a sample, corresponding to one of the
+        # lists that forms criteria for a link.
         return [None
                 if (e in filters and filters[e] == sample_data[e])
                 else sample_data[e]
@@ -528,7 +534,7 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
                 )
 
                 # Unfortunately, any(empty list) returns False. So we
-                # need to an intermediate variable.
+                # need an intermediate variable.
                 any_eq_matches = \
                     [i == j and i is not None for (i, j) in any_eq_zip_obj]
                 any_eq = any(any_eq_matches) if len(any_eq_matches) else True
@@ -536,7 +542,9 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
                 if all_eq and all_neq and any_eq:
                     if link_label in weights:
                         def repl_fn(match_obj):
-                            """TODO"""
+                            # Substitute the syntax used in weight
+                            # expressions to reference node attr
+                            # values, with the actual attr value.
                             match = match_obj.group(0)
                             if match[0] == "!":
                                 exp_attr = match.strip("!")
@@ -580,8 +588,6 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
 
 def get_link_color_dict(sample_links_dict):
     """Get dict assigning color to attrs vized as links.
-
-    # TODO: color blind safe? Color/pattern combos get confusing
 
     :param sample_links_dict: ``get_sample_links_dict`` ret val
     :type sample_links_dict: dict
