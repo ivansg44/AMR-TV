@@ -22,17 +22,14 @@
   "max_day_range": 14,
   "null_vals": ["", "-", "NA"],
   "weights": {
-    "threshold_10;collection_date": "@snp_dist@-!snp_dist!",
     "same cluster": "@snp_dist@-!snp_dist!"
   },
   "weight_filters": {
     "not_equal": {},
     "less_than": {
-      "threshold_10;collection_date": -5,
       "same cluster": -5
     },
     "greater_than": {
-      "threshold_10;collection_date": 5,
       "same cluster": 5
     }
   },
