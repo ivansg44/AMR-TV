@@ -135,9 +135,9 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         attr_val_filters=config_file_dict["attr_val_filters"]
     )
 
-    attr_link_color_dict = get_attr_link_color_dict(sample_links_dict)
+    link_color_dict = get_link_color_dict(sample_links_dict)
 
-    main_fig_attr_links_dict = get_main_fig_attr_links_dict(
+    main_fig_links_dict = get_main_fig_links_dict(
         sample_links_dict=sample_links_dict,
         main_fig_nodes_x_dict=main_fig_nodes_x_dict,
         main_fig_nodes_y_dict=main_fig_nodes_y_dict,
@@ -146,7 +146,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         main_fig_width=main_fig_width
     )
 
-    main_fig_attr_link_labels_dict = get_main_fig_attr_link_labels_dict(
+    main_fig_link_labels_dict = get_main_fig_link_labels_dict(
         sample_links_dict=sample_links_dict,
         main_fig_nodes_x_dict=main_fig_nodes_x_dict,
         main_fig_nodes_y_dict=main_fig_nodes_y_dict,
@@ -201,9 +201,9 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         "main_fig_nodes_hovertext":
             main_fig_nodes_hovertext,
         "node_color_attr_dict": node_color_attr_dict,
-        "main_fig_attr_links_dict": main_fig_attr_links_dict,
-        "main_fig_attr_link_labels_dict": main_fig_attr_link_labels_dict,
-        "attr_link_color_dict": attr_link_color_dict,
+        "main_fig_links_dict": main_fig_links_dict,
+        "main_fig_link_labels_dict": main_fig_link_labels_dict,
+        "link_color_dict": link_color_dict,
         "main_fig_primary_facet_x":
             get_main_fig_primary_facet_x(xaxis_range, num_of_primary_facets),
         "main_fig_primary_facet_y":
@@ -562,7 +562,7 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
     return sample_links_dict
 
 
-def get_attr_link_color_dict(sample_links_dict):
+def get_link_color_dict(sample_links_dict):
     """Get dict assigning color to attrs vized as links.
 
     # TODO: color blind safe? Color/pattern combos get confusing
@@ -573,24 +573,24 @@ def get_attr_link_color_dict(sample_links_dict):
         as vals.
     :rtype: dict
     """
-    available_attr_link_color_list = [
+    available_link_color_list = [
         (228, 26, 28),
         (55, 126, 184),
         (77, 175, 74),
         (152, 78, 163),
         (255, 127, 0)
     ]
-    if len(sample_links_dict) > len(available_attr_link_color_list):
+    if len(sample_links_dict) > len(available_link_color_list):
         msg = "Not enough unique colors for different attributes"
         raise IndexError(msg)
-    zip_obj = zip(sample_links_dict.keys(), available_attr_link_color_list)
+    zip_obj = zip(sample_links_dict.keys(), available_link_color_list)
     ret = {k: v for (k, v) in zip_obj}
     return ret
 
 
-def get_main_fig_attr_links_dict(sample_links_dict, main_fig_nodes_x_dict,
-                                 main_fig_nodes_y_dict, selected_samples,
-                                 main_fig_height, main_fig_width):
+def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
+                            main_fig_nodes_y_dict, selected_samples,
+                            main_fig_height, main_fig_width):
     """Get dict with info used by Plotly to viz links in main graph.
 
     :param sample_links_dict: ``get_sample_links_dict`` ret val
@@ -665,11 +665,9 @@ def get_main_fig_attr_links_dict(sample_links_dict, main_fig_nodes_x_dict,
     return ret
 
 
-def get_main_fig_attr_link_labels_dict(sample_links_dict,
-                                       main_fig_nodes_x_dict,
-                                       main_fig_nodes_y_dict, selected_samples,
-                                       main_fig_height, main_fig_width,
-                                       weights):
+def get_main_fig_link_labels_dict(sample_links_dict, main_fig_nodes_x_dict,
+                                  main_fig_nodes_y_dict, selected_samples,
+                                  main_fig_height, main_fig_width, weights):
     """Get dict with info used by Plotly to viz link labels.
 
     TODO: there may be a better way to do this. Certainly, the code

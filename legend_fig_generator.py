@@ -76,8 +76,8 @@ def get_link_legend_fig_links(app_data):
     :rtype: list[go.Scatter]
     """
     links = []
-    for i, attr in enumerate(app_data["main_fig_attr_links_dict"]):
-        (r, g, b) = app_data["attr_link_color_dict"][attr]
+    for i, attr in enumerate(app_data["main_fig_links_dict"]):
+        (r, g, b) = app_data["link_color_dict"][attr]
         links.append(
             go.Scatter(
                 x=[0, 1],
@@ -120,7 +120,7 @@ def get_link_legend_fig(app_data):
             "yaxis": {
                 "visible": False,
                 "fixedrange": True,
-                "range": [len(app_data["main_fig_attr_links_dict"]), -0.5]
+                "range": [len(app_data["main_fig_links_dict"]), -0.5]
             },
             "showlegend": False,
             "plot_bgcolor": "white"
