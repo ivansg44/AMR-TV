@@ -78,6 +78,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
 
     node_symbol_attr = config_file_dict["node_symbol_attr"]
     if node_symbol_attr:
+        # Use tuples instead of lists for hashing
         node_symbol_attr_list = \
             [tuple([v[e] for e in node_symbol_attr]) for v in sample_data_vals]
         node_symbol_attr_dict = \
@@ -97,6 +98,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
 
     node_color_attr = config_file_dict["node_color_attr"]
     if node_color_attr:
+        # Use tuples instead of lists for hashing
         node_color_attr_list = \
             [tuple([v[e] for e in node_color_attr]) for v in sample_data_vals]
         node_color_attr_dict = get_node_color_attr_dict(node_color_attr_list)
@@ -278,8 +280,8 @@ def sorting_key(track):
     * Sort ints next
     * Sort strs last
 
-    :param track: List of attr vals found in a track
-    :type track: tuple[str]
+    :param track: Track value for a node
+    :type track: tuple[tuple[str]]
     :return: List of tuples mapped to each attr val in track
     :rtype: list[list[tuple]]
     """
@@ -351,7 +353,7 @@ def get_node_symbol_attr_dict(node_symbol_attr_list):
 
     :param node_symbol_attr_list: List of node symbol attr vals across
         all nodes.
-    :type node_symbol_attr_list: list[str]
+    :type node_symbol_attr_list: list[tuple[str]]
     :return: dict with unique node symbol attr vals as keys, and actual
         symbols as vals.
     :rtype: dict
@@ -380,7 +382,7 @@ def get_node_color_attr_dict(node_color_attr_list):
 
     :param node_color_attr_list: List of node color attr vals across
         all nodes.
-    :type node_color_attr_list: list[str]
+    :type node_color_attr_list: list[tuple[str]]
     :return: dict with unique node color attr vals as keys, and actual
         colors as vals.
     :rtype: dict
@@ -388,7 +390,6 @@ def get_node_color_attr_dict(node_color_attr_list):
     node_color_attr_dict = {}
     node_color_attr_table = dict.fromkeys(node_color_attr_list)
 
-    # TODO make color blind safe by using color + pattern
     available_colors = [
         "#8dd3c7",
         "#ffffb3",
