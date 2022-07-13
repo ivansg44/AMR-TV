@@ -445,7 +445,7 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
     :param max_day_range: Maximum day range to still consider links
     :type max_day_range: int
     :param weights: Dictionary of expressions used to assign weights to
-        specific attr links
+        specific links.
     :type weights: dict
     :param weight_filters: Dictionary of criteria for filtering out
         certain links by weight.
@@ -715,7 +715,7 @@ def get_main_fig_link_labels_dict(sample_links_dict, main_fig_nodes_x_dict,
     :param main_fig_width: Width for main fig
     :type main_fig_width: int
     :param weights: Dictionary of expressions used to assign weights to
-        specific attr links
+        specific links.
     :type weights: dict
     :return: Dict with info used by Plotly to viz links in main graph
     :rtype: dict
@@ -836,7 +836,7 @@ def get_main_fig_nodes_x_dict(sample_data_dict, date_attr, date_list,
 
 
 def get_max_node_count_at_track_dict(track_date_node_count_dict):
-    """Get the max number of nodes at one date in every track.TODO
+    """Get the max number of nodes at one date in every track.
 
     :param track_date_node_count_dict: Number of nodes at each track
         and date combination.
@@ -876,8 +876,16 @@ def get_track_y_vals_dict(max_node_count_at_track_dict):
 
 
 def get_main_fig_yaxis_ticktext(track_y_vals_dict):
-    """TODO"""
-    ["<br>".join(["; ".join(["null" if k is None else k for k in j]) for j in i]) for i in track_y_vals_dict]
+    """Get the ticktext used by Plotly to label the y-axis.
+
+    We map each track to a single str. We join the inner tuples with a
+    linebreak, and the values inside each tuple with a semicolon.
+
+    :param track_y_vals_dict: ``get_track_y_vals_dict`` ret val
+    :type track_y_vals_dict: dict
+    :return: Dict with label corresponding to each possible track
+    :rtype: dict
+    """
     ret = []
     for track in track_y_vals_dict:
         inner_ret = []
@@ -892,20 +900,20 @@ def get_main_fig_yaxis_ticktext(track_y_vals_dict):
 def get_main_fig_nodes_y_dict(sample_data_dict, date_attr, track_list,
                               track_date_node_count_dict,
                               max_node_count_at_track_dict, track_y_vals_dict):
-    """Get dict mapping nodes to y vals.TODO
+    """Get dict mapping nodes to y vals.
 
     :param sample_data_dict: Sample file data parsed into dict obj
     :rtype: dict
     :param date_attr: Sample file attr encoded by sample date/x-axis
     :type date_attr: str
+    :param track_list: List of sample tracks wrt all nodes
+    :type track_list: list[tuple[tuple[str]]]
     :param track_date_node_count_dict: Number of nodes at each track
         and date combination.
     :type track_date_node_count_dict: dict
     :param max_node_count_at_track_dict: Maximum number of nodes at a
         single date within each track.
     :type max_node_count_at_track_dict: dict
-    :param y_axes: List of attrs to use as hierarchical y axes
-    :type y_axes: list[str]
     :param track_y_vals_dict: Dict mapping tracks to numerical y vals
     :type track_y_vals_dict: dict
     :return: Dict mapping nodes to y vals
@@ -942,8 +950,6 @@ def get_main_fig_nodes_hovertext(sample_data_dict, main_fig_nodes_text,
     :type date_list: list
     :param track_list: List of sample tracks wrt all nodes
     :type track_list: list
-    :param attr_link_list: list of attrs to include in ret dict
-    :type attr_link_list: list[str]
     :return: List of d3-formatted text to display on hover across all
         nodes in main fig.
     :rtype: list[str]
