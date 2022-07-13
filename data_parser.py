@@ -221,18 +221,36 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
 
 
 def get_unsorted_track_list(sample_data_dict, y_axes):
-    """Get an unsorted list of tracks assigned across all nodes.TODO
+    """Get an unsorted list of tracks assigned across all nodes.
 
-    Each track consists of a tuple of tuples. The inner tuples map to the inner lists of attrs specified in the config file y axes field. Each inner tuple permutation represents 1 val in the overall track represented by the outer tuple.
+    A track for a node (N) consists of:
 
-    If the y axes selected are ["ham"], ["spam", "foo"], and ["eggs"], the tracks
-    are ((sample_1_ham,), (sample_1_spam, sample_1_foo,), (sample_1_eggs),),
-    ((sample_2_ham,), (sample_2_spam, sample_2_foo,), (sample_2_eggs,),). We use tuples because they are hashable, which allows us to plug in the ret val into a counter.
+    * 1 tuple (A)
+    * >=1 tuples inside A (B)
+    * >=1 attribute values from a node N inside B
+
+    This maps to the y axes specified in the config file, which
+    consists of:
+
+    * 1 list (A)
+    * >=1 lists inside A (B)
+    * >=1 attributes to collect from nodes
+
+    e.g., If the y axes selected are ["ham"], ["spam", "foo"], and
+    ["eggs"], the tracks are ((sample_1_ham,),
+    (sample_1_spam, sample_1_foo,), (sample_1_eggs),),
+    ((sample_2_ham,), (sample_2_spam, sample_2_foo,),
+    (sample_2_eggs,),), ...
+
+    We use tuples because they are hashable, which is useful to us in
+    downstream code.
 
     :param sample_data_dict: ``get_sample_data_dict`` ret val
     :type sample_data_dict: dict
-    :param y_axes: List of lists, with each inner list corresponding to a permutation of attrs to use as 1 value in the overall track represented by the outer list. We ultimately switch to tuples in this fn.
-    :type y_axes: list[str]
+    :param y_axes: List of lists, with inner lists populated by
+        attributes to collect from nodes when calculating their
+        position along the y axis.
+    :type y_axes: list[list[str]]
     :return: Unsorted list of tracks assigned across all nodes
     :rtype: list[tuple[tuple[str]]]
     """
@@ -245,17 +263,14 @@ def get_unsorted_track_list(sample_data_dict, y_axes):
 
 
 def sorting_key(track):
-    """Map track to a list of lists of tuples, for sorting purposes.TODO
-
-    Basically, if a track is
-    ``(("ham",), ("spam", "foo",), ("eggs",),)``, we return
-    ``[[(tuple for ham,)], [(tuple for spam,), (tuple for foo,)],
-    [(tuple for eggs,)],]``. Each tuple consists of several values to
-    make sorting different tracks, which have may have vals of mixed
-    types for the same attr, easier.
+    """Map track to a unique structure for sorting purposes.
 
     Inspiration from:
     https://stackoverflow.com/a/34757358/11472358
+
+    Basically, convert tracks back into a list of lists, and change the
+    inner list values into a unique tuple structure that allows sorting
+    of mixed types.
 
     We sort vals as follows:
 
@@ -264,9 +279,9 @@ def sorting_key(track):
     * Sort strs last
 
     :param track: List of attr vals found in a track
-    :type track: tuple[int|str]
+    :type track: tuple[str]
     :return: List of tuples mapped to each attr val in track
-    :rtype: list[tuple]
+    :rtype: list[list[tuple]]
     """
     ret = []
     for attr_tuple in track:
