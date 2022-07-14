@@ -1,4 +1,4 @@
-"""Parses sample file for data used in viz.TODO all docstrings for types"""
+"""Parses sample file for data used in viz."""
 
 from base64 import b64decode
 from collections import Counter
