@@ -36,7 +36,7 @@ def get_main_fig_nodes(app_data):
     return nodes
 
 
-def get_main_fig_attr_link_graphs(app_data):
+def get_main_fig_link_graphs(app_data):
     """Get plotly scatter objs of links in main fig.
 
     This is basically a list of different scatter objs--one for each
@@ -48,10 +48,10 @@ def get_main_fig_attr_link_graphs(app_data):
     :rtype: list[go.Scatter]
     """
     ret = []
-    for attr in app_data["main_fig_attr_links_dict"]:
-        attr_x = app_data["main_fig_attr_links_dict"][attr]["x"]
-        attr_y = app_data["main_fig_attr_links_dict"][attr]["y"]
-        (r, g, b) = app_data["attr_link_color_dict"][attr]
+    for attr in app_data["main_fig_links_dict"]:
+        attr_x = app_data["main_fig_links_dict"][attr]["x"]
+        attr_y = app_data["main_fig_links_dict"][attr]["y"]
+        (r, g, b) = app_data["link_color_dict"][attr]
 
         attr_graph = go.Scatter(
             x=[x if x else None for x in attr_x],
@@ -67,7 +67,7 @@ def get_main_fig_attr_link_graphs(app_data):
     return ret
 
 
-def get_main_fig_attr_link_label_graphs(app_data):
+def get_main_fig_link_label_graphs(app_data):
     """Get plotly scatter objs of links labels in main fig.
 
     This is basically a list of different scatter objs--one for each
@@ -79,11 +79,11 @@ def get_main_fig_attr_link_label_graphs(app_data):
     :rtype: list[go.Scatter]
     """
     ret = []
-    for attr in app_data["main_fig_attr_link_labels_dict"]:
-        attr_x = app_data["main_fig_attr_link_labels_dict"][attr]["x"]
-        attr_y = app_data["main_fig_attr_link_labels_dict"][attr]["y"]
-        attr_text = app_data["main_fig_attr_link_labels_dict"][attr]["text"]
-        (r, g, b) = app_data["attr_link_color_dict"][attr]
+    for attr in app_data["main_fig_link_labels_dict"]:
+        attr_x = app_data["main_fig_link_labels_dict"][attr]["x"]
+        attr_y = app_data["main_fig_link_labels_dict"][attr]["y"]
+        attr_text = app_data["main_fig_link_labels_dict"][attr]["text"]
+        (r, g, b) = app_data["link_color_dict"][attr]
 
         attr_graph = go.Scatter(
             x=attr_x,
@@ -269,20 +269,20 @@ def get_main_figs(app_data):
     :rtype: tuple[go.Figure, go.Figure]
     """
     nodes_graph = get_main_fig_nodes(app_data)
-    attr_link_graphs = get_main_fig_attr_link_graphs(app_data)
-    attr_link_label_graphs = get_main_fig_attr_link_label_graphs(app_data)
+    link_graphs = get_main_fig_link_graphs(app_data)
+    link_label_graphs = get_main_fig_link_label_graphs(app_data)
     primary_facet_lines_graph = get_main_fig_primary_facet_lines(app_data)
     secondary_facet_lines_graph = get_main_fig_secondary_facet_lines(app_data)
 
     main_fig = get_main_fig(app_data,
                             nodes_graph,
-                            attr_link_graphs,
-                            attr_link_label_graphs,
+                            link_graphs,
+                            link_label_graphs,
                             primary_facet_lines_graph,
                             secondary_facet_lines_graph)
     zoomed_out_main_fig = get_zoomed_out_main_fig(app_data,
                                                   nodes_graph,
-                                                  attr_link_graphs,
+                                                  link_graphs,
                                                   primary_facet_lines_graph)
 
     return main_fig, zoomed_out_main_fig

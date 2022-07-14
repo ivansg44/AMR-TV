@@ -42,14 +42,13 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
                                             config_file_dict["date_input"],
                                             config_file_dict["date_output"],
                                             config_file_dict["null_vals"])
+    sample_data_vals = sample_data_dict.values()
     enumerated_samples = enumerate(sample_data_dict)
     selected_samples = \
         {k for i, k in enumerated_samples if str(i) in selected_nodes}
 
-    date_list =\
-        [v[config_file_dict["date_attr"]] for v in sample_data_dict.values()]
-    datetime_list =\
-        [v["datetime_obj"] for v in sample_data_dict.values()]
+    date_list = [v[config_file_dict["date_attr"]] for v in sample_data_vals]
+    datetime_list = [v["datetime_obj"] for v in sample_data_vals]
     date_x_vals_dict = get_date_x_vals_dict(date_list=date_list,
                                             datetime_list=datetime_list)
     main_fig_nodes_x_dict = \
@@ -67,9 +66,9 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     main_fig_nodes_y_dict = get_main_fig_nodes_y_dict(
         sample_data_dict,
         date_attr=config_file_dict["date_attr"],
+        track_list=track_list,
         track_date_node_count_dict=track_date_node_count_dict,
         max_node_count_at_track_dict=max_node_count_at_track_dict,
-        y_axes=config_file_dict["y_axes"],
         track_y_vals_dict=track_y_vals_dict
     )
 
@@ -79,8 +78,9 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
 
     node_symbol_attr = config_file_dict["node_symbol_attr"]
     if node_symbol_attr:
+        # Use tuples instead of lists for hashing
         node_symbol_attr_list = \
-            [v[node_symbol_attr] for v in sample_data_dict.values()]
+            [tuple([v[e] for e in node_symbol_attr]) for v in sample_data_vals]
         node_symbol_attr_dict = \
             get_node_symbol_attr_dict(node_symbol_attr_list)
         main_fig_nodes_marker_symbol = \
@@ -98,8 +98,9 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
 
     node_color_attr = config_file_dict["node_color_attr"]
     if node_color_attr:
+        # Use tuples instead of lists for hashing
         node_color_attr_list = \
-            [v[node_color_attr] for v in sample_data_dict.values()]
+            [tuple([v[e] for e in node_color_attr]) for v in sample_data_vals]
         node_color_attr_dict = get_node_color_attr_dict(node_color_attr_list)
         main_fig_nodes_marker_color = \
             [node_color_attr_dict[v] for v in node_color_attr_list]
@@ -109,14 +110,15 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
 
     label_attr = config_file_dict["label_attr"]
     main_fig_nodes_text = \
-        ["<b>%s</b>" % v[label_attr] for v in sample_data_dict.values()]
+        ["<br>".join(["<b>%s</b>" % v[e] for e in label_attr])
+         for v in sample_data_vals]
 
     main_fig_nodes_hovertext = \
         get_main_fig_nodes_hovertext(sample_data_dict,
                                      main_fig_nodes_text,
                                      date_list,
                                      track_list,
-                                     config_file_dict["attr_link_list"])
+                                     config_file_dict["links_config"])
 
     xaxis_range = [0.5, len(date_x_vals_dict) + 0.5]
     yaxis_range = [0.5, sum(max_node_count_at_track_dict.values())+0.5]
@@ -126,7 +128,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
 
     sample_links_dict = get_sample_links_dict(
         sample_data_dict=sample_data_dict,
-        attr_link_list=config_file_dict["attr_link_list"],
+        links_config=config_file_dict["links_config"],
         primary_y=config_file_dict["y_axes"][0],
         links_across_primary_y=config_file_dict["links_across_primary_y"],
         max_day_range=config_file_dict["max_day_range"],
@@ -135,9 +137,9 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         attr_val_filters=config_file_dict["attr_val_filters"]
     )
 
-    attr_link_color_dict = get_attr_link_color_dict(sample_links_dict)
+    link_color_dict = get_link_color_dict(sample_links_dict)
 
-    main_fig_attr_links_dict = get_main_fig_attr_links_dict(
+    main_fig_links_dict = get_main_fig_links_dict(
         sample_links_dict=sample_links_dict,
         main_fig_nodes_x_dict=main_fig_nodes_x_dict,
         main_fig_nodes_y_dict=main_fig_nodes_y_dict,
@@ -146,7 +148,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         main_fig_width=main_fig_width
     )
 
-    main_fig_attr_link_labels_dict = get_main_fig_attr_link_labels_dict(
+    main_fig_link_labels_dict = get_main_fig_link_labels_dict(
         sample_links_dict=sample_links_dict,
         main_fig_nodes_x_dict=main_fig_nodes_x_dict,
         main_fig_nodes_y_dict=main_fig_nodes_y_dict,
@@ -163,9 +165,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     else:
         main_fig_nodes_textfont_color = "black"
 
-    main_fig_yaxis_ticktext = \
-        ["<br>".join(["null" if e is None else e for e in k])
-         for k in track_y_vals_dict]
+    main_fig_yaxis_ticktext = get_main_fig_yaxis_ticktext(track_y_vals_dict)
 
     app_data = {
         "node_shape_legend_fig_nodes_y":
@@ -203,9 +203,9 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         "main_fig_nodes_hovertext":
             main_fig_nodes_hovertext,
         "node_color_attr_dict": node_color_attr_dict,
-        "main_fig_attr_links_dict": main_fig_attr_links_dict,
-        "main_fig_attr_link_labels_dict": main_fig_attr_link_labels_dict,
-        "attr_link_color_dict": attr_link_color_dict,
+        "main_fig_links_dict": main_fig_links_dict,
+        "main_fig_link_labels_dict": main_fig_link_labels_dict,
+        "link_color_dict": link_color_dict,
         "main_fig_primary_facet_x":
             get_main_fig_primary_facet_x(xaxis_range, num_of_primary_facets),
         "main_fig_primary_facet_y":
@@ -225,57 +225,83 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
 def get_unsorted_track_list(sample_data_dict, y_axes):
     """Get an unsorted list of tracks assigned across all nodes.
 
-    If the y axes selected are "ham", "spam", and "eggs", the tracks
-    are (sample_1_ham, sample_1_spam, sample_1_eggs),
-    (sample_2_ham, sample_2_spam, sample_2_eggs), ...
+    A track for a node (N) consists of:
+
+    * 1 tuple (A)
+    * >=1 tuples inside A (B)
+    * >=1 attribute values from a node N inside B
+
+    This maps to the y axes specified in the config file, which
+    consists of:
+
+    * 1 list (A)
+    * >=1 lists inside A (B)
+    * >=1 attributes to collect from nodes
+
+    e.g., If the y axes selected are ["ham"], ["spam", "foo"], and
+    ["eggs"], the tracks are ((sample_1_ham,),
+    (sample_1_spam, sample_1_foo,), (sample_1_eggs),),
+    ((sample_2_ham,), (sample_2_spam, sample_2_foo,),
+    (sample_2_eggs,),), ...
+
+    We use tuples because they are hashable, which is useful to us in
+    downstream code.
 
     :param sample_data_dict: ``get_sample_data_dict`` ret val
     :type sample_data_dict: dict
-    :param y_axes: List of attrs to use as hierarchical y axes
-    :type y_axes: list[str]
+    :param y_axes: List of lists, with inner lists populated by
+        attributes to collect from nodes when calculating their
+        position along the y axis.
+    :type y_axes: list[list[str]]
     :return: Unsorted list of tracks assigned across all nodes
-    :rtype: list[tuple[str]]
+    :rtype: list[tuple[tuple[str]]]
     """
     lists_to_zip = []
     vals = sample_data_dict.values()
-    for axis in y_axes:
-        lists_to_zip.append([val[axis] for val in vals])
+    for axis_list in y_axes:
+        lists_to_zip.append([tuple([i[j] for j in axis_list]) for i in vals])
     ret = list(zip(*lists_to_zip))
     return ret
 
 
 def sorting_key(track):
-    """Convert each val in a track to a tuple.
+    """Map track to a unique structure for sorting purposes.
 
-    The necessity of this is due to columns potentially having both int
-    and str vals. Inspiration from:
+    Inspiration from:
     https://stackoverflow.com/a/34757358/11472358
 
-    We sort as follows:
+    Basically, convert tracks back into a list of lists, and change the
+    inner list values into a unique tuple structure that allows sorting
+    of mixed types.
+
+    We sort vals as follows:
 
     * None comes first
     * Sort ints next
     * Sort strs last
 
-    :param track: List of attr vals found in a track
-    :type track: tuple[int|str]
+    :param track: Track value for a node
+    :type track: tuple[tuple[str]]
     :return: List of tuples mapped to each attr val in track
-    :rtype: list[tuple]
+    :rtype: list[list[tuple]]
     """
     ret = []
-    for attr_val in track:
-        try:
-            ret.append((
-                attr_val is None,
-                0,
-                int(attr_val)
-             ))
-        except (TypeError, ValueError):
-            ret.append((
-                attr_val is None,
-                1,
-                attr_val
-             ))
+    for attr_tuple in track:
+        inner_ret = []
+        for attr in attr_tuple:
+            try:
+                inner_ret.append((
+                    attr is None,
+                    0,
+                    int(attr)
+                ))
+            except (TypeError, ValueError):
+                inner_ret.append((
+                    attr is None,
+                    1,
+                    attr
+                ))
+        ret.append(inner_ret)
     return ret
 
 
@@ -327,7 +353,7 @@ def get_node_symbol_attr_dict(node_symbol_attr_list):
 
     :param node_symbol_attr_list: List of node symbol attr vals across
         all nodes.
-    :type node_symbol_attr_list: list[str]
+    :type node_symbol_attr_list: list[tuple[str]]
     :return: dict with unique node symbol attr vals as keys, and actual
         symbols as vals.
     :rtype: dict
@@ -356,7 +382,7 @@ def get_node_color_attr_dict(node_color_attr_list):
 
     :param node_color_attr_list: List of node color attr vals across
         all nodes.
-    :type node_color_attr_list: list[str]
+    :type node_color_attr_list: list[tuple[str]]
     :return: dict with unique node color attr vals as keys, and actual
         colors as vals.
     :rtype: dict
@@ -364,7 +390,6 @@ def get_node_color_attr_dict(node_color_attr_list):
     node_color_attr_dict = {}
     node_color_attr_table = dict.fromkeys(node_color_attr_list)
 
-    # TODO make color blind safe by using color + pattern
     available_colors = [
         "#8dd3c7",
         "#ffffb3",
@@ -393,166 +418,176 @@ def get_node_color_attr_dict(node_color_attr_list):
     return node_color_attr_dict
 
 
-def get_sample_links_dict(sample_data_dict, attr_link_list, primary_y,
+def get_sample_links_dict(sample_data_dict, links_config, primary_y,
                           links_across_primary_y, max_day_range, weights,
                           weight_filters, attr_val_filters):
     """Get a dict of all links to viz in main graph.
 
-    The keys in the dict are different attrs. The values are a nested
-    dict. The keys in the nested dict are tuples containing two samples
-    with a shared val for the attr key in the outer dict. The values in
-    the nested dict are weights assigned to that link.
+    The keys in the dict are different link labels. The values are a
+    nested dict. The keys in the nested dict are tuples containing two
+    samples that satisfy the criteria for that link b/w them. The
+    values in the nested dict are weights assigned to the link b/w
+    these nodes.
 
     We filter out certain links using ``weight_filters`` and
     ``attr_val_filters``.
 
     :param sample_data_dict: ``get_sample_data_dict`` ret val
     :type sample_data_dict: dict
-    :param attr_link_list: list of attrs to include in ret dict
-    :type attr_link_list: list[str]
-    :param primary_y: attr encoded as one part of a track along y-axis
-    :type primary_y: str
+    :param links_config: dict of criteria for different user-specified
+        links.
+    :type links_config: dict
+    :param primary_y: First list specified by user in y-axes
+    :type primary_y: list[str]
     :param links_across_primary_y: Whether we consider links across
         different primary y vals.
     :type links_across_primary_y: bool
     :param max_day_range: Maximum day range to still consider links
     :type max_day_range: int
     :param weights: Dictionary of expressions used to assign weights to
-        specific attr links
+        specific links.
     :type weights: dict
+    :param weight_filters: Dictionary of criteria for filtering out
+        certain links by weight.
+    :type weight_filters: dict
     :param attr_val_filters: Dictionary of vals to ignore for certain
-        attrs, when generating links.
+        link labels, when generating links b/w nodes.
     :type attr_val_filters: dict
     :return: Dict detailing links to viz in main graph
     :rtype: dict
     """
-    sample_links_dict = {k: {} for k in attr_link_list}
+    sample_links_dict = {k: {} for k in links_config}
     sample_list = list(sample_data_dict.keys())
     regex_obj = compile("!.*?!|@.*?@")
 
-    for attr in attr_link_list:
-        looking_for_any_overlap = False
-        if attr[0] == "(" and attr[-1] == ")":
-            looking_for_any_overlap = True
+    def get_sample_attr_list(sample_data, link_config_list, filters):
+        # Get the attr values for a sample, corresponding to one of the
+        # lists that forms criteria for a link.
+        return [None
+                if (e in filters and filters[e] == sample_data[e])
+                else sample_data[e]
+                for e in link_config_list]
 
-        attr_list = []
-        disjoint_match_list = []
-        attr_split = \
-            (attr[1:-1] if looking_for_any_overlap else attr).split(";")
-        for attr_list_val in attr_split:
-            if attr_list_val[0] == "~":
-                disjoint_match_list.append(True)
-                attr_list.append(attr_list_val[1:])
-            else:
-                disjoint_match_list.append(False)
-                attr_list.append(attr_list_val)
+    for link_label in links_config:
+        try:
+            link_attr_filters = attr_val_filters[link_label]
+        except KeyError:
+            link_attr_filters = []
+
+        all_eq_list = links_config[link_label]["all_eq"]
+        all_neq_list = links_config[link_label]["all_neq"]
+        any_eq_list = links_config[link_label]["any_eq"]
 
         for i in range(len(sample_list)):
-            sample = sample_list[i]
+            sample_i = sample_list[i]
+            sample_i_data = sample_data_dict[sample_i]
+            sample_i_all_eq_list = get_sample_attr_list(sample_i_data,
+                                                        all_eq_list,
+                                                        link_attr_filters)
+            sample_i_all_neq_list = get_sample_attr_list(sample_i_data,
+                                                         all_neq_list,
+                                                         link_attr_filters)
+            sample_i_any_eq_list = get_sample_attr_list(sample_i_data,
+                                                        any_eq_list,
+                                                        link_attr_filters)
 
-            sample_attr_list = \
-                [sample_data_dict[sample][v] for v in attr_list]
-            # Bit of a complex comprehension. Basically, we replace any
-            # values in sample_attr_list that belong to a val specified
-            # for the attr in attr_val_filters with ``None``.
-            sample_attr_list = \
-                [y
-                 if
-                 x not in attr_val_filters or y not in attr_val_filters[x]
-                 else None
-                 for x, y in zip(attr_list, sample_attr_list)]
+            for j in range(i + 1, len(sample_list)):
+                sample_j = sample_list[j]
+                sample_j_data = sample_data_dict[sample_j]
 
-            for j in range(i+1, len(sample_list)):
-                other_sample = sample_list[j]
-
-                sample_primary_y = sample_data_dict[sample][primary_y]
-                sample_datetime = sample_data_dict[sample]["datetime_obj"]
-                other_primary_y = sample_data_dict[other_sample][primary_y]
-                other_datetime = sample_data_dict[other_sample]["datetime_obj"]
+                sample_i_primary_y = [sample_i_data[e] for e in primary_y]
+                sample_i_datetime = sample_i_data["datetime_obj"]
+                sample_j_primary_y = [sample_j_data[e] for e in primary_y]
+                sample_j_datetime = sample_j_data["datetime_obj"]
 
                 if not links_across_primary_y:
-                    if sample_primary_y != other_primary_y:
+                    if sample_i_primary_y != sample_j_primary_y:
                         continue
 
-                day_range_datetime = other_datetime - sample_datetime
+                day_range_datetime = sample_j_datetime - sample_i_datetime
                 day_range = abs(day_range_datetime.days)
                 if max_day_range < day_range:
                     continue
 
-                other_sample_attr_list = \
-                    [sample_data_dict[other_sample][v] for v in attr_list]
-                # See sample_attr_list comment
-                other_sample_attr_list = \
-                    [y
-                     if
-                     x not in attr_val_filters or y not in attr_val_filters[x]
-                     else None
-                     for x, y in zip(attr_list, other_sample_attr_list)]
+                sample_j_all_eq_list = get_sample_attr_list(sample_j_data,
+                                                            all_eq_list,
+                                                            link_attr_filters)
+                sample_j_all_neq_list = get_sample_attr_list(sample_j_data,
+                                                             all_neq_list,
+                                                             link_attr_filters)
+                sample_j_any_eq_list = get_sample_attr_list(sample_j_data,
+                                                            any_eq_list,
+                                                            link_attr_filters)
 
-                an_iterator = zip(sample_attr_list,
-                                  other_sample_attr_list,
-                                  disjoint_match_list)
-                matches = []
-                for sample_val, other_val, disjoint in an_iterator:
-                    if None in {sample_val, other_val}:
-                        matches.append(False)
-                    elif disjoint and sample_val == other_val:
-                        matches.append(False)
-                    elif not disjoint and sample_val != other_val:
-                        matches.append(False)
-                    else:
-                        matches.append(True)
+                all_eq_zip_obj = \
+                    zip(sample_i_all_eq_list, sample_j_all_eq_list)
+                all_neq_zip_obj = \
+                    zip(sample_i_all_neq_list, sample_j_all_neq_list)
+                any_eq_zip_obj = \
+                    zip(sample_i_any_eq_list, sample_j_any_eq_list)
 
-                is_a_link = \
-                    any(matches) if looking_for_any_overlap else all(matches)
-                if is_a_link:
-                    if attr in weights:
+                all_eq = all(
+                    [i == j and i is not None for (i, j) in all_eq_zip_obj]
+                )
+                all_neq = all(
+                    [i != j and i is not None for (i, j) in all_neq_zip_obj]
+                )
+
+                # Unfortunately, any(empty list) returns False. So we
+                # need an intermediate variable.
+                any_eq_matches = \
+                    [i == j and i is not None for (i, j) in any_eq_zip_obj]
+                any_eq = any(any_eq_matches) if len(any_eq_matches) else True
+
+                if all_eq and all_neq and any_eq:
+                    if link_label in weights:
                         def repl_fn(match_obj):
+                            # Substitute the syntax used in weight
+                            # expressions to reference node attr
+                            # values, with the actual attr value.
                             match = match_obj.group(0)
                             if match[0] == "!":
                                 exp_attr = match.strip("!")
-                                return sample_data_dict[sample][exp_attr]
+                                return sample_i_data[exp_attr]
                             elif match[0] == "@":
                                 exp_attr = match.strip("@")
-                                return sample_data_dict[other_sample][exp_attr]
+                                return sample_j_data[exp_attr]
                             else:
                                 msg = "Unexpected regex match obj when " \
                                       "parsing weight expression: " + match
                                 raise RuntimeError(msg)
 
-                        weight_exp = weights[attr]
+                        weight_exp = weights[link_label]
                         subbed_exp = regex_obj.sub(repl_fn, weight_exp)
                         link_weight = eval_expr(subbed_exp)
 
-                        if attr in weight_filters["not_equal"]:
-                            neq = weight_filters["not_equal"][attr]
+                        if link_label in weight_filters["not_equal"]:
+                            neq = weight_filters["not_equal"][link_label]
                             if link_weight == neq:
                                 continue
-                        if attr in weight_filters["less_than"]:
-                            le = weight_filters["less_than"][attr]
+                        if link_label in weight_filters["less_than"]:
+                            le = weight_filters["less_than"][link_label]
                             if link_weight < le:
                                 continue
-                        if attr in weight_filters["greater_than"]:
-                            ge = weight_filters["greater_than"][attr]
+                        if link_label in weight_filters["greater_than"]:
+                            ge = weight_filters["greater_than"][link_label]
                             if link_weight > ge:
                                 continue
                     else:
                         link_weight = 0
 
-                    if other_datetime > sample_datetime:
-                        sample_links_dict[attr][(sample, other_sample)] = \
+                    if sample_j_datetime > sample_i_datetime:
+                        sample_links_dict[link_label][(sample_i, sample_j)] = \
                             link_weight
                     else:
-                        sample_links_dict[attr][(sample, other_sample)] = \
+                        sample_links_dict[link_label][(sample_j, sample_i)] = \
                             link_weight
 
     return sample_links_dict
 
 
-def get_attr_link_color_dict(sample_links_dict):
+def get_link_color_dict(sample_links_dict):
     """Get dict assigning color to attrs vized as links.
-
-    # TODO: color blind safe? Color/pattern combos get confusing
 
     :param sample_links_dict: ``get_sample_links_dict`` ret val
     :type sample_links_dict: dict
@@ -560,24 +595,24 @@ def get_attr_link_color_dict(sample_links_dict):
         as vals.
     :rtype: dict
     """
-    available_attr_link_color_list = [
+    available_link_color_list = [
         (228, 26, 28),
         (55, 126, 184),
         (77, 175, 74),
         (152, 78, 163),
         (255, 127, 0)
     ]
-    if len(sample_links_dict) > len(available_attr_link_color_list):
+    if len(sample_links_dict) > len(available_link_color_list):
         msg = "Not enough unique colors for different attributes"
         raise IndexError(msg)
-    zip_obj = zip(sample_links_dict.keys(), available_attr_link_color_list)
+    zip_obj = zip(sample_links_dict.keys(), available_link_color_list)
     ret = {k: v for (k, v) in zip_obj}
     return ret
 
 
-def get_main_fig_attr_links_dict(sample_links_dict, main_fig_nodes_x_dict,
-                                 main_fig_nodes_y_dict, selected_samples,
-                                 main_fig_height, main_fig_width):
+def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
+                            main_fig_nodes_y_dict, selected_samples,
+                            main_fig_height, main_fig_width):
     """Get dict with info used by Plotly to viz links in main graph.
 
     :param sample_links_dict: ``get_sample_links_dict`` ret val
@@ -652,11 +687,9 @@ def get_main_fig_attr_links_dict(sample_links_dict, main_fig_nodes_x_dict,
     return ret
 
 
-def get_main_fig_attr_link_labels_dict(sample_links_dict,
-                                       main_fig_nodes_x_dict,
-                                       main_fig_nodes_y_dict, selected_samples,
-                                       main_fig_height, main_fig_width,
-                                       weights):
+def get_main_fig_link_labels_dict(sample_links_dict, main_fig_nodes_x_dict,
+                                  main_fig_nodes_y_dict, selected_samples,
+                                  main_fig_height, main_fig_width, weights):
     """Get dict with info used by Plotly to viz link labels.
 
     TODO: there may be a better way to do this. Certainly, the code
@@ -682,7 +715,7 @@ def get_main_fig_attr_link_labels_dict(sample_links_dict,
     :param main_fig_width: Width for main fig
     :type main_fig_width: int
     :param weights: Dictionary of expressions used to assign weights to
-        specific attr links
+        specific links.
     :type weights: dict
     :return: Dict with info used by Plotly to viz links in main graph
     :rtype: dict
@@ -842,24 +875,45 @@ def get_track_y_vals_dict(max_node_count_at_track_dict):
     return ret
 
 
-def get_main_fig_nodes_y_dict(sample_data_dict, date_attr,
+def get_main_fig_yaxis_ticktext(track_y_vals_dict):
+    """Get the ticktext used by Plotly to label the y-axis.
+
+    We map each track to a single str. We join the inner tuples with a
+    linebreak, and the values inside each tuple with a semicolon.
+
+    :param track_y_vals_dict: ``get_track_y_vals_dict`` ret val
+    :type track_y_vals_dict: dict
+    :return: Dict with label corresponding to each possible track
+    :rtype: dict
+    """
+    ret = []
+    for track in track_y_vals_dict:
+        inner_ret = []
+        for inner_track in track:
+            inner_ret.append(
+                "; ".join(["null" if e is None else e for e in inner_track])
+            )
+        ret.append("<br>".join(inner_ret))
+    return ret
+
+
+def get_main_fig_nodes_y_dict(sample_data_dict, date_attr, track_list,
                               track_date_node_count_dict,
-                              max_node_count_at_track_dict, y_axes,
-                              track_y_vals_dict):
+                              max_node_count_at_track_dict, track_y_vals_dict):
     """Get dict mapping nodes to y vals.
 
     :param sample_data_dict: Sample file data parsed into dict obj
     :rtype: dict
     :param date_attr: Sample file attr encoded by sample date/x-axis
     :type date_attr: str
+    :param track_list: List of sample tracks wrt all nodes
+    :type track_list: list[tuple[tuple[str]]]
     :param track_date_node_count_dict: Number of nodes at each track
         and date combination.
     :type track_date_node_count_dict: dict
     :param max_node_count_at_track_dict: Maximum number of nodes at a
         single date within each track.
     :type max_node_count_at_track_dict: dict
-    :param y_axes: List of attrs to use as hierarchical y axes
-    :type y_axes: list[str]
     :param track_y_vals_dict: Dict mapping tracks to numerical y vals
     :type track_y_vals_dict: dict
     :return: Dict mapping nodes to y vals
@@ -869,10 +923,9 @@ def get_main_fig_nodes_y_dict(sample_data_dict, date_attr,
                   for k, v in track_date_node_count_dict.items()}
 
     main_fig_nodes_y_dict = {}
-    for sample in sample_data_dict:
+    for i, sample in enumerate(sample_data_dict):
         sample_date = sample_data_dict[sample][date_attr]
-        sample_track = \
-            tuple((sample_data_dict[sample][axis] for axis in y_axes))
+        sample_track = track_list[i]
         [stagger, multiplier] = helper_obj[(sample_track, sample_date)]
 
         unstaggered_y = track_y_vals_dict[sample_track]
@@ -886,7 +939,7 @@ def get_main_fig_nodes_y_dict(sample_data_dict, date_attr,
 
 
 def get_main_fig_nodes_hovertext(sample_data_dict, main_fig_nodes_text,
-                                 date_list, track_list, attr_link_list):
+                                 date_list, track_list, links_config):
     """Get hovertext for nodes in main fig.
 
     :param sample_data_dict: Sample file data parsed into dict obj
@@ -897,30 +950,31 @@ def get_main_fig_nodes_hovertext(sample_data_dict, main_fig_nodes_text,
     :type date_list: list
     :param track_list: List of sample tracks wrt all nodes
     :type track_list: list
-    :param attr_link_list: list of attrs to include in ret dict
-    :type attr_link_list: list[str]
     :return: List of d3-formatted text to display on hover across all
         nodes in main fig.
     :rtype: list[str]
     """
     ret = []
+    link_label_attrs_dict = {}
+    for link_label in links_config:
+        link_label_attrs = links_config[link_label]
+        link_label_attrs_dict[link_label] = \
+            dict.fromkeys(link_label_attrs["all_eq"]
+                          + link_label_attrs["all_neq"]
+                          + link_label_attrs["any_eq"])
     for i, sample in enumerate(sample_data_dict):
         sample_data = sample_data_dict[sample]
         sample_label_vals = [main_fig_nodes_text[i],
                              date_list[i],
                              str(track_list[i]),
                              ""]
-        for attr in attr_link_list:
-            if attr[0] == "(" and attr[-1] == ")":
-                attr_list = attr[1:-1].split(";")
-            else:
-                attr_list = attr.split(";")
-            attr_list = [e[1:] if e[0] == "~" else e for e in attr_list]
-            attr_list_vals = [sample_data[e] for e in attr_list]
-            attr_ = ";".join(attr_list)
-            attr_val = \
-                ";".join(["null" if e is None else e for e in attr_list_vals])
-            sample_label_vals.append("<b>%s</b>: %s" % (attr_, attr_val))
+        for link_label in links_config:
+            sample_label_vals.append("<b>" + link_label + "</b>:")
+            attrs = link_label_attrs_dict[link_label]
+            attr_vals = \
+                ["null" if e is None else sample_data[e] for e in attrs]
+            sample_label_vals += \
+                ["%s: %s" % (i, j) for i, j in zip(attrs, attr_vals)]
         ret.append("<br>".join(sample_label_vals))
     return ret
 

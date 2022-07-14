@@ -2,34 +2,35 @@
   "delimiter": "\t",
   "node_id": "Sample",
   "y_axes": [
-    "threshold_10",
-    "site_order"
+    ["threshold_10"],
+    ["site_order"]
   ],
   "date_attr": "collection_date",
   "date_input": "%Y-%m-%d %H:%M:%S",
   "date_output": "%Y-%m-%d",
-  "label_attr": "Sample",
-  "attr_link_list": [
-    "threshold_10"
-  ],
-  "node_color_attr": "serovar",
-  "node_symbol_attr": "serovar",
+  "label_attr": ["Sample"],
+  "links_config": {
+    "same cluster": {
+      "all_eq": ["threshold_10"],
+      "all_neq": [],
+      "any_eq": []
+    }
+  },
+  "node_color_attr": ["serovar"],
+  "node_symbol_attr": ["serovar"],
   "links_across_primary_y": "True",
   "max_day_range": 14,
   "null_vals": ["", "-", "NA"],
   "weights": {
-    "threshold_10;collection_date": "@snp_dist@-!snp_dist!",
-    "threshold_10": "@snp_dist@-!snp_dist!"
+    "same cluster": "@snp_dist@-!snp_dist!"
   },
   "weight_filters": {
     "not_equal": {},
     "less_than": {
-      "threshold_10;collection_date": -5,
-      "threshold_10": -5
+      "same cluster": -5
     },
     "greater_than": {
-      "threshold_10;collection_date": 5,
-      "threshold_10": 5
+      "same cluster": 5
     }
   },
   "attr_val_filters": {}
