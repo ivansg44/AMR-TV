@@ -9,11 +9,16 @@ import operator as op
 
 # Supported operators
 OPERATORS = {
-    ast.Add: op.add,
-    ast.Sub: op.sub,
-    ast.Mult: op.mul,
-    ast.Div: op.truediv,
-    ast.USub: op.neg
+    "Add": op.add,
+    "Sub": op.sub,
+    "Mult": op.mul,
+    "Div": op.truediv,
+    "USub": op.neg
+}
+
+# Supported functions
+FUNCTIONS = {
+    "abs": op.abs
 }
 
 
@@ -31,17 +36,23 @@ def eval_expr(expr):
 def eval_(node):
     """Parse leaf AST nodes sent from ``eval_expr``.
 
-    :param node: AST
-    :type node: ast.expr
+    :param node: AST node
+    :type node: ast.AST
     :return: Evaluation of leaf node
     :rtype: str
     """
     if isinstance(node, ast.Num):
         return node.n
     elif isinstance(node, ast.BinOp):
-        return OPERATORS[type(node.op)](eval_(node.left), eval_(node.right))
+        operator = OPERATORS[type(node.op).__name__]
+        return operator(eval_(node.left), eval_(node.right))
     elif isinstance(node, ast.UnaryOp):
-        return OPERATORS[type(node.op)](eval_(node.operand))
+        operator = OPERATORS[type(node.op).__name__]
+        return operator(eval_(node.operand))
+    # ``func`` could be ast.Name or ast.Attribute
+    elif isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
+        fn = FUNCTIONS[node.func.id]
+        return fn(*[eval_(e) for e in node.args])
     else:
         raise TypeError("Encountered value that was not a number or operator "
                         "when parsing weight expression. Did you reference a "

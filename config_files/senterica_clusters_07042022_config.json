@@ -22,7 +22,7 @@
   "max_day_range": 14,
   "null_vals": ["", "-", "NA"],
   "weights": {
-    "same cluster": "@snp_dist@-!snp_dist!"
+    "same cluster": "abs(@snp_dist@-!snp_dist!)"
   },
   "weight_filters": {
     "not_equal": {},
