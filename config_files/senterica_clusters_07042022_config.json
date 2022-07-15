@@ -27,11 +27,9 @@
   "weight_filters": {
     "not_equal": {},
     "less_than": {
-      "same cluster": -5
-    },
-    "greater_than": {
       "same cluster": 5
-    }
+    },
+    "greater_than": {}
   },
   "attr_val_filters": {}
 }
