@@ -421,7 +421,7 @@ def get_node_color_attr_dict(node_color_attr_list):
 def get_sample_links_dict(sample_data_dict, links_config, primary_y,
                           links_across_primary_y, max_day_range, weights,
                           weight_filters, attr_val_filters):
-    """Get a dict of all links to viz in main graph.
+    """Get a dict of all links to viz in main graph.TODO
 
     The keys in the dict are different link labels. The values are a
     nested dict. The keys in the nested dict are tuples containing two
@@ -477,6 +477,7 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
         all_eq_list = links_config[link_label]["all_eq"]
         all_neq_list = links_config[link_label]["all_neq"]
         any_eq_list = links_config[link_label]["any_eq"]
+        minimize_loops = bool(links_config[link_label]["minimize_loops"])
 
         for i in range(len(sample_list)):
             sample_i = sample_list[i]
@@ -583,7 +584,16 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
                         sample_links_dict[link_label][(sample_j, sample_i)] = \
                             link_weight
 
+        if minimize_loops:
+            sample_links_dict[link_label] = \
+                filter_link_loops(sample_links_dict[link_label])
+
     return sample_links_dict
+
+
+def filter_link_loops(some_sample_links):
+    """TODO"""
+    return {}
 
 
 def get_link_color_dict(sample_links_dict):
