@@ -9,6 +9,8 @@ from json import loads
 from math import sqrt
 from re import compile
 
+import networkx as nx
+
 from expression_evaluator import eval_expr
 
 
@@ -593,7 +595,26 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
 
 def filter_link_loops(some_sample_links):
     """TODO"""
-    return {}
+    graph = nx.Graph()
+    for (sample, other_sample) in some_sample_links:
+        weight = some_sample_links[(sample, other_sample)]
+        # ``weight`` is a reserved keyword
+        graph.add_edge(sample, other_sample, weight_=weight)
+
+    disjoint_subgraphs = \
+        [graph.subgraph(c).copy() for c in nx.connected_components(graph)]
+    disjoint_mst_subgraphs = \
+        [nx.minimum_spanning_tree(g) for g in disjoint_subgraphs]
+    disjoint_mst_subgraph_edgeviews = \
+        [g.edges(data=True) for g in disjoint_mst_subgraphs]
+
+    ret = {}
+    for edgeview in disjoint_mst_subgraph_edgeviews:
+        for (sample, other_sample, data) in edgeview:
+            weight = data["weight_"]
+            ret[(sample, other_sample)] = weight
+
+    return ret
 
 
 def get_link_color_dict(sample_links_dict):
