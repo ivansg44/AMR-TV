@@ -588,18 +588,27 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
 
         if minimize_loops:
             sample_links_dict[link_label] = \
-                filter_link_loops(sample_links_dict[link_label])
+                filter_link_loops(sample_links_dict[link_label],
+                                  sample_data_dict)
 
     return sample_links_dict
 
 
-def filter_link_loops(some_sample_links):
+def filter_link_loops(some_sample_links, sample_data_dict):
     """TODO"""
     graph = nx.Graph()
     for (sample, other_sample) in some_sample_links:
-        weight = some_sample_links[(sample, other_sample)]
-        # ``weight`` is a reserved keyword
-        graph.add_edge(sample, other_sample, weight_=weight)
+        # ``weight`` is a reserved keyword in ``add_edge``
+        weight_ = some_sample_links[(sample, other_sample)]
+
+        # nx will use the difference in datetimes as weight, for mst
+        # purposes.
+        # TODO: allow users to specify own edge weight expressions
+        sample_datetime = sample_data_dict[sample]["datetime_obj"]
+        other_sample_datetime = sample_data_dict[other_sample]["datetime_obj"]
+        weight = (other_sample_datetime - sample_datetime).days
+
+        graph.add_edge(sample, other_sample, weight=weight, weight_=weight_)
 
     disjoint_subgraphs = \
         [graph.subgraph(c).copy() for c in nx.connected_components(graph)]
@@ -611,8 +620,8 @@ def filter_link_loops(some_sample_links):
     ret = {}
     for edgeview in disjoint_mst_subgraph_edgeviews:
         for (sample, other_sample, data) in edgeview:
-            weight = data["weight_"]
-            ret[(sample, other_sample)] = weight
+            weight_ = data["weight_"]
+            ret[(sample, other_sample)] = weight_
 
     return ret
 
