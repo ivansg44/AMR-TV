@@ -10,10 +10,11 @@
   "date_output": "%Y-%m-%d",
   "label_attr": ["Sample"],
   "links_config": {
-    "same cluster": {
+    "same cluster <=5 snp distance": {
       "all_eq": ["threshold_10"],
       "all_neq": [],
-      "any_eq": []
+      "any_eq": [],
+      "minimize_loops": 1
     }
   },
   "node_color_attr": ["serovar"],
