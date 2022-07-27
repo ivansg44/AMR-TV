@@ -631,32 +631,26 @@ def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
     :rtype: dict
     """
     ret = {}
-    translation_dict = {}
-    link_parallel_translation = 0.05
-    for attr in sample_links_dict:
-        ret[attr] = {"x": [], "y": []}
 
-        for (sample, other_sample) in sample_links_dict[attr]:
+    link_parallel_translation_dict = {}
+    link_unit_parallel_translation = 0.05
+    multiplier = 0
+    for link_label in sample_links_dict:
+        link_parallel_translation_dict[link_label] = \
+            multiplier * link_unit_parallel_translation
+        multiplier *= -1
+        if multiplier >= 0:
+            multiplier += 1
+
+    for link_label in sample_links_dict:
+        link_parallel_translation = link_parallel_translation_dict[link_label]
+        ret[link_label] = {"x": [], "y": []}
+
+        for (sample, other_sample) in sample_links_dict[link_label]:
             selected_link = \
                 sample in selected_samples or other_sample in selected_samples
             if selected_samples and not selected_link:
                 continue
-
-            if (sample, other_sample) in translation_dict:
-                old_multiplier = translation_dict[(sample, other_sample)]
-                if old_multiplier == 0:
-                    translation_dict[(sample, other_sample)] = 1
-                elif old_multiplier > 0:
-                    translation_dict[(sample, other_sample)] *= -1
-                else:
-                    translation_dict[(sample, other_sample)] *= -1
-                    translation_dict[(sample, other_sample)] += 1
-                multiplier = translation_dict[(sample, other_sample)]
-            else:
-                multiplier = 0
-                translation_dict[(sample, other_sample)] = multiplier
-
-            total_translation = multiplier * link_parallel_translation
 
             x0 = main_fig_nodes_x_dict[sample]
             y0 = main_fig_nodes_y_dict[sample]
@@ -664,25 +658,25 @@ def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
             y1 = main_fig_nodes_y_dict[other_sample]
 
             if (x1 - x0) == 0:
-                x0 += total_translation * (main_fig_height / main_fig_width)
-                x1 += total_translation * (main_fig_height / main_fig_width)
+                x0 += link_parallel_translation
+                x1 += link_parallel_translation
             elif (y1 - y0) == 0:
-                y0 += total_translation
-                y1 += total_translation
+                y0 += link_parallel_translation
+                y1 += link_parallel_translation
             else:
                 inverse_perpendicular_slope = (x1 - x0) / (y1 - y0)
-                numerator = total_translation ** 2
+                numerator = link_parallel_translation ** 2
                 denominator = 1 + inverse_perpendicular_slope**2
                 x_translation = sqrt(numerator/denominator)
-                if total_translation < 0:
+                if link_parallel_translation < 0:
                     x_translation *= -1
-                x0 += x_translation * (main_fig_height / main_fig_width)
-                x1 += x_translation * (main_fig_height / main_fig_width)
+                x0 += x_translation
+                x1 += x_translation
                 y0 += -inverse_perpendicular_slope * x_translation
                 y1 += -inverse_perpendicular_slope * x_translation
 
-            ret[attr]["x"] += [x0, x1, None]
-            ret[attr]["y"] += [y0, y1, None]
+            ret[link_label]["x"] += [x0, x1, None]
+            ret[link_label]["y"] += [y0, y1, None]
 
     return ret
 
