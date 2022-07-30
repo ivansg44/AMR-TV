@@ -13,27 +13,32 @@
     "F1: MLST type": {
       "all_eq": ["F1: MLST type"],
       "all_neq": [],
-      "any_eq": []
+      "any_eq": [],
+      "minimize_loops": 0
     },
     "Resitance gene type": {
       "all_eq": ["Resitance gene type"],
       "all_neq": [],
-      "any_eq": []
+      "any_eq": [],
+      "minimize_loops": 0
     },
     "SNPs_homozygous": {
       "all_eq": ["SNPs_homozygous"],
       "all_neq": [],
-      "any_eq": []
+      "any_eq": [],
+      "minimize_loops": 0
     },
     "Left_flanks;Right_flanks": {
       "all_eq": ["Left_flanks", "Right_flanks"],
       "all_neq": [],
-      "any_eq": []
+      "any_eq": [],
+      "minimize_loops": 0
     },
     "mash_neighbor_cluster": {
       "all_eq": ["mash_neighbor_cluster"],
       "all_neq": [],
-      "any_eq": []
+      "any_eq": [],
+      "minimize_loops": 0
     }
   },
   "node_color_attr": ["mash_neighbor_cluster"],
