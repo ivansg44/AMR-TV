@@ -9,6 +9,8 @@ from json import loads
 from math import sqrt
 from re import compile
 
+import networkx as nx
+
 from expression_evaluator import eval_expr
 
 
@@ -430,7 +432,8 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
     these nodes.
 
     We filter out certain links using ``weight_filters`` and
-    ``attr_val_filters``.
+    ``attr_val_filters``. If the user specifies ``minimize_loops``, we
+    generate minimum spanning trees for each group of connected nodes.
 
     :param sample_data_dict: ``get_sample_data_dict`` ret val
     :type sample_data_dict: dict
@@ -477,6 +480,7 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
         all_eq_list = links_config[link_label]["all_eq"]
         all_neq_list = links_config[link_label]["all_neq"]
         any_eq_list = links_config[link_label]["any_eq"]
+        minimize_loops = bool(links_config[link_label]["minimize_loops"])
 
         for i in range(len(sample_list)):
             sample_i = sample_list[i]
@@ -583,7 +587,59 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
                         sample_links_dict[link_label][(sample_j, sample_i)] = \
                             link_weight
 
+        if minimize_loops:
+            sample_links_dict[link_label] = \
+                filter_link_loops(sample_links_dict[link_label],
+                                  sample_data_dict)
+
     return sample_links_dict
+
+
+def filter_link_loops(some_sample_links, sample_data_dict):
+    """Remove links forming loops in a network.
+
+    Every group of connected nodes is converted into a minimum spanning
+    tree using Kruskal's algorithm. The weights assigned to each link
+    for this algorithm are equal to difference in sampling time b/w
+    nodes.
+
+    :param some_sample_links: Nested dict in ``get_sample_links_dict``
+        ret val.
+    :type some_sample_links: dict
+    :param sample_data_dict: ``get_sample_data_dict`` ret val
+    :type sample_data_dict: dict
+    :return: ``some_sample_links`` with certain links removed to
+        prevent loops.
+    :rtype: dict
+    """
+    graph = nx.Graph()
+    for (sample, other_sample) in some_sample_links:
+        # ``weight`` is a reserved keyword in ``add_edge``
+        weight_ = some_sample_links[(sample, other_sample)]
+
+        # nx will use the difference in datetimes as weight, for mst
+        # purposes.
+        # TODO: allow users to specify own edge weight expressions
+        sample_datetime = sample_data_dict[sample]["datetime_obj"]
+        other_sample_datetime = sample_data_dict[other_sample]["datetime_obj"]
+        weight = (other_sample_datetime - sample_datetime).days
+
+        graph.add_edge(sample, other_sample, weight=weight, weight_=weight_)
+
+    disjoint_subgraphs = \
+        [graph.subgraph(c).copy() for c in nx.connected_components(graph)]
+    disjoint_mst_subgraphs = \
+        [nx.minimum_spanning_tree(g) for g in disjoint_subgraphs]
+    disjoint_mst_subgraph_edgeviews = \
+        [g.edges(data=True) for g in disjoint_mst_subgraphs]
+
+    ret = {}
+    for edgeview in disjoint_mst_subgraph_edgeviews:
+        for (sample, other_sample, data) in edgeview:
+            weight_ = data["weight_"]
+            ret[(sample, other_sample)] = weight_
+
+    return ret
 
 
 def get_link_color_dict(sample_links_dict):

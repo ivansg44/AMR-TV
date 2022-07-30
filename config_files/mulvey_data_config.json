@@ -14,12 +14,14 @@
     "SNP distance": {
       "all_eq": ["sequence type"],
       "all_neq": [],
-      "any_eq": []
+      "any_eq": [],
+      "minimize_loops": 0
     },
     "potential plasmid transfer": {
       "all_eq": ["incompatibility group"],
       "all_neq": ["sequence type"],
-      "any_eq": []
+      "any_eq": [],
+      "minimize_loops": 1
     }
   },
   "node_color_attr": [],
