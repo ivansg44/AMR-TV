@@ -423,7 +423,7 @@ def get_node_color_attr_dict(node_color_attr_list):
 def get_sample_links_dict(sample_data_dict, links_config, primary_y,
                           links_across_primary_y, max_day_range, weights,
                           weight_filters, attr_val_filters):
-    """Get a dict of all links to viz in main graph.TODO
+    """Get a dict of all links to viz in main graph.
 
     The keys in the dict are different link labels. The values are a
     nested dict. The keys in the nested dict are tuples containing two
@@ -432,7 +432,8 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
     these nodes.
 
     We filter out certain links using ``weight_filters`` and
-    ``attr_val_filters``.
+    ``attr_val_filters``. If the user specifies ``minimize_loops``, we
+    generate minimum spanning trees for each group of connected nodes.
 
     :param sample_data_dict: ``get_sample_data_dict`` ret val
     :type sample_data_dict: dict
@@ -595,7 +596,22 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
 
 
 def filter_link_loops(some_sample_links, sample_data_dict):
-    """TODO"""
+    """Remove links forming loops in a network.
+
+    Every group of connected nodes is converted into a minimum spanning
+    tree using Kruskal's algorithm. The weights assigned to each link
+    for this algorithm are equal to difference in sampling time b/w
+    nodes.
+
+    :param some_sample_links: Nested dict in ``get_sample_links_dict``
+        ret val.
+    :type some_sample_links: dict
+    :param sample_data_dict: ``get_sample_data_dict`` ret val
+    :type sample_data_dict: dict
+    :return: ``some_sample_links`` with certain links removed to
+        prevent loops.
+    :rtype: dict
+    """
     graph = nx.Graph()
     for (sample, other_sample) in some_sample_links:
         # ``weight`` is a reserved keyword in ``add_edge``
