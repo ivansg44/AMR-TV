@@ -1,10 +1,10 @@
-sample id	sample date	sequence type	species	incompatibility group	Tn4401 variant	Tn4401 isoform	SNV distance
-A	October 2011	ST512	Klebsiella pneumoniae	IncFII(k)	Tn4401a-1	a	0
-B	September 2012	ST512	Klebsiella pneumoniae	IncFII(k)	Tn4401a-1	a	4
-C	June 2014	ST252	Klebsiella pneumoniae	IncN	Tn4401b-2	b	0
-D	July 2014	ST1846	Klebsiella pneumoniae	IncN	Tn4401b-2	b	0
-E	November 2014		K. oxytoca	IncP, L/M	Tn4401b-1	b	0
-F	November 2014	ST252	Klebsiella pneumoniae	IncN	Tn4401b-2	b	3
-G	November 2014	ST354	Escherichia coli	IncN	Tn4401b-2	b	0
-H	December 2014	ST354	Escherichia coli	IncN	Tn4401b-2	b	38
-I	January 2015	ST1846	Klebsiella pneumoniae	IncN	Tn4401b-2	b	6
+sample id	sample date	sequence type	species	incompatibility group	Tn4401 variant	Tn4401 isoform	SNV distance	prflpa1	prflpa2	prflpa3
+A	October 2011	ST512	Klebsiella pneumoniae	IncFII(k)	Tn4401a-1	a	0			
+B	September 2012	ST512	Klebsiella pneumoniae	IncFII(k)	Tn4401a-1	a	4			
+C	June 2014	ST252	Klebsiella pneumoniae	IncN	Tn4401b-2	b	0	prflpa1	prflpa2	
+D	July 2014	ST1846	Klebsiella pneumoniae	IncN	Tn4401b-2	b	0	prflpa1		
+E	November 2014		K. oxytoca	IncP, L/M	Tn4401b-1	b	0			
+F	November 2014	ST252	Klebsiella pneumoniae	IncN	Tn4401b-2	b	3		prflpa2	
+G	November 2014	ST354	Escherichia coli	IncN	Tn4401b-2	b	0		prflpa2	prflpa3
+H	December 2014	ST354	Escherichia coli	IncN	Tn4401b-2	b	38			prflpa3
+I	January 2015	ST1846	Klebsiella pneumoniae	IncN	Tn4401b-2	b	6	prflpa1		

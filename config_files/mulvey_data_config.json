@@ -18,9 +18,9 @@
       "minimize_loops": 0
     },
     "potential plasmid transfer": {
-      "all_eq": ["incompatibility group"],
-      "all_neq": ["sequence type"],
-      "any_eq": [],
+      "all_eq": ["Tn4401 variant"],
+      "all_neq": [],
+      "any_eq": ["prflpa1", "prflpa2", "prflpa3"],
       "minimize_loops": 1
     }
   },
