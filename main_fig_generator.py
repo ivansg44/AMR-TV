@@ -263,8 +263,8 @@ def get_zoomed_out_main_fig(app_data, nodes_graph, link_graphs,
     return ret
 
 
-def add_directed_arrows_to_fig(fig, app_data, arrow_width, arrow_size):
-    """Add directed arrows to the main figs.
+def add_directed_links_to_fig(fig, app_data, arrow_width, arrow_size):
+    """Add directed links to the main figs.
 
     Plotly does not allow you to add arrowheads to line graphs, so a
     separate fn was built for this a workout. We add the directed links
@@ -332,10 +332,10 @@ def get_main_figs(app_data):
                                                   link_graphs,
                                                   primary_facet_lines_graph)
 
-    main_fig = add_directed_arrows_to_fig(main_fig, app_data, arrow_width=3,
-                                          arrow_size=0.6)
-    zoomed_out_main_fig = add_directed_arrows_to_fig(zoomed_out_main_fig,
-                                                     app_data, arrow_width=1,
-                                                     arrow_size=1)
+    main_fig = add_directed_links_to_fig(main_fig, app_data, arrow_width=3,
+                                         arrow_size=0.6)
+    zoomed_out_main_fig = add_directed_links_to_fig(zoomed_out_main_fig,
+                                                    app_data, arrow_width=1,
+                                                    arrow_size=1)
 
     return main_fig, zoomed_out_main_fig
