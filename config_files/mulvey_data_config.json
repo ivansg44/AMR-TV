@@ -15,13 +15,15 @@
       "all_eq": ["sequence type"],
       "all_neq": [],
       "any_eq": [],
-      "minimize_loops": 0
+      "minimize_loops": 0,
+      "directed": 0
     },
     "potential plasmid transfer": {
       "all_eq": ["Tn4401 variant"],
       "all_neq": [],
       "any_eq": ["prflpa1", "prflpa2", "prflpa3"],
-      "minimize_loops": 1
+      "minimize_loops": 1,
+      "directed": 1
     }
   },
   "node_color_attr": [],
