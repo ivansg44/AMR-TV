@@ -38,9 +38,10 @@ def get_main_fig_nodes(app_data):
 
 def get_main_fig_link_graphs(app_data):
     """Get plotly scatter objs of links in main fig.
+    TODO
 
     This is basically a list of different scatter objs--one for each
-    attr.
+    link.
 
     :param app_data: ``data_parser.get_app_data`` ret val
     :type app_data: dict
@@ -48,21 +49,24 @@ def get_main_fig_link_graphs(app_data):
     :rtype: list[go.Scatter]
     """
     ret = []
-    for attr in app_data["main_fig_links_dict"]:
-        attr_x = app_data["main_fig_links_dict"][attr]["x"]
-        attr_y = app_data["main_fig_links_dict"][attr]["y"]
-        (r, g, b) = app_data["link_color_dict"][attr]
+    for link in app_data["main_fig_links_dict"]:
+        if app_data["directed_links_dict"][link]:
+            continue
 
-        attr_graph = go.Scatter(
-            x=[x if x else None for x in attr_x],
-            y=[y if y else None for y in attr_y],
+        link_x = app_data["main_fig_links_dict"][link]["x"]
+        link_y = app_data["main_fig_links_dict"][link]["y"]
+        (r, g, b) = app_data["link_color_dict"][link]
+
+        link_graph = go.Scatter(
+            x=[x if x else None for x in link_x],
+            y=[y if y else None for y in link_y],
             mode="lines",
             line={
                 "width": 3,
                 "color": "rgb(%s,%s,%s)" % (r, g, b)
             }
         )
-        ret += [attr_graph]
+        ret += [link_graph]
 
     return ret
 
@@ -71,7 +75,7 @@ def get_main_fig_link_label_graphs(app_data):
     """Get plotly scatter objs of links labels in main fig.
 
     This is basically a list of different scatter objs--one for each
-    attr label type.
+    link type.
 
     :param app_data: ``data_parser.get_app_data`` ret val
     :type app_data: dict
@@ -79,16 +83,17 @@ def get_main_fig_link_label_graphs(app_data):
     :rtype: list[go.Scatter]
     """
     ret = []
-    for attr in app_data["main_fig_link_labels_dict"]:
-        attr_x = app_data["main_fig_link_labels_dict"][attr]["x"]
-        attr_y = app_data["main_fig_link_labels_dict"][attr]["y"]
-        attr_text = app_data["main_fig_link_labels_dict"][attr]["text"]
-        (r, g, b) = app_data["link_color_dict"][attr]
+    for link_label in app_data["main_fig_link_labels_dict"]:
+        link_label_x = app_data["main_fig_link_labels_dict"][link_label]["x"]
+        link_label_y = app_data["main_fig_link_labels_dict"][link_label]["y"]
+        link_label_text = \
+            app_data["main_fig_link_labels_dict"][link_label]["text"]
+        (r, g, b) = app_data["link_color_dict"][link_label]
 
-        attr_graph = go.Scatter(
-            x=attr_x,
-            y=attr_y,
-            text=attr_text,
+        link_label_graph = go.Scatter(
+            x=link_label_x,
+            y=link_label_y,
+            text=link_label_text,
             mode="text",
             textfont={
                 "color": "rgb(%s,%s,%s)" % (r, g, b),
@@ -96,7 +101,7 @@ def get_main_fig_link_label_graphs(app_data):
             }
         )
 
-        ret += [attr_graph]
+        ret += [link_label_graph]
 
     return ret
 
@@ -259,6 +264,37 @@ def get_zoomed_out_main_fig(app_data, nodes_graph, attr_link_graphs,
     return ret
 
 
+def add_arrowheads_to_fig(fig, app_data, arrow_width, arrow_size):
+    """TODO"""
+    annotations = []
+    for link in app_data["directed_links_dict"]:
+        if not app_data["directed_links_dict"][link]:
+            continue
+
+        link_dict = app_data["main_fig_links_dict"][link]
+        arrowhead_color = app_data["link_color_dict"][link]
+        for i in range(0, len(link_dict["x"]), 3):
+            annotations.append({
+                "x": link_dict["x"][i + 1],
+                "y": link_dict["y"][i+1],
+                "ax": link_dict["x"][i],
+                "ay": link_dict["y"][i],
+                "xref": "x",
+                "yref": "y",
+                "axref": "x",
+                "ayref": "y",
+                "showarrow": True,
+                "arrowcolor": "rgb(%s, %s, %s)" % arrowhead_color,
+                "arrowhead": 1,
+                "arrowwidth": arrow_width,
+                "arrowsize": arrow_size
+            })
+
+    fig.update_layout(annotations=annotations)
+
+    return fig
+
+
 def get_main_figs(app_data):
     """Get main and zoomed-out main figs in viz.
 
@@ -284,5 +320,14 @@ def get_main_figs(app_data):
                                                   nodes_graph,
                                                   link_graphs,
                                                   primary_facet_lines_graph)
+
+    main_fig = add_arrowheads_to_fig(main_fig,
+                                     app_data,
+                                     arrow_width=3,
+                                     arrow_size=0.6)
+    zoomed_out_main_fig = add_arrowheads_to_fig(zoomed_out_main_fig,
+                                                app_data,
+                                                arrow_width=1,
+                                                arrow_size=1)
 
     return main_fig, zoomed_out_main_fig

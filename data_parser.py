@@ -141,13 +141,15 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
 
     link_color_dict = get_link_color_dict(sample_links_dict)
 
+    directed_links_dict = \
+        {k: v["directed"] for k, v in config_file_dict["links_config"].items()}
+
     main_fig_links_dict = get_main_fig_links_dict(
         sample_links_dict=sample_links_dict,
         main_fig_nodes_x_dict=main_fig_nodes_x_dict,
         main_fig_nodes_y_dict=main_fig_nodes_y_dict,
         selected_samples=selected_samples,
-        main_fig_height=main_fig_height,
-        main_fig_width=main_fig_width
+        directed_links_dict=directed_links_dict
     )
 
     main_fig_link_labels_dict = get_main_fig_link_labels_dict(
@@ -218,7 +220,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         "main_fig_secondary_facet_y":
             get_main_fig_secondary_facet_y(max_node_count_at_track_dict),
         "main_fig_height": main_fig_height,
-        "main_fig_width": main_fig_width
+        "main_fig_width": main_fig_width,
+        "directed_links_dict": directed_links_dict
     }
 
     return app_data
@@ -668,8 +671,9 @@ def get_link_color_dict(sample_links_dict):
 
 def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
                             main_fig_nodes_y_dict, selected_samples,
-                            main_fig_height, main_fig_width):
+                            directed_links_dict):
     """Get dict with info used by Plotly to viz links in main graph.
+    TODO
 
     :param sample_links_dict: ``get_sample_links_dict`` ret val
     :type sample_links_dict: dict
@@ -679,10 +683,6 @@ def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
     :type main_fig_nodes_y_dict: dict
     :param selected_samples: Samples selected by users
     :type selected_samples: set[str]
-    :param main_fig_height: Height for main fig
-    :type main_fig_height: int
-    :param main_fig_width: Width for main fig
-    :type main_fig_width: int
     :return: Dict with info used by Plotly to viz links in main graph
     :rtype: dict
     """
@@ -712,6 +712,19 @@ def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
             y0 = main_fig_nodes_y_dict[sample]
             x1 = main_fig_nodes_x_dict[other_sample]
             y1 = main_fig_nodes_y_dict[other_sample]
+
+            # https://math.stackexchange.com/a/1630886
+            if directed_links_dict[link_label]:
+                d = sqrt((x1-x0)**2 + (y1-y0)**2)
+                dt0 = 0.05
+                t0 = dt0 / d
+                x0 = (1 - t0) * x0 + t0 * x1
+                y0 = (1 - t0) * y0 + t0 * y1
+
+                dt1 = d - 0.1
+                t1 = dt1 / d
+                x1 = (1 - t1) * x0 + t1 * x1
+                y1 = (1 - t1) * y0 + t1 * y1
 
             if (x1 - x0) == 0:
                 x0 += link_parallel_translation
