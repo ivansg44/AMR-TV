@@ -5,7 +5,6 @@ Running this script launches the application.
 
 import dash
 from dash import Dash
-from dash.dash import no_update
 from dash.dependencies import ClientsideFunction, Input, Output, State
 from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc

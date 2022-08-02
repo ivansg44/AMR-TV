@@ -14,7 +14,8 @@
       "all_eq": ["threshold_10"],
       "all_neq": [],
       "any_eq": [],
-      "minimize_loops": 1
+      "minimize_loops": 1,
+      "directed": 0
     }
   },
   "node_color_attr": ["serovar"],

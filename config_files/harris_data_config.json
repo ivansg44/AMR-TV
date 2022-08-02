@@ -14,7 +14,8 @@
       "all_eq": ["family"],
       "all_neq": [],
       "any_eq": [],
-      "minimize_loops": 0
+      "minimize_loops": 0,
+      "directed": 0
     }
   },
   "node_color_attr": [],
