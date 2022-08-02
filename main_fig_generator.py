@@ -153,20 +153,19 @@ def get_main_fig_secondary_facet_lines(app_data):
     return lines
 
 
-def get_main_fig(app_data, nodes_graph, attr_link_graphs,
-                 attr_link_label_graphs, primary_facet_lines_graph,
-                 secondary_facet_lines_graph):
+def get_main_fig(app_data, nodes_graph, link_graphs, link_label_graphs,
+                 primary_facet_lines_graph, secondary_facet_lines_graph):
     """Get main fig in viz.
 
     :param app_data: ``data_parser.get_app_data`` ret val
     :type app_data: dict
     :param nodes_graph: Plotly scatter obj of nodes in main fig
     :type nodes_graph: go.Scatter
-    :param attr_link_graphs: Plotly scatter objs of links in main fig
-    :type attr_link_graphs: list[go.Scatter]
-    :param attr_link_label_graphs: Plotly scatter objs of link labels in main
+    :param link_graphs: Plotly scatter objs of links in main fig
+    :type link_graphs: list[go.Scatter]
+    :param link_label_graphs: Plotly scatter objs of link labels in main
         fig.
-    :type attr_link_label_graphs: list[go.Scatter]
+    :type link_label_graphs: list[go.Scatter]
     :param primary_facet_lines_graph: Plotly scatter obj used to draw primary
         facet lines in main fig.
     :type primary_facet_lines_graph: go.Scatter
@@ -177,7 +176,7 @@ def get_main_fig(app_data, nodes_graph, attr_link_graphs,
     :rtype: go.Figure
     """
     ret = go.Figure(
-        data=attr_link_graphs + attr_link_label_graphs + [
+        data=link_graphs + link_label_graphs + [
               nodes_graph,
               secondary_facet_lines_graph,
               primary_facet_lines_graph
@@ -215,7 +214,7 @@ def get_main_fig(app_data, nodes_graph, attr_link_graphs,
     return ret
 
 
-def get_zoomed_out_main_fig(app_data, nodes_graph, attr_link_graphs,
+def get_zoomed_out_main_fig(app_data, nodes_graph, link_graphs,
                             primary_facet_lines_graph):
     """Get zoomed out main fig in viz.
 
@@ -223,8 +222,8 @@ def get_zoomed_out_main_fig(app_data, nodes_graph, attr_link_graphs,
     :type app_data: dict
     :param nodes_graph: Plotly scatter obj of nodes in main fig
     :type nodes_graph: go.Scatter
-    :param attr_link_graphs: Plotly scatter objs of links in main fig
-    :type attr_link_graphs: list[go.Scatter]
+    :param link_graphs: Plotly scatter objs of links in main fig
+    :type link_graphs: list[go.Scatter]
     :param primary_facet_lines_graph: Plotly scatter obj used to draw primary
         facet lines in main fig.
     :type primary_facet_lines_graph: go.Scatter
@@ -232,7 +231,7 @@ def get_zoomed_out_main_fig(app_data, nodes_graph, attr_link_graphs,
     :rtype: go.Figure
     """
     ret = go.Figure(
-        data=attr_link_graphs + [nodes_graph, primary_facet_lines_graph],
+        data=link_graphs + [nodes_graph, primary_facet_lines_graph],
         layout={
             "margin": {
                 "l": 0, "r": 0, "t": 0, "b": 0
@@ -310,14 +309,10 @@ def get_main_figs(app_data):
     primary_facet_lines_graph = get_main_fig_primary_facet_lines(app_data)
     secondary_facet_lines_graph = get_main_fig_secondary_facet_lines(app_data)
 
-    main_fig = get_main_fig(app_data,
-                            nodes_graph,
-                            link_graphs,
-                            link_label_graphs,
-                            primary_facet_lines_graph,
+    main_fig = get_main_fig(app_data, nodes_graph, link_graphs,
+                            link_label_graphs, primary_facet_lines_graph,
                             secondary_facet_lines_graph)
-    zoomed_out_main_fig = get_zoomed_out_main_fig(app_data,
-                                                  nodes_graph,
+    zoomed_out_main_fig = get_zoomed_out_main_fig(app_data, nodes_graph,
                                                   link_graphs,
                                                   primary_facet_lines_graph)
 

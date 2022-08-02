@@ -474,16 +474,16 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
                 else sample_data[e]
                 for e in link_config_list]
 
-    for link_label in links_config:
+    for link in links_config:
         try:
-            link_attr_filters = attr_val_filters[link_label]
+            link_attr_filters = attr_val_filters[link]
         except KeyError:
             link_attr_filters = []
 
-        all_eq_list = links_config[link_label]["all_eq"]
-        all_neq_list = links_config[link_label]["all_neq"]
-        any_eq_list = links_config[link_label]["any_eq"]
-        minimize_loops = bool(links_config[link_label]["minimize_loops"])
+        all_eq_list = links_config[link]["all_eq"]
+        all_neq_list = links_config[link]["all_neq"]
+        any_eq_list = links_config[link]["any_eq"]
+        minimize_loops = bool(links_config[link]["minimize_loops"])
 
         for i in range(len(sample_list)):
             sample_i = sample_list[i]
@@ -547,7 +547,7 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
                 any_eq = any(any_eq_matches) if len(any_eq_matches) else True
 
                 if all_eq and all_neq and any_eq:
-                    if link_label in weights:
+                    if link in weights:
                         def repl_fn(match_obj):
                             # Substitute the syntax used in weight
                             # expressions to reference node attr
@@ -564,35 +564,35 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
                                       "parsing weight expression: " + match
                                 raise RuntimeError(msg)
 
-                        weight_exp = weights[link_label]
+                        weight_exp = weights[link]
                         subbed_exp = regex_obj.sub(repl_fn, weight_exp)
                         link_weight = eval_expr(subbed_exp)
 
-                        if link_label in weight_filters["not_equal"]:
-                            neq = weight_filters["not_equal"][link_label]
+                        if link in weight_filters["not_equal"]:
+                            neq = weight_filters["not_equal"][link]
                             if link_weight == neq:
                                 continue
-                        if link_label in weight_filters["less_than"]:
-                            le = weight_filters["less_than"][link_label]
+                        if link in weight_filters["less_than"]:
+                            le = weight_filters["less_than"][link]
                             if link_weight < le:
                                 continue
-                        if link_label in weight_filters["greater_than"]:
-                            ge = weight_filters["greater_than"][link_label]
+                        if link in weight_filters["greater_than"]:
+                            ge = weight_filters["greater_than"][link]
                             if link_weight > ge:
                                 continue
                     else:
                         link_weight = 0
 
                     if sample_j_datetime > sample_i_datetime:
-                        sample_links_dict[link_label][(sample_i, sample_j)] = \
+                        sample_links_dict[link][(sample_i, sample_j)] = \
                             link_weight
                     else:
-                        sample_links_dict[link_label][(sample_j, sample_i)] = \
+                        sample_links_dict[link][(sample_j, sample_i)] = \
                             link_weight
 
         if minimize_loops:
-            sample_links_dict[link_label] = \
-                filter_link_loops(sample_links_dict[link_label],
+            sample_links_dict[link] = \
+                filter_link_loops(sample_links_dict[link],
                                   sample_data_dict)
 
     return sample_links_dict
@@ -646,12 +646,11 @@ def filter_link_loops(some_sample_links, sample_data_dict):
 
 
 def get_link_color_dict(sample_links_dict):
-    """Get dict assigning color to attrs vized as links.
+    """Get dict assigning color to each link.
 
     :param sample_links_dict: ``get_sample_links_dict`` ret val
     :type sample_links_dict: dict
-    :return: Dict with attrs vized as links as keys, and a unique color
-        as vals.
+    :return: Dict links as keys, and unique colors as vals.
     :rtype: dict
     """
     available_link_color_list = [
@@ -691,18 +690,18 @@ def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
     link_parallel_translation_dict = {}
     link_unit_parallel_translation = 0.05
     multiplier = 0
-    for link_label in sample_links_dict:
-        link_parallel_translation_dict[link_label] = \
+    for link in sample_links_dict:
+        link_parallel_translation_dict[link] = \
             multiplier * link_unit_parallel_translation
         multiplier *= -1
         if multiplier >= 0:
             multiplier += 1
 
-    for link_label in sample_links_dict:
-        link_parallel_translation = link_parallel_translation_dict[link_label]
-        ret[link_label] = {"x": [], "y": []}
+    for link in sample_links_dict:
+        link_parallel_translation = link_parallel_translation_dict[link]
+        ret[link] = {"x": [], "y": []}
 
-        for (sample, other_sample) in sample_links_dict[link_label]:
+        for (sample, other_sample) in sample_links_dict[link]:
             selected_link = \
                 sample in selected_samples or other_sample in selected_samples
             if selected_samples and not selected_link:
@@ -714,7 +713,7 @@ def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
             y1 = main_fig_nodes_y_dict[other_sample]
 
             # https://math.stackexchange.com/a/1630886
-            if directed_links_dict[link_label]:
+            if directed_links_dict[link]:
                 d = sqrt((x1-x0)**2 + (y1-y0)**2)
                 dt0 = 0.05
                 t0 = dt0 / d
@@ -744,8 +743,8 @@ def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
                 y0 += -inverse_perpendicular_slope * x_translation
                 y1 += -inverse_perpendicular_slope * x_translation
 
-            ret[link_label]["x"] += [x0, x1, None]
-            ret[link_label]["y"] += [y0, y1, None]
+            ret[link]["x"] += [x0, x1, None]
+            ret[link]["y"] += [y0, y1, None]
 
     return ret
 
@@ -788,13 +787,13 @@ def get_main_fig_link_labels_dict(sample_links_dict, main_fig_nodes_x_dict,
     min_multiplier = len(sample_links_dict)/2 + 1
     link_parallel_translation = 0.05
     total_translation = min_multiplier * link_parallel_translation
-    for attr in sample_links_dict:
-        if attr not in weights:
+    for link in sample_links_dict:
+        if link not in weights:
             continue
 
-        ret[attr] = {"x": [], "y": [], "text": []}
+        ret[link] = {"x": [], "y": [], "text": []}
 
-        for (sample, other_sample) in sample_links_dict[attr]:
+        for (sample, other_sample) in sample_links_dict[link]:
             selected_link = \
                 sample in selected_samples or other_sample in selected_samples
             if selected_samples and not selected_link:
@@ -833,11 +832,11 @@ def get_main_fig_link_labels_dict(sample_links_dict, main_fig_nodes_x_dict,
             xmid = (x0 + x1) / 2 + \
                    (label_count - 1) * 3 * link_parallel_translation
             ymid = (y0 + y1) / 2
-            weight = sample_links_dict[attr][(sample, other_sample)]
+            weight = sample_links_dict[link][(sample, other_sample)]
 
-            ret[attr]["x"].append(xmid)
-            ret[attr]["y"].append(ymid)
-            ret[attr]["text"].append(weight)
+            ret[link]["x"].append(xmid)
+            ret[link]["y"].append(ymid)
+            ret[link]["text"].append(weight)
 
     return ret
 
@@ -1018,22 +1017,22 @@ def get_main_fig_nodes_hovertext(sample_data_dict, main_fig_nodes_text,
     :rtype: list[str]
     """
     ret = []
-    link_label_attrs_dict = {}
-    for link_label in links_config:
-        link_label_attrs = links_config[link_label]
-        link_label_attrs_dict[link_label] = \
-            dict.fromkeys(link_label_attrs["all_eq"]
-                          + link_label_attrs["all_neq"]
-                          + link_label_attrs["any_eq"])
+    link_attrs_dict = {}
+    for link in links_config:
+        link_attrs = links_config[link]
+        link_attrs_dict[link] = \
+            dict.fromkeys(link_attrs["all_eq"]
+                          + link_attrs["all_neq"]
+                          + link_attrs["any_eq"])
     for i, sample in enumerate(sample_data_dict):
         sample_data = sample_data_dict[sample]
         sample_label_vals = [main_fig_nodes_text[i],
                              date_list[i],
                              str(track_list[i]),
                              ""]
-        for link_label in links_config:
-            sample_label_vals.append("<b>" + link_label + "</b>:")
-            attrs = link_label_attrs_dict[link_label]
+        for link in links_config:
+            sample_label_vals.append("<b>" + link + "</b>:")
+            attrs = link_attrs_dict[link]
             attr_vals = \
                 ["null" if e is None else sample_data[e] for e in attrs]
             sample_label_vals += \
