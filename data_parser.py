@@ -672,7 +672,6 @@ def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
                             main_fig_nodes_y_dict, selected_samples,
                             directed_links_dict):
     """Get dict with info used by Plotly to viz links in main graph.
-    TODO
 
     :param sample_links_dict: ``get_sample_links_dict`` ret val
     :type sample_links_dict: dict
@@ -712,7 +711,10 @@ def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
             x1 = main_fig_nodes_x_dict[other_sample]
             y1 = main_fig_nodes_y_dict[other_sample]
 
-            # https://math.stackexchange.com/a/1630886
+            # If the links are directed, we want to shorten them a bit
+            # because they will be annotations, and annotations overlap
+            # the symbols.
+            # See https://math.stackexchange.com/a/1630886
             if directed_links_dict[link]:
                 d = sqrt((x1-x0)**2 + (y1-y0)**2)
                 dt0 = 0.05

@@ -38,10 +38,10 @@ def get_main_fig_nodes(app_data):
 
 def get_main_fig_link_graphs(app_data):
     """Get plotly scatter objs of links in main fig.
-    TODO
 
     This is basically a list of different scatter objs--one for each
-    link.
+    link. This does not included directed links, which are added later
+    as annotations.
 
     :param app_data: ``data_parser.get_app_data`` ret val
     :type app_data: dict
@@ -263,8 +263,24 @@ def get_zoomed_out_main_fig(app_data, nodes_graph, link_graphs,
     return ret
 
 
-def add_arrowheads_to_fig(fig, app_data, arrow_width, arrow_size):
-    """TODO"""
+def add_directed_arrows_to_fig(fig, app_data, arrow_width, arrow_size):
+    """Add directed arrows to the main figs.
+
+    Plotly does not allow you to add arrowheads to line graphs, so a
+    separate fn was built for this a workout. We add the directed links
+    as annotations, which do allow arrowheads.
+
+    :param fig: ``get_main_fig`` or ``get_zoomed_out_main_fig`` ret val
+    :type fig: go.Figure
+    :param app_data: ``data_parser.get_app_data`` ret val
+    :type app_data: dict
+    :param arrow_width: Width of links
+    :type arrow_width: int
+    :param arrow_size: Size of arrowhead; must be greater than 0.3
+    :type arrow_size: float
+    :return: fig with directed links added to it
+    :rtype: go.Figure
+    """
     annotations = []
     for link in app_data["directed_links_dict"]:
         if not app_data["directed_links_dict"][link]:
@@ -316,13 +332,10 @@ def get_main_figs(app_data):
                                                   link_graphs,
                                                   primary_facet_lines_graph)
 
-    main_fig = add_arrowheads_to_fig(main_fig,
-                                     app_data,
-                                     arrow_width=3,
-                                     arrow_size=0.6)
-    zoomed_out_main_fig = add_arrowheads_to_fig(zoomed_out_main_fig,
-                                                app_data,
-                                                arrow_width=1,
-                                                arrow_size=1)
+    main_fig = add_directed_arrows_to_fig(main_fig, app_data, arrow_width=3,
+                                          arrow_size=0.6)
+    zoomed_out_main_fig = add_directed_arrows_to_fig(zoomed_out_main_fig,
+                                                     app_data, arrow_width=1,
+                                                     arrow_size=1)
 
     return main_fig, zoomed_out_main_fig
