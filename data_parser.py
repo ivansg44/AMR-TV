@@ -583,7 +583,7 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
                     else:
                         link_weight = 0
 
-                    if sample_j_datetime > sample_i_datetime:
+                    if sample_i_datetime <= sample_j_datetime:
                         sample_links_dict[link][(sample_i, sample_j)] = \
                             link_weight
                     else:
@@ -626,8 +626,14 @@ def filter_link_loops(some_sample_links, sample_data_dict):
         sample_datetime = sample_data_dict[sample]["datetime_obj"]
         other_sample_datetime = sample_data_dict[other_sample]["datetime_obj"]
         weight = (other_sample_datetime - sample_datetime).days
+        # Need to track original order because graph is undirected
+        order = (sample, other_sample)
 
-        graph.add_edge(sample, other_sample, weight=weight, weight_=weight_)
+        graph.add_edge(sample,
+                       other_sample,
+                       weight=weight,
+                       weight_=weight_,
+                       order=order)
 
     disjoint_subgraphs = \
         [graph.subgraph(c).copy() for c in nx.connected_components(graph)]
@@ -640,7 +646,8 @@ def filter_link_loops(some_sample_links, sample_data_dict):
     for edgeview in disjoint_mst_subgraph_edgeviews:
         for (sample, other_sample, data) in edgeview:
             weight_ = data["weight_"]
-            ret[(sample, other_sample)] = weight_
+            order = data["order"]
+            ret[order] = weight_
 
     return ret
 
