@@ -57,18 +57,56 @@ def launch_app(_):
                 dbc.Col(
                     dbc.Tabs(
                         children=[
-                            dbc.Tab(
-                                dcc.Graph(
-                                    figure={},
-                                    id="main-graph",
-                                    config={"displayModeBar": False}
-                                ),
+                            dbc.Tab(children=[
+                                dbc.Row(children=[
+                                    dbc.Col(
+                                        dcc.Graph(
+                                            figure={},
+                                            id="main-graph-y-axis",
+                                            config={"displayModeBar": False},
+                                            style={"height": "100%",
+                                                   "width": "100%"}
+                                        ),
+                                        className="p-0",
+                                        style={"height": "80vh",
+                                               "width": "10vw"},
+                                        width=2
+                                    ),
+                                    dbc.Col(
+                                        dcc.Graph(
+                                            figure={},
+                                            id="main-graph",
+                                            config={"displayModeBar": False},
+                                            style={"height": "100%",
+                                                   "width": "100%"}
+                                        ),
+                                        className="p-0",
+                                        style={"height": "80vh",
+                                               "width": "70vw",
+                                               "overflow": "scroll"},
+                                        width=10
+                                    ),
+                                ]),
+                                dbc.Row(
+                                    dbc.Col(
+                                        dcc.Graph(
+                                            figure={},
+                                            id="main-graph-x-axis",
+                                            config={"displayModeBar": False},
+                                            style={"height": "100%",
+                                                   "width": "100%"}
+                                        ),
+                                        className="p-0",
+                                        style={"height": "10vh",
+                                               "width": "70vw"},
+                                        width={"size": 10, "offset": 2}
+                                    ),
+                                )],
                                 id="main-graph-tab",
                                 tab_id="main-graph-tab",
                                 label="Zoomed in",
                                 style={"height": "90vh",
-                                       "width": "80vw",
-                                       "overflow": "scroll"}
+                                       "width": "80vw"}
                             ),
                             dbc.Tab(
                                 dcc.Graph(
