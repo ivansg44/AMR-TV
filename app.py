@@ -11,7 +11,9 @@ import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 
 from data_parser import get_app_data
-from main_fig_generator import get_main_figs, get_main_fig_y_axis
+from main_fig_generator import (get_main_figs,
+                                get_main_fig_x_axis,
+                                get_main_fig_y_axis)
 from legend_fig_generator import (get_node_symbol_legend_fig,
                                   get_link_legend_fig,
                                   get_node_color_legend_fig)
@@ -345,6 +347,8 @@ def select_nodes(click_data, selected_nodes):
     output=[
         Output("main-graph", "figure"),
         Output("main-graph", "style"),
+        Output("main-graph-x-axis", "figure"),
+        Output("main-graph-x-axis", "style"),
         Output("main-graph-y-axis", "figure"),
         Output("main-graph-y-axis", "style"),
         Output("zoomed-out-main-graph", "figure"),
@@ -395,6 +399,10 @@ def update_main_viz(selected_nodes, _, sample_file_contents,
         msg = "Unexpected trigger trying to update main graph: %s" % trigger
         raise RuntimeError(msg)
 
+    main_fig_x_axis = get_main_fig_x_axis(app_data)
+    main_fig_x_axis_style = {"height": "100%",
+                             "width": app_data["main_fig_width"]}
+
     main_fig_y_axis = get_main_fig_y_axis(app_data)
     main_fig_y_axis_style = {"height": app_data["main_fig_height"],
                              "width": "100%"}
@@ -407,6 +415,8 @@ def update_main_viz(selected_nodes, _, sample_file_contents,
 
     return (main_fig,
             main_fig_style,
+            main_fig_x_axis,
+            main_fig_x_axis_style,
             main_fig_y_axis,
             main_fig_y_axis_style,
             zoomed_out_main_fig,
