@@ -11,7 +11,9 @@ import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 
 from data_parser import get_app_data
-from main_fig_generator import get_main_figs
+from main_fig_generator import (get_main_figs,
+                                get_main_fig_x_axis,
+                                get_main_fig_y_axis)
 from legend_fig_generator import (get_node_symbol_legend_fig,
                                   get_link_legend_fig,
                                   get_node_color_legend_fig)
@@ -57,18 +59,61 @@ def launch_app(_):
                 dbc.Col(
                     dbc.Tabs(
                         children=[
-                            dbc.Tab(
-                                dcc.Graph(
-                                    figure={},
-                                    id="main-graph",
-                                    config={"displayModeBar": False}
-                                ),
+                            dbc.Tab(children=[
+                                dbc.Row(children=[
+                                    dbc.Col(
+                                        dcc.Graph(
+                                            figure={},
+                                            id="main-graph-y-axis",
+                                            config={"displayModeBar": False},
+                                            style={"height": "100%",
+                                                   "width": "100%"}
+                                        ),
+                                        id="main-graph-y-axis-col",
+                                        className="p-0",
+                                        style={"height": "80vh",
+                                               "width": "10vw",
+                                               "overflow": "hidden"},
+                                        width=2
+                                    ),
+                                    dbc.Col(
+                                        dcc.Graph(
+                                            figure={},
+                                            id="main-graph",
+                                            config={"displayModeBar": False},
+                                            style={"height": "100%",
+                                                   "width": "100%"}
+                                        ),
+                                        id="main-graph-col",
+                                        className="p-0",
+                                        style={"height": "80vh",
+                                               "width": "70vw",
+                                               "overflow": "scroll"},
+                                        width=10
+                                    ),
+                                ]),
+                                dbc.Row(
+                                    dbc.Col(
+                                        dcc.Graph(
+                                            figure={},
+                                            id="main-graph-x-axis",
+                                            config={"displayModeBar": False},
+                                            style={"height": "100%",
+                                                   "width": "100%"}
+                                        ),
+                                        id="main-graph-x-axis-col",
+                                        className="p-0",
+                                        style={"height": "10vh",
+                                               "width": "70vw",
+                                               "overflow": "hidden"},
+                                        width={"size": 10, "offset": 2}
+                                    ),
+                                )],
                                 id="main-graph-tab",
                                 tab_id="main-graph-tab",
                                 label="Zoomed in",
                                 style={"height": "90vh",
-                                       "width": "80vw",
-                                       "overflow": "scroll"}
+                                       "width": "80vw"}
                             ),
                             dbc.Tab(
                                 dcc.Graph(
@@ -150,6 +195,7 @@ def launch_app(_):
             id="upload-data-modal"
         ),
         dcc.Store(id="selected-nodes", data={}),
+        dcc.Store(id="added-scroll-handlers", data=False),
         dcc.Store("new-upload")
     ]
 
@@ -306,16 +352,20 @@ def select_nodes(click_data, selected_nodes):
     output=[
         Output("main-graph", "figure"),
         Output("main-graph", "style"),
+        Output("main-graph-x-axis", "figure"),
+        Output("main-graph-x-axis", "style"),
+        Output("main-graph-y-axis", "figure"),
+        Output("main-graph-y-axis", "style"),
         Output("zoomed-out-main-graph", "figure"),
         Output("node-shape-legend-graph", "figure"),
         Output("link-legend-graph", "figure"),
-        Output("node-color-legend-graph", "figure"),
+        Output("node-color-legend-graph", "figure")
     ],
     prevent_initial_call=True
 )
 def update_main_viz(selected_nodes, _, sample_file_contents,
                     config_file_contents):
-    """Update main graph, zoomed-out main graph, and legends.
+    """Update main graph, axes, zoomed-out main graph, and legends.
 
     Current triggers:
 
@@ -329,7 +379,7 @@ def update_main_viz(selected_nodes, _, sample_file_contents,
     :type sample_file_contents: str
     :param config_file_contents: Contents of uploaded config file
     :type config_file_contents: str
-    :return: New main graph (including height) and legends
+    :return: New main graphs, axes, and legends
     :rtype: tuple[plotly.graph_objects.Figure]
     """
     ctx = dash.callback_context
@@ -353,6 +403,14 @@ def update_main_viz(selected_nodes, _, sample_file_contents,
         msg = "Unexpected trigger trying to update main graph: %s" % trigger
         raise RuntimeError(msg)
 
+    main_fig_x_axis = get_main_fig_x_axis(app_data)
+    main_fig_x_axis_style = {"height": "100%",
+                             "width": app_data["main_fig_width"]}
+
+    main_fig_y_axis = get_main_fig_y_axis(app_data)
+    main_fig_y_axis_style = {"height": app_data["main_fig_height"],
+                             "width": "100%"}
+
     main_fig_style = {"height": app_data["main_fig_height"],
                       "width": app_data["main_fig_width"]}
     node_symbol_legend_fig = get_node_symbol_legend_fig(app_data)
@@ -361,6 +419,10 @@ def update_main_viz(selected_nodes, _, sample_file_contents,
 
     return (main_fig,
             main_fig_style,
+            main_fig_x_axis,
+            main_fig_x_axis_style,
+            main_fig_y_axis,
+            main_fig_y_axis_style,
             zoomed_out_main_fig,
             node_symbol_legend_fig,
             link_legend_fig,
@@ -377,6 +439,17 @@ app.clientside_callback(
     Output("main-viz-tabs", "active_tab"),
     Output("zoomed-out-main-graph", "clickData"),
     Input("zoomed-out-main-graph", "clickData"),
+    prevent_initial_call=True
+)
+# Add event handlers to main graph axes figs to sync scrolling w/ main
+# graph.
+app.clientside_callback(
+    ClientsideFunction(
+        namespace="clientside",
+        function_name="addMainVizScrollHandlers"
+    ),
+    Output("added-scroll-handlers", "data"),
+    Input("main-graph", "figure"),
     prevent_initial_call=True
 )
 

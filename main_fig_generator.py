@@ -189,24 +189,12 @@ def get_main_fig(app_data, nodes_graph, link_graphs, link_label_graphs,
             "xaxis": {
                 "range": app_data["main_fig_xaxis_range"],
                 "fixedrange": True,
-                "tickmode": "array",
-                "tickvals": app_data["main_fig_xaxis_tickvals"],
-                "ticktext": app_data["main_fig_xaxis_ticktext"],
-                "tickfont": {
-                    "size": 16
-                },
-                "linecolor": "black"
+                "visible": False
             },
             "yaxis": {
                 "range": app_data["main_fig_yaxis_range"],
                 "fixedrange": True,
-                "tickmode": "array",
-                "tickvals": app_data["main_fig_yaxis_tickvals"],
-                "ticktext": app_data["main_fig_yaxis_ticktext"],
-                "tickfont": {
-                    "size": 16
-                },
-                "linecolor": "black"
+                "visible": False
             },
             "plot_bgcolor": "white"
         },
@@ -339,3 +327,85 @@ def get_main_figs(app_data):
                                                     arrow_size=1)
 
     return main_fig, zoomed_out_main_fig
+
+
+def get_main_fig_x_axis(app_data):
+    """Get main graph x-axis in viz.
+
+    :param app_data: ``data_parser.get_app_data`` ret val
+    :type app_data: dict
+    :return: Plotly figure object that shows the x-axis belonging to
+        the main graph.
+    :rtype: go.Figure
+    """
+    ret = go.Figure(
+        go.Scatter(
+            x=app_data["main_fig_xaxis_tickvals"],
+            y=[0.5 for _ in app_data["main_fig_xaxis_tickvals"]],
+            mode="text",
+            text=app_data["main_fig_xaxis_ticktext"],
+            textfont={
+                "size": 16
+            },
+            hoverinfo="skip"
+        ),
+        layout={
+            "margin": {
+                "l": 0, "r": 0, "t": 0, "b": 0
+            },
+            "showlegend": False,
+            "xaxis": {
+                "range": app_data["main_fig_xaxis_range"],
+                "fixedrange": True,
+                "visible": False
+            },
+            "yaxis": {
+                "range": [0, 1],
+                "fixedrange": True,
+                "visible": False
+            },
+            "plot_bgcolor": "white"
+        },
+    )
+    return ret
+
+
+def get_main_fig_y_axis(app_data):
+    """Get main graph y-axis in viz.
+
+    :param app_data: ``data_parser.get_app_data`` ret val
+    :type app_data: dict
+    :return: Plotly figure object that shows the y-axis belonging to
+        the main graph.
+    :rtype: go.Figure
+    """
+    ret = go.Figure(
+        go.Scatter(
+            x=[0.5 for _ in app_data["main_fig_yaxis_tickvals"]],
+            y=app_data["main_fig_yaxis_tickvals"],
+            mode="text",
+            text=app_data["main_fig_yaxis_ticktext"],
+            textfont={
+                "size": 16
+            },
+            hoverinfo="skip"
+        ),
+        layout={
+            "margin": {
+                "l": 0, "r": 0, "t": 0, "b": 0
+            },
+            "showlegend": False,
+            "xaxis": {
+                "range": [0, 1],
+                "fixedrange": True,
+                "visible": False
+            },
+            "yaxis": {
+                "range": app_data["main_fig_yaxis_range"],
+                "fixedrange": True,
+                "visible": False
+            },
+            "plot_bgcolor": "white"
+        },
+    )
+    return ret
