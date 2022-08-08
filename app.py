@@ -69,6 +69,7 @@ def launch_app(_):
                                             style={"height": "100%",
                                                    "width": "100%"}
                                         ),
+                                        id="main-graph-y-axis-col",
                                         className="p-0",
                                         style={"height": "80vh",
                                                "width": "10vw",
@@ -83,6 +84,7 @@ def launch_app(_):
                                             style={"height": "100%",
                                                    "width": "100%"}
                                         ),
+                                        id="main-graph-col",
                                         className="p-0",
                                         style={"height": "80vh",
                                                "width": "70vw",
@@ -99,9 +101,11 @@ def launch_app(_):
                                             style={"height": "100%",
                                                    "width": "100%"}
                                         ),
+                                        id="main-graph-x-axis-col",
                                         className="p-0",
                                         style={"height": "10vh",
-                                               "width": "70vw"},
+                                               "width": "70vw",
+                                               "overflow": "hidden"},
                                         width={"size": 10, "offset": 2}
                                     ),
                                 )],
@@ -191,6 +195,7 @@ def launch_app(_):
             id="upload-data-modal"
         ),
         dcc.Store(id="selected-nodes", data={}),
+        dcc.Store(id="added-scroll-handlers", data=False),
         dcc.Store("new-upload")
     ]
 
@@ -354,7 +359,7 @@ def select_nodes(click_data, selected_nodes):
         Output("zoomed-out-main-graph", "figure"),
         Output("node-shape-legend-graph", "figure"),
         Output("link-legend-graph", "figure"),
-        Output("node-color-legend-graph", "figure"),
+        Output("node-color-legend-graph", "figure")
     ],
     prevent_initial_call=True
 )
@@ -435,6 +440,16 @@ app.clientside_callback(
     Output("main-viz-tabs", "active_tab"),
     Output("zoomed-out-main-graph", "clickData"),
     Input("zoomed-out-main-graph", "clickData"),
+    prevent_initial_call=True
+)
+# TODO
+app.clientside_callback(
+    ClientsideFunction(
+        namespace="clientside",
+        function_name="addMainVizScrollHandlers"
+    ),
+    Output("added-scroll-handlers", "data"),
+    Input("main-graph", "figure"),
     prevent_initial_call=True
 )
 
