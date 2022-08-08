@@ -365,8 +365,7 @@ def select_nodes(click_data, selected_nodes):
 )
 def update_main_viz(selected_nodes, _, sample_file_contents,
                     config_file_contents):
-    """Update main graph, zoomed-out main graph, and legends.\
-    TODO
+    """Update main graph, axes, zoomed-out main graph, and legends.
 
     Current triggers:
 
@@ -380,7 +379,7 @@ def update_main_viz(selected_nodes, _, sample_file_contents,
     :type sample_file_contents: str
     :param config_file_contents: Contents of uploaded config file
     :type config_file_contents: str
-    :return: New main graph (including height) and legends
+    :return: New main graphs, axes, and legends
     :rtype: tuple[plotly.graph_objects.Figure]
     """
     ctx = dash.callback_context
@@ -442,7 +441,8 @@ app.clientside_callback(
     Input("zoomed-out-main-graph", "clickData"),
     prevent_initial_call=True
 )
-# TODO
+# Add event handlers to main graph axes figs to sync scrolling w/ main
+# graph.
 app.clientside_callback(
     ClientsideFunction(
         namespace="clientside",

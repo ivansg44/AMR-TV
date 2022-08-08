@@ -330,7 +330,14 @@ def get_main_figs(app_data):
 
 
 def get_main_fig_x_axis(app_data):
-    """TODO"""
+    """Get main graph x-axis in viz.
+
+    :param app_data: ``data_parser.get_app_data`` ret val
+    :type app_data: dict
+    :return: Plotly figure object that shows the x-axis belonging to
+        the main graph.
+    :rtype: go.Figure
+    """
     ret = go.Figure(
         go.Scatter(
             x=app_data["main_fig_xaxis_tickvals"],
@@ -364,7 +371,14 @@ def get_main_fig_x_axis(app_data):
 
 
 def get_main_fig_y_axis(app_data):
-    """TODO"""
+    """Get main graph y-axis in viz.
+
+    :param app_data: ``data_parser.get_app_data`` ret val
+    :type app_data: dict
+    :return: Plotly figure object that shows the y-axis belonging to
+        the main graph.
+    :rtype: go.Figure
+    """
     ret = go.Figure(
         go.Scatter(
             x=[0.5 for _ in app_data["main_fig_yaxis_tickvals"]],

@@ -32,9 +32,10 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
       return ['main-graph-tab', null];
     },
     /**
-     * TODO
-     * @param _
-     * @return {boolean}
+     * Add event handlers to the main graph axes figs, to sync scrolling b/w
+     * the main graph and its axes.
+     * @param _ Main graph fig was updated.
+     * @return {boolean} Hidden browser var; only used b/c we need an output.
      */
     addMainVizScrollHandlers: (_) => {
       const mainGraphColEl = document.getElementById('main-graph-col');
