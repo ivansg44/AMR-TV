@@ -6,7 +6,7 @@ import csv
 from datetime import datetime
 from io import StringIO
 from json import loads
-from math import sqrt
+from math import ceil, sqrt
 from re import compile
 
 import networkx as nx
@@ -149,7 +149,11 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         main_fig_nodes_x_dict=main_fig_nodes_x_dict,
         main_fig_nodes_y_dict=main_fig_nodes_y_dict,
         selected_samples=selected_samples,
-        directed_links_dict=directed_links_dict
+        directed_links_dict=directed_links_dict,
+        main_fig_height=main_fig_height,
+        main_fig_width=main_fig_width,
+        xaxis_range=xaxis_range,
+        yaxis_range=yaxis_range
     )
 
     main_fig_link_labels_dict = get_main_fig_link_labels_dict(
@@ -159,6 +163,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         selected_samples=selected_samples,
         main_fig_height=main_fig_height,
         main_fig_width=main_fig_width,
+        xaxis_range=xaxis_range,
+        yaxis_range=yaxis_range,
         weights=config_file_dict["weights"]
     )
 
@@ -677,7 +683,8 @@ def get_link_color_dict(sample_links_dict):
 
 def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
                             main_fig_nodes_y_dict, selected_samples,
-                            directed_links_dict):
+                            directed_links_dict, main_fig_height,
+                            main_fig_width, xaxis_range, yaxis_range):
     """Get dict with info used by Plotly to viz links in main graph.
 
     :param sample_links_dict: ``get_sample_links_dict`` ret val
@@ -688,13 +695,27 @@ def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
     :type main_fig_nodes_y_dict: dict
     :param selected_samples: Samples selected by users
     :type selected_samples: set[str]
+    :param directed_links_dict: Dict describing which links have an
+        arrowhead on them.
+    :type directed_links_dict: dict
+    :param main_fig_height: Height for main fig
+    :type main_fig_height: int
+    :param main_fig_width: Width for main fig
+    :type main_fig_width: int
+    :param xaxis_range: Main graph x-axis min and max val
+    :type xaxis_range: list
+    :param yaxis_range: Main graph y-axis min and max val
+    :type yaxis_range: list
     :return: Dict with info used by Plotly to viz links in main graph
     :rtype: dict
     """
     ret = {}
 
+    x_pixel_per_unit = main_fig_width / (xaxis_range[1] - xaxis_range[0])
+    y_pixel_per_unit = main_fig_height / (yaxis_range[1] - yaxis_range[0])
+
     link_parallel_translation_dict = {}
-    link_unit_parallel_translation = 0.05
+    link_unit_parallel_translation = 5 / y_pixel_per_unit
     multiplier = 0
     for link in sample_links_dict:
         link_parallel_translation_dict[link] = \
@@ -736,21 +757,24 @@ def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
 
             if (x1 - x0) == 0:
                 x0 += link_parallel_translation
+                x0 *= y_pixel_per_unit / x_pixel_per_unit
                 x1 += link_parallel_translation
+                x1 *= y_pixel_per_unit / x_pixel_per_unit
             elif (y1 - y0) == 0:
                 y0 += link_parallel_translation
                 y1 += link_parallel_translation
-            else:
-                inverse_perpendicular_slope = (x1 - x0) / (y1 - y0)
-                numerator = link_parallel_translation ** 2
-                denominator = 1 + inverse_perpendicular_slope**2
-                x_translation = sqrt(numerator/denominator)
-                if link_parallel_translation < 0:
-                    x_translation *= -1
-                x0 += x_translation
-                x1 += x_translation
-                y0 += -inverse_perpendicular_slope * x_translation
-                y1 += -inverse_perpendicular_slope * x_translation
+            elif link_parallel_translation != 0:
+                # https://math.stackexchange.com/a/2870543
+                dx = x1 - x0
+                dy = y1 - y0
+                length = sqrt(dx**2 + dy**2)
+                x_translation = dy * link_parallel_translation/length
+                x_translation *= y_pixel_per_unit / x_pixel_per_unit
+                y_translation = -dx * link_parallel_translation/length
+                x0 -= x_translation
+                y0 -= y_translation
+                x1 -= x_translation
+                y1 -= y_translation
 
             ret[link]["x"] += [x0, x1, None]
             ret[link]["y"] += [y0, y1, None]
@@ -760,7 +784,8 @@ def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
 
 def get_main_fig_link_labels_dict(sample_links_dict, main_fig_nodes_x_dict,
                                   main_fig_nodes_y_dict, selected_samples,
-                                  main_fig_height, main_fig_width, weights):
+                                  main_fig_height, main_fig_width, xaxis_range,
+                                  yaxis_range, weights):
     """Get dict with info used by Plotly to viz link labels.
 
     TODO: there may be a better way to do this. Certainly, the code
@@ -785,6 +810,10 @@ def get_main_fig_link_labels_dict(sample_links_dict, main_fig_nodes_x_dict,
     :type main_fig_height: int
     :param main_fig_width: Width for main fig
     :type main_fig_width: int
+    :param xaxis_range: Main graph x-axis min and max val
+    :type xaxis_range: list
+    :param yaxis_range: Main graph y-axis min and max val
+    :type yaxis_range: list
     :param weights: Dictionary of expressions used to assign weights to
         specific links.
     :type weights: dict
@@ -792,9 +821,13 @@ def get_main_fig_link_labels_dict(sample_links_dict, main_fig_nodes_x_dict,
     :rtype: dict
     """
     ret = {}
+
+    x_pixel_per_unit = main_fig_width / (xaxis_range[1] - xaxis_range[0])
+    y_pixel_per_unit = main_fig_height / (yaxis_range[1] - yaxis_range[0])
+
     label_count_dict = {}
-    min_multiplier = len(sample_links_dict)/2 + 1
-    link_parallel_translation = 0.05
+    min_multiplier = ceil(len(sample_links_dict) / 2) + 1
+    link_parallel_translation = 5 / y_pixel_per_unit
     total_translation = min_multiplier * link_parallel_translation
     for link in sample_links_dict:
         if link not in weights:
@@ -821,25 +854,28 @@ def get_main_fig_link_labels_dict(sample_links_dict, main_fig_nodes_x_dict,
             y1 = main_fig_nodes_y_dict[other_sample]
 
             if (x1 - x0) == 0:
-                x0 += total_translation * (main_fig_height / main_fig_width)
-                x1 += total_translation * (main_fig_height / main_fig_width)
+                x0 += total_translation
+                x0 *= y_pixel_per_unit / x_pixel_per_unit
+                x1 += total_translation
+                x1 *= y_pixel_per_unit / x_pixel_per_unit
             elif (y1 - y0) == 0:
                 y0 += total_translation
                 y1 += total_translation
-            else:
-                inverse_perpendicular_slope = (x1 - x0) / (y1 - y0)
-                numerator = total_translation ** 2
-                denominator = 1 + inverse_perpendicular_slope**2
-                x_translation = sqrt(numerator/denominator)
-                if total_translation < 0:
-                    x_translation *= -1
-                x0 += x_translation * (main_fig_height / main_fig_width)
-                x1 += x_translation * (main_fig_height / main_fig_width)
-                y0 += -inverse_perpendicular_slope * x_translation
-                y1 += -inverse_perpendicular_slope * x_translation
+            elif total_translation != 0:
+                # https://math.stackexchange.com/a/2870543
+                dx = x1 - x0
+                dy = y1 - y0
+                length = sqrt(dx**2 + dy**2)
+                x_translation = dy * total_translation/length
+                x_translation *= y_pixel_per_unit / x_pixel_per_unit
+                y_translation = -dx * total_translation/length
 
-            xmid = (x0 + x1) / 2 + \
-                   (label_count - 1) * 3 * link_parallel_translation
+                x0 -= x_translation
+                y0 -= y_translation
+                x1 -= x_translation
+                y1 -= y_translation
+
+            xmid = (x0 + x1) / 2
             ymid = (y0 + y1) / 2
             weight = sample_links_dict[link][(sample, other_sample)]
 
