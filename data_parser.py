@@ -156,6 +156,13 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         yaxis_range=yaxis_range
     )
 
+    main_fig_link_arrowheads_dict = get_main_fig_link_arrowheads_dict(
+        main_fig_links_dict=main_fig_links_dict,
+        directed_links_dict=directed_links_dict,
+        main_fig_height=main_fig_height,
+        yaxis_range=yaxis_range
+    )
+
     main_fig_link_labels_dict = get_main_fig_link_labels_dict(
         sample_links_dict=sample_links_dict,
         main_fig_nodes_x_dict=main_fig_nodes_x_dict,
@@ -214,6 +221,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
             main_fig_nodes_hovertext,
         "node_color_attr_dict": node_color_attr_dict,
         "main_fig_links_dict": main_fig_links_dict,
+        "main_fig_link_arrowheads_dict": main_fig_link_arrowheads_dict,
         "main_fig_link_labels_dict": main_fig_link_labels_dict,
         "link_color_dict": link_color_dict,
         "main_fig_primary_facet_x":
@@ -226,8 +234,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         "main_fig_secondary_facet_y":
             get_main_fig_secondary_facet_y(max_node_count_at_track_dict),
         "main_fig_height": main_fig_height,
-        "main_fig_width": main_fig_width,
-        "directed_links_dict": directed_links_dict
+        "main_fig_width": main_fig_width
     }
 
     return app_data
@@ -683,8 +690,8 @@ def get_link_color_dict(sample_links_dict):
 
 def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
                             main_fig_nodes_y_dict, selected_samples,
-                            directed_links_dict, main_fig_height,
-                            main_fig_width, xaxis_range, yaxis_range):
+                            main_fig_height, main_fig_width, xaxis_range,
+                            yaxis_range):
     """Get dict with info used by Plotly to viz links in main graph.
 
     :param sample_links_dict: ``get_sample_links_dict`` ret val
@@ -695,9 +702,6 @@ def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
     :type main_fig_nodes_y_dict: dict
     :param selected_samples: Samples selected by users
     :type selected_samples: set[str]
-    :param directed_links_dict: Dict describing which links have an
-        arrowhead on them.
-    :type directed_links_dict: dict
     :param main_fig_height: Height for main fig
     :type main_fig_height: int
     :param main_fig_width: Width for main fig
@@ -739,22 +743,6 @@ def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
             x1 = main_fig_nodes_x_dict[other_sample]
             y1 = main_fig_nodes_y_dict[other_sample]
 
-            # If the links are directed, we want to shorten them a bit
-            # because they will be annotations, and annotations overlap
-            # the symbols.
-            # See https://math.stackexchange.com/a/1630886
-            if directed_links_dict[link]:
-                d = sqrt((x1-x0)**2 + (y1-y0)**2)
-                dt0 = 0.05
-                t0 = dt0 / d
-                x0 = (1 - t0) * x0 + t0 * x1
-                y0 = (1 - t0) * y0 + t0 * y1
-
-                dt1 = d - 0.1
-                t1 = dt1 / d
-                x1 = (1 - t1) * x0 + t1 * x1
-                y1 = (1 - t1) * y0 + t1 * y1
-
             if (x1 - x0) == 0:
                 x0 += link_parallel_translation
                 x0 *= y_pixel_per_unit / x_pixel_per_unit
@@ -778,6 +766,60 @@ def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
 
             ret[link]["x"] += [x0, x1, None]
             ret[link]["y"] += [y0, y1, None]
+
+    return ret
+
+
+def get_main_fig_link_arrowheads_dict(main_fig_links_dict, directed_links_dict,
+                                      main_fig_height, yaxis_range):
+    """Get dict with info used by Plotly to add arrowheads to links.
+
+    :param main_fig_links_dict: Dict with info used by Plotly to viz
+        links in main graph.
+    :type main_fig_links_dict: dict
+    :param directed_links_dict: Dict describing which links have an
+        arrowhead on them.
+    :type directed_links_dict: dict
+    :param main_fig_height: Height for main fig
+    :type main_fig_height: int
+    :param yaxis_range: Main graph y-axis min and max val
+    :type yaxis_range: list
+    :return: Dict with info used by Plotly to add arrowheads to links
+        in main graph.
+    :rtype: dict
+    """
+    ret = {}
+
+    y_pixel_per_unit = main_fig_height / (yaxis_range[1] - yaxis_range[0])
+
+    for link in main_fig_links_dict:
+        if not directed_links_dict[link]:
+            continue
+
+        ret[link] = {"x": [], "y": []}
+
+        link_x = main_fig_links_dict[link]["x"]
+        link_y = main_fig_links_dict[link]["y"]
+
+        for i in range(0, len(link_x), 3):
+            x0, x1 = link_x[i], link_x[i+1]
+            y0, y1 = link_y[i], link_y[i+1]
+
+            # https://math.stackexchange.com/a/1630886
+            d = sqrt((x1-x0)**2 + (y1-y0)**2)
+
+            dt0 = d - 20/y_pixel_per_unit
+            t0 = dt0 / d
+            xt0 = (1 - t0) * x0 + t0 * x1
+            yt0 = (1 - t0) * y0 + t0 * y1
+
+            dt1 = d - 10/y_pixel_per_unit
+            t1 = dt1 / d
+            xt1 = (1 - t1) * x0 + t1 * x1
+            yt1 = (1 - t1) * y0 + t1 * y1
+
+            ret[link]["x"] += [[xt0, xt1]]
+            ret[link]["y"] += [[yt0, yt1]]
 
     return ret
 
