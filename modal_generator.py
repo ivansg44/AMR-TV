@@ -2,6 +2,7 @@
 
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
+from dash_html_components import Div
 
 
 def get_upload_data_modal():
@@ -36,7 +37,20 @@ def get_create_config_file_modal():
     ret = dbc.Modal(
         [
             dbc.ModalHeader("Create config file"),
-            dbc.ModalBody()
+            dbc.ModalBody([
+                Div(
+                    dcc.Upload(
+                        dbc.Button("Upload example data file to generate form",
+                                   id="select-example-file-btn"),
+                        id="upload-example-file"
+                    ),
+                    id="select-example-file-tooltip-target"
+                ),
+                dbc.Tooltip("foo",
+                            delay={"show": 0, "hide": 0},
+                            placement="right",
+                            target="select-example-file-tooltip-target")
+            ])
         ],
         id="create-config-file-modal"
     )
