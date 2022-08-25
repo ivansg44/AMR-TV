@@ -14,6 +14,7 @@ from data_parser import get_app_data
 from main_fig_generator import (get_main_figs,
                                 get_main_fig_x_axis,
                                 get_main_fig_y_axis)
+from modal_generator import get_upload_modal
 from legend_fig_generator import (get_node_symbol_legend_fig,
                                   get_link_legend_fig,
                                   get_node_color_legend_fig)
@@ -172,28 +173,7 @@ def launch_app(_):
             ]
         ),
         # TODO probably a separate file for modal generation later
-        dbc.Modal(
-            [
-                dbc.ModalHeader("Upload data"),
-                dbc.ModalBody([
-                    dcc.Upload(
-                        dbc.Button("Select sample data file",
-                                   id="select-sample-file-btn"),
-                        id="upload-sample-file"
-                    ),
-                    dcc.Upload(
-                        dbc.Button("Select config file",
-                                   id="select-config-file-btn"),
-                        id="upload-config-file",
-                        className="mt-1"
-                    )
-                ]),
-                dbc.ModalFooter(
-                    dbc.Button("Visualize", id="viz-btn")
-                )
-            ],
-            id="upload-data-modal"
-        ),
+        get_upload_modal(),
         dcc.Store(id="selected-nodes", data={}),
         dcc.Store(id="added-scroll-handlers", data=False),
         dcc.Store("new-upload")
