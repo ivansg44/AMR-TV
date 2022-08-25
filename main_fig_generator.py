@@ -68,41 +68,6 @@ def get_main_fig_link_graphs(app_data):
     return ret
 
 
-def get_main_fig_link_label_graphs(app_data):
-    """Get plotly scatter objs of links labels in main fig.
-
-    This is basically a list of different scatter objs--one for each
-    link type.
-
-    :param app_data: ``data_parser.get_app_data`` ret val
-    :type app_data: dict
-    :return: Plotly scatter objs of link labels in main fig
-    :rtype: list[go.Scatter]
-    """
-    ret = []
-    for link_label in app_data["main_fig_link_labels_dict"]:
-        link_label_x = app_data["main_fig_link_labels_dict"][link_label]["x"]
-        link_label_y = app_data["main_fig_link_labels_dict"][link_label]["y"]
-        link_label_text = \
-            app_data["main_fig_link_labels_dict"][link_label]["text"]
-        (r, g, b) = app_data["link_color_dict"][link_label]
-
-        link_label_graph = go.Scatter(
-            x=link_label_x,
-            y=link_label_y,
-            text=link_label_text,
-            mode="text",
-            textfont={
-                "color": "rgb(%s,%s,%s)" % (r, g, b),
-                "size": 16
-            }
-        )
-
-        ret += [link_label_graph]
-
-    return ret
-
-
 def get_main_fig_primary_facet_lines(app_data):
     """Get plotly scatter obj of primary facet lines in main fig.
 
@@ -150,8 +115,8 @@ def get_main_fig_secondary_facet_lines(app_data):
     return lines
 
 
-def get_main_fig(app_data, nodes_graph, link_graphs, link_label_graphs,
-                 primary_facet_lines_graph, secondary_facet_lines_graph):
+def get_main_fig(app_data, nodes_graph, link_graphs, primary_facet_lines_graph,
+                 secondary_facet_lines_graph):
     """Get main fig in viz.
 
     :param app_data: ``data_parser.get_app_data`` ret val
@@ -160,9 +125,6 @@ def get_main_fig(app_data, nodes_graph, link_graphs, link_label_graphs,
     :type nodes_graph: go.Scatter
     :param link_graphs: Plotly scatter objs of links in main fig
     :type link_graphs: list[go.Scatter]
-    :param link_label_graphs: Plotly scatter objs of link labels in main
-        fig.
-    :type link_label_graphs: list[go.Scatter]
     :param primary_facet_lines_graph: Plotly scatter obj used to draw primary
         facet lines in main fig.
     :type primary_facet_lines_graph: go.Scatter
@@ -173,7 +135,7 @@ def get_main_fig(app_data, nodes_graph, link_graphs, link_label_graphs,
     :rtype: go.Figure
     """
     ret = go.Figure(
-        data=link_graphs + link_label_graphs + [
+        data=link_graphs + [
               nodes_graph,
               secondary_facet_lines_graph,
               primary_facet_lines_graph
@@ -292,6 +254,41 @@ def add_arrowheads_to_fig(fig, app_data, arrow_width, arrow_size):
     return fig
 
 
+def add_link_labels_to_fig(fig, app_data):
+    """Add labels to links with user-specified weights.
+
+    We add these as annotations, because that is the only way to
+    implement angled text.
+
+    :param fig: ``get_main_fig`` or ``get_zoomed_out_main_fig`` ret val
+    :type fig: go.Figure
+    :param app_data: ``data_parser.get_app_data`` ret val
+    :type app_data: dict
+    :return: fig with directed links added to it
+    :rtype: go.Figure
+    """
+    annotations = []
+    for link in app_data["main_fig_link_labels_dict"]:
+        link_label_dict = app_data["main_fig_link_labels_dict"][link]
+        link_color = app_data["link_color_dict"][link]
+        for i in range(len(link_label_dict["x"])):
+            annotations.append({
+                "x": link_label_dict["x"][i],
+                "y": link_label_dict["y"][i],
+                "text": link_label_dict["text"][i],
+                "textangle": link_label_dict["textangle"][i],
+                "showarrow": False,
+                "font": {
+                    "color": "rgb(%s, %s, %s)" % link_color,
+                    "size": 12
+                },
+                "bgcolor": "white"
+            })
+    fig.update_layout(annotations=annotations)
+
+    return fig
+
+
 def get_main_figs(app_data):
     """Get main and zoomed-out main figs in viz.
 
@@ -303,12 +300,11 @@ def get_main_figs(app_data):
     """
     nodes_graph = get_main_fig_nodes(app_data)
     link_graphs = get_main_fig_link_graphs(app_data)
-    link_label_graphs = get_main_fig_link_label_graphs(app_data)
     primary_facet_lines_graph = get_main_fig_primary_facet_lines(app_data)
     secondary_facet_lines_graph = get_main_fig_secondary_facet_lines(app_data)
 
     main_fig = get_main_fig(app_data, nodes_graph, link_graphs,
-                            link_label_graphs, primary_facet_lines_graph,
+                            primary_facet_lines_graph,
                             secondary_facet_lines_graph)
     zoomed_out_main_fig = get_zoomed_out_main_fig(app_data, nodes_graph,
                                                   link_graphs,
@@ -318,6 +314,8 @@ def get_main_figs(app_data):
                                      arrow_size=0.6)
     zoomed_out_main_fig = add_arrowheads_to_fig(zoomed_out_main_fig, app_data,
                                                 arrow_width=1, arrow_size=1)
+
+    main_fig = add_link_labels_to_fig(main_fig, app_data)
 
     return main_fig, zoomed_out_main_fig
 
