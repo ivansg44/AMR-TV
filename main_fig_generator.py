@@ -50,9 +50,6 @@ def get_main_fig_link_graphs(app_data):
     """
     ret = []
     for link in app_data["main_fig_links_dict"]:
-        if app_data["directed_links_dict"][link]:
-            continue
-
         link_x = app_data["main_fig_links_dict"][link]["x"]
         link_y = app_data["main_fig_links_dict"][link]["y"]
         (r, g, b) = app_data["link_color_dict"][link]
@@ -251,12 +248,12 @@ def get_zoomed_out_main_fig(app_data, nodes_graph, link_graphs,
     return ret
 
 
-def add_directed_links_to_fig(fig, app_data, arrow_width, arrow_size):
-    """Add directed links to the main figs.
+def add_arrowheads_to_fig(fig, app_data, arrow_width, arrow_size):
+    """Add arrowheads to the main figs, as specified by users.
 
     Plotly does not allow you to add arrowheads to line graphs, so a
-    separate fn was built for this a workout. We add the directed links
-    as annotations, which do allow arrowheads.
+    separate fn was built for this as a workaround. We add annotations,
+    which do allow arrowheads.
 
     :param fig: ``get_main_fig`` or ``get_zoomed_out_main_fig`` ret val
     :type fig: go.Figure
@@ -270,18 +267,15 @@ def add_directed_links_to_fig(fig, app_data, arrow_width, arrow_size):
     :rtype: go.Figure
     """
     annotations = []
-    for link in app_data["directed_links_dict"]:
-        if not app_data["directed_links_dict"][link]:
-            continue
-
-        link_dict = app_data["main_fig_links_dict"][link]
+    for link in app_data["main_fig_link_arrowheads_dict"]:
+        arrowhead_dict = app_data["main_fig_link_arrowheads_dict"][link]
         arrowhead_color = app_data["link_color_dict"][link]
-        for i in range(0, len(link_dict["x"]), 3):
+        for i in range(len(arrowhead_dict["x"])):
             annotations.append({
-                "x": link_dict["x"][i + 1],
-                "y": link_dict["y"][i+1],
-                "ax": link_dict["x"][i],
-                "ay": link_dict["y"][i],
+                "x": arrowhead_dict["x"][i][1],
+                "y": arrowhead_dict["y"][i][1],
+                "ax": arrowhead_dict["x"][i][0],
+                "ay": arrowhead_dict["y"][i][0],
                 "xref": "x",
                 "yref": "y",
                 "axref": "x",
@@ -320,11 +314,10 @@ def get_main_figs(app_data):
                                                   link_graphs,
                                                   primary_facet_lines_graph)
 
-    main_fig = add_directed_links_to_fig(main_fig, app_data, arrow_width=3,
-                                         arrow_size=0.6)
-    zoomed_out_main_fig = add_directed_links_to_fig(zoomed_out_main_fig,
-                                                    app_data, arrow_width=1,
-                                                    arrow_size=1)
+    main_fig = add_arrowheads_to_fig(main_fig, app_data, arrow_width=3,
+                                     arrow_size=0.6)
+    zoomed_out_main_fig = add_arrowheads_to_fig(zoomed_out_main_fig, app_data,
+                                                arrow_width=1, arrow_size=1)
 
     return main_fig, zoomed_out_main_fig
 
