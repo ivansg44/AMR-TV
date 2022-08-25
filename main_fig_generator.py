@@ -40,8 +40,7 @@ def get_main_fig_link_graphs(app_data):
     """Get plotly scatter objs of links in main fig.
 
     This is basically a list of different scatter objs--one for each
-    link. This does not included directed links, which are added later
-    as annotations.
+    link.
 
     :param app_data: ``data_parser.get_app_data`` ret val
     :type app_data: dict
@@ -210,23 +209,21 @@ def get_zoomed_out_main_fig(app_data, nodes_graph, link_graphs,
     return ret
 
 
-def add_arrowheads_to_fig(fig, app_data, arrow_width, arrow_size):
-    """Add arrowheads to the main figs, as specified by users.
+def get_arrowhead_annotations(app_data, arrow_width, arrow_size):
+    """Get annotations to be added as arrowheads to main fig.
 
-    Plotly does not allow you to add arrowheads to line graphs, so a
+    Plotly does not allow you to add arrowheads to line traces, so a
     separate fn was built for this as a workaround. We add annotations,
     which do allow arrowheads.
 
-    :param fig: ``get_main_fig`` or ``get_zoomed_out_main_fig`` ret val
-    :type fig: go.Figure
     :param app_data: ``data_parser.get_app_data`` ret val
     :type app_data: dict
     :param arrow_width: Width of links
     :type arrow_width: int
     :param arrow_size: Size of arrowhead; must be greater than 0.3
     :type arrow_size: float
-    :return: fig with directed links added to it
-    :rtype: go.Figure
+    :return: list of annotations to be added as arrowheads
+    :rtype: list
     """
     annotations = []
     for link in app_data["main_fig_link_arrowheads_dict"]:
@@ -249,23 +246,19 @@ def add_arrowheads_to_fig(fig, app_data, arrow_width, arrow_size):
                 "arrowsize": arrow_size
             })
 
-    fig.update_layout(annotations=annotations)
-
-    return fig
+    return annotations
 
 
-def add_link_labels_to_fig(fig, app_data):
-    """Add labels to links with user-specified weights.
+def get_link_label_annotations(app_data):
+    """Get annotations to be added as link labels to main fig.
 
     We add these as annotations, because that is the only way to
     implement angled text.
 
-    :param fig: ``get_main_fig`` or ``get_zoomed_out_main_fig`` ret val
-    :type fig: go.Figure
     :param app_data: ``data_parser.get_app_data`` ret val
     :type app_data: dict
-    :return: fig with directed links added to it
-    :rtype: go.Figure
+    :return: list of annotations to be added as link labels
+    :rtype: list
     """
     annotations = []
     for link in app_data["main_fig_link_labels_dict"]:
@@ -284,9 +277,8 @@ def add_link_labels_to_fig(fig, app_data):
                 },
                 "bgcolor": "white"
             })
-    fig.update_layout(annotations=annotations)
 
-    return fig
+    return annotations
 
 
 def get_main_figs(app_data):
@@ -310,12 +302,17 @@ def get_main_figs(app_data):
                                                   link_graphs,
                                                   primary_facet_lines_graph)
 
-    main_fig = add_arrowheads_to_fig(main_fig, app_data, arrow_width=3,
-                                     arrow_size=0.6)
-    zoomed_out_main_fig = add_arrowheads_to_fig(zoomed_out_main_fig, app_data,
-                                                arrow_width=1, arrow_size=1)
+    main_fig_annotations = get_arrowhead_annotations(app_data,
+                                                     arrow_width=3,
+                                                     arrow_size=0.6)
+    main_fig_annotations += get_link_label_annotations(app_data)
+    zoomed_out_main_fig_annotations = \
+        get_arrowhead_annotations(app_data, arrow_width=1, arrow_size=1)
 
-    main_fig = add_link_labels_to_fig(main_fig, app_data)
+    main_fig.update_layout(annotations=main_fig_annotations)
+    zoomed_out_main_fig.update_layout(
+        annotations=zoomed_out_main_fig_annotations
+    )
 
     return main_fig, zoomed_out_main_fig
 

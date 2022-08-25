@@ -15,19 +15,15 @@
       "all_neq": [],
       "any_eq": [],
       "minimize_loops": 0,
-      "directed": 0
+      "show_arrowheads": 0,
+      "weight_exp": "",
+      "weight_filters": {},
+      "attr_filters": {}
     }
   },
   "node_color_attr": [],
   "node_symbol_attr": ["role"],
   "links_across_primary_y": 1,
   "max_day_range": 6000,
-  "null_vals": ["n/a"],
-  "weights": {},
-  "weight_filters": {
-    "not_equal": {},
-    "less_than": {},
-    "greater_than": {}
-  },
-  "attr_val_filters": {}
+  "null_vals": ["n/a"]
 }

@@ -133,16 +133,10 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         links_config=config_file_dict["links_config"],
         primary_y=config_file_dict["y_axes"][0],
         links_across_primary_y=config_file_dict["links_across_primary_y"],
-        max_day_range=config_file_dict["max_day_range"],
-        weights=config_file_dict["weights"],
-        weight_filters=config_file_dict["weight_filters"],
-        attr_val_filters=config_file_dict["attr_val_filters"]
+        max_day_range=config_file_dict["max_day_range"]
     )
 
     link_color_dict = get_link_color_dict(sample_links_dict)
-
-    directed_links_dict = \
-        {k: v["directed"] for k, v in config_file_dict["links_config"].items()}
 
     main_fig_links_dict = get_main_fig_links_dict(
         sample_links_dict=sample_links_dict,
@@ -157,7 +151,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
 
     main_fig_link_arrowheads_dict = get_main_fig_link_arrowheads_dict(
         main_fig_links_dict=main_fig_links_dict,
-        directed_links_dict=directed_links_dict,
+        links_config=config_file_dict["links_config"],
         main_fig_height=main_fig_height,
         yaxis_range=yaxis_range
     )
@@ -434,8 +428,7 @@ def get_node_color_attr_dict(node_color_attr_list):
 
 
 def get_sample_links_dict(sample_data_dict, links_config, primary_y,
-                          links_across_primary_y, max_day_range, weights,
-                          weight_filters, attr_val_filters):
+                          links_across_primary_y, max_day_range):
     """Get a dict of all links to viz in main graph.
 
     The keys in the dict are different link labels. The values are a
@@ -460,15 +453,6 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
     :type links_across_primary_y: bool
     :param max_day_range: Maximum day range to still consider links
     :type max_day_range: int
-    :param weights: Dictionary of expressions used to assign weights to
-        specific links.
-    :type weights: dict
-    :param weight_filters: Dictionary of criteria for filtering out
-        certain links by weight.
-    :type weight_filters: dict
-    :param attr_val_filters: Dictionary of vals to ignore for certain
-        link labels, when generating links b/w nodes.
-    :type attr_val_filters: dict
     :return: Dict detailing links to viz in main graph
     :rtype: dict
     """
@@ -480,33 +464,32 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
         # Get the attr values for a sample, corresponding to one of the
         # lists that forms criteria for a link.
         return [None
-                if (e in filters and filters[e] == sample_data[e])
+                if (e in filters and sample_data[e] in filters[e])
                 else sample_data[e]
                 for e in link_config_list]
 
     for link in links_config:
-        try:
-            link_attr_filters = attr_val_filters[link]
-        except KeyError:
-            link_attr_filters = []
-
         all_eq_list = links_config[link]["all_eq"]
         all_neq_list = links_config[link]["all_neq"]
         any_eq_list = links_config[link]["any_eq"]
         minimize_loops = bool(links_config[link]["minimize_loops"])
+        weight_exp = links_config[link]["weight_exp"]
+        weight_filters = links_config[link]["weight_filters"]
+        attr_filters = links_config[link]["attr_filters"]
+
 
         for i in range(len(sample_list)):
             sample_i = sample_list[i]
             sample_i_data = sample_data_dict[sample_i]
             sample_i_all_eq_list = get_sample_attr_list(sample_i_data,
                                                         all_eq_list,
-                                                        link_attr_filters)
+                                                        attr_filters)
             sample_i_all_neq_list = get_sample_attr_list(sample_i_data,
                                                          all_neq_list,
-                                                         link_attr_filters)
+                                                         attr_filters)
             sample_i_any_eq_list = get_sample_attr_list(sample_i_data,
                                                         any_eq_list,
-                                                        link_attr_filters)
+                                                        attr_filters)
 
             for j in range(i + 1, len(sample_list)):
                 sample_j = sample_list[j]
@@ -528,13 +511,13 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
 
                 sample_j_all_eq_list = get_sample_attr_list(sample_j_data,
                                                             all_eq_list,
-                                                            link_attr_filters)
+                                                            attr_filters)
                 sample_j_all_neq_list = get_sample_attr_list(sample_j_data,
                                                              all_neq_list,
-                                                             link_attr_filters)
+                                                             attr_filters)
                 sample_j_any_eq_list = get_sample_attr_list(sample_j_data,
                                                             any_eq_list,
-                                                            link_attr_filters)
+                                                            attr_filters)
 
                 all_eq_zip_obj = \
                     zip(sample_i_all_eq_list, sample_j_all_eq_list)
@@ -557,7 +540,7 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
                 any_eq = any(any_eq_matches) if len(any_eq_matches) else True
 
                 if all_eq and all_neq and any_eq:
-                    if link in weights:
+                    if weight_exp:
                         def repl_fn(match_obj):
                             # Substitute the syntax used in weight
                             # expressions to reference node attr
@@ -574,20 +557,19 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
                                       "parsing weight expression: " + match
                                 raise RuntimeError(msg)
 
-                        weight_exp = weights[link]
                         subbed_exp = regex_obj.sub(repl_fn, weight_exp)
                         link_weight = eval_expr(subbed_exp)
 
-                        if link in weight_filters["not_equal"]:
-                            neq = weight_filters["not_equal"][link]
-                            if link_weight == neq:
+                        if "not_equal" in weight_filters:
+                            neq = weight_filters["not_equal"]
+                            if link_weight in neq:
                                 continue
-                        if link in weight_filters["less_than"]:
-                            le = weight_filters["less_than"][link]
+                        if "less_than" in weight_filters:
+                            le = weight_filters["less_than"]
                             if link_weight < le:
                                 continue
-                        if link in weight_filters["greater_than"]:
-                            ge = weight_filters["greater_than"][link]
+                        if "greater_than" in weight_filters:
+                            ge = weight_filters["greater_than"]
                             if link_weight > ge:
                                 continue
                     else:
@@ -767,16 +749,16 @@ def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
     return ret
 
 
-def get_main_fig_link_arrowheads_dict(main_fig_links_dict, directed_links_dict,
+def get_main_fig_link_arrowheads_dict(main_fig_links_dict, links_config,
                                       main_fig_height, yaxis_range):
     """Get dict with info used by Plotly to add arrowheads to links.
 
     :param main_fig_links_dict: Dict with info used by Plotly to viz
         links in main graph.
     :type main_fig_links_dict: dict
-    :param directed_links_dict: Dict describing which links have an
-        arrowhead on them.
-    :type directed_links_dict: dict
+    :param links_config: dict of criteria for different user-specified
+        links.
+    :type links_config: dict
     :param main_fig_height: Height for main fig
     :type main_fig_height: int
     :param yaxis_range: Main graph y-axis min and max val
@@ -790,7 +772,7 @@ def get_main_fig_link_arrowheads_dict(main_fig_links_dict, directed_links_dict,
     y_pixel_per_unit = main_fig_height / (yaxis_range[1] - yaxis_range[0])
 
     for link in main_fig_links_dict:
-        if not directed_links_dict[link]:
+        if not links_config[link]["show_arrowheads"]:
             continue
 
         ret[link] = {"x": [], "y": []}
