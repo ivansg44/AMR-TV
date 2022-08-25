@@ -313,6 +313,18 @@ def toggle_create_config_file_modal(_):
 
 
 @app.callback(
+    Output("select-example-file-btn", "children"),
+    Output("select-example-file-btn", "color"),
+    Input("upload-example-file", "contents"),
+    Input("upload-example-file", "filename"),
+    prevent_initial_call=True
+)
+def edit_modal_after_example_file_upload(_, filename):
+    """TODO"""
+    return filename, "success"
+
+
+@app.callback(
     inputs=Input("main-graph", "clickData"),
     state=State("selected-nodes", "data"),
     output=[
