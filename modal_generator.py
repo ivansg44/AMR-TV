@@ -40,7 +40,8 @@ def get_create_config_file_modal():
             dbc.ModalBody([
                 Div(
                     dcc.Upload(
-                        dbc.Button("Upload example data file to generate form",
+                        dbc.Button("Upload sample/example data file to "
+                                   "generate form",
                                    id="select-example-file-btn"),
                         id="upload-example-file"
                     ),

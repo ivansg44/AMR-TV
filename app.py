@@ -228,7 +228,7 @@ def toggle_upload_data_modal(_, __):
     Input("upload-sample-file", "filename"),
     prevent_initial_call=True
 )
-def edit_modal_after_sample_file_upload(_, filename):
+def edit_upload_data_modal_after_sample_file_upload(_, filename):
     """Edit upload data modal css after user uploads sample file.
 
     Current changes:
@@ -252,7 +252,7 @@ def edit_modal_after_sample_file_upload(_, filename):
     Input("upload-config-file", "filename"),
     prevent_initial_call=True
 )
-def edit_modal_after_config_file_upload(_, filename):
+def edit_upload_data_modal_after_config_file_upload(_, filename):
     """Edit upload data modal css after user uploads config file.
 
     Current changes:
@@ -276,7 +276,7 @@ def edit_modal_after_config_file_upload(_, filename):
     prevent_initial_call=True
 )
 def toggle_viz_btn_color(sample_file_contents, config_file_contents):
-    """"Edit viz btn color after user uploads all files.
+    """Edit viz btn color after user uploads all files.
 
     :param sample_file_contents: Contents of uploaded sample file
     :type sample_file_contents: str
@@ -319,7 +319,7 @@ def toggle_create_config_file_modal(_):
     Input("upload-example-file", "filename"),
     prevent_initial_call=True
 )
-def edit_modal_after_example_file_upload(_, filename):
+def edit_create_config_modal_after_example_file_upload(_, filename):
     """TODO"""
     return filename, "success"
 
