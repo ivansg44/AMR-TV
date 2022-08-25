@@ -14,7 +14,7 @@ from data_parser import get_app_data
 from main_fig_generator import (get_main_figs,
                                 get_main_fig_x_axis,
                                 get_main_fig_y_axis)
-from modal_generator import get_upload_modal
+from modal_generator import get_upload_data_modal, get_create_config_file_modal
 from legend_fig_generator import (get_node_symbol_legend_fig,
                                   get_link_legend_fig,
                                   get_node_color_legend_fig)
@@ -175,8 +175,8 @@ def launch_app(_):
                 )
             ]
         ),
-        # TODO probably a separate file for modal generation later
-        get_upload_modal(),
+        get_upload_data_modal(),
+        get_create_config_file_modal(),
         dcc.Store(id="selected-nodes", data={}),
         dcc.Store(id="added-scroll-handlers", data=False),
         dcc.Store("new-upload")
@@ -216,7 +216,8 @@ def toggle_upload_data_modal(_, __):
     elif trigger == "main-graph.figure":
         return False
     else:
-        msg = "Unexpected trigger trying to toggle modal: %s" % trigger
+        msg = "Unexpected trigger trying to " \
+              "toggle upload data modal: %s" % trigger
         raise RuntimeError(msg)
 
 
@@ -288,6 +289,27 @@ def toggle_viz_btn_color(sample_file_contents, config_file_contents):
         return "primary"
     else:
         return "secondary"
+
+
+@app.callback(
+    Output("create-config-file-modal", "is_open"),
+    inputs=[
+        Input("create-config-file-btn", "n_clicks")
+    ],
+    prevent_intial_call=True
+)
+def toggle_create_config_file_modal(_):
+    """TODO"""
+    ctx = dash.callback_context
+    trigger = ctx.triggered[0]["prop_id"]
+    if trigger == ".":
+        raise PreventUpdate
+    elif trigger == "create-config-file-btn.n_clicks":
+        return True
+    else:
+        msg = "Unexpected trigger trying to " \
+              "toggle create config file modal: %s" % trigger
+        raise RuntimeError(msg)
 
 
 @app.callback(
