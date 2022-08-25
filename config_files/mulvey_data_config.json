@@ -16,28 +16,26 @@
       "all_neq": [],
       "any_eq": [],
       "minimize_loops": 0,
-      "directed": 0
+      "show_arrowheads": 1,
+      "weight_exp": "@SNV distance@-!SNV distance!",
+      "weight_filters": {},
+      "attr_filters": {}
     },
     "potential plasmid transfer": {
       "all_eq": ["Tn4401 variant"],
       "all_neq": ["sequence type"],
       "any_eq": ["prflpa1", "prflpa2", "prflpa3"],
       "minimize_loops": 1,
-      "directed": 1
+      "show_arrowheads": 1,
+      "weight_exp": "10*@SNV distance@-!SNV distance!",
+      "weight_filters": {},
+      "attr_filters": {
+      }
     }
   },
   "node_color_attr": [],
   "node_symbol_attr": ["species"],
   "links_across_primary_y": 1,
   "max_day_range": 6000,
-  "null_vals": [""],
-  "weights": {
-    "SNP distance": "@SNV distance@-!SNV distance!"
-  },
-  "weight_filters": {
-    "not_equal": {},
-    "less_than": {},
-    "greater_than": {}
-  },
-  "attr_val_filters": {}
+  "null_vals": [""]
 }
