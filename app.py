@@ -48,11 +48,14 @@ def launch_app(_):
     """
     children = [
         dbc.Row(
-            dbc.Col(
+            dbc.Col([
                 dbc.Button("Upload data",
                            id="upload-data-btn",
-                           color="primary")
-            ),
+                           className="mr-1",
+                           color="primary"),
+                dbc.Button("Create config file",
+                           id="create-config-file-btn")
+            ]),
             className="my-1"
         ),
         dbc.Row(
