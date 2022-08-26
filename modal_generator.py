@@ -2,7 +2,7 @@
 
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
-from dash_html_components import Div
+from dash_html_components import Div, Hr
 
 
 def get_upload_data_modal():
@@ -67,6 +67,7 @@ def get_create_config_file_modal():
                         )
                     ]
                 ),
+                Hr(),
                 dbc.Tooltip("foo",
                             delay={"show": 0, "hide": 0},
                             placement="left",
@@ -76,7 +77,11 @@ def get_create_config_file_modal():
                             placement="right",
                             target="delimiter-select-tooltip-target")
             ]),
-            dbc.ModalBody(None, id="create-config-file-modal-form")
+            dbc.ModalBody("Upload a delimited data file containing the fields "
+                          "you want to generate a config file for, and "
+                          "specify the delimiter.",
+                          id="create-config-file-modal-form",
+                          style={"height": "60vh", "overflow-y": "scroll"})
         ],
         id="create-config-file-modal"
     )
@@ -170,23 +175,7 @@ def get_create_config_modal_form(example_file_fields):
             ),
             className="mb-3"
         ),
-        # TODO this isn't right
-        dbc.Row(
-            dbc.Col(
-                Div(
-                    [
-                        dbc.Label("Node label field:",
-                                  html_for="node-label-field-select"),
-                        dbc.Select(
-                            id="node-label-field-select",
-                            options=example_file_fields_select_opts
-                        )
-                    ],
-                    id="node-label-field-select-target"
-                )
-            ),
-            className="mb-3"
-        ),
+        Hr(),
         dbc.Row(
             dbc.Col(
                 Div(
@@ -210,6 +199,7 @@ def get_create_config_modal_form(example_file_fields):
             ),
             className="mb-3"
         ),
+        Hr(),
         dbc.Row(
             dbc.Col(
                 Div(
@@ -228,6 +218,7 @@ def get_create_config_modal_form(example_file_fields):
             ),
             className="mb-3"
         ),
+        Hr(),
         dbc.Row(
             dbc.Col(
                 Div(
@@ -274,6 +265,24 @@ def get_create_config_modal_form(example_file_fields):
             ),
             className="mb-3"
         ),
+        Hr(),
+        dbc.Row(
+            dbc.Col(
+                Div(
+                    [
+                        dbc.Label("Node label field:",
+                                  html_for="node-label-field-select"),
+                        dbc.Select(
+                            id="node-label-field-select",
+                            options=example_file_fields_select_opts
+                        )
+                    ],
+                    id="node-label-field-select-target"
+                )
+            ),
+            className="mb-3"
+        ),
+        Hr(),
         dbc.Tooltip("date field",
                     delay={"show": 0, "hide": 0},
                     placement="right",
