@@ -203,26 +203,30 @@ def get_create_config_modal_form(example_file_fields):
                             )
                         )
                     ],
-                    id="links-across-primary-y-checkbox-target"
+                    id="null-vals-field-target"
                 )
             ),
             className="mb-3"
         ),
-        dbc.Tooltip("bar",
+        dbc.Tooltip("date field",
                     delay={"show": 0, "hide": 0},
                     placement="right",
                     target="date-field-select-tooltip-target"),
-        dbc.Tooltip("bar",
+        dbc.Tooltip("node label select field",
                     delay={"show": 0, "hide": 0},
                     placement="right",
                     target="node-label-field-select-target"),
-        dbc.Tooltip("bar",
+        dbc.Tooltip("links across primary y field",
                     delay={"show": 0, "hide": 0},
                     placement="right",
                     target="links-across-primary-y-checkbox-target"),
-        dbc.Tooltip("bar",
+        dbc.Tooltip("max day range field",
                     delay={"show": 0, "hide": 0},
                     placement="right",
-                    target="max-day-range-input-target")
+                    target="max-day-range-input-target"),
+        dbc.Tooltip("null vals field",
+                    delay={"show": 0, "hide": 0},
+                    placement="right",
+                    target="null-vals-field-target")
     ]
     return ret
