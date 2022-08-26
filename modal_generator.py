@@ -86,7 +86,8 @@ def get_create_config_file_modal():
 def get_create_config_modal_form(example_file_fields):
     """TODO"""
     example_file_fields_select_opts = \
-        [{"label": e, "value": e} for e in example_file_fields]
+        [{"label": None, "value": None}] \
+        + [{"label": e, "value": e} for e in example_file_fields]
     ret = [
         dbc.Row(
             dbc.Col(
