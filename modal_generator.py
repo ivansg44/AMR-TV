@@ -311,6 +311,54 @@ def get_create_config_modal_form(example_file_fields):
             ),
             className="mb-3"
         ),
+        Hr(),
+        get_create_config_help_btn("node-symbol-fields"),
+        get_create_config_help_alert(
+            "node-symbol-fields",
+            [P("Hello world!")]
+        ),
+        dbc.Row(
+            dbc.Col(
+                [
+                    dbc.Label("Node symbol field(s):",
+                              html_for="node-symbol-field-select"),
+                    dbc.Select(
+                        id="node-symbol-field-select",
+                        options=example_file_fields_select_opts
+                    )
+                ]
+            ),
+            className="mb-3"
+        ),
+        Div(
+            dbc.Row(
+                dbc.Col(
+                    dbc.Select(
+                        options=example_file_fields_select_opts
+                    )
+                ),
+                className="mb-3"
+            ),
+            id={"type": "expandable-create-config-form-template",
+                "index": "node-symbol-fields"},
+            style={"display": "none"}
+        ),
+        dbc.Row(
+            dbc.Col(
+                [],
+                id={"type": "expandable-create-config-form-col",
+                    "index": "node-symbol-fields"}
+            )
+        ),
+        dbc.Row(
+            dbc.Col(
+                dbc.Button("Add",
+                           id={"type": "expandable-create-config-form-btn",
+                               "index": "node-symbol-fields"},
+                           color="primary")
+            ),
+            className="mb-3"
+        ),
         Hr()
     ]
     return ret
