@@ -5,7 +5,7 @@ Running this script launches the application.
 
 import dash
 from dash import Dash
-from dash.dependencies import ClientsideFunction, Input, Output, State
+from dash.dependencies import ClientsideFunction, Input, Output, State, MATCH
 from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
@@ -344,6 +344,20 @@ def append_create_config_modal_form(example_file_contents, delimiter):
     form = get_create_config_modal_form(example_file_fields)
 
     return form
+
+
+@app.callback(
+    Output({"type": "create-config-modal-help-alert", "index": MATCH},
+           "is_open"),
+    Input({"type": "create-config-modal-help-btn", "index": MATCH},
+          "n_clicks"),
+    State({"type": "create-config-modal-help-alert", "index": MATCH},
+          "is_open"),
+    prevent_initial_call=True
+)
+def toggle_create_config_modal_help_alert(_, is_already_open):
+    """TODO"""
+    return not is_already_open
 
 
 @app.callback(
