@@ -343,7 +343,7 @@ def append_create_config_modal_form(example_file_contents, delimiter):
 
     form = get_create_config_modal_form(example_file_fields)
 
-    return None
+    return form
 
 
 @app.callback(

@@ -85,4 +85,26 @@ def get_create_config_file_modal():
 
 def get_create_config_modal_form(example_file_fields):
     """TODO"""
-    return None
+    example_file_fields_select_opts = \
+        [{"label": e, "value": e} for e in example_file_fields]
+    ret = [
+        dbc.Row(
+            dbc.Col(
+                Div(
+                    [
+                        dbc.Label("Date field:", html_for="date-field-select"),
+                        dbc.Select(
+                            id="date-field-select",
+                            options=example_file_fields_select_opts
+                        )
+                    ],
+                    id="date-field-select-tooltip-target"
+                )
+            )
+        ),
+        dbc.Tooltip("bar",
+                    delay={"show": 0, "hide": 0},
+                    placement="right",
+                    target="date-field-select-tooltip-target")
+    ]
+    return ret
