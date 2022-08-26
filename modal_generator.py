@@ -224,7 +224,7 @@ def get_create_config_modal_form(example_file_fields):
         dbc.Row(
             dbc.Col(
                 [
-                    dbc.Label("Node label field:",
+                    dbc.Label("Node label field(s):",
                               html_for="node-label-field-select"),
                     dbc.Select(
                         id="node-label-field-select",
@@ -259,6 +259,54 @@ def get_create_config_modal_form(example_file_fields):
                 dbc.Button("Add",
                            id={"type": "expandable-create-config-form-btn",
                                "index": "node-label-fields"},
+                           color="primary")
+            ),
+            className="mb-3"
+        ),
+        Hr(),
+        get_create_config_help_btn("node-color-fields"),
+        get_create_config_help_alert(
+            "node-color-fields",
+            [P("Hello world!")]
+        ),
+        dbc.Row(
+            dbc.Col(
+                [
+                    dbc.Label("Node color field(s):",
+                              html_for="node-color-field-select"),
+                    dbc.Select(
+                        id="node-color-field-select",
+                        options=example_file_fields_select_opts
+                    )
+                ]
+            ),
+            className="mb-3"
+        ),
+        Div(
+            dbc.Row(
+                dbc.Col(
+                    dbc.Select(
+                        options=example_file_fields_select_opts
+                    )
+                ),
+                className="mb-3"
+            ),
+            id={"type": "expandable-create-config-form-template",
+                "index": "node-color-fields"},
+            style={"display": "none"}
+        ),
+        dbc.Row(
+            dbc.Col(
+                [],
+                id={"type": "expandable-create-config-form-col",
+                    "index": "node-color-fields"}
+            )
+        ),
+        dbc.Row(
+            dbc.Col(
+                dbc.Button("Add",
+                           id={"type": "expandable-create-config-form-btn",
+                               "index": "node-color-fields"},
                            color="primary")
             ),
             className="mb-3"
