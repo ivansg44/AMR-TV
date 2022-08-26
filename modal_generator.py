@@ -73,7 +73,7 @@ def get_create_config_file_modal():
                     "delimiter."
                 ),
                 id="create-config-file-modal-form",
-                style={"height": "60vh", "overflow-y": "scroll"})
+                style={"height": "60vh", "overflowY": "scroll"})
         ],
         id="create-config-file-modal"
     )
@@ -216,9 +216,9 @@ def get_create_config_modal_form(example_file_fields):
             className="mb-3"
         ),
         Hr(),
-        get_create_config_help_btn("node-labels-field"),
+        get_create_config_help_btn("node-label-fields"),
         get_create_config_help_alert(
-            "node-labels-field",
+            "node-label-fields",
             [P("Hello world!")]
         ),
         dbc.Row(
@@ -231,6 +231,35 @@ def get_create_config_modal_form(example_file_fields):
                         options=example_file_fields_select_opts
                     )
                 ]
+            ),
+            className="mb-3"
+        ),
+        Div(
+            dbc.Row(
+                dbc.Col(
+                    dbc.Select(
+                        options=example_file_fields_select_opts
+                    )
+                ),
+                className="mb-3"
+            ),
+            id={"type": "expandable-create-config-form-template",
+                "index": "node-label-fields"},
+            style={"display": "none"}
+        ),
+        dbc.Row(
+            dbc.Col(
+                [],
+                id={"type": "expandable-create-config-form-col",
+                    "index": "node-label-fields"}
+            )
+        ),
+        dbc.Row(
+            dbc.Col(
+                dbc.Button("Add",
+                           id={"type": "expandable-create-config-form-btn",
+                               "index": "node-label-fields"},
+                           color="primary")
             ),
             className="mb-3"
         ),

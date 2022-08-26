@@ -9,6 +9,7 @@ from dash.dependencies import ClientsideFunction, Input, Output, State, MATCH
 from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
+from dash_html_components import Div
 
 from data_parser import get_app_data, parse_fields_from_example_file
 from main_fig_generator import (get_main_figs,
@@ -332,7 +333,7 @@ def edit_create_config_modal_after_example_file_upload(example_file_contents,
     Input("delimiter-select", "value"),
     prevent_initial_call=True
 )
-def append_create_config_modal_form(example_file_contents, delimiter):
+def add_create_config_modal_form(example_file_contents, delimiter):
     """TODO"""
     if None in [example_file_contents, delimiter]:
         raise PreventUpdate
@@ -358,6 +359,65 @@ def append_create_config_modal_form(example_file_contents, delimiter):
 def toggle_create_config_modal_help_alert(_, is_already_open):
     """TODO"""
     return not is_already_open
+
+
+@app.callback(
+    Output({"type": "expandable-create-config-form-col", "index": MATCH},
+           "children"),
+    Input({"type": "expandable-create-config-form-btn", "index": MATCH},
+          "n_clicks"),
+    State({"type": "expandable-create-config-form-template", "index": MATCH},
+          "children"),
+    State({"type": "expandable-create-config-form-col", "index": MATCH},
+          "children"),
+    State({"type": "expandable-create-config-form-col", "index": MATCH},
+          "id"),
+    prevent_initial_call=True
+)
+def expand_create_config_modal_form(_, template_div, existing_divs, col_id):
+    """TODO"""
+    col_index = col_id["index"]
+    if not len(existing_divs):
+        unique_index = col_index + "-0"
+    else:
+        most_recent_index = existing_divs[-1]["props"]["id"]["index"]
+        next_int = int(most_recent_index.rsplit("-", 1)[-1]) + 1
+        unique_index = col_index + "-" + str(next_int)
+    new_div = Div(
+        [
+            dbc.Row(
+                dbc.Col(
+                    dbc.Button("Delete",
+                               id={"type": "contractable-create-config-form-"
+                                           "btn",
+                                   "index": unique_index},
+                               color="danger",
+                               size="sm",
+                               className="p-0"),
+                    className="text-right",
+                    width={"offset": 10, "size": 2}
+                ),
+                className="mb-1"
+            ),
+            template_div
+        ],
+        id={"type": "contractable-create-config-form-div",
+            "index": unique_index}
+    )
+
+    return existing_divs + [new_div]
+
+
+@app.callback(
+    Output({"type": "contractable-create-config-form-div", "index": MATCH},
+           "children"),
+    Input({"type": "contractable-create-config-form-btn", "index": MATCH},
+          "n_clicks"),
+    prevent_initial_call=True
+)
+def contract_create_config_modal_form(_):
+    """TODO"""
+    return None
 
 
 @app.callback(
