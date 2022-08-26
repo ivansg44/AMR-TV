@@ -135,9 +135,7 @@ def get_create_config_modal_form(example_file_fields):
                             ),
                             dbc.Col(
                                 dbc.Label("Draw links b/w nodes w/ different "
-                                          "primary y-axis values?",
-                                          html_for="links-across-primary-y-"
-                                                   "checkbox")
+                                          "primary y-axis values?")
                             )
                         ])
                     ],
@@ -160,6 +158,52 @@ def get_create_config_modal_form(example_file_fields):
                         )
                     ],
                     id="max-day-range-input-target"
+                )
+            ),
+            className="mb-3"
+        ),
+        dbc.Row(
+            dbc.Col(
+                Div(
+                    [
+                        dbc.Row(
+                            dbc.Col(
+                                dbc.Label("Which values in your data should "
+                                          "be treated as null?")
+                            )
+                        ),
+                        dbc.Row([
+                            dbc.Col(
+                                dbc.Label("Empty strings?:"),
+                                width={"offset": 1}
+                            ),
+                            dbc.Col(
+                                dbc.Checkbox(
+                                    id="empty-strings-are-null-checkbox",
+                                    checked=False
+                                ),
+                                width=1
+                            )
+                        ]),
+                        dbc.Row(
+                            dbc.Col(
+                                dbc.Label("Other (please specify):"),
+                                width={"offset": 1}
+                            )
+                        ),
+                        dbc.Row(
+                            dbc.Col(
+                                dbc.Textarea(
+                                    id="null-vals-textarea",
+                                    placeholder="Separate multiple values "
+                                                "with a semicolon"
+                                ),
+                                className="p-0",
+                                width={"size": 10, "offset": 1}
+                            )
+                        )
+                    ],
+                    id="links-across-primary-y-checkbox-target"
                 )
             ),
             className="mb-3"
