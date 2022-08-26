@@ -38,19 +38,43 @@ def get_create_config_file_modal():
         [
             dbc.ModalHeader("Create config file"),
             dbc.ModalBody([
-                Div(
-                    dcc.Upload(
-                        dbc.Button("Upload sample/example data file to "
-                                   "generate form",
-                                   id="select-example-file-btn"),
-                        id="upload-example-file"
-                    ),
-                    id="select-example-file-tooltip-target"
+                dbc.Row(
+                    [
+                        dbc.Col(
+                            Div(
+                                dcc.Upload(
+                                    dbc.Button("Upload sample/example data "
+                                               "file",
+                                               id="select-example-file-btn"),
+                                    id="upload-example-file"
+                                ),
+                                id="select-example-file-tooltip-target"
+                            ),
+                            width=8
+                        ),
+                        dbc.Col(
+                            Div(
+                                dbc.Select(
+                                    id="delimiter-select",
+                                    placeholder="Delimiter?",
+                                    options=[
+                                        {"label": "Tab", "value": "\t"},
+                                        {"label": "Comma", "value": ","}
+                                    ]
+                                ),
+                                id="delimiter-select-tooltip-target"
+                            )
+                        )
+                    ]
                 ),
                 dbc.Tooltip("foo",
                             delay={"show": 0, "hide": 0},
+                            placement="left",
+                            target="select-example-file-tooltip-target"),
+                dbc.Tooltip("bar",
+                            delay={"show": 0, "hide": 0},
                             placement="right",
-                            target="select-example-file-tooltip-target")
+                            target="delimiter-select-tooltip-target")
             ])
         ],
         id="create-config-file-modal"
