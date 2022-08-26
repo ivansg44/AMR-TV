@@ -10,11 +10,13 @@ from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 
-from data_parser import get_app_data
+from data_parser import get_app_data, parse_fields_from_example_file
 from main_fig_generator import (get_main_figs,
                                 get_main_fig_x_axis,
                                 get_main_fig_y_axis)
-from modal_generator import get_upload_data_modal, get_create_config_file_modal
+from modal_generator import (get_upload_data_modal,
+                             get_create_config_file_modal,
+                             get_create_config_modal_form)
 from legend_fig_generator import (get_node_symbol_legend_fig,
                                   get_link_legend_fig,
                                   get_node_color_legend_fig)
@@ -319,9 +321,29 @@ def toggle_create_config_file_modal(_):
     Input("upload-example-file", "filename"),
     prevent_initial_call=True
 )
-def edit_create_config_modal_after_example_file_upload(_, filename):
+def edit_create_config_modal_after_example_file_upload(example_file_contents,
+                                                       filename):
     """TODO"""
     return filename, "success"
+
+@app.callback(
+    Output("create-config-file-modal-form", "children"),
+    Input("upload-example-file", "contents"),
+    Input("delimiter-select", "value"),
+    prevent_initial_call=True
+)
+def append_create_config_modal_form(example_file_contents, delimiter):
+    """TODO"""
+    if None in [example_file_contents, delimiter]:
+        raise PreventUpdate
+
+    example_file_base64_str = example_file_contents.split(",")[1]
+    example_file_fields = \
+        parse_fields_from_example_file(example_file_base64_str, delimiter)
+
+    form = get_create_config_modal_form(example_file_fields)
+
+    return None
 
 
 @app.callback(

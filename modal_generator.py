@@ -75,8 +75,14 @@ def get_create_config_file_modal():
                             delay={"show": 0, "hide": 0},
                             placement="right",
                             target="delimiter-select-tooltip-target")
-            ])
+            ]),
+            dbc.ModalBody(None, id="create-config-file-modal-form")
         ],
         id="create-config-file-modal"
     )
     return ret
+
+
+def get_create_config_modal_form(example_file_fields):
+    """TODO"""
+    return None

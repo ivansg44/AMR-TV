@@ -14,6 +14,15 @@ import networkx as nx
 from expression_evaluator import eval_expr
 
 
+def parse_fields_from_example_file(example_file_base64_str, delimiter):
+    """TODO"""
+    example_file_str = b64decode(example_file_base64_str).decode("utf-8")
+    reader = csv.reader(StringIO(example_file_str), delimiter=delimiter)
+    for row in reader:
+        return row
+    return []
+
+
 def get_app_data(sample_file_base64_str, config_file_base64_str,
                  selected_nodes=None):
     """Get data from uploaded file that is used to generate viz.
