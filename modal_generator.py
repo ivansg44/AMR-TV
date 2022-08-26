@@ -104,6 +104,7 @@ def get_create_config_modal_form(example_file_fields):
             ),
             className="mb-3"
         ),
+        # TODO this isn't right
         dbc.Row(
             dbc.Col(
                 Div(
@@ -120,6 +121,31 @@ def get_create_config_modal_form(example_file_fields):
             ),
             className="mb-3"
         ),
+        dbc.Row(
+            dbc.Col(
+                Div(
+                    [
+                        dbc.Row([
+                            dbc.Col(
+                                dbc.Checkbox(
+                                    id="links-across-primary-y-checkbox",
+                                    checked=False
+                                ),
+                                width=1
+                            ),
+                            dbc.Col(
+                                dbc.Label("Draw links b/w nodes w/ different "
+                                          "primary y-axis values?",
+                                          html_for="links-across-primary-y-"
+                                                   "checkbox")
+                            )
+                        ])
+                    ],
+                    id="links-across-primary-y-checkbox-target"
+                )
+            ),
+            className="mb-3"
+        ),
         dbc.Tooltip("bar",
                     delay={"show": 0, "hide": 0},
                     placement="right",
@@ -127,6 +153,10 @@ def get_create_config_modal_form(example_file_fields):
         dbc.Tooltip("bar",
                     delay={"show": 0, "hide": 0},
                     placement="right",
-                    target="node-label-field-select-target")
+                    target="node-label-field-select-target"),
+        dbc.Tooltip("bar",
+                    delay={"show": 0, "hide": 0},
+                    placement="right",
+                    target="links-across-primary-y-checkbox-target")
     ]
     return ret
