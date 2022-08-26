@@ -104,6 +104,72 @@ def get_create_config_modal_form(example_file_fields):
             ),
             className="mb-3"
         ),
+        dbc.Row(
+            dbc.Col(
+                Div(
+                    [
+                        dbc.Row([
+                          dbc.Col(
+                              dbc.Label("Date input format:",
+                                        html_for="date-input-format-input"),
+                              width="10"
+                          ),
+                          dbc.Col(
+                              dbc.Button("Help",
+                                         color="info",
+                                         size="sm",
+                                         className="p-0",
+                                         href="https://bit.ly/3PU7PV0",
+                                         target="_blank",
+                                         external_link=True)
+                          )
+                        ]),
+                        dbc.Row(
+                            dbc.Col(
+                                dbc.Input(
+                                    id="date-input-format-input",
+                                )
+                            )
+                        )
+                    ],
+                    id="date-input-format-input-tooltip-target"
+                )
+            ),
+            className="mb-3"
+        ),
+        dbc.Row(
+            dbc.Col(
+                Div(
+                    [
+                        dbc.Row([
+                          dbc.Col(
+                              dbc.Label("Date output format:",
+                                        html_for="date-output-format-input"),
+                              width="10"
+                          ),
+                          dbc.Col(
+                              dbc.Button("Help",
+                                         color="info",
+                                         size="sm",
+                                         className="p-0",
+                                         href="https://bit.ly/3PU7PV0",
+                                         target="_blank",
+                                         external_link=True)
+                          )
+                        ]),
+                        dbc.Row(
+                            dbc.Col(
+                                dbc.Input(
+                                    id="date-output-format-input",
+                                )
+                            )
+                        )
+                    ],
+                    id="date-output-format-input-tooltip-target"
+                )
+            ),
+            className="mb-3"
+        ),
         # TODO this isn't right
         dbc.Row(
             dbc.Col(
@@ -212,6 +278,14 @@ def get_create_config_modal_form(example_file_fields):
                     delay={"show": 0, "hide": 0},
                     placement="right",
                     target="date-field-select-tooltip-target"),
+        dbc.Tooltip("date input format field",
+                    delay={"show": 0, "hide": 0},
+                    placement="right",
+                    target="date-input-format-input-tooltip-target"),
+        dbc.Tooltip("date output format field",
+                    delay={"show": 0, "hide": 0},
+                    placement="right",
+                    target="date-output-format-input-tooltip-target"),
         dbc.Tooltip("node label select field",
                     delay={"show": 0, "hide": 0},
                     placement="right",
