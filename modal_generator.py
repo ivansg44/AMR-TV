@@ -146,6 +146,24 @@ def get_create_config_modal_form(example_file_fields):
             ),
             className="mb-3"
         ),
+        dbc.Row(
+            dbc.Col(
+                Div(
+                    [
+                        dbc.Label("Do not draw links b/w nodes that are this "
+                                  "many days apart:",
+                                  html_for="max-day-range-input"),
+                        dbc.Input(
+                            id="max-day-range-input",
+                            type="number",
+                            min=0
+                        )
+                    ],
+                    id="max-day-range-input-target"
+                )
+            ),
+            className="mb-3"
+        ),
         dbc.Tooltip("bar",
                     delay={"show": 0, "hide": 0},
                     placement="right",
@@ -157,6 +175,10 @@ def get_create_config_modal_form(example_file_fields):
         dbc.Tooltip("bar",
                     delay={"show": 0, "hide": 0},
                     placement="right",
-                    target="links-across-primary-y-checkbox-target")
+                    target="links-across-primary-y-checkbox-target"),
+        dbc.Tooltip("bar",
+                    delay={"show": 0, "hide": 0},
+                    placement="right",
+                    target="max-day-range-input-target")
     ]
     return ret
