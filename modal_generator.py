@@ -100,11 +100,32 @@ def get_create_config_modal_form(example_file_fields):
                     ],
                     id="date-field-select-tooltip-target"
                 )
-            )
+            ),
+            className="mb-3"
+        ),
+        dbc.Row(
+            dbc.Col(
+                Div(
+                    [
+                        dbc.Label("Node label field:",
+                                  html_for="node-label-field-select"),
+                        dbc.Select(
+                            id="node-label-field-select",
+                            options=example_file_fields_select_opts
+                        )
+                    ],
+                    id="node-label-field-select-target"
+                )
+            ),
+            className="mb-3"
         ),
         dbc.Tooltip("bar",
                     delay={"show": 0, "hide": 0},
                     placement="right",
-                    target="date-field-select-tooltip-target")
+                    target="date-field-select-tooltip-target"),
+        dbc.Tooltip("bar",
+                    delay={"show": 0, "hide": 0},
+                    placement="right",
+                    target="node-label-field-select-target")
     ]
     return ret
