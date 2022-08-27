@@ -474,6 +474,15 @@ def contract_create_config_modal_form(_):
 
 
 @app.callback(
+    Output("missing-required-vals-col", "style"),
+    Input("generate-config-file-btn", "n_clicks"),
+    prevent_initial_call=True
+)
+def create_config_file(_):
+    """TODO"""
+    return {"visiblity": "visible"}
+
+@app.callback(
     inputs=Input("main-graph", "clickData"),
     state=State("selected-nodes", "data"),
     output=[

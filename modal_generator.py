@@ -79,11 +79,23 @@ def get_create_config_file_modal():
             ),
             dbc.ModalFooter(
                 dbc.Row(
-                    dbc.Col(
-                        dbc.Button("Generate config file",
-                                   id="generate-config-file-btn"),
-                        width=12
-                    )
+                    [
+                        dbc.Col(
+                            dbc.Label("Missing required values",
+                                      color="danger",
+                                      className="mb-0"),
+                            id="missing-required-vals-col",
+                            className="text-right my-auto",
+                            style={"visibility": "hidden"}
+                        ),
+                        dbc.Col(
+                            dbc.Button("Generate config file",
+                                       id="generate-config-file-btn"),
+                            className="text-right my-auto",
+                            width=6
+                        )
+                    ],
+                    style={"width": "100%"}
                 )
             )
         ],
