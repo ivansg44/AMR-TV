@@ -482,6 +482,7 @@ def create_config_file(_):
     """TODO"""
     return {"visiblity": "visible"}
 
+
 @app.callback(
     inputs=Input("main-graph", "clickData"),
     state=State("selected-nodes", "data"),
