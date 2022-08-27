@@ -640,6 +640,68 @@ def get_first_link_config_section(example_file_fields_select_opts):
             ),
             className="mb-1"
         ),
+        get_create_config_help_btn("first-config-attr-filters"),
+        get_create_config_help_alert(
+            "first-config-attr-filters",
+            [P("Hello world!")]
+        ),
+        dbc.Row(
+            dbc.Col(
+                dbc.Label("Field value filters:")
+            ),
+            className="mb-1"
+        ),
+        dbc.Row(
+            dbc.Col(
+                [
+                    dbc.Select(
+                        id="first-config-attr-filter-select",
+                        options=example_file_fields_select_opts,
+                        placeholder="Optional"
+                    ),
+                    dbc.Textarea(
+                        id="first-config-attr-filter-textarea",
+                        placeholder="Separate multiple values with a semicolon"
+                    )
+                ]
+            ),
+            className="mb-3"
+        ),
+        Div(
+            dbc.Row(
+                dbc.Col(
+                [
+                    dbc.Select(
+                        options=example_file_fields_select_opts,
+                        placeholder="Optional"
+                    ),
+                    dbc.Textarea(
+                        placeholder="Separate multiple values with a semicolon"
+                    )
+                ]
+                ),
+                className="mb-3"
+            ),
+            id={"type": "expandable-create-config-form-template",
+                "index": "first-config-attr-filter"},
+            style={"display": "none"}
+        ),
+        dbc.Row(
+            dbc.Col(
+                [],
+                id={"type": "expandable-create-config-form-col",
+                    "index": "first-config-attr-filter"}
+            )
+        ),
+        dbc.Row(
+            dbc.Col(
+                dbc.Button("Add",
+                           id={"type": "expandable-create-config-form-btn",
+                               "index": "first-config-attr-filter"},
+                           color="primary")
+            ),
+            className="mb-3"
+        ),
         get_create_config_help_btn("first-config-all-equal"),
         get_create_config_help_alert(
             "first-config-all-equal",
