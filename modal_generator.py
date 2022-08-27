@@ -1,5 +1,7 @@
 """Fns for generating modals."""
 
+from sys import maxsize
+
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 from dash_html_components import Div, Hr, P, H5
@@ -568,11 +570,75 @@ def get_first_link_config_section(example_file_fields_select_opts):
                     dbc.Label("Weight expression:",
                               html_for="link-config-weight-exp-input"),
                     dbc.Input(
-                        id="link-config-weight-exp-input"
+                        id="link-config-weight-exp-input",
+                        placeholder="Optional"
                     )
                 ]
             ),
             className="mb-3"
+        ),
+        get_create_config_help_btn("link-config-weight-filters"),
+        get_create_config_help_alert(
+            "link-config-weight-filters",
+            [P("Hello world!")]
+        ),
+        dbc.Row(
+            dbc.Col(
+                dbc.Label("Weight filters:")
+            ),
+            className="mb-3"
+        ),
+        dbc.Row(
+            [
+                dbc.Col(
+                    dbc.Label("Less than:",
+                              html_for="weight-filter-less-than-input"),
+                    width={"offset": 1, "size": 4}
+                ),
+                dbc.Col(
+                    dbc.Input(
+                        id="weight-filter-less-than-input",
+                        type="number",
+                        max=maxsize,
+                        placeholder="Optional"
+                    ),
+                    width=4
+                )
+            ],
+            className="mb-1"
+        ),
+        dbc.Row(
+            [
+                dbc.Col(
+                    dbc.Label("Greater than:",
+                              html_for="weight-filter-less-than-input"),
+                    width={"offset": 1, "size": 4}
+                ),
+                dbc.Col(
+                    dbc.Input(
+                        id="weight-filter-greater-than-input",
+                        type="number",
+                        max=maxsize,
+                        placeholder="Optional"
+                    ),
+                    width=4
+                )
+            ],
+            className="mb-1"
+        ),
+        dbc.Row(
+            dbc.Col(
+                [
+                    dbc.Label("Not equal to:",
+                              html_for="weight-filter-not-equal-input"),
+                    dbc.Textarea(
+                        id="weight-filter-not-equal-input",
+                        placeholder="Separate multiple values with a semicolon"
+                    )
+                ],
+                width={"offset": 1, "size": 8}
+            ),
+            className="mb-1"
         ),
         Hr()
     ]
