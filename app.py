@@ -492,19 +492,24 @@ def start_config_file_generation(_, btn_color):
     Output("date-field-select", "invalid"),
     Output("date-input-format-input", "invalid"),
     Output("date-output-format-input", "invalid"),
+    Output("y-axis-field-select", "invalid"),
     Input("config-file-generation-started", "data"),
     State("date-field-select", "value"),
     State("date-input-format-input", "value"),
     State("date-output-format-input", "value"),
+    State("y-axis-field-select", "value"),
     prevent_initial_call=True
 )
 def continue_config_file_generation(started, date_field, date_input_format,
-                                    date_output_format):
+                                    date_output_format, first_y_axis_field):
     """TODO"""
     if not started:
         raise PreventUpdate
 
-    mandatory_fields = [date_field, date_input_format, date_output_format]
+    mandatory_fields = [date_field,
+                        date_input_format,
+                        date_output_format,
+                        first_y_axis_field]
     field_invalidity_list = \
         [True if e is None or e == "" else False for e in mandatory_fields]
     if any(field_invalidity_list):
