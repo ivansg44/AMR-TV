@@ -476,10 +476,14 @@ def contract_create_config_modal_form(_):
 @app.callback(
     Output("missing-required-vals-col", "style"),
     Input("generate-config-file-btn", "n_clicks"),
+    State("generate-config-file-btn", "color"),
     prevent_initial_call=True
 )
-def create_config_file(_):
+def create_config_file(_, btn_color):
     """TODO"""
+    if btn_color != "primary":
+        raise PreventUpdate
+
     return {"visiblity": "visible"}
 
 
