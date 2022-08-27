@@ -400,12 +400,9 @@ def expand_create_config_modal_form(_, existing_divs, col_id,
         next_int = int(most_recent_index.rsplit("-", 1)[-1]) + 1
         unique_index = col_index + "-" + str(next_int)
 
-    if col_index == "y-axis-fields":
-        new_input_div = get_duplicating_select_field(example_file_field_opts,
-                                                     col_index,
-                                                     unique_index)
-    else:
-        raise PreventUpdate
+    new_input_div = get_duplicating_select_field(example_file_field_opts,
+                                                 col_index,
+                                                 unique_index)
 
     new_div = Div(
         [
@@ -571,13 +568,14 @@ def start_config_file_generation(_, btn_color):
     State("null-vals-textarea", "value"),
     State({"type": "y-axis-fields", "index": -1}, "value"),
     State({"type": "y-axis-fields", "index": ALL}, "value"),
+    State({"type": "node-label-fields", "index": ALL}, "value"),
     prevent_initial_call=True
 )
 def continue_config_file_generation(started, date_field, date_input_format,
                                     date_output_format, links_across_primary_y,
                                     max_day_range, empty_strings_are_null,
                                     null_vals_textarea, first_y_axis_field,
-                                    y_axis_fields):
+                                    y_axis_fields, node_label_fields):
     """TODO"""
     if not started:
         raise PreventUpdate

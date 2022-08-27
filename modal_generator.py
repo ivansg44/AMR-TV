@@ -248,7 +248,7 @@ def get_create_config_modal_form(example_file_field_opts):
             dbc.Col(
                 [
                     dbc.Label("y-axis field(s):",
-                              html_for="y-axis-field-select"),
+                              html_for={"type": "y-axis-fields", "index": -1}),
                     dbc.Select(
                         id={"type": "y-axis-fields", "index": -1},
                         options=example_file_field_opts
@@ -283,29 +283,17 @@ def get_create_config_modal_form(example_file_field_opts):
             dbc.Col(
                 [
                     dbc.Label("Node label field(s):",
-                              html_for="node-label-field-select"),
+                              html_for={"type": "node-label-fields",
+                                        "index": -1}
+                              ),
                     dbc.Select(
-                        id="node-label-field-select",
+                        id={"type": "node-label-fields", "index": -1},
                         options=example_file_field_opts,
                         placeholder="Optional"
                     )
                 ]
             ),
             className="mb-3"
-        ),
-        Div(
-            dbc.Row(
-                dbc.Col(
-                    dbc.Select(
-                        options=example_file_field_opts,
-                        placeholder="Optional"
-                    )
-                ),
-                className="mb-3"
-            ),
-            id={"type": "expandable-create-config-form-template",
-                "index": "node-label-fields"},
-            style={"display": "none"}
         ),
         dbc.Row(
             dbc.Col(
