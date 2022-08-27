@@ -510,24 +510,24 @@ def get_first_link_config_section(example_file_fields_select_opts):
             dbc.Col(
                 [
                     dbc.Label("Link label:",
-                              html_for="link-config-label-input"),
+                              html_for="first-config-label-input"),
                     dbc.Input(
-                        id="link-config-label-input"
+                        id="first-config-label-input"
                     )
                 ]
             ),
             className="mb-3"
         ),
-        get_create_config_help_btn("link-config-minimize-loops"),
+        get_create_config_help_btn("first-config-minimize-loops"),
         get_create_config_help_alert(
-            "link-config-minimize-loops",
+            "first-config-minimize-loops",
             [P("Hello world!")]
         ),
         dbc.Row(
             [
                 dbc.Col(
                     dbc.Checkbox(
-                        id="link-config-minimize-loops-checkbox",
+                        id="first-config-minimize-loops-checkbox",
                         checked=False
                     ),
                     width=1
@@ -539,16 +539,16 @@ def get_first_link_config_section(example_file_fields_select_opts):
             ],
             className="mb-3"
         ),
-        get_create_config_help_btn("link-config-show-arrowheads"),
+        get_create_config_help_btn("first-config-show-arrowheads"),
         get_create_config_help_alert(
-            "link-config-show-arrowheads",
+            "first-config-show-arrowheads",
             [P("Hello world!")]
         ),
         dbc.Row(
             [
                 dbc.Col(
                     dbc.Checkbox(
-                        id="link-config-show-arrowheads-checkbox",
+                        id="first-config-show-arrowheads-checkbox",
                         checked=False
                     ),
                     width=1
@@ -559,27 +559,27 @@ def get_first_link_config_section(example_file_fields_select_opts):
             ],
             className="mb-3"
         ),
-        get_create_config_help_btn("link-config-weight-exp"),
+        get_create_config_help_btn("first-config-weight-exp"),
         get_create_config_help_alert(
-            "link-config-weight-exp",
+            "first-config-weight-exp",
             [P("Hello world!")]
         ),
         dbc.Row(
             dbc.Col(
                 [
                     dbc.Label("Weight expression:",
-                              html_for="link-config-weight-exp-input"),
+                              html_for="first-config-weight-exp-input"),
                     dbc.Input(
-                        id="link-config-weight-exp-input",
+                        id="first-config-weight-exp-input",
                         placeholder="Optional"
                     )
                 ]
             ),
             className="mb-3"
         ),
-        get_create_config_help_btn("link-config-weight-filters"),
+        get_create_config_help_btn("first-config-weight-filters"),
         get_create_config_help_alert(
-            "link-config-weight-filters",
+            "first-config-weight-filters",
             [P("Hello world!")]
         ),
         dbc.Row(
@@ -639,6 +639,55 @@ def get_first_link_config_section(example_file_fields_select_opts):
                 width={"offset": 1, "size": 8}
             ),
             className="mb-1"
+        ),
+        get_create_config_help_btn("first-config-all-equal"),
+        get_create_config_help_alert(
+            "first-config-all-equal",
+            [P("Hello world!")]
+        ),
+        dbc.Row(
+            dbc.Col(
+                [
+                    dbc.Label("Fields that must ALL be equal:",
+                              html_for="first-config-all-equal-select"),
+                    dbc.Select(
+                        id="first-config-all-equal-select",
+                        options=example_file_fields_select_opts,
+                        placeholder="Optional"
+                    )
+                ]
+            ),
+            className="mb-3"
+        ),
+        Div(
+            dbc.Row(
+                dbc.Col(
+                    dbc.Select(
+                        options=example_file_fields_select_opts,
+                        placeholder="Optional"
+                    )
+                ),
+                className="mb-3"
+            ),
+            id={"type": "expandable-create-config-form-template",
+                "index": "first-config-all-eq"},
+            style={"display": "none"}
+        ),
+        dbc.Row(
+            dbc.Col(
+                [],
+                id={"type": "expandable-create-config-form-col",
+                    "index": "first-config-all-eq"}
+            )
+        ),
+        dbc.Row(
+            dbc.Col(
+                dbc.Button("Add",
+                           id={"type": "expandable-create-config-form-btn",
+                               "index": "first-config-all-eq"},
+                           color="primary")
+            ),
+            className="mb-3"
         ),
         Hr()
     ]
