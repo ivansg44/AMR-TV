@@ -3,6 +3,8 @@
 Running this script launches the application.
 """
 
+from sys import maxsize
+
 import dash
 from dash import Dash
 from dash.dependencies import ClientsideFunction, Input, Output, State, MATCH
@@ -488,7 +490,8 @@ def start_config_file_generation(_, btn_color):
     return True
 
 @app.callback(
-    Output("missing-required-vals-col", "style"),
+    Output("config-error-msg-label", "children"),
+    Output("config-error-msg-col", "style"),
     Output("date-field-select", "invalid"),
     Output("date-input-format-input", "invalid"),
     Output("date-output-format-input", "invalid"),
@@ -498,12 +501,13 @@ def start_config_file_generation(_, btn_color):
     State("date-input-format-input", "value"),
     State("date-output-format-input", "value"),
     State("links-across-primary-y-checkbox", "checked"),
+    State("max-day-range-input", "value"),
     State("y-axis-field-select", "value"),
     prevent_initial_call=True
 )
 def continue_config_file_generation(started, date_field, date_input_format,
                                     date_output_format, links_across_primary_y,
-                                    first_y_axis_field):
+                                    max_day_range, first_y_axis_field):
     """TODO"""
     if not started:
         raise PreventUpdate
@@ -515,9 +519,18 @@ def continue_config_file_generation(started, date_field, date_input_format,
     field_invalidity_list = \
         [True if e is None or e == "" else False for e in mandatory_fields]
     if any(field_invalidity_list):
-        return {"visibility": "visible"}, *field_invalidity_list
+        return "Missing required values", \
+               {"visibility": "visible"}, \
+               *field_invalidity_list
 
-    return {"visibility": "hidden"}, *field_invalidity_list
+    if max_day_range is None:
+        max_day_range = maxsize
+    elif max_day_range < 0:
+        return "Invalid number in highlighted input", \
+               {"visibility": "visible"}, \
+               *field_invalidity_list
+
+    return None, {"visibility": "hidden"}, *field_invalidity_list
 
 
 @app.callback(

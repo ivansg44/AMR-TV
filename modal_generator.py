@@ -81,10 +81,11 @@ def get_create_config_file_modal():
                 dbc.Row(
                     [
                         dbc.Col(
-                            dbc.Label("Missing required values",
+                            dbc.Label(None,
+                                      id="config-error-msg-label",
                                       color="danger",
                                       className="mb-0"),
-                            id="missing-required-vals-col",
+                            id="config-error-msg-col",
                             className="text-right my-auto",
                             style={"visibility": "hidden"}
                         ),
