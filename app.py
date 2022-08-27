@@ -497,11 +497,13 @@ def start_config_file_generation(_, btn_color):
     State("date-field-select", "value"),
     State("date-input-format-input", "value"),
     State("date-output-format-input", "value"),
+    State("links-across-primary-y-checkbox", "checked"),
     State("y-axis-field-select", "value"),
     prevent_initial_call=True
 )
 def continue_config_file_generation(started, date_field, date_input_format,
-                                    date_output_format, first_y_axis_field):
+                                    date_output_format, links_across_primary_y,
+                                    first_y_axis_field):
     """TODO"""
     if not started:
         raise PreventUpdate
