@@ -484,7 +484,7 @@ def create_config_file(_, btn_color):
     if btn_color != "primary":
         raise PreventUpdate
 
-    return {"visiblity": "visible"}
+    return {"visibility": "visible"}
 
 
 @app.callback(
