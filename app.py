@@ -17,7 +17,8 @@ from main_fig_generator import (get_main_figs,
                                 get_main_fig_y_axis)
 from modal_generator import (get_upload_data_modal,
                              get_create_config_file_modal,
-                             get_create_config_modal_form)
+                             get_create_config_modal_form,
+                             get_extra_link_config_section)
 from legend_fig_generator import (get_node_symbol_legend_fig,
                                   get_link_legend_fig,
                                   get_node_color_legend_fig)
@@ -182,7 +183,8 @@ def launch_app(_):
         get_create_config_file_modal(),
         dcc.Store(id="selected-nodes", data={}),
         dcc.Store(id="added-scroll-handlers", data=False),
-        dcc.Store("new-upload")
+        dcc.Store("new-upload"),
+        dcc.Store("example-file-fields")
     ]
 
     return children
@@ -329,6 +331,7 @@ def edit_create_config_modal_after_example_file_upload(example_file_contents,
 
 @app.callback(
     Output("create-config-file-modal-form", "children"),
+    Output("example-file-fields", "data"),
     Input("upload-example-file", "contents"),
     Input("delimiter-select", "value"),
     prevent_initial_call=True
@@ -344,7 +347,7 @@ def add_create_config_modal_form(example_file_contents, delimiter):
 
     form = get_create_config_modal_form(example_file_fields)
 
-    return form
+    return form, example_file_fields
 
 
 @app.callback(
@@ -403,6 +406,55 @@ def expand_create_config_modal_form(_, template_div, existing_divs, col_id):
         ],
         id={"type": "contractable-create-config-form-div",
             "index": unique_index}
+    )
+
+    return existing_divs + [new_div]
+
+
+@app.callback(
+    Output("expandable-create-link-config-form-col", "children"),
+    Input("expandable-create-link-config-form-btn", "n_clicks"),
+    State("expandable-create-link-config-form-col", "children"),
+    State("example-file-fields", "data"),
+    prevent_initial_call=True
+)
+def expand_link_config_modal_form(_, existing_divs, example_file_fields):
+    """TODO"""
+    if not len(existing_divs):
+        unique_index_prefix = "extra-link-config-0"
+    else:
+        most_recent_index = existing_divs[-1]["props"]["id"]["index"]
+        next_int = int(most_recent_index.rsplit("-", 1)[-1]) + 1
+        unique_index_prefix = "extra-link-config-" + str(next_int)
+
+
+    example_file_fields_select_opts = \
+        [{"label": None, "value": None}] \
+        + [{"label": e, "value": e} for e in example_file_fields]
+
+    del_btn_row = dbc.Row(
+        dbc.Col(
+            dbc.Button("Delete",
+                       id={"type": "contractable-create-config-form-"
+                                   "btn",
+                           "index": unique_index_prefix},
+                       color="danger",
+                       size="sm",
+                       className="p-0"),
+            className="text-right",
+            width={"offset": 10, "size": 2}
+        ),
+        className="mb-1"
+    )
+
+    extra_link_config_section_rows = \
+        get_extra_link_config_section(example_file_fields_select_opts,
+                                      unique_index_prefix)
+
+    new_div = Div(
+        [del_btn_row] + extra_link_config_section_rows,
+        id={"type": "contractable-create-config-form-div",
+            "index": unique_index_prefix}
     )
 
     return existing_divs + [new_div]
