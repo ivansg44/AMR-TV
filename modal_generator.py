@@ -429,14 +429,18 @@ def get_create_config_modal_form(example_file_fields):
         Hr(),
         dbc.Row(
             dbc.Col(
-                get_link_config_section(example_file_fields_select_opts)
+                get_first_link_config_section(
+                    example_file_fields_select_opts
+                )
             ),
             className="mb-3"
         ),
         Div(
             dbc.Row(
                 dbc.Col(
-                    get_link_config_section(example_file_fields_select_opts)
+                    get_extra_link_config_section(
+                        example_file_fields_select_opts
+                    )
                 ),
                 className="mb-3"
             ),
@@ -497,7 +501,7 @@ def get_create_config_help_alert(index, alert_children):
     )
 
 
-def get_link_config_section(example_file_fields_select_opts):
+def get_first_link_config_section(example_file_fields_select_opts):
     """TODO"""
     ret = [
         dbc.Row(
@@ -511,6 +515,11 @@ def get_link_config_section(example_file_fields_select_opts):
                 ]
             ),
             className="mb-3"
+        ),
+        get_create_config_help_btn("link-config-minimize-loops"),
+        get_create_config_help_alert(
+            "link-config-minimize-loops",
+            [P("Hello world!")]
         ),
         dbc.Row(
             [
@@ -528,6 +537,11 @@ def get_link_config_section(example_file_fields_select_opts):
             ],
             className="mb-3"
         ),
+        get_create_config_help_btn("link-config-show-arrowheads"),
+        get_create_config_help_alert(
+            "link-config-show-arrowheads",
+            [P("Hello world!")]
+        ),
         dbc.Row(
             [
                 dbc.Col(
@@ -543,6 +557,31 @@ def get_link_config_section(example_file_fields_select_opts):
             ],
             className="mb-3"
         ),
+        get_create_config_help_btn("link-config-weight-exp"),
+        get_create_config_help_alert(
+            "link-config-weight-exp",
+            [P("Hello world!")]
+        ),
+        dbc.Row(
+            dbc.Col(
+                [
+                    dbc.Label("Weight expression:",
+                              html_for="link-config-weight-exp-input"),
+                    dbc.Input(
+                        id="link-config-weight-exp-input"
+                    )
+                ]
+            ),
+            className="mb-3"
+        ),
+        Hr()
+    ]
+    return ret
+
+
+def get_extra_link_config_section(example_file_fields_select_opts):
+    """TODO"""
+    ret = [
         Hr()
     ]
     return ret
