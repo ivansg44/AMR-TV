@@ -7,7 +7,12 @@ from sys import maxsize
 
 import dash
 from dash import Dash
-from dash.dependencies import ClientsideFunction, Input, Output, State, MATCH
+from dash.dependencies import (ClientsideFunction,
+                               Input,
+                               Output,
+                               State,
+                               ALL,
+                               MATCH)
 from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
@@ -20,7 +25,8 @@ from main_fig_generator import (get_main_figs,
 from modal_generator import (get_upload_data_modal,
                              get_create_config_file_modal,
                              get_create_config_modal_form,
-                             get_extra_link_config_section)
+                             get_extra_link_config_section,
+                             get_duplicating_select_field)
 from legend_fig_generator import (get_node_symbol_legend_fig,
                                   get_link_legend_fig,
                                   get_node_color_legend_fig)
@@ -186,7 +192,7 @@ def launch_app(_):
         dcc.Store(id="selected-nodes", data={}),
         dcc.Store(id="added-scroll-handlers", data=False),
         dcc.Store("new-upload"),
-        dcc.Store("example-file-fields"),
+        dcc.Store("example-file-field-opts"),
         dcc.Store("config-file-generation-started", data=False)
     ]
 
@@ -335,7 +341,7 @@ def edit_create_config_modal_after_example_file_upload(example_file_contents,
 @app.callback(
     Output("create-config-file-modal-form", "children"),
     Output("generate-config-file-btn", "color"),
-    Output("example-file-fields", "data"),
+    Output("example-file-field-opts", "data"),
     Input("upload-example-file", "contents"),
     Input("delimiter-select", "value"),
     prevent_initial_call=True
@@ -348,10 +354,13 @@ def add_create_config_modal_form(example_file_contents, delimiter):
     example_file_base64_str = example_file_contents.split(",")[1]
     example_file_fields = \
         parse_fields_from_example_file(example_file_base64_str, delimiter)
+    example_file_field_opts = \
+        [{"label": None, "value": None}] \
+        + [{"label": e, "value": e} for e in example_file_fields]
 
-    form = get_create_config_modal_form(example_file_fields)
+    form = get_create_config_modal_form(example_file_field_opts)
 
-    return form, "primary", example_file_fields
+    return form, "primary", example_file_field_opts
 
 
 @app.callback(
@@ -373,15 +382,15 @@ def toggle_create_config_modal_help_alert(_, is_already_open):
            "children"),
     Input({"type": "expandable-create-config-form-btn", "index": MATCH},
           "n_clicks"),
-    State({"type": "expandable-create-config-form-template", "index": MATCH},
-          "children"),
     State({"type": "expandable-create-config-form-col", "index": MATCH},
           "children"),
     State({"type": "expandable-create-config-form-col", "index": MATCH},
           "id"),
+    State("example-file-field-opts", "data"),
     prevent_initial_call=True
 )
-def expand_create_config_modal_form(_, template_div, existing_divs, col_id):
+def expand_create_config_modal_form(_, existing_divs, col_id,
+                                    example_file_field_opts):
     """TODO"""
     col_index = col_id["index"]
     if not len(existing_divs):
@@ -390,14 +399,24 @@ def expand_create_config_modal_form(_, template_div, existing_divs, col_id):
         most_recent_index = existing_divs[-1]["props"]["id"]["index"]
         next_int = int(most_recent_index.rsplit("-", 1)[-1]) + 1
         unique_index = col_index + "-" + str(next_int)
+
+    if col_index == "y-axis-fields":
+        new_input_div = get_duplicating_select_field(example_file_field_opts,
+                                                     col_index,
+                                                     unique_index)
+    else:
+        raise PreventUpdate
+
     new_div = Div(
         [
             dbc.Row(
                 dbc.Col(
                     dbc.Button("Delete",
-                               id={"type": "contractable-create-config-form-"
-                                           "btn",
-                                   "index": unique_index},
+                               id={
+                                   "type": "contractable-create-config-form"
+                                           "-btn",
+                                   "index": unique_index
+                               },
                                color="danger",
                                size="sm",
                                className="p-0"),
@@ -406,7 +425,7 @@ def expand_create_config_modal_form(_, template_div, existing_divs, col_id):
                 ),
                 className="mb-1"
             ),
-            template_div
+            new_input_div
         ],
         id={"type": "contractable-create-config-form-div",
             "index": unique_index}
@@ -415,14 +434,65 @@ def expand_create_config_modal_form(_, template_div, existing_divs, col_id):
     return existing_divs + [new_div]
 
 
+# @app.callback(
+#     Output({"type": "expandable-create-config-form-col", "index": MATCH},
+#            "children"),
+#     Input({"type": "expandable-create-config-form-btn", "index": MATCH},
+#           "n_clicks"),
+#     State({"type": "expandable-create-config-form-template", "index": MATCH},
+#           "children"),
+#     State({"type": "expandable-create-config-form-col", "index": MATCH},
+#           "children"),
+#     State({"type": "expandable-create-config-form-col", "index": MATCH},
+#           "id"),
+#     prevent_initial_call=True
+# )
+# def expand_create_config_modal_form(_, template_div, existing_divs, col_id):
+#     """TODO"""
+#     col_index = col_id["index"]
+#     if not len(existing_divs):
+#         unique_index = col_index + "-0"
+#     else:
+#         most_recent_index = existing_divs[-1]["props"]["id"]["index"]
+#         next_int = int(most_recent_index.rsplit("-", 1)[-1]) + 1
+#         unique_index = col_index + "-" + str(next_int)
+#     new_div = Div(
+#         [
+#             dbc.Row(
+#                 dbc.Col(
+#                     dbc.Button("Delete",
+#                                id={"type": "contractable-create-config-form-"
+#                                            "btn",
+#                                    "index": unique_index},
+#                                color="danger",
+#                                size="sm",
+#                                className="p-0"),
+#                     className="text-right",
+#                     width={"offset": 10, "size": 2}
+#                 ),
+#                 className="mb-1"
+#             ),
+#             Div(
+#                 template_div,
+#                 id={"type": "contractable-create-config-form-inner-div",
+#                     "index": unique_index}
+#             )
+#         ],
+#         id={"type": "contractable-create-config-form-outer-div",
+#             "index": unique_index}
+#     )
+#
+#     return existing_divs + [new_div]
+
+
 @app.callback(
     Output("expandable-create-link-config-form-col", "children"),
     Input("expandable-create-link-config-form-btn", "n_clicks"),
     State("expandable-create-link-config-form-col", "children"),
-    State("example-file-fields", "data"),
+    State("example-file-field-opts", "data"),
     prevent_initial_call=True
 )
-def expand_link_config_modal_form(_, existing_divs, example_file_fields):
+def expand_link_config_modal_form(_, existing_divs, example_file_field_opts):
     """TODO"""
     if not len(existing_divs):
         unique_index_prefix = "extra-link-config-0"
@@ -430,11 +500,6 @@ def expand_link_config_modal_form(_, existing_divs, example_file_fields):
         most_recent_index = existing_divs[-1]["props"]["id"]["index"]
         next_int = int(most_recent_index.rsplit("-", 1)[-1]) + 1
         unique_index_prefix = "extra-link-config-" + str(next_int)
-
-
-    example_file_fields_select_opts = \
-        [{"label": None, "value": None}] \
-        + [{"label": e, "value": e} for e in example_file_fields]
 
     del_btn_row = dbc.Row(
         dbc.Col(
@@ -452,7 +517,7 @@ def expand_link_config_modal_form(_, existing_divs, example_file_fields):
     )
 
     extra_link_config_section_rows = \
-        get_extra_link_config_section(example_file_fields_select_opts,
+        get_extra_link_config_section(example_file_field_opts,
                                       unique_index_prefix)
 
     new_div = Div(
@@ -495,7 +560,7 @@ def start_config_file_generation(_, btn_color):
     Output("date-field-select", "invalid"),
     Output("date-input-format-input", "invalid"),
     Output("date-output-format-input", "invalid"),
-    Output("y-axis-field-select", "invalid"),
+    Output({"type": "y-axis-fields", "index": -1}, "invalid"),
     Input("config-file-generation-started", "data"),
     State("date-field-select", "value"),
     State("date-input-format-input", "value"),
@@ -504,13 +569,15 @@ def start_config_file_generation(_, btn_color):
     State("max-day-range-input", "value"),
     State("empty-strings-are-null-checkbox", "checked"),
     State("null-vals-textarea", "value"),
-    State("y-axis-field-select", "value"),
+    State({"type": "y-axis-fields", "index": -1}, "value"),
+    State({"type": "y-axis-fields", "index": ALL}, "value"),
     prevent_initial_call=True
 )
 def continue_config_file_generation(started, date_field, date_input_format,
                                     date_output_format, links_across_primary_y,
                                     max_day_range, empty_strings_are_null,
-                                    null_vals_textarea, first_y_axis_field):
+                                    null_vals_textarea, first_y_axis_field,
+                                    y_axis_fields):
     """TODO"""
     if not started:
         raise PreventUpdate

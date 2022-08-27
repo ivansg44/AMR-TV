@@ -105,11 +105,8 @@ def get_create_config_file_modal():
     return ret
 
 
-def get_create_config_modal_form(example_file_fields):
+def get_create_config_modal_form(example_file_field_opts):
     """TODO"""
-    example_file_fields_select_opts = \
-        [{"label": None, "value": None}] \
-        + [{"label": e, "value": e} for e in example_file_fields]
     ret = [
         get_create_config_help_btn("date-fields"),
         get_create_config_help_alert(
@@ -122,7 +119,7 @@ def get_create_config_modal_form(example_file_fields):
                     dbc.Label("Date field:", html_for="date-field-select"),
                     dbc.Select(
                         id="date-field-select",
-                        options=example_file_fields_select_opts
+                        options=example_file_field_opts
                     )
                 ]
             ),
@@ -253,26 +250,12 @@ def get_create_config_modal_form(example_file_fields):
                     dbc.Label("y-axis field(s):",
                               html_for="y-axis-field-select"),
                     dbc.Select(
-                        id="y-axis-field-select",
-                        options=example_file_fields_select_opts
+                        id={"type": "y-axis-fields", "index": -1},
+                        options=example_file_field_opts
                     )
                 ]
             ),
             className="mb-3"
-        ),
-        Div(
-            dbc.Row(
-                dbc.Col(
-                    dbc.Select(
-                        options=example_file_fields_select_opts,
-                        placeholder="Optional"
-                    )
-                ),
-                className="mb-3"
-            ),
-            id={"type": "expandable-create-config-form-template",
-                "index": "y-axis-fields"},
-            style={"display": "none"}
         ),
         dbc.Row(
             dbc.Col(
@@ -303,7 +286,7 @@ def get_create_config_modal_form(example_file_fields):
                               html_for="node-label-field-select"),
                     dbc.Select(
                         id="node-label-field-select",
-                        options=example_file_fields_select_opts,
+                        options=example_file_field_opts,
                         placeholder="Optional"
                     )
                 ]
@@ -314,7 +297,7 @@ def get_create_config_modal_form(example_file_fields):
             dbc.Row(
                 dbc.Col(
                     dbc.Select(
-                        options=example_file_fields_select_opts,
+                        options=example_file_field_opts,
                         placeholder="Optional"
                     )
                 ),
@@ -353,7 +336,7 @@ def get_create_config_modal_form(example_file_fields):
                               html_for="node-color-field-select"),
                     dbc.Select(
                         id="node-color-field-select",
-                        options=example_file_fields_select_opts,
+                        options=example_file_field_opts,
                         placeholder="Optional"
                     )
                 ]
@@ -364,7 +347,7 @@ def get_create_config_modal_form(example_file_fields):
             dbc.Row(
                 dbc.Col(
                     dbc.Select(
-                        options=example_file_fields_select_opts,
+                        options=example_file_field_opts,
                         placeholder="Optional"
                     )
                 ),
@@ -403,7 +386,7 @@ def get_create_config_modal_form(example_file_fields):
                               html_for="node-symbol-field-select"),
                     dbc.Select(
                         id="node-symbol-field-select",
-                        options=example_file_fields_select_opts,
+                        options=example_file_field_opts,
                         placeholder="Optional"
                     )
                 ]
@@ -414,7 +397,7 @@ def get_create_config_modal_form(example_file_fields):
             dbc.Row(
                 dbc.Col(
                     dbc.Select(
-                        options=example_file_fields_select_opts,
+                        options=example_file_field_opts,
                         placeholder="Optional"
                     )
                 ),
@@ -454,9 +437,7 @@ def get_create_config_modal_form(example_file_fields):
         Hr(),
         dbc.Row(
             dbc.Col(
-                get_first_link_config_section(
-                    example_file_fields_select_opts
-                )
+                get_first_link_config_section(example_file_field_opts)
             ),
             className="mb-3"
         ),
@@ -475,6 +456,21 @@ def get_create_config_modal_form(example_file_fields):
             className="mb-3"
         ),
     ]
+    return ret
+
+
+def get_duplicating_select_field(example_file_field_opts, type, index):
+    """TODO"""
+    ret = dbc.Row(
+        dbc.Col(
+            dbc.Select(
+                id={"type": type, "index": index},
+                options=example_file_field_opts,
+                placeholder="Optional"
+            )
+        ),
+        className="mb-3"
+    )
     return ret
 
 
@@ -511,7 +507,7 @@ def get_create_config_help_alert(index, alert_children):
     )
 
 
-def get_first_link_config_section(example_file_fields_select_opts):
+def get_first_link_config_section(example_file_field_opts):
     """TODO"""
     ret = [
         dbc.Row(
@@ -664,7 +660,7 @@ def get_first_link_config_section(example_file_fields_select_opts):
                 [
                     dbc.Select(
                         id="first-link-config-attr-filter-select",
-                        options=example_file_fields_select_opts,
+                        options=example_file_field_opts,
                         placeholder="Optional"
                     ),
                     dbc.Textarea(
@@ -680,7 +676,7 @@ def get_first_link_config_section(example_file_fields_select_opts):
                 dbc.Col(
                 [
                     dbc.Select(
-                        options=example_file_fields_select_opts,
+                        options=example_file_field_opts,
                         placeholder="Optional"
                     ),
                     dbc.Textarea(
@@ -722,7 +718,7 @@ def get_first_link_config_section(example_file_fields_select_opts):
                               html_for="first-link-config-all-equal-select"),
                     dbc.Select(
                         id="first-link-config-all-equal-select",
-                        options=example_file_fields_select_opts,
+                        options=example_file_field_opts,
                         placeholder="Optional"
                     )
                 ]
@@ -733,7 +729,7 @@ def get_first_link_config_section(example_file_fields_select_opts):
             dbc.Row(
                 dbc.Col(
                     dbc.Select(
-                        options=example_file_fields_select_opts,
+                        options=example_file_field_opts,
                         placeholder="Optional"
                     )
                 ),
@@ -773,7 +769,7 @@ def get_first_link_config_section(example_file_fields_select_opts):
                                        "-select"),
                     dbc.Select(
                         id="first-link-config-all-not-equal-select",
-                        options=example_file_fields_select_opts,
+                        options=example_file_field_opts,
                         placeholder="Optional"
                     )
                 ]
@@ -784,7 +780,7 @@ def get_first_link_config_section(example_file_fields_select_opts):
             dbc.Row(
                 dbc.Col(
                     dbc.Select(
-                        options=example_file_fields_select_opts,
+                        options=example_file_field_opts,
                         placeholder="Optional"
                     )
                 ),
@@ -823,7 +819,7 @@ def get_first_link_config_section(example_file_fields_select_opts):
                               html_for="first-link-config-any-equal-select"),
                     dbc.Select(
                         id="first-link-config-any-equal-select",
-                        options=example_file_fields_select_opts,
+                        options=example_file_field_opts,
                         placeholder="Optional"
                     )
                 ]
@@ -851,8 +847,7 @@ def get_first_link_config_section(example_file_fields_select_opts):
     return ret
 
 
-def get_extra_link_config_section(example_file_fields_select_opts,
-                                  index_prefix):
+def get_extra_link_config_section(example_file_field_opts, index_prefix):
     """TODO"""
     ret = [
         dbc.Row(
@@ -980,7 +975,7 @@ def get_extra_link_config_section(example_file_fields_select_opts,
                 [
                     dbc.Select(
                         id=index_prefix+"-attr-filter-select",
-                        options=example_file_fields_select_opts,
+                        options=example_file_field_opts,
                         placeholder="Optional"
                     ),
                     dbc.Textarea(
@@ -996,7 +991,7 @@ def get_extra_link_config_section(example_file_fields_select_opts,
                 dbc.Col(
                 [
                     dbc.Select(
-                        options=example_file_fields_select_opts,
+                        options=example_file_field_opts,
                         placeholder="Optional"
                     ),
                     dbc.Textarea(
@@ -1033,7 +1028,7 @@ def get_extra_link_config_section(example_file_fields_select_opts,
                               html_for=index_prefix+"-all-equal-select"),
                     dbc.Select(
                         id=index_prefix+"-all-equal-select",
-                        options=example_file_fields_select_opts,
+                        options=example_file_field_opts,
                         placeholder="Optional"
                     )
                 ]
@@ -1044,7 +1039,7 @@ def get_extra_link_config_section(example_file_fields_select_opts,
             dbc.Row(
                 dbc.Col(
                     dbc.Select(
-                        options=example_file_fields_select_opts,
+                        options=example_file_field_opts,
                         placeholder="Optional"
                     )
                 ),
@@ -1078,7 +1073,7 @@ def get_extra_link_config_section(example_file_fields_select_opts,
                               html_for=index_prefix+"-all-not-equal-select"),
                     dbc.Select(
                         id=index_prefix+"-all-not-equal-select",
-                        options=example_file_fields_select_opts,
+                        options=example_file_field_opts,
                         placeholder="Optional"
                     )
                 ]
@@ -1089,7 +1084,7 @@ def get_extra_link_config_section(example_file_fields_select_opts,
             dbc.Row(
                 dbc.Col(
                     dbc.Select(
-                        options=example_file_fields_select_opts,
+                        options=example_file_field_opts,
                         placeholder="Optional"
                     )
                 ),
@@ -1123,7 +1118,7 @@ def get_extra_link_config_section(example_file_fields_select_opts,
                               html_for=index_prefix+"-any-equal-select"),
                     dbc.Select(
                         id=index_prefix+"-any-equal-select",
-                        options=example_file_fields_select_opts,
+                        options=example_file_field_opts,
                         placeholder="Optional"
                     )
                 ]
@@ -1134,7 +1129,7 @@ def get_extra_link_config_section(example_file_fields_select_opts,
             dbc.Row(
                 dbc.Col(
                     dbc.Select(
-                        options=example_file_fields_select_opts,
+                        options=example_file_field_opts,
                         placeholder="Optional"
                     )
                 ),
