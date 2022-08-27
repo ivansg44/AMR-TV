@@ -184,7 +184,8 @@ def launch_app(_):
         dcc.Store(id="selected-nodes", data={}),
         dcc.Store(id="added-scroll-handlers", data=False),
         dcc.Store("new-upload"),
-        dcc.Store("example-file-fields")
+        dcc.Store("example-file-fields"),
+        dcc.Store("config-file-generation-started", data=False)
     ]
 
     return children
@@ -474,17 +475,42 @@ def contract_create_config_modal_form(_):
 
 
 @app.callback(
-    Output("missing-required-vals-col", "style"),
+    Output("config-file-generation-started", "data"),
     Input("generate-config-file-btn", "n_clicks"),
     State("generate-config-file-btn", "color"),
     prevent_initial_call=True
 )
-def create_config_file(_, btn_color):
+def start_config_file_generation(_, btn_color):
     """TODO"""
     if btn_color != "primary":
         raise PreventUpdate
 
-    return {"visibility": "visible"}
+    return True
+
+@app.callback(
+    Output("missing-required-vals-col", "style"),
+    Output("date-field-select", "invalid"),
+    Output("date-input-format-input", "invalid"),
+    Output("date-output-format-input", "invalid"),
+    Input("config-file-generation-started", "data"),
+    State("date-field-select", "value"),
+    State("date-input-format-input", "value"),
+    State("date-output-format-input", "value"),
+    prevent_initial_call=True
+)
+def continue_config_file_generation(started, date_field, date_input_format,
+                                    date_output_format):
+    """TODO"""
+    if not started:
+        raise PreventUpdate
+
+    mandatory_fields = [date_field, date_input_format, date_output_format]
+    field_invalidity_list = \
+        [True if e is None or e == "" else False for e in mandatory_fields]
+    if any(field_invalidity_list):
+        return {"visibility": "visible"}, *field_invalidity_list
+
+    return {"visibility": "hidden"}, *field_invalidity_list
 
 
 @app.callback(
