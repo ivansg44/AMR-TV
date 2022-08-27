@@ -2,7 +2,7 @@
 
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
-from dash_html_components import Div, Hr, P
+from dash_html_components import Div, Hr, P, H5
 
 
 def get_upload_data_modal():
@@ -415,7 +415,51 @@ def get_create_config_modal_form(example_file_fields):
             ),
             className="mb-3"
         ),
-        Hr()
+        Hr(),
+        get_create_config_help_btn("link-config"),
+        get_create_config_help_alert(
+            "link-config",
+            [P("Hello world!")]
+        ),
+        dbc.Row(
+            dbc.Col(
+                H5("Link configuration")
+            )
+        ),
+        Hr(),
+        dbc.Row(
+            dbc.Col(
+                get_link_config_section(example_file_fields_select_opts)
+            ),
+            className="mb-3"
+        ),
+        Div(
+            dbc.Row(
+                dbc.Col(
+                    get_link_config_section(example_file_fields_select_opts)
+                ),
+                className="mb-3"
+            ),
+            id={"type": "expandable-create-config-form-template",
+                "index": "link-config"},
+            style={"display": "none"}
+        ),
+        dbc.Row(
+            dbc.Col(
+                [],
+                id={"type": "expandable-create-config-form-col",
+                    "index": "link-config"}
+            )
+        ),
+        dbc.Row(
+            dbc.Col(
+                dbc.Button("Add",
+                           id={"type": "expandable-create-config-form-btn",
+                               "index": "link-config"},
+                           color="primary")
+            ),
+            className="mb-3"
+        ),
     ]
     return ret
 
@@ -451,3 +495,54 @@ def get_create_config_help_alert(index, alert_children):
         ),
         className="mt-1"
     )
+
+
+def get_link_config_section(example_file_fields_select_opts):
+    """TODO"""
+    ret = [
+        dbc.Row(
+            dbc.Col(
+                [
+                    dbc.Label("Link label:",
+                              html_for="link-config-label-input"),
+                    dbc.Input(
+                        id="link-config-label-input"
+                    )
+                ]
+            ),
+            className="mb-3"
+        ),
+        dbc.Row(
+            [
+                dbc.Col(
+                    dbc.Checkbox(
+                        id="link-config-minimize-loops-checkbox",
+                        checked=False
+                    ),
+                    width=1
+                ),
+                dbc.Col(
+                    dbc.Label("Minimize loops? (generate MST for each group "
+                              "of connected nodes)")
+                )
+            ],
+            className="mb-3"
+        ),
+        dbc.Row(
+            [
+                dbc.Col(
+                    dbc.Checkbox(
+                        id="link-config-show-arrowheads-checkbox",
+                        checked=False
+                    ),
+                    width=1
+                ),
+                dbc.Col(
+                    dbc.Label("Show arrowheads?")
+                )
+            ],
+            className="mb-3"
+        ),
+        Hr()
+    ]
+    return ret
