@@ -160,7 +160,8 @@ def get_create_config_modal_form(example_file_fields):
                     dbc.Input(
                         id="max-day-range-input",
                         type="number",
-                        min=0
+                        min=0,
+                        placeholder="Optional"
                     )
                 ]
             ),
@@ -238,7 +239,8 @@ def get_create_config_modal_form(example_file_fields):
             dbc.Row(
                 dbc.Col(
                     dbc.Select(
-                        options=example_file_fields_select_opts
+                        options=example_file_fields_select_opts,
+                        placeholder="Optional"
                     )
                 ),
                 className="mb-3"
@@ -276,7 +278,8 @@ def get_create_config_modal_form(example_file_fields):
                               html_for="node-label-field-select"),
                     dbc.Select(
                         id="node-label-field-select",
-                        options=example_file_fields_select_opts
+                        options=example_file_fields_select_opts,
+                        placeholder="Optional"
                     )
                 ]
             ),
@@ -286,7 +289,8 @@ def get_create_config_modal_form(example_file_fields):
             dbc.Row(
                 dbc.Col(
                     dbc.Select(
-                        options=example_file_fields_select_opts
+                        options=example_file_fields_select_opts,
+                        placeholder="Optional"
                     )
                 ),
                 className="mb-3"
@@ -324,7 +328,8 @@ def get_create_config_modal_form(example_file_fields):
                               html_for="node-color-field-select"),
                     dbc.Select(
                         id="node-color-field-select",
-                        options=example_file_fields_select_opts
+                        options=example_file_fields_select_opts,
+                        placeholder="Optional"
                     )
                 ]
             ),
@@ -334,7 +339,8 @@ def get_create_config_modal_form(example_file_fields):
             dbc.Row(
                 dbc.Col(
                     dbc.Select(
-                        options=example_file_fields_select_opts
+                        options=example_file_fields_select_opts,
+                        placeholder="Optional"
                     )
                 ),
                 className="mb-3"
@@ -372,7 +378,8 @@ def get_create_config_modal_form(example_file_fields):
                               html_for="node-symbol-field-select"),
                     dbc.Select(
                         id="node-symbol-field-select",
-                        options=example_file_fields_select_opts
+                        options=example_file_fields_select_opts,
+                        placeholder="Optional"
                     )
                 ]
             ),
@@ -382,7 +389,8 @@ def get_create_config_modal_form(example_file_fields):
             dbc.Row(
                 dbc.Col(
                     dbc.Select(
-                        options=example_file_fields_select_opts
+                        options=example_file_fields_select_opts,
+                        placeholder="Optional"
                     )
                 ),
                 className="mb-3"
