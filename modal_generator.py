@@ -216,6 +216,54 @@ def get_create_config_modal_form(example_file_fields):
             className="mb-3"
         ),
         Hr(),
+        get_create_config_help_btn("y-axis-fields"),
+        get_create_config_help_alert(
+            "y-axis-fields",
+            [P("Hello world!")]
+        ),
+        dbc.Row(
+            dbc.Col(
+                [
+                    dbc.Label("y-axis field(s):",
+                              html_for="y-axis-field-select"),
+                    dbc.Select(
+                        id="y-axis-field-select",
+                        options=example_file_fields_select_opts
+                    )
+                ]
+            ),
+            className="mb-3"
+        ),
+        Div(
+            dbc.Row(
+                dbc.Col(
+                    dbc.Select(
+                        options=example_file_fields_select_opts
+                    )
+                ),
+                className="mb-3"
+            ),
+            id={"type": "expandable-create-config-form-template",
+                "index": "y-axis-fields"},
+            style={"display": "none"}
+        ),
+        dbc.Row(
+            dbc.Col(
+                [],
+                id={"type": "expandable-create-config-form-col",
+                    "index": "y-axis-fields"}
+            )
+        ),
+        dbc.Row(
+            dbc.Col(
+                dbc.Button("Add",
+                           id={"type": "expandable-create-config-form-btn",
+                               "index": "y-axis-fields"},
+                           color="primary")
+            ),
+            className="mb-3"
+        ),
+        Hr(),
         get_create_config_help_btn("node-label-fields"),
         get_create_config_help_alert(
             "node-label-fields",
