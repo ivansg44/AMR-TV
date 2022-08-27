@@ -331,6 +331,7 @@ def edit_create_config_modal_after_example_file_upload(example_file_contents,
 
 @app.callback(
     Output("create-config-file-modal-form", "children"),
+    Output("generate-config-file-btn", "color"),
     Output("example-file-fields", "data"),
     Input("upload-example-file", "contents"),
     Input("delimiter-select", "value"),
@@ -347,7 +348,7 @@ def add_create_config_modal_form(example_file_contents, delimiter):
 
     form = get_create_config_modal_form(example_file_fields)
 
-    return form, example_file_fields
+    return form, "primary", example_file_fields
 
 
 @app.callback(

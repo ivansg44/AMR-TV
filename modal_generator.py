@@ -75,7 +75,17 @@ def get_create_config_file_modal():
                     "delimiter."
                 ),
                 id="create-config-file-modal-form",
-                style={"height": "60vh", "overflowY": "scroll"})
+                style={"height": "60vh", "overflowY": "scroll"}
+            ),
+            dbc.ModalFooter(
+                dbc.Row(
+                    dbc.Col(
+                        dbc.Button("Generate config file",
+                                   id="generate-config-file-btn"),
+                        width=12
+                    )
+                )
+            )
         ],
         id="create-config-file-modal"
     )
