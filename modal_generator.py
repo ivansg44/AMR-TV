@@ -648,7 +648,7 @@ def get_first_link_config_section(example_file_fields_select_opts):
         dbc.Row(
             dbc.Col(
                 [
-                    dbc.Label("Fields that must ALL be equal:",
+                    dbc.Label("ALL of these fields must be equal:",
                               html_for="first-config-all-equal-select"),
                     dbc.Select(
                         id="first-config-all-equal-select",
@@ -670,21 +670,121 @@ def get_first_link_config_section(example_file_fields_select_opts):
                 className="mb-3"
             ),
             id={"type": "expandable-create-config-form-template",
-                "index": "first-config-all-eq"},
+                "index": "first-config-all-equal"},
             style={"display": "none"}
         ),
         dbc.Row(
             dbc.Col(
                 [],
                 id={"type": "expandable-create-config-form-col",
-                    "index": "first-config-all-eq"}
+                    "index": "first-config-all-equal"}
             )
         ),
         dbc.Row(
             dbc.Col(
                 dbc.Button("Add",
                            id={"type": "expandable-create-config-form-btn",
-                               "index": "first-config-all-eq"},
+                               "index": "first-config-all-equal"},
+                           color="primary")
+            ),
+            className="mb-3"
+        ),
+        Hr(),
+        get_create_config_help_btn("first-config-all-not-equal"),
+        get_create_config_help_alert(
+            "first-config-all-not-equal",
+            [P("Hello world!")]
+        ),
+        dbc.Row(
+            dbc.Col(
+                [
+                    dbc.Label("ALL of these fields must be NOT equal:",
+                              html_for="first-config-all-not-equal-select"),
+                    dbc.Select(
+                        id="first-config-all-not-equal-select",
+                        options=example_file_fields_select_opts,
+                        placeholder="Optional"
+                    )
+                ]
+            ),
+            className="mb-3"
+        ),
+        Div(
+            dbc.Row(
+                dbc.Col(
+                    dbc.Select(
+                        options=example_file_fields_select_opts,
+                        placeholder="Optional"
+                    )
+                ),
+                className="mb-3"
+            ),
+            id={"type": "expandable-create-config-form-template",
+                "index": "first-config-all-not-equal"},
+            style={"display": "none"}
+        ),
+        dbc.Row(
+            dbc.Col(
+                [],
+                id={"type": "expandable-create-config-form-col",
+                    "index": "first-config-all-not-equal"}
+            )
+        ),
+        dbc.Row(
+            dbc.Col(
+                dbc.Button("Add",
+                           id={"type": "expandable-create-config-form-btn",
+                               "index": "first-config-all-not-equal"},
+                           color="primary")
+            ),
+            className="mb-3"
+        ),
+        Hr(),
+        get_create_config_help_btn("first-config-any-equal"),
+        get_create_config_help_alert(
+            "first-config-any-equal",
+            [P("Hello world!")]
+        ),
+        dbc.Row(
+            dbc.Col(
+                [
+                    dbc.Label("ANY of these fields may be equal:",
+                              html_for="first-config-any-equal-select"),
+                    dbc.Select(
+                        id="first-config-any-equal-select",
+                        options=example_file_fields_select_opts,
+                        placeholder="Optional"
+                    )
+                ]
+            ),
+            className="mb-3"
+        ),
+        Div(
+            dbc.Row(
+                dbc.Col(
+                    dbc.Select(
+                        options=example_file_fields_select_opts,
+                        placeholder="Optional"
+                    )
+                ),
+                className="mb-3"
+            ),
+            id={"type": "expandable-create-config-form-template",
+                "index": "first-config-any-equal"},
+            style={"display": "none"}
+        ),
+        dbc.Row(
+            dbc.Col(
+                [],
+                id={"type": "expandable-create-config-form-col",
+                    "index": "first-config-any-equal"}
+            )
+        ),
+        dbc.Row(
+            dbc.Col(
+                dbc.Button("Add",
+                           id={"type": "expandable-create-config-form-btn",
+                               "index": "first-config-any-equal"},
                            color="primary")
             ),
             className="mb-3"
