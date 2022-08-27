@@ -321,29 +321,16 @@ def get_create_config_modal_form(example_file_field_opts):
             dbc.Col(
                 [
                     dbc.Label("Node color field(s):",
-                              html_for="node-color-field-select"),
+                              html_for={"type": "node-color-fields",
+                                        "index": -1}),
                     dbc.Select(
-                        id="node-color-field-select",
+                        id={"type": "node-color-fields", "index": -1},
                         options=example_file_field_opts,
                         placeholder="Optional"
                     )
                 ]
             ),
             className="mb-3"
-        ),
-        Div(
-            dbc.Row(
-                dbc.Col(
-                    dbc.Select(
-                        options=example_file_field_opts,
-                        placeholder="Optional"
-                    )
-                ),
-                className="mb-3"
-            ),
-            id={"type": "expandable-create-config-form-template",
-                "index": "node-color-fields"},
-            style={"display": "none"}
         ),
         dbc.Row(
             dbc.Col(
@@ -371,29 +358,16 @@ def get_create_config_modal_form(example_file_field_opts):
             dbc.Col(
                 [
                     dbc.Label("Node symbol field(s):",
-                              html_for="node-symbol-field-select"),
+                              html_for={"type": "node-symbol-fields",
+                                        "index": -1}),
                     dbc.Select(
-                        id="node-symbol-field-select",
+                        id={"type": "node-symbol-fields", "index": -1},
                         options=example_file_field_opts,
                         placeholder="Optional"
                     )
                 ]
             ),
             className="mb-3"
-        ),
-        Div(
-            dbc.Row(
-                dbc.Col(
-                    dbc.Select(
-                        options=example_file_field_opts,
-                        placeholder="Optional"
-                    )
-                ),
-                className="mb-3"
-            ),
-            id={"type": "expandable-create-config-form-template",
-                "index": "node-symbol-fields"},
-            style={"display": "none"}
         ),
         dbc.Row(
             dbc.Col(

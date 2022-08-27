@@ -569,13 +569,16 @@ def start_config_file_generation(_, btn_color):
     State({"type": "y-axis-fields", "index": -1}, "value"),
     State({"type": "y-axis-fields", "index": ALL}, "value"),
     State({"type": "node-label-fields", "index": ALL}, "value"),
+    State({"type": "node-color-fields", "index": ALL}, "value"),
+    State({"type": "node-symbol-fields", "index": ALL}, "value"),
     prevent_initial_call=True
 )
 def continue_config_file_generation(started, date_field, date_input_format,
                                     date_output_format, links_across_primary_y,
                                     max_day_range, empty_strings_are_null,
                                     null_vals_textarea, first_y_axis_field,
-                                    y_axis_fields, node_label_fields):
+                                    y_axis_fields, node_label_fields,
+                                    node_color_fields, node_symbol_fields):
     """TODO"""
     if not started:
         raise PreventUpdate
