@@ -502,12 +502,15 @@ def start_config_file_generation(_, btn_color):
     State("date-output-format-input", "value"),
     State("links-across-primary-y-checkbox", "checked"),
     State("max-day-range-input", "value"),
+    State("empty-strings-are-null-checkbox", "checked"),
+    State("null-vals-textarea", "value"),
     State("y-axis-field-select", "value"),
     prevent_initial_call=True
 )
 def continue_config_file_generation(started, date_field, date_input_format,
                                     date_output_format, links_across_primary_y,
-                                    max_day_range, first_y_axis_field):
+                                    max_day_range, empty_strings_are_null,
+                                    null_vals_textarea, first_y_axis_field):
     """TODO"""
     if not started:
         raise PreventUpdate
@@ -529,6 +532,12 @@ def continue_config_file_generation(started, date_field, date_input_format,
         return "Invalid number in highlighted input", \
                {"visibility": "visible"}, \
                *field_invalidity_list
+
+    null_vals = []
+    if empty_strings_are_null:
+        null_vals.append("")
+    if null_vals_textarea is not None and null_vals_textarea != "":
+        null_vals += null_vals_textarea.split(";")
 
     return None, {"visibility": "hidden"}, *field_invalidity_list
 
