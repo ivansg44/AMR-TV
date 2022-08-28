@@ -632,7 +632,34 @@ def get_duplicating_link_section(example_file_field_opts, index, alerts=False):
                 ) if alerts else None,
                 dbc.Row(
                     dbc.Col(
-                        "Hello world!",
+                        dbc.Label("ALL of these fields must be equal:")
+                    ),
+                    className="mb-1"
+                ),
+                dbc.Row(
+                    dbc.Col(
+                        get_duplicating_select_field(
+                            example_file_field_opts,
+                            "link-all-eq-select",
+                            str(index) + "-0"
+                        )
+                    ),
+                    className="mb-3"
+                ),
+                dbc.Row(
+                    dbc.Col(
+                        [],
+                        id={"type": "expandable-create-config-form-col",
+                            "index": "all-eq-fields-" + str(index)}
+                    )
+                ),
+                dbc.Row(
+                    dbc.Col(
+                        dbc.Button("Add",
+                                   id={"type": "expandable-create-config-form"
+                                               "-btn",
+                                       "index": "all-eq-fields-" + str(index)},
+                                   color="primary")
                     ),
                     className="mb-3"
                 ),
@@ -643,7 +670,35 @@ def get_duplicating_link_section(example_file_field_opts, index, alerts=False):
                 ) if alerts else None,
                 dbc.Row(
                     dbc.Col(
-                        "Hello world!"
+                        dbc.Label("ALL of these fields must NOT be equal:")
+                    ),
+                    className="mb-1"
+                ),
+                dbc.Row(
+                    dbc.Col(
+                        get_duplicating_select_field(
+                            example_file_field_opts,
+                            "link-all-neq-select",
+                            str(index) + "-0"
+                        )
+                    ),
+                    className="mb-3"
+                ),
+                dbc.Row(
+                    dbc.Col(
+                        [],
+                        id={"type": "expandable-create-config-form-col",
+                            "index": "all-neq-fields-" + str(index)}
+                    )
+                ),
+                dbc.Row(
+                    dbc.Col(
+                        dbc.Button("Add",
+                                   id={"type": "expandable-create-config-form"
+                                               "-btn",
+                                       "index": "all-neq-fields-"
+                                                + str(index)},
+                                   color="primary")
                     ),
                     className="mb-3"
                 ),
@@ -654,11 +709,37 @@ def get_duplicating_link_section(example_file_field_opts, index, alerts=False):
                 ) if alerts else None,
                 dbc.Row(
                     dbc.Col(
-                        "Hello world!"
+                        dbc.Label("ANY of these fields must be equal:")
+                    ),
+                    className="mb-1"
+                ),
+                dbc.Row(
+                    dbc.Col(
+                        get_duplicating_select_field(
+                            example_file_field_opts,
+                            "link-any-eq-select",
+                            str(index) + "-0"
+                        )
                     ),
                     className="mb-3"
                 ),
-                Hr()
+                dbc.Row(
+                    dbc.Col(
+                        [],
+                        id={"type": "expandable-create-config-form-col",
+                            "index": "any-eq-fields-" + str(index)}
+                    )
+                ),
+                dbc.Row(
+                    dbc.Col(
+                        dbc.Button("Add",
+                                   id={"type": "expandable-create-config-form"
+                                               "-btn",
+                                       "index": "any-eq-fields-" + str(index)},
+                                   color="primary")
+                    ),
+                    className="mb-3"
+                ),
             ]
         ),
         id={"type": "link-config", "index": index},

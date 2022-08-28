@@ -395,6 +395,8 @@ def expand_create_config_modal_form(_, existing_divs, col_id,
                                     example_file_field_opts):
     """TODO"""
     col_index = col_id["index"]
+    nested_select_fields = ["all-eq-fields", "all-neq-fields", "any-eq-fields"]
+
     if not len(existing_divs):
         most_recent_index = None
     else:
@@ -414,6 +416,24 @@ def expand_create_config_modal_form(_, existing_divs, col_id,
         new_input_div = \
             get_duplicating_attr_filter_section(example_file_field_opts,
                                                 unique_index)
+    elif any([col_index.startswith(e) for e in nested_select_fields]):
+        if col_index.startswith("all_eq_fields"):
+            type_ = "all-eq-select"
+        elif col_index.startswith("all_neq_fields"):
+            type_ = "all-neq-select"
+        else:
+            type_ = "any-eq-select"
+
+        prefix = col_index.split("-")[-1]
+        if most_recent_index is None:
+            unique_index = prefix + "-1"
+        else:
+            suffix = most_recent_index.split("-")[-1]
+            unique_index = prefix + "-" + str(int(suffix) + 1)
+        new_input_div = \
+            get_duplicating_select_field(example_file_field_opts,
+                                         type_,
+                                         unique_index)
     else:
         unique_index = 1 if most_recent_index is None else most_recent_index+1
         new_input_div = get_duplicating_select_field(example_file_field_opts,
