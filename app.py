@@ -26,7 +26,9 @@ from modal_generator import (get_upload_data_modal,
                              get_create_config_file_modal,
                              get_create_config_modal_form,
                              get_extra_link_config_section,
-                             get_duplicating_select_field)
+                             get_duplicating_select_field,
+                             get_duplicating_link_section,
+                             get_duplicating_attr_filter_section)
 from legend_fig_generator import (get_node_symbol_legend_fig,
                                   get_link_legend_fig,
                                   get_node_color_legend_fig)
@@ -394,15 +396,29 @@ def expand_create_config_modal_form(_, existing_divs, col_id,
     """TODO"""
     col_index = col_id["index"]
     if not len(existing_divs):
-        unique_index = col_index + "-0"
+        most_recent_index = None
     else:
         most_recent_index = existing_divs[-1]["props"]["id"]["index"]
-        next_int = int(most_recent_index.rsplit("-", 1)[-1]) + 1
-        unique_index = col_index + "-" + str(next_int)
 
-    new_input_div = get_duplicating_select_field(example_file_field_opts,
-                                                 col_index,
-                                                 unique_index)
+    if col_index == "link-config":
+        unique_index = 1 if most_recent_index is None else most_recent_index+1
+        new_input_div = get_duplicating_link_section(example_file_field_opts,
+                                                     unique_index)
+    elif col_index.startswith("attr-filter-fields"):
+        prefix = col_index.split("-")[-1]
+        if most_recent_index is None:
+            unique_index = prefix + "-1"
+        else:
+            suffix = most_recent_index.split("-")[-1]
+            unique_index = prefix + "-" + str(int(suffix) + 1)
+        new_input_div = \
+            get_duplicating_attr_filter_section(example_file_field_opts,
+                                                unique_index)
+    else:
+        unique_index = 1 if most_recent_index is None else most_recent_index+1
+        new_input_div = get_duplicating_select_field(example_file_field_opts,
+                                                     col_index,
+                                                     unique_index)
 
     new_div = Div(
         [
@@ -557,7 +573,7 @@ def start_config_file_generation(_, btn_color):
     Output("date-field-select", "invalid"),
     Output("date-input-format-input", "invalid"),
     Output("date-output-format-input", "invalid"),
-    Output({"type": "y-axis-fields", "index": -1}, "invalid"),
+    Output({"type": "y-axis-fields", "index": 0}, "invalid"),
     Input("config-file-generation-started", "data"),
     State("date-field-select", "value"),
     State("date-input-format-input", "value"),
@@ -566,7 +582,7 @@ def start_config_file_generation(_, btn_color):
     State("max-day-range-input", "value"),
     State("empty-strings-are-null-checkbox", "checked"),
     State("null-vals-textarea", "value"),
-    State({"type": "y-axis-fields", "index": -1}, "value"),
+    State({"type": "y-axis-fields", "index": 0}, "value"),
     State({"type": "y-axis-fields", "index": ALL}, "value"),
     State({"type": "node-label-fields", "index": ALL}, "value"),
     State({"type": "node-color-fields", "index": ALL}, "value"),
