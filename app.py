@@ -533,6 +533,12 @@ def start_config_file_generation(_, btn_color):
     State({"type": "link-attr-filter-select", "index": ALL}, "id"),
     State({"type": "link-attr-filter-select", "index": ALL}, "value"),
     State({"type": "link-attr-filter-textarea", "index": ALL}, "value"),
+    State({"type": "link-all-eq-select", "index": ALL}, "id"),
+    State({"type": "link-all-eq-select", "index": ALL}, "value"),
+    State({"type": "link-all-neq-select", "index": ALL}, "id"),
+    State({"type": "link-all-neq-select", "index": ALL}, "value"),
+    State({"type": "link-any-eq-select", "index": ALL}, "id"),
+    State({"type": "link-any-eq-select", "index": ALL}, "value"),
     prevent_initial_call=True
 )
 def continue_config_file_generation(started, date_field, date_input_format,
@@ -550,7 +556,10 @@ def continue_config_file_generation(started, date_field, date_input_format,
                                     link_weight_neq_ids, link_weight_neq_vals,
                                     link_attr_filter_ids,
                                     link_attr_filter_select_vals,
-                                    link_attr_filter_textarea_vals):
+                                    link_attr_filter_textarea_vals,
+                                    link_all_eq_ids, link_all_eq_vals,
+                                    link_all_neq_ids, link_all_neq_vals,
+                                    link_any_eq_ids, link_any_eq_vals,):
     """TODO"""
     if not started:
         raise PreventUpdate
