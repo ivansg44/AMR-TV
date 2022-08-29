@@ -591,7 +591,8 @@ def continue_config_file_generation(started, date_field, date_input_format,
         null_vals += null_vals_textarea.split(";")
 
     link_dict = \
-        {link_config_id["index"]: {} for link_config_id in link_config_ids}
+        {link_config_id["index"]: {"weight_filters": {}}
+         for link_config_id in link_config_ids}
     for id_, val in zip(link_label_ids, link_label_vals):
         if val is not None and val != "":
             link_dict[id_["index"]]["label"] = val
@@ -603,6 +604,16 @@ def continue_config_file_generation(started, date_field, date_input_format,
         if val is None:
             val = ""
         link_dict[id_["index"]]["weight_exp"] = val
+    for id_, val in zip(link_weight_lt_ids, link_weight_lt_vals):
+        if val is not None and val != "":
+            link_dict[id_["index"]]["weight_filters"]["less_than"] = val
+    for id_, val in zip(link_weight_gt_ids, link_weight_gt_vals):
+        if val is not None and val != "":
+            link_dict[id_["index"]]["weight_filters"]["greater_than"] = val
+    for id_, val in zip(link_weight_neq_ids, link_weight_neq_vals):
+        if val is not None and val != "":
+            val_list = val.split(";")
+            link_dict[id_["index"]]["weight_filters"]["not_equal"] = val_list
 
     # TODO check incomplete link sections--may have to use invalid
 
