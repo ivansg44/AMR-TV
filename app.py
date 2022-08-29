@@ -599,6 +599,10 @@ def continue_config_file_generation(started, date_field, date_input_format,
         link_dict[id_["index"]]["minimize_loops"] = val
     for id_, val in zip(link_arrowhead_ids, link_arrowhead_vals):
         link_dict[id_["index"]]["show_arrowheads"] = val
+    for id_, val in zip(link_weight_exp_ids, link_weight_exp_vals):
+        if val is None:
+            val = ""
+        link_dict[id_["index"]]["weight_exp"] = val
 
     # TODO check incomplete link sections--may have to use invalid
 
