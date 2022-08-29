@@ -516,6 +516,7 @@ def start_config_file_generation(_, btn_color):
     State({"type": "node-label-fields", "index": ALL}, "value"),
     State({"type": "node-color-fields", "index": ALL}, "value"),
     State({"type": "node-symbol-fields", "index": ALL}, "value"),
+    State({"type": "link-config", "index": ALL}, "id"),
     State({"type": "link-label", "index": ALL}, "id"),
     State({"type": "link-label", "index": ALL}, "value"),
     State({"type": "link-minimize-loops", "index": ALL}, "id"),
@@ -547,6 +548,7 @@ def continue_config_file_generation(started, date_field, date_input_format,
                                     null_vals_textarea, first_y_axis_field,
                                     y_axis_fields, node_label_fields,
                                     node_color_fields, node_symbol_fields,
+                                    link_config_ids,
                                     link_label_ids, link_label_vals,
                                     link_min_loop_ids, link_min_loop_vals,
                                     link_arrowhead_ids, link_arrowhead_vals,
@@ -587,6 +589,14 @@ def continue_config_file_generation(started, date_field, date_input_format,
         null_vals.append("")
     if null_vals_textarea is not None and null_vals_textarea != "":
         null_vals += null_vals_textarea.split(";")
+
+    link_dict = \
+        {link_config_id["index"]: {} for link_config_id in link_config_ids}
+    for id, val in zip(link_label_ids, link_label_vals):
+        if val is not None and val != "":
+            link_dict[id["index"]]["label"] = val
+
+    # TODO check incomplete link sections--may have to use invalid
 
     return None, {"visibility": "hidden"}, *field_invalidity_list
 

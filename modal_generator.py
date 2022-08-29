@@ -403,7 +403,6 @@ def get_create_config_modal_form(example_file_field_opts):
                                              0,
                                              alerts=True)
             ),
-            {"type": "link-config", "index": 0},
             className="mb-3"
         ),
         dbc.Row(
