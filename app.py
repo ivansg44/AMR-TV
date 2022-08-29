@@ -337,6 +337,7 @@ def edit_create_config_modal_after_example_file_upload(filename):
     """TODO"""
     return filename, "success"
 
+
 @app.callback(
     Output("create-config-file-modal-form", "children"),
     Output("generate-config-file-btn", "color"),
