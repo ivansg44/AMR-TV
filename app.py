@@ -516,6 +516,20 @@ def start_config_file_generation(_, btn_color):
     State({"type": "node-label-fields", "index": ALL}, "value"),
     State({"type": "node-color-fields", "index": ALL}, "value"),
     State({"type": "node-symbol-fields", "index": ALL}, "value"),
+    State({"type": "link-label", "index": ALL}, "id"),
+    State({"type": "link-label", "index": ALL}, "value"),
+    State({"type": "link-minimize-loops", "index": ALL}, "id"),
+    State({"type": "link-minimize-loops", "index": ALL}, "checked"),
+    State({"type": "link-arrowheads", "index": ALL}, "id"),
+    State({"type": "link-arrowheads", "index": ALL}, "checked"),
+    State({"type": "link-weight-exp", "index": ALL}, "id"),
+    State({"type": "link-weight-exp", "index": ALL}, "value"),
+    State({"type": "link-weight-lt", "index": ALL}, "id"),
+    State({"type": "link-weight-lt", "index": ALL}, "value"),
+    State({"type": "link-weight-gt", "index": ALL}, "id"),
+    State({"type": "link-weight-gt", "index": ALL}, "value"),
+    State({"type": "link-weight-neq", "index": ALL}, "id"),
+    State({"type": "link-weight-neq", "index": ALL}, "value"),
     prevent_initial_call=True
 )
 def continue_config_file_generation(started, date_field, date_input_format,
@@ -523,7 +537,14 @@ def continue_config_file_generation(started, date_field, date_input_format,
                                     max_day_range, empty_strings_are_null,
                                     null_vals_textarea, first_y_axis_field,
                                     y_axis_fields, node_label_fields,
-                                    node_color_fields, node_symbol_fields):
+                                    node_color_fields, node_symbol_fields,
+                                    link_label_ids, link_label_vals,
+                                    link_min_loop_ids, link_min_loop_vals,
+                                    link_arrowhead_ids, link_arrowhead_vals,
+                                    link_weight_exp_ids, link_weight_exp_vals,
+                                    link_weight_lt_ids, link_weight_lt_vals,
+                                    link_weight_gt_ids, link_weight_gt_vals,
+                                    link_weight_neq_ids, link_weight_neq_vals):
     """TODO"""
     if not started:
         raise PreventUpdate
