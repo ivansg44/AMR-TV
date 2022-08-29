@@ -3,6 +3,8 @@
 Running this script launches the application.
 """
 
+from json import dumps
+from pathlib import Path
 from sys import maxsize
 
 import dash
@@ -194,7 +196,9 @@ def launch_app(_):
         dcc.Store(id="added-scroll-handlers", data=False),
         dcc.Store("new-upload"),
         dcc.Store("example-file-field-opts"),
-        dcc.Store("config-file-generation-started", data=False)
+        dcc.Store("config-file-generation-started", data=False),
+        dcc.Store("config-json-str", data=""),
+        dcc.Download(id="download-config-json-str")
     ]
 
     return children
@@ -504,8 +508,8 @@ def start_config_file_generation(_, btn_color):
     Output("date-output-format-input", "invalid"),
     Output({"type": "y-axis-fields", "index": 0}, "invalid"),
     Output({"type": "link-label", "index": ALL}, "invalid"),
+    Output("config-json-str", "data"),
     Input("config-file-generation-started", "data"),
-    State("upload-example-file", "filename"),
     State("delimiter-select", "value"),
     State("date-field-select", "value"),
     State("date-input-format-input", "value"),
@@ -545,7 +549,7 @@ def start_config_file_generation(_, btn_color):
     State({"type": "link-any-eq-select", "index": ALL}, "value"),
     prevent_initial_call=True
 )
-def continue_config_file_generation(started, filename, delimiter,
+def continue_config_file_generation(started, delimiter,
                                     date_field, date_input_format,
                                     date_output_format, links_across_primary_y,
                                     max_day_range, empty_strings_are_null,
@@ -583,7 +587,8 @@ def continue_config_file_generation(started, filename, delimiter,
         return "Missing required values", \
                {"visibility": "visible"}, \
                *non_link_field_invalidity_list, \
-               stub_link_label_invalidity_list
+               stub_link_label_invalidity_list, \
+               ""
 
     if max_day_range is None:
         max_day_range = maxsize
@@ -591,7 +596,8 @@ def continue_config_file_generation(started, filename, delimiter,
         return "Invalid number in highlighted input", \
                {"visibility": "visible"}, \
                *non_link_field_invalidity_list, \
-               stub_link_label_invalidity_list
+               stub_link_label_invalidity_list, \
+               ""
 
     null_vals = []
     if empty_strings_are_null:
@@ -678,7 +684,8 @@ def continue_config_file_generation(started, filename, delimiter,
         return "Missing link labels", \
                {"visibility": "visible"}, \
                *non_link_field_invalidity_list, \
-               link_label_invalidity_list
+               link_label_invalidity_list, \
+               ""
 
     config_dict = {
         "delimiter": delimiter,
@@ -698,11 +705,27 @@ def continue_config_file_generation(started, filename, delimiter,
                              if e is not None or ""],
         "links_config": links_config
     }
+    config_json_str = dumps(config_dict, indent=2)
 
     return None, \
            {"visibility": "hidden"}, \
            *non_link_field_invalidity_list, \
-           stub_link_label_invalidity_list
+           stub_link_label_invalidity_list, \
+           config_json_str
+
+
+@app.callback(
+    Output("download-config-json-str", "data"),
+    Input("config-json-str", "data"),
+    State("upload-example-file", "filename"),
+    prevent_initial_call=True
+)
+def download_config_file(config_json_str, filename):
+    """TODO"""
+    if config_json_str == "":
+        raise PreventUpdate
+    json_filename = Path(filename).stem + ".json"
+    return {"content": config_json_str, "filename": json_filename}
 
 
 @app.callback(
