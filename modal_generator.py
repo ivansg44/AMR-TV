@@ -420,7 +420,7 @@ def get_create_config_modal_form(example_file_field_opts):
                            color="primary")
             ),
             className="mb-3"
-        ),
+        )
     ]
     return ret
 

@@ -592,9 +592,13 @@ def continue_config_file_generation(started, date_field, date_input_format,
 
     link_dict = \
         {link_config_id["index"]: {} for link_config_id in link_config_ids}
-    for id, val in zip(link_label_ids, link_label_vals):
+    for id_, val in zip(link_label_ids, link_label_vals):
         if val is not None and val != "":
-            link_dict[id["index"]]["label"] = val
+            link_dict[id_["index"]]["label"] = val
+    for id_, val in zip(link_min_loop_ids, link_min_loop_vals):
+        link_dict[id_["index"]]["minimize_loops"] = val
+    for id_, val in zip(link_arrowhead_ids, link_arrowhead_vals):
+        link_dict[id_["index"]]["show_arrowheads"] = val
 
     # TODO check incomplete link sections--may have to use invalid
 
