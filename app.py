@@ -448,6 +448,7 @@ def expand_create_config_modal_form(_, existing_divs, col_id,
                                id={
                                    "type": "contractable-create-config-form"
                                            "-btn",
+                                   "expandable-col-index": col_index,
                                    "index": unique_index
                                },
                                color="danger",
@@ -461,6 +462,7 @@ def expand_create_config_modal_form(_, existing_divs, col_id,
             new_input_div
         ],
         id={"type": "contractable-create-config-form-div",
+            "expandable-col-index": col_index,
             "index": unique_index}
     )
 
@@ -563,9 +565,13 @@ def expand_link_config_modal_form(_, existing_divs, example_file_field_opts):
 
 
 @app.callback(
-    Output({"type": "contractable-create-config-form-div", "index": MATCH},
+    Output({"type": "contractable-create-config-form-div",
+            "expandable-col-index": MATCH,
+            "index": MATCH},
            "children"),
-    Input({"type": "contractable-create-config-form-btn", "index": MATCH},
+    Input({"type": "contractable-create-config-form-btn",
+            "expandable-col-index": MATCH,
+            "index": MATCH},
           "n_clicks"),
     prevent_initial_call=True
 )
