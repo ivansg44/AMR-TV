@@ -415,12 +415,12 @@ def expand_create_config_modal_form(_, existing_divs, col_id,
             get_duplicating_attr_filter_section(example_file_field_opts,
                                                 unique_index)
     elif any([col_index.startswith(e) for e in nested_select_fields]):
-        if col_index.startswith("all_eq_fields"):
-            type_ = "all-eq-select"
-        elif col_index.startswith("all_neq_fields"):
-            type_ = "all-neq-select"
+        if col_index.startswith("all-eq-fields"):
+            type_ = "link-all-eq-select"
+        elif col_index.startswith("all-neq-fields"):
+            type_ = "link-all-neq-select"
         else:
-            type_ = "any-eq-select"
+            type_ = "link-any-eq-select"
 
         prefix = col_index.split("-")[-1]
         if most_recent_index is None:
@@ -591,7 +591,11 @@ def continue_config_file_generation(started, date_field, date_input_format,
         null_vals += null_vals_textarea.split(";")
 
     link_dict = \
-        {link_config_id["index"]: {"weight_filters": {}, "attr_filters": {}}
+        {link_config_id["index"]: {"all_eq": [],
+                                   "all_neq": [],
+                                   "any_eq": [],
+                                   "weight_filters": {},
+                                   "attr_filters": {}}
          for link_config_id in link_config_ids}
     for id_, val in zip(link_label_ids, link_label_vals):
         if val is not None and val != "":
@@ -624,7 +628,18 @@ def continue_config_file_generation(started, date_field, date_input_format,
             textarea_val_list = textarea_val.split(";")
             link_dict[link_index]["attr_filters"][select_val] = \
                 textarea_val_list
-
+    for id_, val in zip(link_all_eq_ids, link_all_eq_vals):
+        link_index = int(id_["index"].split("-")[0])
+        if val is not None and val != "":
+            link_dict[link_index]["all_eq"].append(val)
+    for id_, val in zip(link_all_neq_ids, link_all_neq_vals):
+        link_index = int(id_["index"].split("-")[0])
+        if val is not None and val != "":
+            link_dict[link_index]["all_neq"].append(val)
+    for id_, val in zip(link_any_eq_ids, link_any_eq_vals):
+        link_index = int(id_["index"].split("-")[0])
+        if val is not None and val != "":
+            link_dict[link_index]["any_eq"].append(val)
 
     # TODO check incomplete link sections--may have to use invalid
 
