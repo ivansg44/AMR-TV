@@ -505,6 +505,8 @@ def start_config_file_generation(_, btn_color):
     Output({"type": "y-axis-fields", "index": 0}, "invalid"),
     Output({"type": "link-label", "index": ALL}, "invalid"),
     Input("config-file-generation-started", "data"),
+    State("upload-example-file", "filename"),
+    State("delimiter-select", "value"),
     State("date-field-select", "value"),
     State("date-input-format-input", "value"),
     State("date-output-format-input", "value"),
@@ -543,7 +545,8 @@ def start_config_file_generation(_, btn_color):
     State({"type": "link-any-eq-select", "index": ALL}, "value"),
     prevent_initial_call=True
 )
-def continue_config_file_generation(started, date_field, date_input_format,
+def continue_config_file_generation(started, filename, delimiter,
+                                    date_field, date_input_format,
                                     date_output_format, links_across_primary_y,
                                     max_day_range, empty_strings_are_null,
                                     null_vals_textarea, first_y_axis_field,
@@ -676,6 +679,25 @@ def continue_config_file_generation(started, date_field, date_input_format,
                {"visibility": "visible"}, \
                *non_link_field_invalidity_list, \
                link_label_invalidity_list
+
+    config_dict = {
+        "delimiter": delimiter,
+        "date_attr": date_field,
+        "date_input": date_input_format,
+        "date_output": date_output_format,
+        "links_across_primary_y": int(links_across_primary_y),
+        "max_day_range": max_day_range,
+        "null_vals": null_vals,
+        "y_axes": [[e] for e in y_axis_fields
+                   if e is not None or ""],
+        "label_attr": [e for e in node_label_fields
+                       if e is not None or ""],
+        "node_color_attr": [e for e in node_color_fields
+                            if e is not None or ""],
+        "node_symbol_attr": [e for e in node_symbol_fields
+                             if e is not None or ""],
+        "links_config": links_config
+    }
 
     return None, \
            {"visibility": "hidden"}, \
