@@ -503,6 +503,7 @@ def start_config_file_generation(_, btn_color):
     Output("date-input-format-input", "invalid"),
     Output("date-output-format-input", "invalid"),
     Output({"type": "y-axis-fields", "index": 0}, "invalid"),
+    Output({"type": "link-label", "index": ALL}, "invalid"),
     Input("config-file-generation-started", "data"),
     State("date-field-select", "value"),
     State("date-input-format-input", "value"),
@@ -566,23 +567,28 @@ def continue_config_file_generation(started, date_field, date_input_format,
     if not started:
         raise PreventUpdate
 
-    mandatory_fields = [date_field,
-                        date_input_format,
-                        date_output_format,
-                        first_y_axis_field]
-    field_invalidity_list = \
-        [True if e is None or e == "" else False for e in mandatory_fields]
-    if any(field_invalidity_list):
+    mandatory_non_link_fields = [date_field,
+                                 date_input_format,
+                                 date_output_format,
+                                 first_y_axis_field]
+    non_link_field_invalidity_list = [True if e is None or e == "" else False
+                                      for e in mandatory_non_link_fields]
+    # Say all the link labels are valid for now
+    stub_link_label_invalidity_list = [False for _ in link_label_ids]
+
+    if any(non_link_field_invalidity_list):
         return "Missing required values", \
                {"visibility": "visible"}, \
-               *field_invalidity_list
+               *non_link_field_invalidity_list, \
+               stub_link_label_invalidity_list
 
     if max_day_range is None:
         max_day_range = maxsize
     elif max_day_range < 0:
         return "Invalid number in highlighted input", \
                {"visibility": "visible"}, \
-               *field_invalidity_list
+               *non_link_field_invalidity_list, \
+               stub_link_label_invalidity_list
 
     null_vals = []
     if empty_strings_are_null:
@@ -594,6 +600,7 @@ def continue_config_file_generation(started, date_field, date_input_format,
         {link_config_id["index"]: {"all_eq": [],
                                    "all_neq": [],
                                    "any_eq": [],
+                                   "weight_exp": "",
                                    "weight_filters": {},
                                    "attr_filters": {}}
          for link_config_id in link_config_ids}
@@ -641,9 +648,39 @@ def continue_config_file_generation(started, date_field, date_input_format,
         if val is not None and val != "":
             link_dict[link_index]["any_eq"].append(val)
 
-    # TODO check incomplete link sections--may have to use invalid
+    links_config = {}
+    link_label_invalidity_list = []
+    for link_config_index in link_dict:
+        link_config_vals = link_dict[link_config_index]
+        if "label" not in link_config_vals:
+            partially_filled = (
+                len(link_config_vals["all_eq"])
+                or len(link_config_vals["all_neq"])
+                or len(link_config_vals["any_eq"])
+                or link_config_vals["show_arrowheads"]
+                or link_config_vals["minimize_loops"]
+                or link_config_vals["weight_exp"]
+                or link_config_vals["weight_filters"]
+                or link_config_vals["attr_filters"]
+            )
+            if partially_filled:
+                link_label_invalidity_list.append(True)
+            else:
+                link_label_invalidity_list.append(False)
+        else:
+            label = link_config_vals.pop("label")
+            links_config[label] = link_config_vals
+            link_label_invalidity_list.append(False)
+    if any(link_label_invalidity_list):
+        return "Missing link labels", \
+               {"visibility": "visible"}, \
+               *non_link_field_invalidity_list, \
+               link_label_invalidity_list
 
-    return None, {"visibility": "hidden"}, *field_invalidity_list
+    return None, \
+           {"visibility": "hidden"}, \
+           *non_link_field_invalidity_list, \
+           stub_link_label_invalidity_list
 
 
 @app.callback(
