@@ -4,7 +4,7 @@ from sys import maxsize
 
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
-from dash_html_components import Div, Hr, P, H5
+from dash_html_components import A, B, Hr, I, P, H5
 
 
 def get_upload_data_modal():
@@ -111,7 +111,30 @@ def get_create_config_modal_form(example_file_field_opts):
         get_create_config_help_btn("date-fields"),
         get_create_config_help_alert(
             "date-fields",
-            [P("Hello world!")]
+            [
+                P([
+                    B("Date field"),
+                    " is the field from your data that contains sample dates, "
+                    "and is ultimately encoded along the x-axis. ",
+                    B("Date input format"),
+                    " is the format the dates are recorded in your data, and ",
+                    B("Date output format"),
+                    " is the format you want the dates encoded along the "
+                    "x-axis in the resulting visualization."
+                ]),
+                P([
+                    "The format must be entered using the 1989 C standard "
+                    "format codes. ",
+                    A("Click here for details.",
+                      href="https://bit.ly/3wApxGf",
+                      target="_blank",
+                      rel="noopener noreferrer")
+                ]),
+                P([
+                    I("e.g., "),
+                    "July 1, 2021 uses the format %B %d, %Y"
+                ])
+            ]
         ),
         dbc.Row(
             dbc.Col(
