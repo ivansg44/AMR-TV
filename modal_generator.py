@@ -172,7 +172,18 @@ def get_create_config_modal_form(example_file_field_opts):
         get_create_config_help_btn("link-across-primary-y-field"),
         get_create_config_help_alert(
             "link-across-primary-y-field",
-            [P("Hello world!")]
+            [
+                P([
+                    "The primary y-axis value is the first selected value "
+                    "under ",
+                    B("y-axis fields"),
+                    ". Nodes in the resulting visualization with differing "
+                    "primary y-axis values are separated by solid lines. "
+                    "Check this box if you do not want to draw links across "
+                    "these solid lines, or in other words, between nodes of "
+                    "differing primary y-axis values."
+                ])
+            ]
         ),
         dbc.Row(
             [
