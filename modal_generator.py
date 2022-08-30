@@ -651,7 +651,10 @@ def get_duplicating_link_section(example_file_field_opts, index, alerts=False):
                 get_create_config_help_btn("arrowheads") if alerts else None,
                 get_create_config_help_alert(
                     "arrowheads",
-                    [P("Hello world!")]
+                    [P("If you check this box, the links will have "
+                       "arrowheads. This is really just a stylistic choice, "
+                       "as directionality is already implied through the "
+                       "x-axis encoding sampling date.")]
                 ) if alerts else None,
                 dbc.Row(
                     [
