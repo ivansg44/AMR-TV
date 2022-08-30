@@ -514,7 +514,25 @@ def get_create_config_modal_form(example_file_field_opts):
         get_create_config_help_btn("link-config"),
         get_create_config_help_alert(
             "link-config",
-            [P("Hello world!")]
+            [
+                P([
+                    "This section enables you to set the criteria for drawing "
+                    "links between nodes. If you click the ",
+                    B("Add link config section"),
+                    " button at the very bottom, you can add duplicate the "
+                    "section below, and set criteria for multiple links."
+                ]),
+                P([
+                   "You do not have to define any links, but if you begin to "
+                   "partially complete a link configuration without "
+                   "specifying the link label, you will encounter an error "
+                   "when generating the config file."
+                ]),
+                dbc.Alert("The number of available link colors is limited. "
+                          "The visualization will not work if you define more "
+                          "than 5 link types.",
+                          color="warning")
+            ]
         ),
         dbc.Row(
             dbc.Col(
@@ -539,7 +557,7 @@ def get_create_config_modal_form(example_file_field_opts):
         ),
         dbc.Row(
             dbc.Col(
-                dbc.Button("Add",
+                dbc.Button("Add link config section",
                            id={"type": "expandable-create-config-form-btn",
                                "index": "link-config"},
                            color="primary")
@@ -864,6 +882,7 @@ def get_duplicating_link_section(example_file_field_opts, index, alerts=False):
                     ),
                     className="mb-3"
                 ),
+                Hr()
             ]
         ),
         id={"type": "link-config", "index": index},
