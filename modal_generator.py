@@ -8,7 +8,11 @@ from dash_html_components import A, B, Br, Hr, I, P, H5
 
 
 def get_upload_data_modal():
-    """TODO"""
+    """Get modal for uploading data.
+
+    :return: Modal for uploading data
+    :rtype: dbc.Modal
+    """
     ret = dbc.Modal(
         [
             dbc.ModalHeader("Upload data"),
@@ -35,7 +39,13 @@ def get_upload_data_modal():
 
 
 def get_create_config_file_modal():
-    """TODO"""
+    """Get modal for creating config file.
+
+    This does not contain the entire form the user ultimately sees.
+
+    :return: Modal for creating config file
+    :rtype: dbc.Modal
+    """
     ret = dbc.Modal(
         [
             dbc.ModalHeader("Create config file"),
@@ -106,7 +116,13 @@ def get_create_config_file_modal():
 
 
 def get_create_config_modal_form(example_file_field_opts):
-    """TODO"""
+    """Get full form user sees in create config modal.
+
+    :param example_file_field_opts: Select opts from example file
+    :type example_file_field_opts: list
+    :return: List of divs containing create config modal form
+    :rtype: list
+    """
     ret = [
         get_create_config_help_btn("date-fields"),
         get_create_config_help_alert(
@@ -569,7 +585,17 @@ def get_create_config_modal_form(example_file_field_opts):
 
 
 def get_duplicating_select_field(example_file_field_opts, type_, index):
-    """TODO"""
+    """Get generic select field for create config form.
+
+    :param example_file_field_opts: Select opts from example file
+    :type example_file_field_opts: list
+    :param type_: Type to assign to select field ID
+    :type type_: str
+    :param index: Index to assign to select field ID
+    :type index: int | str
+    :return: Generic select field
+    :rtype: dbc.Row
+    """
     ret = dbc.Row(
         dbc.Col(
             dbc.Select(
@@ -584,7 +610,17 @@ def get_duplicating_select_field(example_file_field_opts, type_, index):
 
 
 def get_duplicating_link_section(example_file_field_opts, index, alerts=False):
-    """TODO"""
+    """Get link config section for create config form.
+
+    :param example_file_field_opts: Select opts from example file
+    :type example_file_field_opts: list
+    :param index: Index to assign to link config section
+    :type index: int | str
+    :param alert: Whether to display help alerts
+    :type alert: bool
+    :return: Link config section for create config form
+    :rtype: dbc.Row
+    """
     ret = dbc.Row(
         dbc.Col(
             [
@@ -980,7 +1016,15 @@ def get_duplicating_link_section(example_file_field_opts, index, alerts=False):
 
 
 def get_duplicating_attr_filter_section(example_file_field_opts, index):
-    """TODO"""
+    """Get attr filter section for create config form.
+
+    :param example_file_field_opts: Select opts from example file
+    :type example_file_field_opts: list
+    :param index: Index to assign to select and textarea inputs
+    :type index: int | str
+    :return: Attr filter section for create config form
+    :rtype: dbc.Row
+    """
     ret = dbc.Row(
         dbc.Col(
             [
@@ -1003,7 +1047,13 @@ def get_duplicating_attr_filter_section(example_file_field_opts, index):
 
 
 def get_create_config_help_btn(index):
-    """TODO"""
+    """Get btn used to toggle alert in create config form.
+
+    :param index: Index matching alert btn toggles
+    :type index: str | int
+    :return: Btn used to toggle alert in create config form
+    :rtype: dbc.Row
+    """
     return dbc.Row(
         dbc.Col(
             dbc.Button("Help",
@@ -1019,7 +1069,13 @@ def get_create_config_help_btn(index):
 
 
 def get_create_config_help_alert(index, alert_children):
-    """TODO"""
+    """Get help alert in create config form.
+
+    :param index: Index matching btn toggling alert
+    :type index: str | int
+    :return: Help lert in create config form
+    :rtype: dbc.Row
+    """
     return dbc.Row(
         dbc.Col(
             dbc.Alert(
