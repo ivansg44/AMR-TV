@@ -1,6 +1,5 @@
 {
   "delimiter": "\t",
-  "node_id": "sample id",
   "y_axes": [
     ["incompatibility group"],
     ["sequence type"],

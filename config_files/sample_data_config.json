@@ -1,6 +1,5 @@
 {
   "delimiter": ",",
-  "node_id": "Sample ID / Isolate",
   "y_axes": [
     ["Location"],
     ["rep_type(s)"]
