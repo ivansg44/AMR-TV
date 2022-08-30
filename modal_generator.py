@@ -342,7 +342,17 @@ def get_create_config_modal_form(example_file_field_opts):
         get_create_config_help_btn("node-label-fields"),
         get_create_config_help_alert(
             "node-label-fields",
-            [P("Hello world!")]
+            [
+                P([
+                    "These are the fields from your data that will be used to "
+                    "assign a label to each node. If you specify one field, "
+                    "each node will be given a label corresponding to their "
+                    "value for that particular field. If you specify more "
+                    "than one field, the nodes will receive one label for "
+                    "each field, with each label separated by a newline "
+                    "character."
+                ]),
+            ]
         ),
         dbc.Row(
             dbc.Col(
