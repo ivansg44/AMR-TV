@@ -228,7 +228,18 @@ def get_create_config_modal_form(example_file_field_opts):
         get_create_config_help_btn("null-val-fields"),
         get_create_config_help_alert(
             "null-val-fields",
-            [P("Hello world!")]
+            [
+                P([
+                    "Use these inputs to specify the values in your data that "
+                    "are considered \"null\". ",
+                    I("e.g., "),
+                    "null;n/a;none"
+                ]),
+                P([
+                    "The visualization will ignore these values when drawing "
+                    "links between nodes."
+                ])
+            ]
         ),
         dbc.Row(
             dbc.Col(
