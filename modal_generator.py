@@ -380,7 +380,32 @@ def get_create_config_modal_form(example_file_field_opts):
         get_create_config_help_btn("node-color-fields"),
         get_create_config_help_alert(
             "node-color-fields",
-            [P("Hello world!")]
+            [
+                P([
+                    "These are the fields from your data that will be used to "
+                    "assign a color to each node. If you specify one field, "
+                    "each unique value from that field will be assigned a "
+                    "unique color. If you specify more than one field, each "
+                    "unique combination of values across the specified fields "
+                    "will be assigned a color."
+                ]),
+                P([
+                    I("e.g., "),
+                    "if you specify two fields \"birds\" and \"mammals\", "
+                    "and the possible values for both fields are "
+                    "eagle/sparrow and dog/monkey respectively, then there "
+                    "will be four unique node colors encoding the following "
+                    "combination of values:"
+                ]),
+                P(["eagle", Br(), "dog"]),
+                P(["eagle", Br(), "monkey"]),
+                P(["sparrow", Br(), "dog"]),
+                P(["sparrow", Br(), "monkey"]),
+                dbc.Alert("The number of available colors is limited. The "
+                          "visualization will not work if there are more than "
+                          "12 unique values or combinations to encode.",
+                          color="warning")
+            ]
         ),
         dbc.Row(
             dbc.Col(
