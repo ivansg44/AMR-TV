@@ -205,7 +205,8 @@ def get_create_config_modal_form(example_file_field_opts):
         get_create_config_help_btn("max-day-range-field"),
         get_create_config_help_alert(
             "max-day-range-field",
-            [P("Hello world!")]
+            [P("Links will not be drawn between nodes that were sampled more "
+               "than this many days apart.")]
         ),
         dbc.Row(
             dbc.Col(
