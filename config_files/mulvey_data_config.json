@@ -26,7 +26,7 @@
       "any_eq": ["prflpa1", "prflpa2", "prflpa3"],
       "minimize_loops": 1,
       "show_arrowheads": 1,
-      "weight_exp": "10*@SNV distance@-!SNV distance!",
+      "weight_exp": "@SNV distance@-!SNV distance!",
       "weight_filters": {},
       "attr_filters": {
       }
