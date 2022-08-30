@@ -852,7 +852,9 @@ def get_duplicating_link_section(example_file_field_opts, index, alerts=False):
                 get_create_config_help_btn("all-eq") if alerts else None,
                 get_create_config_help_alert(
                     "all-eq",
-                    [P("Hello world!")]
+                    [P("In order to draw a link between any two nodes, they "
+                       "must have the same values for all the fields you "
+                       "specify in this section.")]
                 ) if alerts else None,
                 dbc.Row(
                     dbc.Col(
@@ -890,7 +892,9 @@ def get_duplicating_link_section(example_file_field_opts, index, alerts=False):
                 get_create_config_help_btn("all-neq") if alerts else None,
                 get_create_config_help_alert(
                     "all-neq",
-                    [P("Hello world!")]
+                    [P("In order to draw a link between any two nodes, they "
+                       "must have different values for all the fields you "
+                       "specify in this section.")]
                 ) if alerts else None,
                 dbc.Row(
                     dbc.Col(
@@ -929,7 +933,9 @@ def get_duplicating_link_section(example_file_field_opts, index, alerts=False):
                 get_create_config_help_btn("any-eq") if alerts else None,
                 get_create_config_help_alert(
                     "any-eq",
-                    [P("Hello world!")]
+                    [P("In order to draw a link between any two nodes, they "
+                       "must have at least one matching value across all the "
+                       "fields you specify in this section.")]
                 ) if alerts else None,
                 dbc.Row(
                     dbc.Col(
