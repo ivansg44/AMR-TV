@@ -4,7 +4,7 @@ from sys import maxsize
 
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
-from dash_html_components import A, B, Hr, I, P, H5
+from dash_html_components import A, B, Br, Hr, I, P, H5
 
 
 def get_upload_data_modal():
@@ -288,7 +288,26 @@ def get_create_config_modal_form(example_file_field_opts):
         get_create_config_help_btn("y-axis-fields"),
         get_create_config_help_alert(
             "y-axis-fields",
-            [P("Hello world!")]
+            [
+                P([
+                    "These are the fields from your data that will be encoded "
+                    "along the y-axis of the visualization. You must select "
+                    "at least one field. If you specify more than one field, "
+                    "each unique combination of values across the specified "
+                    "y-axis fields will occupy one track along the y-axis."
+                ]),
+                P([
+                    I("e.g., "),
+                    "if you specify two fields \"fruits\" and \"vegetables\", "
+                    "and the possible values for both fields are "
+                    "apple/banana and carrot/celery respectively, then there "
+                    "will be four tracks along the y-axis:"
+                ]),
+                P(["apple", Br(), "carrot"]),
+                P(["apple", Br(), "celery"]),
+                P(["banana", Br(), "carrot"]),
+                P(["banana", Br(), "celery"])
+            ]
         ),
         dbc.Row(
             dbc.Col(
