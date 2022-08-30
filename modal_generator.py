@@ -674,7 +674,40 @@ def get_duplicating_link_section(example_file_field_opts, index, alerts=False):
                 get_create_config_help_btn("weight-exp") if alerts else None,
                 get_create_config_help_alert(
                     "weight-exp",
-                    [P("Hello world!")]
+                    [
+                        P("Enter the equation for calculating link weights. "
+                          "This is optional, but if specified, the link "
+                          "weights will be overlaid on top of the links in "
+                          "the visualization."),
+                        P([
+                            "The equation expects a specific syntax. You can "
+                            "add (+), subtract (-), multiply (*), and divide "
+                            "(/). You can specify negative numbers. You can "
+                            "also specify absolute values with ",
+                            B("abs()"),
+                            "."
+                        ]),
+                        P("You can also reference data values from the two "
+                          "nodes connected by the link with the following "
+                          "notation:"),
+                        P([
+                            B("!some_field!"),
+                            " for the data value from the node with an "
+                            "earlier sampling date",
+                        ]),
+                        P([
+                            B("@some_field@"),
+                            " for the data value from the node with a later "
+                            "sampling date",
+                        ]),
+                        P([
+                            I("e.g., "),
+                            "If we have a field called \"mass\", we can "
+                            "calculate the absolute difference in mass "
+                            "between the nodes connected by each link with: ",
+                            B("abs(@mass@ - !mass!)")
+                        ]),
+                    ],
                 ) if alerts else None,
                 dbc.Row(
                     dbc.Col(
