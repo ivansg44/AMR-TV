@@ -442,7 +442,32 @@ def get_create_config_modal_form(example_file_field_opts):
         get_create_config_help_btn("node-symbol-fields"),
         get_create_config_help_alert(
             "node-symbol-fields",
-            [P("Hello world!")]
+            [
+                P([
+                    "These are the fields from your data that will be used to "
+                    "assign a shape/symbol to each node. If you specify one "
+                    "field, each unique value from that field will be "
+                    "assigned a unique symbol. If you specify more than one "
+                    "field, each unique combination of values across the "
+                    "specified fields will be assigned a symbol."
+                ]),
+                P([
+                    I("e.g., "),
+                    "if you specify two fields \"utensils\" and \"metals\", "
+                    "and the possible values for both fields are "
+                    "spoon/fork and steel/silver respectively, then there "
+                    "will be four unique node colors encoding the following "
+                    "combination of values:"
+                ]),
+                P(["spoon", Br(), "steel"]),
+                P(["spoon", Br(), "silver"]),
+                P(["fork", Br(), "steel"]),
+                P(["fork", Br(), "silver"]),
+                dbc.Alert("The number of available symbols is limited. The "
+                          "visualization will not work if there are more than "
+                          "6 unique values or combinations to encode.",
+                          color="warning")
+            ]
         ),
         dbc.Row(
             dbc.Col(
