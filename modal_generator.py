@@ -726,7 +726,9 @@ def get_duplicating_link_section(example_file_field_opts, index, alerts=False):
                 get_create_config_help_btn("weight-fltrs") if alerts else None,
                 get_create_config_help_alert(
                     "weight-fltrs",
-                    [P("Hello world!")]
+                    [P("Filter out links with a weight less than or greater "
+                       "than a certain value. You can also filter out links "
+                       "that are equal to specific values.")]
                 ) if alerts else None,
                 dbc.Row(
                     dbc.Col(
