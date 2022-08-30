@@ -795,7 +795,26 @@ def get_duplicating_link_section(example_file_field_opts, index, alerts=False):
                 get_create_config_help_btn("attr-filters") if alerts else None,
                 get_create_config_help_alert(
                     "attr-filters",
-                    [P("Hello world!")]
+                    [
+                        P([
+                            "Specify values you want to ignore from certain "
+                            "fields when comparing data between nodes for "
+                            "link-drawing purposes. This can be useful when "
+                            "you only want to consider outlier data for "
+                            "specific fields in your criteria when drawing "
+                            "links."
+                        ]),
+                        P([
+                            I("e.g., "),
+                            "if you want to draw links between nodes that "
+                            "have the same value for \"HIV positive\", but "
+                            "the majority of your data is for patients who "
+                            "are HIV negative, you can select the "
+                            "\"HIV positive\" field, and enter the value "
+                            "\"negative\" in the textbox, to only draw links "
+                            "between nodes representing HIV positive patients"
+                        ])
+                    ]
                 ) if alerts else None,
                 dbc.Row(
                     dbc.Col(
