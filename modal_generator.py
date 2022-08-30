@@ -604,7 +604,32 @@ def get_duplicating_link_section(example_file_field_opts, index, alerts=False):
                 get_create_config_help_btn("min-loops") if alerts else None,
                 get_create_config_help_alert(
                     "min-loops",
-                    [P("Hello world!")]
+                    [
+                        P([
+                            "If you check this box, each ",
+                            A("connected component",
+                              href="https://bit.ly/3CFBKNJ",
+                              target="_blank",
+                              rel="noopener noreferrer"),
+                            " will be converted into a ",
+                            A("minimum spanning tree (MST)",
+                              href="https://bit.ly/2VxWqSp",
+                              target="_blank",
+                              rel="noopener noreferrer"),
+                            ". The weight assigned to each link or edge when "
+                            "generating MSTs is equal to the difference in ",
+                            B("Date field"),
+                            " values between the two nodes connected by the "
+                            "link."
+                        ]),
+                        P([
+                            A("Kruskal's algorithm",
+                              href="https://bit.ly/3wEZuNW",
+                              target="_blank",
+                              rel="noopener noreferrer"),
+                            " is used to generate MSTs."
+                        ])
+                    ]
                 ) if alerts else None,
                 dbc.Row(
                     [
