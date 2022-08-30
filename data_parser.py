@@ -14,6 +14,15 @@ import networkx as nx
 from expression_evaluator import eval_expr
 
 
+def parse_fields_from_example_file(example_file_base64_str, delimiter):
+    """TODO"""
+    example_file_str = b64decode(example_file_base64_str).decode("utf-8")
+    reader = csv.reader(StringIO(example_file_str), delimiter=delimiter)
+    for row in reader:
+        return row
+    return []
+
+
 def get_app_data(sample_file_base64_str, config_file_base64_str,
                  selected_nodes=None):
     """Get data from uploaded file that is used to generate viz.
@@ -39,7 +48,6 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
 
     sample_data_dict = get_sample_data_dict(sample_file_str,
                                             config_file_dict["delimiter"],
-                                            config_file_dict["node_id"],
                                             config_file_dict["date_attr"],
                                             config_file_dict["date_input"],
                                             config_file_dict["date_output"],
@@ -314,8 +322,8 @@ def sorting_key(track):
     return ret
 
 
-def get_sample_data_dict(sample_file_str, delimiter, node_id, date,
-                         date_input, date_output, null_vals):
+def get_sample_data_dict(sample_file_str, delimiter, date, date_input,
+                         date_output, null_vals):
     """Parse sample data file into dict obj.
 
     :param sample_file_str: Str corresponding to contents of user
@@ -323,9 +331,6 @@ def get_sample_data_dict(sample_file_str, delimiter, node_id, date,
     :type sample_file_str: str
     :param delimiter: Delimiter in sample file
     :type delimiter: str
-    :param node_id: Sample file attr encoded by presence of different
-        nodes.
-    :type node_id: str
     :param date: Sample file attr encoded by sample date/x-axis
     :type date: str
     :param date_input: 1989 C format code used when parsing date attr
@@ -342,10 +347,7 @@ def get_sample_data_dict(sample_file_str, delimiter, node_id, date,
     sample_data_dict = {}
     reader = csv.DictReader(StringIO(sample_file_str),
                             delimiter=delimiter)
-    for row in reader:
-        sample_id = row[node_id]
-        if sample_id in null_vals:
-            continue
+    for i, row in enumerate(reader):
         if row[date] in null_vals:
             continue
         row = {k: (None if row[k] in null_vals else row[k]) for k in row}
@@ -353,7 +355,7 @@ def get_sample_data_dict(sample_file_str, delimiter, node_id, date,
         row["datetime_obj"] = datetime.strptime(row[date], date_input)
         row[date] = row["datetime_obj"].strftime(date_output)
 
-        sample_data_dict[sample_id] = row
+        sample_data_dict[i] = row
     return sample_data_dict
 
 

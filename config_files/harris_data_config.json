@@ -1,6 +1,5 @@
 {
   "delimiter": "\t",
-  "node_id": "patient_id",
   "y_axes": [
     ["subtree"],
     ["location"]

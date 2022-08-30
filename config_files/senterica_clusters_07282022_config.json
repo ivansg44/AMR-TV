@@ -1,6 +1,5 @@
 {
   "delimiter": "\t",
-  "node_id": "Sample",
   "y_axes": [
     ["threshold_10"],
     ["farm_no"]
