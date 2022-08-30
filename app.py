@@ -318,7 +318,13 @@ def toggle_viz_btn_color(sample_file_contents, config_file_contents):
     prevent_intial_call=True
 )
 def toggle_create_config_file_modal(_):
-    """TODO"""
+    """Toggle create config modal.
+
+    :param _: Create config file btn clicked
+    :return: Whether modal is open or closed
+    :rtype: bool
+    :raise RuntimeError: Unexpected trigger trying to toggle modal
+    """
     ctx = dash.callback_context
     trigger = ctx.triggered[0]["prop_id"]
     if trigger == ".":
@@ -334,11 +340,24 @@ def toggle_create_config_file_modal(_):
 @app.callback(
     Output("select-example-file-btn", "children"),
     Output("select-example-file-btn", "color"),
+    Input("upload-example-file", "contents"),
     Input("upload-example-file", "filename"),
     prevent_initial_call=True
 )
-def edit_create_config_modal_after_example_file_upload(filename):
-    """TODO"""
+def edit_create_config_modal_after_example_file_upload(_, filename):
+    """Edit create config modal css after user uploads example file.
+
+    Current changes:
+
+    * Filename replaces content of upload example file btn
+    * Upload example file btn color changes
+
+    :param _: User uploaded example file
+    :param filename: Example filename
+    :type filename: str
+    :return: Text inside upload example file btn, and btn color
+    :rtype: (str, str)
+    """
     return filename, "success"
 
 
@@ -351,7 +370,25 @@ def edit_create_config_modal_after_example_file_upload(filename):
     prevent_initial_call=True
 )
 def add_create_config_modal_form(example_file_contents, delimiter):
-    """TODO"""
+    """Add form to create config modal.
+
+    This is called when the user uploads an example file OR selects a
+    delimiter, but we only want to add the form if both actions have
+    been completed.
+
+    We also change the color of the btn at the bottom of the create
+    config modal for actually generating the file, and we store the
+    example file field select opts in a browser var.
+
+    :param example_file_contents: User-uploaded example file contents
+    :type example_file_contents: str
+    :param delimiter: User-specified example file delimiter
+    :type delimiter: str
+    :return: Create config modal form, color of btn for actually
+        generating config file, and example file fields select opts
+        browser var.
+    :rtype: (list[dbc.Row], str, list)
+    """
     if None in [example_file_contents, delimiter]:
         raise PreventUpdate
 
@@ -377,7 +414,14 @@ def add_create_config_modal_form(example_file_contents, delimiter):
     prevent_initial_call=True
 )
 def toggle_create_config_modal_help_alert(_, is_already_open):
-    """TODO"""
+    """Toggle a help alert in create config modal.
+
+    :param _: User clicked help btn for an alert
+    :param is_already_open: Is the alert already open?
+    :type is_already_open: bool
+    :return: Open status for alert specific to help btn user clicked
+    :rtype: bool
+    """
     return not is_already_open
 
 
@@ -395,7 +439,21 @@ def toggle_create_config_modal_help_alert(_, is_already_open):
 )
 def expand_create_config_modal_form(_, existing_divs, col_id,
                                     example_file_field_opts):
-    """TODO"""
+    """Add divs to create config modal form after user clicks add btn.
+
+    :param _: User clicked add btn in create config modal section
+    :param existing_divs: Existing divs in the section we plan to add
+        another div to.
+    :type existing_divs: list
+    :param col_id: ID of section corresponding to add btn user clicked
+    :type col_id: dict
+    :param example_file_field_opts: Example file fields select opts
+        browser var.
+    :type example_file_field_opts: list
+    :return: New div to add to section of form corresponding to add btn
+        user clicked.
+    :rtype: Div
+    """
     col_index = col_id["index"]
     nested_select_fields = ["all-eq-fields", "all-neq-fields", "any-eq-fields"]
 
@@ -483,7 +541,15 @@ def expand_create_config_modal_form(_, existing_divs, col_id,
     prevent_initial_call=True
 )
 def contract_create_config_modal_form(_):
-    """TODO"""
+    """Del divs from create config modal after user clicks del btn.
+
+    Basically we just empty the outer div, so we will have an empty div
+    left on the page.
+
+    :param _: User clicked del btn in create config modal section
+    :return: Content of outer div containing div user wants to remove
+    :rtype: None
+    """
     return None
 
 
@@ -494,11 +560,24 @@ def contract_create_config_modal_form(_):
     prevent_initial_call=True
 )
 def start_config_file_generation(_, btn_color):
-    """TODO"""
+    """Start generating the config file.
+
+    We populate the config file generation started browser var, which
+    starts the next phase. We do not proceed if the btn is not the
+    right color yet.
+
+    :param _: User clicked btn for generating config file
+    :param btn_color: Color of btn for generating config file when user
+        clicked it.
+    :type btn_color: str
+    :return: Config file generation started browser var
+    :rtype: bool
+    """
     if btn_color != "primary":
         raise PreventUpdate
 
     return True
+
 
 @app.callback(
     Output("config-error-msg-label", "children"),
@@ -570,7 +649,95 @@ def continue_config_file_generation(started, delimiter,
                                     link_all_eq_ids, link_all_eq_vals,
                                     link_all_neq_ids, link_all_neq_vals,
                                     link_any_eq_ids, link_any_eq_vals,):
-    """TODO"""
+    """Continue generating the config file.
+
+    We populate the config json str browser var, which proceeds to the
+    next phase of download.
+
+    :param started: Config file generation started browser var
+    :type started: bool
+    :param delimiter: User-specified example file delimiter
+    :type delimiter: str
+    :param date_field: User-specified date field
+    :type date_field: str
+    :param date_input_format: User-specified date input format
+    :type date_input_format: str
+    :param date_output_format: User-specified date output format
+    :type date_output_format: str
+    :param links_across_primary_y: Whether we draw links across primary
+        y vals.
+    :type links_across_primary_y: bool
+    :param max_day_range: Maximum day range over which we draw links
+    :type max_day_range: int | None
+    :param empty_strings_are_null: Whether empty strs are null vals
+    :type empty_strings_are_null: bool
+    :param null_vals_textarea: Semicolon delimited null vals
+    :type null_vals_textarea: str | None
+    :param first_y_axis_field: Primary y-axis field
+    :type first_y_axis_field: str
+    :param y_axis_fields: All y-axis fields
+    :type y_axis_fields: list[str]
+    :param node_label_fields: Node label fields
+    :type node_label_fields: list[str]
+    :param node_color_fields: Node color fields
+    :type node_color_fields: list[str]
+    :param node_symbol_fields: Node symbol fields
+    :type node_symbol_fields: list[str]
+    :param link_config_ids: IDs of link config sections
+    :type link_config_ids: list[dict]
+    :param link_label_ids: IDs of link label inputs
+    :type link_label_ids: list[dict]
+    :param link_label_vals: Vals of link label inputs
+    :type link_label_vals: list[str]
+    :param link_min_loop_ids: IDs of link min loop checkboxes
+    :type link_min_loop_ids: list[dict]
+    :param link_min_loop_vals: Vals of link min loop checkboxes
+    :type link_min_loop_vals: list[bool]
+    :param link_arrowhead_ids: IDs of link arrowhead checkboxes
+    :type link_arrowhead_ids: list[dict]
+    :param link_arrowhead_vals: Vals of link arrowhead checkboxes
+    :type link_arrowhead_vals: list[bool]
+    :param link_weight_exp_ids: IDs of link weight exp inputs
+    :type link_weight_exp_ids: list[dict]
+    :param link_weight_exp_vals: Vals of link weight exp inputs
+    :type link_weight_exp_vals: list[str]
+    :param link_weight_lt_ids: IDs of link weight less than filters
+    :type link_weight_lt_ids: list[dict]
+    :param link_weight_lt_vals: Vals of link weight less than filters
+    :type link_weight_lt_vals: list[int]
+    :param link_weight_gt_ids: IDs of link weight greater than filters
+    :type link_weight_gt_ids: list[dict]
+    :param link_weight_gt_vals: Vals of link weight greater than
+        filters.
+    :type link_weight_gt_vals: list[int]
+    :param link_weight_neq_ids: IDs of link weight not equal filters
+    :type link_weight_neq_ids: list[dict]
+    :param link_weight_neq_vals: Semicolon-delimited vals of link
+        weight not equal filters.
+    :type link_weight_neq_vals: list[str]
+    :param link_attr_filter_ids: IDs of link attr filters
+    :type link_attr_filter_ids: list[dict]
+    :param link_attr_filter_select_vals: Attr filter select vals
+    :type link_attr_filter_select_vals: list[list[str]]
+    :param link_attr_filter_textarea_vals: Attr filter textarea
+        semicolon-delimited vals.
+    :type link_attr_filter_textarea_vals: list[str]
+    :param link_all_eq_ids: IDs of link all eq inputs
+    :type link_all_eq_ids: list[dict]
+    :param link_all_eq_vals: Vals of link all eq inputs
+    :type link_all_eq_vals: list[list]
+    :param link_all_neq_ids: IDs of link all neq inputs
+    :type link_all_neq_ids: list[dict]
+    :param link_all_neq_vals: Vals of link all neq inputs
+    :type link_all_neq_vals: list[list]
+    :param link_any_eq_ids: IDs of link any eq inputs
+    :type link_any_eq_ids: list[dict]
+    :param link_any_eq_vals: Vals of link any eq inputs
+    :type link_any_eq_vals: list[list]
+    :return: Error message label and style (if there is one), and the
+        invalid values for some fields, and the config json str var.
+    :rtype: tuple[str, dict, tuple[bool], list[bool]]
+    """
     if not started:
         raise PreventUpdate
 
@@ -721,7 +888,15 @@ def continue_config_file_generation(started, delimiter,
     prevent_initial_call=True
 )
 def download_config_file(config_json_str, filename):
-    """TODO"""
+    """Launch download of generated config file.
+
+    :param config_json_str: In-browser config json str var
+    :type config_json_str: str
+    :param filename: Uploaded example file filename
+    :type filename: str
+    :return: New contents for in-browser var that triggers download
+    :rtype: dict
+    """
     if config_json_str == "":
         raise PreventUpdate
     json_filename = Path(filename).stem + ".json"
