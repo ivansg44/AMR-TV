@@ -774,18 +774,13 @@ def get_main_fig_arcs_dict(sample_links_dict, main_fig_nodes_x_dict,
     x_pixel_per_unit = main_fig_width / (xaxis_range[1] - xaxis_range[0])
     y_pixel_per_unit = main_fig_height / (yaxis_range[1] - yaxis_range[0])
 
-    link_parallel_translation_dict = {}
-    link_unit_parallel_translation = 5 / y_pixel_per_unit
-    multiplier = 0
-    for link in sample_links_dict:
-        link_parallel_translation_dict[link] = \
-            multiplier * link_unit_parallel_translation
-        multiplier *= -1
-        if multiplier >= 0:
-            multiplier += 1
+    arc_degree_translation_dict = {}
+    arc_unit_degree_translation = 5
+    for i, link in enumerate(sample_links_dict):
+        arc_degree_translation_dict[link] = i * arc_unit_degree_translation
 
     for link in sample_links_dict:
-        link_parallel_translation = link_parallel_translation_dict[link]
+        arc_degree_translation = arc_degree_translation_dict[link]
         ret[link] = {"x": [], "y": []}
 
         for (sample, other_sample) in sample_links_dict[link]:
@@ -806,7 +801,7 @@ def get_main_fig_arcs_dict(sample_links_dict, main_fig_nodes_x_dict,
                 continue
 
             d = abs(y1 - y0) / 2
-            e = d / (tan(radians(135)))
+            e = d / (tan(radians(135+arc_degree_translation)))
             cx = unstaggered_x0 + e
             cy = (y0 + y1) / 2
 

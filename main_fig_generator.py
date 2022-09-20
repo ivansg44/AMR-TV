@@ -286,12 +286,14 @@ def get_arc_shapes(app_data):
     shapes = []
     for link in app_data["main_fig_arcs_dict"]:
         link_dict = app_data["main_fig_arcs_dict"][link]
+        (r, g, b) = app_data["link_color_dict"][link]
         for i in range(len(link_dict["x"])):
             [x0, cx, x1] = link_dict["x"][i]
             [y0, cy, y1] = link_dict["y"][i]
             shapes.append({
                 "type": "path",
                 "path": "M %s,%s Q %s,%s %s,%s  " % (x0, y0, cx, cy, x1, y1),
+                "line_color": "rgb(%s, %s, %s)" % (r, g, b),
                 "layer": "below"
             })
     return shapes
