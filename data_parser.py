@@ -6,7 +6,7 @@ import csv
 from datetime import datetime
 from io import StringIO
 from json import loads
-from math import atan, degrees, sqrt
+from math import atan, degrees, radians, sqrt, tan
 from re import compile
 
 import networkx as nx
@@ -157,6 +157,17 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         yaxis_range=yaxis_range
     )
 
+    main_fig_arcs_dict = get_main_fig_arcs_dict(
+        sample_links_dict=sample_links_dict,
+        main_fig_nodes_x_dict=main_fig_nodes_x_dict,
+        main_fig_nodes_y_dict=main_fig_nodes_y_dict,
+        selected_samples=selected_samples,
+        main_fig_height=main_fig_height,
+        main_fig_width=main_fig_width,
+        xaxis_range=xaxis_range,
+        yaxis_range=yaxis_range
+    )
+
     main_fig_link_arrowheads_dict = get_main_fig_link_arrowheads_dict(
         main_fig_links_dict=main_fig_links_dict,
         links_config=config_file_dict["links_config"],
@@ -203,7 +214,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         "main_fig_yaxis_ticktext":
             main_fig_yaxis_ticktext,
         "main_fig_nodes_x":
-            [main_fig_nodes_x_dict[k] for k in sample_data_dict],
+            [main_fig_nodes_x_dict["staggered"][k] for k in sample_data_dict],
         "main_fig_nodes_y":
             [main_fig_nodes_y_dict[k] for k in sample_data_dict],
         "main_fig_nodes_marker_symbol":
@@ -220,6 +231,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
             main_fig_nodes_hovertext,
         "node_color_attr_dict": node_color_attr_dict,
         "main_fig_links_dict": main_fig_links_dict,
+        "main_fig_arcs_dict": main_fig_arcs_dict,
         "main_fig_link_arrowheads_dict": main_fig_link_arrowheads_dict,
         "main_fig_link_labels_dict": main_fig_link_labels_dict,
         "link_color_dict": link_color_dict,
@@ -674,6 +686,7 @@ def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
                             main_fig_height, main_fig_width, xaxis_range,
                             yaxis_range):
     """Get dict with info used by Plotly to viz links in main graph.
+    TODO
 
     :param sample_links_dict: ``get_sample_links_dict`` ret val
     :type sample_links_dict: dict
@@ -719,16 +732,16 @@ def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
             if selected_samples and not selected_link:
                 continue
 
-            x0 = main_fig_nodes_x_dict[sample]
+            unstaggered_x0 = main_fig_nodes_x_dict["unstaggered"][sample]
+            unstaggered_x1 = main_fig_nodes_x_dict["unstaggered"][other_sample]
+
+            x0 = main_fig_nodes_x_dict["staggered"][sample]
             y0 = main_fig_nodes_y_dict[sample]
-            x1 = main_fig_nodes_x_dict[other_sample]
+            x1 = main_fig_nodes_x_dict["staggered"][other_sample]
             y1 = main_fig_nodes_y_dict[other_sample]
 
-            if (x1 - x0) == 0:
-                x0 += link_parallel_translation
-                x0 *= y_pixel_per_unit / x_pixel_per_unit
-                x1 += link_parallel_translation
-                x1 *= y_pixel_per_unit / x_pixel_per_unit
+            if (unstaggered_x1 - unstaggered_x0) == 0:
+                continue
             elif (y1 - y0) == 0:
                 y0 += link_parallel_translation
                 y1 += link_parallel_translation
@@ -747,6 +760,58 @@ def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
 
             ret[link]["x"] += [x0, x1, None]
             ret[link]["y"] += [y0, y1, None]
+
+    return ret
+
+
+def get_main_fig_arcs_dict(sample_links_dict, main_fig_nodes_x_dict,
+                           main_fig_nodes_y_dict, selected_samples,
+                           main_fig_height, main_fig_width, xaxis_range,
+                           yaxis_range):
+    """TODO"""
+    ret = {}
+
+    x_pixel_per_unit = main_fig_width / (xaxis_range[1] - xaxis_range[0])
+    y_pixel_per_unit = main_fig_height / (yaxis_range[1] - yaxis_range[0])
+
+    link_parallel_translation_dict = {}
+    link_unit_parallel_translation = 5 / y_pixel_per_unit
+    multiplier = 0
+    for link in sample_links_dict:
+        link_parallel_translation_dict[link] = \
+            multiplier * link_unit_parallel_translation
+        multiplier *= -1
+        if multiplier >= 0:
+            multiplier += 1
+
+    for link in sample_links_dict:
+        link_parallel_translation = link_parallel_translation_dict[link]
+        ret[link] = {"x": [], "y": []}
+
+        for (sample, other_sample) in sample_links_dict[link]:
+            selected_link = \
+                sample in selected_samples or other_sample in selected_samples
+            if selected_samples and not selected_link:
+                continue
+
+            unstaggered_x0 = main_fig_nodes_x_dict["unstaggered"][sample]
+            unstaggered_x1 = main_fig_nodes_x_dict["unstaggered"][other_sample]
+
+            x0 = main_fig_nodes_x_dict["staggered"][sample]
+            y0 = main_fig_nodes_y_dict[sample]
+            x1 = main_fig_nodes_x_dict["staggered"][other_sample]
+            y1 = main_fig_nodes_y_dict[other_sample]
+
+            if (unstaggered_x1 - unstaggered_x0) != 0:
+                continue
+
+            d = abs(y1 - y0) / 2
+            e = d / (tan(radians(135)))
+            cx = unstaggered_x0 + e
+            cy = (y0 + y1) / 2
+
+            ret[link]["x"] += [[x0, cx, x1]]
+            ret[link]["y"] += [[y0, cy, y1]]
 
     return ret
 
@@ -912,7 +977,10 @@ def get_main_fig_nodes_x_dict(sample_data_dict, date_attr, date_list,
         else:
             helper_obj[date] = [1/(4 * (count - 1)), 0]
 
-    main_fig_nodes_x_dict = {}
+    main_fig_nodes_x_dict = {
+        "unstaggered": {},
+        "staggered": {}
+    }
     for sample in sample_data_dict:
         sample_date = sample_data_dict[sample][date_attr]
         [stagger, multiplier] = helper_obj[sample_date]
@@ -921,7 +989,8 @@ def get_main_fig_nodes_x_dict(sample_data_dict, date_attr, date_list,
         lowest_x = unstaggered_x - (1/8)
         staggered_x = lowest_x + (stagger * multiplier)
 
-        main_fig_nodes_x_dict[sample] = staggered_x
+        main_fig_nodes_x_dict["unstaggered"][sample] = unstaggered_x
+        main_fig_nodes_x_dict["staggered"][sample] = staggered_x
         helper_obj[sample_date][1] += 1
 
     return main_fig_nodes_x_dict

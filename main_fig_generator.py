@@ -281,6 +281,22 @@ def get_link_label_annotations(app_data):
     return annotations
 
 
+def get_arc_shapes(app_data):
+    """TODO"""
+    shapes = []
+    for link in app_data["main_fig_arcs_dict"]:
+        link_dict = app_data["main_fig_arcs_dict"][link]
+        for i in range(len(link_dict["x"])):
+            [x0, cx, x1] = link_dict["x"][i]
+            [y0, cy, y1] = link_dict["y"][i]
+            shapes.append({
+                "type": "path",
+                "path": "M %s,%s Q %s,%s %s,%s  " % (x0, y0, cx, cy, x1, y1),
+                "layer": "below"
+            })
+    return shapes
+
+
 def get_main_figs(app_data):
     """Get main and zoomed-out main figs in viz.
 
@@ -309,7 +325,10 @@ def get_main_figs(app_data):
     zoomed_out_main_fig_annotations = \
         get_arrowhead_annotations(app_data, arrow_width=1, arrow_size=1)
 
+    main_fig_shapes = get_arc_shapes(app_data)
+
     main_fig.update_layout(annotations=main_fig_annotations)
+    main_fig.update_layout(shapes=main_fig_shapes)
     zoomed_out_main_fig.update_layout(
         annotations=zoomed_out_main_fig_annotations
     )
