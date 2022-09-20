@@ -294,6 +294,7 @@ def get_arc_shapes(app_data):
                 "type": "path",
                 "path": "M %s,%s Q %s,%s %s,%s  " % (x0, y0, cx, cy, x1, y1),
                 "line_color": "rgb(%s, %s, %s)" % (r, g, b),
+                "line_width": 3,
                 "layer": "below"
             })
     return shapes

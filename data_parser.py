@@ -141,7 +141,9 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         links_config=config_file_dict["links_config"],
         primary_y=config_file_dict["y_axes"][0],
         links_across_primary_y=config_file_dict["links_across_primary_y"],
-        max_day_range=config_file_dict["max_day_range"]
+        max_day_range=config_file_dict["max_day_range"],
+        main_fig_nodes_x_dict=main_fig_nodes_x_dict,
+        main_fig_nodes_y_dict=main_fig_nodes_y_dict
     )
 
     link_color_dict = get_link_color_dict(sample_links_dict)
@@ -442,8 +444,9 @@ def get_node_color_attr_dict(node_color_attr_list):
 
 
 def get_sample_links_dict(sample_data_dict, links_config, primary_y,
-                          links_across_primary_y, max_day_range):
-    """Get a dict of all links to viz in main graph.
+                          links_across_primary_y, max_day_range,
+                          main_fig_nodes_x_dict, main_fig_nodes_y_dict):
+    """Get a dict of all links to viz in main graph. TODO
 
     The keys in the dict are different link labels. The values are a
     nested dict. The keys in the nested dict are tuples containing two
@@ -599,13 +602,16 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
         if minimize_loops:
             sample_links_dict[link] = \
                 filter_link_loops(sample_links_dict[link],
-                                  sample_data_dict)
+                                  sample_data_dict,
+                                  main_fig_nodes_x_dict,
+                                  main_fig_nodes_y_dict)
 
     return sample_links_dict
 
 
-def filter_link_loops(some_sample_links, sample_data_dict):
-    """Remove links forming loops in a network.
+def filter_link_loops(some_sample_links, sample_data_dict,
+                      main_fig_nodes_x_dict, main_fig_nodes_y_dict):
+    """Remove links forming loops in a network.TODO
 
     Every group of connected nodes is converted into a minimum spanning
     tree using Kruskal's algorithm. The weights assigned to each link
@@ -627,11 +633,13 @@ def filter_link_loops(some_sample_links, sample_data_dict):
         weight_ = some_sample_links[(sample, other_sample)]
 
         # nx will use the difference in datetimes as weight, for mst
-        # purposes.
+        # purposes.TODO
         # TODO: allow users to specify own edge weight expressions
-        sample_datetime = sample_data_dict[sample]["datetime_obj"]
-        other_sample_datetime = sample_data_dict[other_sample]["datetime_obj"]
-        weight = (other_sample_datetime - sample_datetime).days
+        x0 = main_fig_nodes_x_dict["staggered"][sample]
+        x1 = main_fig_nodes_x_dict["staggered"][other_sample]
+        y0 = main_fig_nodes_y_dict[sample]
+        y1 = main_fig_nodes_y_dict[other_sample]
+        weight = sqrt((x1-x0)**2 + (y1-y0)**2)
         # Need to track original order because graph is undirected
         order = (sample, other_sample)
 
@@ -775,7 +783,7 @@ def get_main_fig_arcs_dict(sample_links_dict, main_fig_nodes_x_dict,
     y_pixel_per_unit = main_fig_height / (yaxis_range[1] - yaxis_range[0])
 
     arc_degree_translation_dict = {}
-    arc_unit_degree_translation = 5
+    arc_unit_degree_translation = 10
     for i, link in enumerate(sample_links_dict):
         arc_degree_translation_dict[link] = i * arc_unit_degree_translation
 
@@ -801,7 +809,7 @@ def get_main_fig_arcs_dict(sample_links_dict, main_fig_nodes_x_dict,
                 continue
 
             d = abs(y1 - y0) / 2
-            e = d / (tan(radians(135+arc_degree_translation)))
+            e = d / (tan(radians(110+arc_degree_translation)))
             cx = unstaggered_x0 + e
             cy = (y0 + y1) / 2
 
