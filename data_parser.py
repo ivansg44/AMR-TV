@@ -73,14 +73,6 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     max_node_count_at_track_dict = \
         get_max_node_count_at_track_dict(track_date_node_count_dict)
     track_y_vals_dict = get_track_y_vals_dict(max_node_count_at_track_dict)
-    main_fig_nodes_y_dict = get_main_fig_nodes_y_dict(
-        sample_data_dict,
-        date_attr=config_file_dict["date_attr"],
-        track_list=track_list,
-        track_date_node_count_dict=track_date_node_count_dict,
-        max_node_count_at_track_dict=max_node_count_at_track_dict,
-        track_y_vals_dict=track_y_vals_dict
-    )
 
     num_of_primary_facets = \
         len({k[0] for k in max_node_count_at_track_dict}) - 1
@@ -141,10 +133,24 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         links_config=config_file_dict["links_config"],
         primary_y=config_file_dict["y_axes"][0],
         links_across_primary_y=config_file_dict["links_across_primary_y"],
-        max_day_range=config_file_dict["max_day_range"],
-        main_fig_nodes_x_dict=main_fig_nodes_x_dict,
-        main_fig_nodes_y_dict=main_fig_nodes_y_dict
+        max_day_range=config_file_dict["max_day_range"]
     )
+
+    main_fig_nodes_y_dict = get_main_fig_nodes_y_dict(
+        sample_data_dict=sample_data_dict,
+        sample_links_dict=sample_links_dict,
+        date_attr=config_file_dict["date_attr"],
+        track_list=track_list,
+        track_date_node_count_dict=track_date_node_count_dict,
+        max_node_count_at_track_dict=max_node_count_at_track_dict,
+        track_y_vals_dict=track_y_vals_dict
+    )
+
+    sample_links_dict = \
+        filter_link_loops(sample_links_dict=sample_links_dict,
+                          links_config=config_file_dict["links_config"],
+                          main_fig_nodes_x_dict=main_fig_nodes_x_dict,
+                          main_fig_nodes_y_dict=main_fig_nodes_y_dict)
 
     link_color_dict = get_link_color_dict(sample_links_dict)
 
@@ -444,8 +450,7 @@ def get_node_color_attr_dict(node_color_attr_list):
 
 
 def get_sample_links_dict(sample_data_dict, links_config, primary_y,
-                          links_across_primary_y, max_day_range,
-                          main_fig_nodes_x_dict, main_fig_nodes_y_dict):
+                          links_across_primary_y, max_day_range):
     """Get a dict of all links to viz in main graph. TODO
 
     The keys in the dict are different link labels. The values are a
@@ -489,7 +494,6 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
         all_eq_list = links_config[link]["all_eq"]
         all_neq_list = links_config[link]["all_neq"]
         any_eq_list = links_config[link]["any_eq"]
-        minimize_loops = bool(links_config[link]["minimize_loops"])
         weight_exp = links_config[link]["weight_exp"]
         weight_filters = links_config[link]["weight_filters"]
         attr_filters = links_config[link]["attr_filters"]
@@ -599,18 +603,11 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
                         sample_links_dict[link][(sample_j, sample_i)] = \
                             link_weight
 
-        if minimize_loops:
-            sample_links_dict[link] = \
-                filter_link_loops(sample_links_dict[link],
-                                  sample_data_dict,
-                                  main_fig_nodes_x_dict,
-                                  main_fig_nodes_y_dict)
-
     return sample_links_dict
 
 
-def filter_link_loops(some_sample_links, sample_data_dict,
-                      main_fig_nodes_x_dict, main_fig_nodes_y_dict):
+def filter_link_loops(sample_links_dict, links_config, main_fig_nodes_x_dict,
+                      main_fig_nodes_y_dict):
     """Remove links forming loops in a network.TODO
 
     Every group of connected nodes is converted into a minimum spanning
@@ -628,42 +625,46 @@ def filter_link_loops(some_sample_links, sample_data_dict,
     :rtype: dict
     """
     graph = nx.Graph()
-    for (sample, other_sample) in some_sample_links:
-        # ``weight`` is a reserved keyword in ``add_edge``
-        weight_ = some_sample_links[(sample, other_sample)]
+    for link in sample_links_dict:
+        if not bool(links_config[link]["minimize_loops"]):
+            continue
+        for (sample, other_sample) in sample_links_dict[link]:
+            # ``weight`` is a reserved keyword in ``add_edge``
+            weight_ = sample_links_dict[link][(sample, other_sample)]
 
-        # nx will use the difference in datetimes as weight, for mst
-        # purposes.TODO
-        # TODO: allow users to specify own edge weight expressions
-        x0 = main_fig_nodes_x_dict["staggered"][sample]
-        x1 = main_fig_nodes_x_dict["staggered"][other_sample]
-        y0 = main_fig_nodes_y_dict[sample]
-        y1 = main_fig_nodes_y_dict[other_sample]
-        weight = sqrt((x1-x0)**2 + (y1-y0)**2)
-        # Need to track original order because graph is undirected
-        order = (sample, other_sample)
+            # nx will use the difference in datetimes as weight, for mst
+            # purposes.TODO
+            # TODO: allow users to specify own edge weight expressions
+            x0 = main_fig_nodes_x_dict["staggered"][sample]
+            x1 = main_fig_nodes_x_dict["staggered"][other_sample]
+            y0 = main_fig_nodes_y_dict[sample]
+            y1 = main_fig_nodes_y_dict[other_sample]
+            weight = sqrt((x1-x0)**2 + (y1-y0)**2)
+            # Need to track original order because graph is undirected
+            order = (sample, other_sample)
 
-        graph.add_edge(sample,
-                       other_sample,
-                       weight=weight,
-                       weight_=weight_,
-                       order=order)
+            graph.add_edge(sample,
+                           other_sample,
+                           weight=weight,
+                           weight_=weight_,
+                           order=order)
 
-    disjoint_subgraphs = \
-        [graph.subgraph(c).copy() for c in nx.connected_components(graph)]
-    disjoint_mst_subgraphs = \
-        [nx.minimum_spanning_tree(g) for g in disjoint_subgraphs]
-    disjoint_mst_subgraph_edgeviews = \
-        [g.edges(data=True) for g in disjoint_mst_subgraphs]
+        disjoint_subgraphs = \
+            [graph.subgraph(c).copy() for c in nx.connected_components(graph)]
+        disjoint_mst_subgraphs = \
+            [nx.minimum_spanning_tree(g) for g in disjoint_subgraphs]
+        disjoint_mst_subgraph_edgeviews = \
+            [g.edges(data=True) for g in disjoint_mst_subgraphs]
 
-    ret = {}
-    for edgeview in disjoint_mst_subgraph_edgeviews:
-        for (sample, other_sample, data) in edgeview:
-            weight_ = data["weight_"]
-            order = data["order"]
-            ret[order] = weight_
+        new_link_dict = {}
+        for edgeview in disjoint_mst_subgraph_edgeviews:
+            for (sample, other_sample, data) in edgeview:
+                weight_ = data["weight_"]
+                order = data["order"]
+                new_link_dict[order] = weight_
+        sample_links_dict[link] = new_link_dict
 
-    return ret
+    return sample_links_dict
 
 
 def get_link_color_dict(sample_links_dict):
@@ -1061,10 +1062,10 @@ def get_main_fig_yaxis_ticktext(track_y_vals_dict):
     return ret
 
 
-def get_main_fig_nodes_y_dict(sample_data_dict, date_attr, track_list,
-                              track_date_node_count_dict,
+def get_main_fig_nodes_y_dict(sample_data_dict, sample_links_dict, date_attr,
+                              track_list, track_date_node_count_dict,
                               max_node_count_at_track_dict, track_y_vals_dict):
-    """Get dict mapping nodes to y vals.
+    """Get dict mapping nodes to y vals. TODO
 
     :param sample_data_dict: Sample file data parsed into dict obj
     :rtype: dict
@@ -1083,21 +1084,54 @@ def get_main_fig_nodes_y_dict(sample_data_dict, date_attr, track_list,
     :return: Dict mapping nodes to y vals
     :rtype: dict
     """
+    xy_ordered_nodes_dict = {}
+    for i, sample in enumerate(sample_data_dict):
+        sample_date = sample_data_dict[sample][date_attr]
+        sample_track = track_list[i]
+        xy = (sample_track, sample_date)
+        if xy not in xy_ordered_nodes_dict:
+            xy_ordered_nodes_dict[xy] = [sample]
+        else:
+            xy_ordered_nodes_dict[xy].append(sample)
+
+    for xy in xy_ordered_nodes_dict:
+        for i in range(3 * len(xy_ordered_nodes_dict[xy])):
+            ordered_nodes = xy_ordered_nodes_dict[xy]
+            average_neighbour_distance_dict = {}
+            for j in range(0, len(ordered_nodes)):
+                sum_of_neighbours = 0
+                num_of_neighbours = 0
+                for k in range(1, len(ordered_nodes)):
+                    for link in sample_links_dict:
+                        link_dict = sample_links_dict[link]
+                        if (j, k) in link_dict or (k, j) in link_dict:
+                            sum_of_neighbours += abs(k - j)
+                            num_of_neighbours += 1
+                if num_of_neighbours:
+                    avg_distance = sum_of_neighbours / num_of_neighbours
+                else:
+                    avg_distance = 0
+                average_neighbour_distance_dict[ordered_nodes[j]] = \
+                    avg_distance
+            xy_ordered_nodes_dict[xy] = \
+                sorted(ordered_nodes,
+                       key=lambda e: average_neighbour_distance_dict[e])
+
     helper_obj = {k: [max_node_count_at_track_dict[k[0]]/(v+1), 1]
                   for k, v in track_date_node_count_dict.items()}
 
     main_fig_nodes_y_dict = {}
-    for i, sample in enumerate(sample_data_dict):
-        sample_date = sample_data_dict[sample][date_attr]
-        sample_track = track_list[i]
-        [stagger, multiplier] = helper_obj[(sample_track, sample_date)]
+    for (sample_track, sample_date) in xy_ordered_nodes_dict:
+        for sample in xy_ordered_nodes_dict[(sample_track, sample_date)]:
+            [stagger, multiplier] = helper_obj[(sample_track, sample_date)]
 
-        unstaggered_y = track_y_vals_dict[sample_track]
-        lowest_y = unstaggered_y - max_node_count_at_track_dict[sample_track]/2
-        staggered_y = lowest_y + (stagger * multiplier)
+            unstaggered_y = track_y_vals_dict[sample_track]
+            lowest_y = \
+                unstaggered_y - max_node_count_at_track_dict[sample_track]/2
+            staggered_y = lowest_y + (stagger * multiplier)
 
-        main_fig_nodes_y_dict[sample] = staggered_y
-        helper_obj[(sample_track, sample_date)][1] += 1
+            main_fig_nodes_y_dict[sample] = staggered_y
+            helper_obj[(sample_track, sample_date)][1] += 1
 
     return main_fig_nodes_y_dict
 
