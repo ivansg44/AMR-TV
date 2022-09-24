@@ -11,8 +11,8 @@ from re import compile
 
 import networkx as nx
 
+from adaptagrams.cola import adaptagrams as ag
 from expression_evaluator import eval_expr
-
 
 def parse_fields_from_example_file(example_file_base64_str, delimiter):
     """TODO"""
@@ -81,6 +81,9 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         max_node_count_at_track_dict=max_node_count_at_track_dict,
         track_y_vals_dict=track_y_vals_dict
     )
+
+    main_fig_nodes_x_dict, main_fig_nodes_y_dict = \
+        remove_node_overlap(main_fig_nodes_x_dict, main_fig_nodes_y_dict)
 
     num_of_primary_facets = \
         len({k[0] for k in max_node_count_at_track_dict}) - 1
@@ -1171,3 +1174,18 @@ def get_main_fig_height(max_node_count_at_track_dict):
     num_of_y_axis_attrs = len(next(iter(max_node_count_at_track_dict)))
 
     return num_of_rows * (72 + (num_of_y_axis_attrs - 2) * 24)
+
+
+def remove_node_overlap(main_fig_nodes_x_dict, main_fig_nodes_y_dict):
+    """TODO"""
+    rectangles = []
+    for k in main_fig_nodes_x_dict:
+        x = main_fig_nodes_x_dict[k]
+        y = main_fig_nodes_y_dict[k]
+        rectangles.append(ag.Rectangle(x-1, x+1, y-1, y+1))
+    rectangle_ptrs = ag.RectanglePtrs(rectangles)
+    ag.removeoverlaps(rectangle_ptrs)
+    for k, ptr in zip(main_fig_nodes_x_dict, rectangle_ptrs):
+        main_fig_nodes_x_dict[k] = ptr.getCentreX()
+        main_fig_nodes_y_dict[k] = ptr.getCentreY()
+    return main_fig_nodes_x_dict, main_fig_nodes_y_dict
