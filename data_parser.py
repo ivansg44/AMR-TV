@@ -82,10 +82,6 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         track_y_vals_dict=track_y_vals_dict
     )
 
-    if vpsc:
-        main_fig_nodes_x_dict, main_fig_nodes_y_dict = \
-            remove_node_overlap(main_fig_nodes_x_dict, main_fig_nodes_y_dict)
-
     num_of_primary_facets = \
         len({k[0] for k in max_node_count_at_track_dict}) - 1
     num_of_secondary_facets = len(max_node_count_at_track_dict.keys()) - 1
@@ -137,6 +133,15 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     xaxis_range = [0.5, len(date_x_vals_dict) + 0.5]
     yaxis_range = [0.5, sum(max_node_count_at_track_dict.values())+0.5]
 
+    if vpsc:
+        node_overlap_dict = \
+            remove_node_overlap(main_fig_nodes_x_dict,
+                                main_fig_nodes_y_dict,
+                                xaxis_range,
+                                yaxis_range)
+        main_fig_nodes_x_dict = node_overlap_dict["main_fig_nodes_x_dict"]
+        main_fig_nodes_y_dict = node_overlap_dict["main_fig_nodes_y_dict"]
+
     main_fig_height = get_main_fig_height(max_node_count_at_track_dict)
     main_fig_width = len(date_x_vals_dict) * 144
 
@@ -186,6 +191,10 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         main_fig_nodes_textfont_color = "black"
 
     main_fig_yaxis_ticktext = get_main_fig_yaxis_ticktext(track_y_vals_dict)
+
+    if vpsc:
+        xaxis_range = node_overlap_dict["xaxis_range"]
+        yaxis_range = node_overlap_dict["yaxis_range"]
 
     app_data = {
         "node_shape_legend_fig_nodes_y":
@@ -1177,16 +1186,37 @@ def get_main_fig_height(max_node_count_at_track_dict):
     return num_of_rows * (72 + (num_of_y_axis_attrs - 2) * 24)
 
 
-def remove_node_overlap(main_fig_nodes_x_dict, main_fig_nodes_y_dict):
+def remove_node_overlap(main_fig_nodes_x_dict, main_fig_nodes_y_dict,
+                        xaxis_range, yaxis_range):
     """TODO"""
     rectangles = []
+
     for k in main_fig_nodes_x_dict:
         x = main_fig_nodes_x_dict[k]
         y = main_fig_nodes_y_dict[k]
         rectangles.append(ag.Rectangle(x-1, x+1, y-1, y+1))
+
+    [x_min, x_max] = xaxis_range
+    [y_min, y_max] = yaxis_range
     rectangle_ptrs = ag.RectanglePtrs(rectangles)
     ag.removeoverlaps(rectangle_ptrs)
     for k, ptr in zip(main_fig_nodes_x_dict, rectangle_ptrs):
-        main_fig_nodes_x_dict[k] = ptr.getCentreX()
-        main_fig_nodes_y_dict[k] = ptr.getCentreY()
-    return main_fig_nodes_x_dict, main_fig_nodes_y_dict
+        x = ptr.getCentreX()
+        y = ptr.getCentreY()
+        main_fig_nodes_x_dict[k] = x
+        main_fig_nodes_y_dict[k] = y
+        if x < x_min:
+            x_min = x - 0.5
+        elif x > x_max:
+            x_max = x + 0.5
+        if y < y_min:
+            y_min = y - 0.5
+        elif y > y_max:
+            y_max = y + 0.5
+
+    return {
+        "main_fig_nodes_x_dict": main_fig_nodes_x_dict,
+        "main_fig_nodes_y_dict": main_fig_nodes_y_dict,
+        "xaxis_range": [x_min, x_max],
+        "yaxis_range": [y_min, y_max]
+    }
