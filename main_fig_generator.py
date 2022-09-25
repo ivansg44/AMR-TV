@@ -114,9 +114,8 @@ def get_main_fig_secondary_facet_lines(app_data):
     return lines
 
 
-def get_main_fig(app_data, nodes_graph, link_graphs, primary_facet_lines_graph,
-                 secondary_facet_lines_graph):
-    """Get main fig in viz.
+def get_main_fig(app_data):
+    """Get main fig in viz.TODO
 
     :param app_data: ``data_parser.get_app_data`` ret val
     :type app_data: dict
@@ -133,6 +132,11 @@ def get_main_fig(app_data, nodes_graph, link_graphs, primary_facet_lines_graph,
     :return: Plotly figure obj showing main fig in viz
     :rtype: go.Figure
     """
+    nodes_graph = get_main_fig_nodes(app_data)
+    link_graphs = get_main_fig_link_graphs(app_data)
+    primary_facet_lines_graph = get_main_fig_primary_facet_lines(app_data)
+    secondary_facet_lines_graph = get_main_fig_secondary_facet_lines(app_data)
+
     ret = go.Figure(
         data=link_graphs + [
               nodes_graph,
@@ -157,12 +161,18 @@ def get_main_fig(app_data, nodes_graph, link_graphs, primary_facet_lines_graph,
             "plot_bgcolor": "white"
         },
     )
+
+    main_fig_annotations = get_arrowhead_annotations(app_data,
+                                                     arrow_width=3,
+                                                     arrow_size=0.6)
+    main_fig_annotations += get_link_label_annotations(app_data)
+    ret.update_layout(annotations=main_fig_annotations)
+
     return ret
 
 
-def get_zoomed_out_main_fig(app_data, nodes_graph, link_graphs,
-                            primary_facet_lines_graph):
-    """Get zoomed out main fig in viz.
+def get_zoomed_out_main_fig(app_data):
+    """Get zoomed out main fig in viz. TODO
 
     :param app_data: ``data_parser.get_app_data`` ret val
     :type app_data: dict
@@ -176,6 +186,10 @@ def get_zoomed_out_main_fig(app_data, nodes_graph, link_graphs,
     :return: Plotly figure obj showing zoomed-out main fig in viz
     :rtype: go.Figure
     """
+    nodes_graph = get_main_fig_nodes(app_data)
+    link_graphs = get_main_fig_link_graphs(app_data)
+    primary_facet_lines_graph = get_main_fig_primary_facet_lines(app_data)
+
     ret = go.Figure(
         data=link_graphs + [nodes_graph, primary_facet_lines_graph],
         layout={
@@ -205,6 +219,12 @@ def get_zoomed_out_main_fig(app_data, nodes_graph, link_graphs,
     ret.update_traces(mode="markers",
                       selector={"mode": "markers+text"})
     ret.update_traces(line_width=1)
+
+    zoomed_out_main_fig_annotations = \
+        get_arrowhead_annotations(app_data, arrow_width=1, arrow_size=1)
+    ret.update_layout(
+        annotations=zoomed_out_main_fig_annotations
+    )
 
     return ret
 
@@ -279,42 +299,6 @@ def get_link_label_annotations(app_data):
             })
 
     return annotations
-
-
-def get_main_figs(app_data):
-    """Get main and zoomed-out main figs in viz.
-
-    :param app_data: ``data_parser.get_app_data`` ret val
-    :type app_data: dict
-    :return: Plotly figure objects that show main and zoomed-out main
-        figs in viz.
-    :rtype: tuple[go.Figure, go.Figure]
-    """
-    nodes_graph = get_main_fig_nodes(app_data)
-    link_graphs = get_main_fig_link_graphs(app_data)
-    primary_facet_lines_graph = get_main_fig_primary_facet_lines(app_data)
-    secondary_facet_lines_graph = get_main_fig_secondary_facet_lines(app_data)
-
-    main_fig = get_main_fig(app_data, nodes_graph, link_graphs,
-                            primary_facet_lines_graph,
-                            secondary_facet_lines_graph)
-    zoomed_out_main_fig = get_zoomed_out_main_fig(app_data, nodes_graph,
-                                                  link_graphs,
-                                                  primary_facet_lines_graph)
-
-    main_fig_annotations = get_arrowhead_annotations(app_data,
-                                                     arrow_width=3,
-                                                     arrow_size=0.6)
-    main_fig_annotations += get_link_label_annotations(app_data)
-    zoomed_out_main_fig_annotations = \
-        get_arrowhead_annotations(app_data, arrow_width=1, arrow_size=1)
-
-    main_fig.update_layout(annotations=main_fig_annotations)
-    zoomed_out_main_fig.update_layout(
-        annotations=zoomed_out_main_fig_annotations
-    )
-
-    return main_fig, zoomed_out_main_fig
 
 
 def get_main_fig_x_axis(app_data):

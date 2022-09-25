@@ -24,8 +24,8 @@ def parse_fields_from_example_file(example_file_base64_str, delimiter):
 
 
 def get_app_data(sample_file_base64_str, config_file_base64_str,
-                 selected_nodes=None):
-    """Get data from uploaded file that is used to generate viz.
+                 selected_nodes=None, vpsc=False):
+    """Get data from uploaded file that is used to generate viz.TODO
 
     :param sample_file_base64_str: Base64 encoded str corresponding to
         contents of user uploaded sample file.
@@ -82,8 +82,9 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         track_y_vals_dict=track_y_vals_dict
     )
 
-    main_fig_nodes_x_dict, main_fig_nodes_y_dict = \
-        remove_node_overlap(main_fig_nodes_x_dict, main_fig_nodes_y_dict)
+    if vpsc:
+        main_fig_nodes_x_dict, main_fig_nodes_y_dict = \
+            remove_node_overlap(main_fig_nodes_x_dict, main_fig_nodes_y_dict)
 
     num_of_primary_facets = \
         len({k[0] for k in max_node_count_at_track_dict}) - 1
@@ -728,10 +729,10 @@ def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
             y1 = main_fig_nodes_y_dict[other_sample]
 
             if (x1 - x0) == 0:
-                x0 += link_parallel_translation
-                x0 *= y_pixel_per_unit / x_pixel_per_unit
-                x1 += link_parallel_translation
-                x1 *= y_pixel_per_unit / x_pixel_per_unit
+                x0 += link_parallel_translation \
+                      * (y_pixel_per_unit / x_pixel_per_unit)
+                x1 += link_parallel_translation \
+                      * (y_pixel_per_unit / x_pixel_per_unit)
             elif (y1 - y0) == 0:
                 y0 += link_parallel_translation
                 y1 += link_parallel_translation
