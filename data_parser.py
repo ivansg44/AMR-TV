@@ -25,7 +25,7 @@ def parse_fields_from_example_file(example_file_base64_str, delimiter):
 
 def get_app_data(sample_file_base64_str, config_file_base64_str,
                  selected_nodes=None, vpsc=False):
-    """Get data from uploaded file that is used to generate viz.TODO
+    """Get data from uploaded file that is used to generate viz.
 
     :param sample_file_base64_str: Base64 encoded str corresponding to
         contents of user uploaded sample file.
@@ -35,6 +35,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     :type config_file_base64_str: str
     :param selected_nodes: Nodes selected by user
     :type selected_nodes: dict
+    :param vpsc: Run vpsc nodal overlap removal algorithm
+    :type vpsc: bool
     :return: Data derived from sample data, used to generate viz
     :rtype: dict
     """
@@ -1188,7 +1190,23 @@ def get_main_fig_height(max_node_count_at_track_dict):
 
 def remove_node_overlap(main_fig_nodes_x_dict, main_fig_nodes_y_dict,
                         xaxis_range, yaxis_range):
-    """TODO"""
+    """Run VPSC node overlap removal algorithm.
+
+    See details of algorithm here: https://doi.org/10.1007/11618058_15
+
+    Will update node x and y positions, but also ranges.
+
+    :param main_fig_nodes_x_dict: ``get_main_fig_nodes_x_dict`` ret val
+    :type main_fig_nodes_x_dict: dict
+    :param main_fig_nodes_y_dict: ``get_main_fig_nodes_y_dict`` ret val
+    :type main_fig_nodes_y_dict: dict
+    :param xaxis_range: Main graph x-axis min and max val
+    :type xaxis_range: list
+    :param yaxis_range: Main graph y-axis min and max val
+    :type yaxis_range: list
+    :return: Dict describing new x and y positions, and also ranges
+    :rtype: dict
+    """
     rectangles = []
 
     for k in main_fig_nodes_x_dict:
