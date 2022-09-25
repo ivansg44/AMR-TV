@@ -11,6 +11,7 @@ from re import compile
 
 import networkx as nx
 
+from adaptagrams.cola import adaptagrams as ag
 from expression_evaluator import eval_expr
 
 
@@ -24,7 +25,7 @@ def parse_fields_from_example_file(example_file_base64_str, delimiter):
 
 
 def get_app_data(sample_file_base64_str, config_file_base64_str,
-                 selected_nodes=None):
+                 selected_nodes=None, vpsc=False):
     """Get data from uploaded file that is used to generate viz.
 
     :param sample_file_base64_str: Base64 encoded str corresponding to
@@ -35,6 +36,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     :type config_file_base64_str: str
     :param selected_nodes: Nodes selected by user
     :type selected_nodes: dict
+    :param vpsc: Run vpsc nodal overlap removal algorithm
+    :type vpsc: bool
     :return: Data derived from sample data, used to generate viz
     :rtype: dict
     """
@@ -146,6 +149,15 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         track_y_vals_dict=track_y_vals_dict
     )
 
+    if vpsc:
+        node_overlap_dict = \
+            remove_node_overlap(main_fig_nodes_x_dict,
+                                main_fig_nodes_y_dict,
+                                xaxis_range,
+                                yaxis_range)
+        main_fig_nodes_x_dict = node_overlap_dict["main_fig_nodes_x_dict"]
+        main_fig_nodes_y_dict = node_overlap_dict["main_fig_nodes_y_dict"]
+
     sample_links_dict = \
         filter_link_loops(sample_links_dict=sample_links_dict,
                           links_config=config_file_dict["links_config"],
@@ -201,6 +213,10 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         main_fig_nodes_textfont_color = "black"
 
     main_fig_yaxis_ticktext = get_main_fig_yaxis_ticktext(track_y_vals_dict)
+
+    if vpsc:
+        xaxis_range = node_overlap_dict["xaxis_range"]
+        yaxis_range = node_overlap_dict["yaxis_range"]
 
     app_data = {
         "node_shape_legend_fig_nodes_y":
@@ -1277,3 +1293,55 @@ def get_main_fig_height(max_node_count_at_track_dict):
     num_of_y_axis_attrs = len(next(iter(max_node_count_at_track_dict)))
 
     return num_of_rows * (72 + (num_of_y_axis_attrs - 2) * 24)
+
+
+def remove_node_overlap(main_fig_nodes_x_dict, main_fig_nodes_y_dict,
+                        xaxis_range, yaxis_range):
+    """Run VPSC node overlap removal algorithm.
+
+    See details of algorithm here: https://doi.org/10.1007/11618058_15
+
+    Will update node x and y positions, but also ranges.
+
+    :param main_fig_nodes_x_dict: ``get_main_fig_nodes_x_dict`` ret val
+    :type main_fig_nodes_x_dict: dict
+    :param main_fig_nodes_y_dict: ``get_main_fig_nodes_y_dict`` ret val
+    :type main_fig_nodes_y_dict: dict
+    :param xaxis_range: Main graph x-axis min and max val
+    :type xaxis_range: list
+    :param yaxis_range: Main graph y-axis min and max val
+    :type yaxis_range: list
+    :return: Dict describing new x and y positions, and also ranges
+    :rtype: dict
+    """
+    rectangles = []
+
+    for k in main_fig_nodes_x_dict["unstaggered"]:
+        x = main_fig_nodes_x_dict["staggered"][k]
+        y = main_fig_nodes_y_dict[k]
+        rectangles.append(ag.Rectangle(x-1, x+1, y-1, y+1))
+
+    [x_min, x_max] = xaxis_range
+    [y_min, y_max] = yaxis_range
+    rectangle_ptrs = ag.RectanglePtrs(rectangles)
+    ag.removeoverlaps(rectangle_ptrs)
+    for k, ptr in zip(main_fig_nodes_x_dict["unstaggered"], rectangle_ptrs):
+        x = ptr.getCentreX()
+        y = ptr.getCentreY()
+        main_fig_nodes_x_dict["staggered"][k] = x
+        main_fig_nodes_y_dict[k] = y
+        if x < x_min:
+            x_min = x - 0.5
+        elif x > x_max:
+            x_max = x + 0.5
+        if y < y_min:
+            y_min = y - 0.5
+        elif y > y_max:
+            y_max = y + 0.5
+
+    return {
+        "main_fig_nodes_x_dict": main_fig_nodes_x_dict,
+        "main_fig_nodes_y_dict": main_fig_nodes_y_dict,
+        "xaxis_range": [x_min, x_max],
+        "yaxis_range": [y_min, y_max]
+    }

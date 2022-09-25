@@ -21,7 +21,8 @@ import dash_core_components as dcc
 from dash_html_components import Div
 
 from data_parser import get_app_data, parse_fields_from_example_file
-from main_fig_generator import (get_main_figs,
+from main_fig_generator import (get_main_fig,
+                                get_zoomed_out_main_fig,
                                 get_main_fig_x_axis,
                                 get_main_fig_y_axis)
 from modal_generator import (get_upload_data_modal,
@@ -991,10 +992,19 @@ def update_main_viz(selected_nodes, _, sample_file_contents,
         app_data = get_app_data(sample_file_base64_str,
                                 config_file_base64_str,
                                 selected_nodes=selected_nodes)
-        main_fig, zoomed_out_main_fig = get_main_figs(app_data)
+        zoomed_out_app_data = get_app_data(sample_file_base64_str,
+                                           config_file_base64_str,
+                                           selected_nodes=selected_nodes,
+                                           vpsc=True)
+        main_fig = get_main_fig(app_data)
+        zoomed_out_main_fig = get_zoomed_out_main_fig(zoomed_out_app_data)
     elif trigger == "viz-btn.n_clicks":
         app_data = get_app_data(sample_file_base64_str, config_file_base64_str)
-        main_fig, zoomed_out_main_fig = get_main_figs(app_data)
+        zoomed_out_app_data = get_app_data(sample_file_base64_str,
+                                           config_file_base64_str,
+                                           vpsc=True)
+        main_fig = get_main_fig(app_data)
+        zoomed_out_main_fig = get_zoomed_out_main_fig(zoomed_out_app_data)
     else:
         msg = "Unexpected trigger trying to update main graph: %s" % trigger
         raise RuntimeError(msg)
