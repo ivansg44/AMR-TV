@@ -9,6 +9,7 @@ from sys import maxsize
 
 import dash
 from dash import Dash
+from dash.dash import no_update
 from dash.dependencies import (ClientsideFunction,
                                Input,
                                Output,
@@ -19,6 +20,7 @@ from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 from dash_html_components import Div
+import plotly.graph_objects as go
 
 from data_parser import get_app_data, parse_fields_from_example_file
 from main_fig_generator import (get_main_fig,
@@ -100,7 +102,8 @@ def launch_app(_):
                                         dcc.Graph(
                                             figure={},
                                             id="main-graph",
-                                            config={"displayModeBar": False},
+                                            config={"displayModeBar": False,
+                                                    "scrollZoom": True},
                                             style={"height": "100%",
                                                    "width": "100%"}
                                         ),
@@ -940,11 +943,15 @@ def select_nodes(click_data, selected_nodes):
 @app.callback(
     inputs=[
         Input("selected-nodes", "data"),
-        Input("viz-btn", "n_clicks")
+        Input("viz-btn", "n_clicks"),
+        Input("main-graph", "relayoutData")
     ],
     state=[
         State("upload-sample-file", "contents"),
-        State("upload-config-file", "contents")
+        State("upload-config-file", "contents"),
+        State("main-graph", "figure"),
+        State("main-graph-x-axis", "figure"),
+        State("main-graph-y-axis", "figure")
     ],
     output=[
         Output("main-graph", "figure"),
@@ -960,9 +967,10 @@ def select_nodes(click_data, selected_nodes):
     ],
     prevent_initial_call=True
 )
-def update_main_viz(selected_nodes, _, sample_file_contents,
-                    config_file_contents):
-    """Update main graph, axes, zoomed-out main graph, and legends.
+def update_main_viz(selected_nodes, _, relayout_data, sample_file_contents,
+                    config_file_contents, old_main_fig, old_main_fig_x_axis,
+                    old_main_fig_y_axis):
+    """Update main graph, axes, zoomed-out main graph, and legends.TODO
 
     Current triggers:
 
@@ -1005,6 +1013,49 @@ def update_main_viz(selected_nodes, _, sample_file_contents,
                                            vpsc=True)
         main_fig = get_main_fig(app_data)
         zoomed_out_main_fig = get_zoomed_out_main_fig(zoomed_out_app_data)
+    elif trigger == "main-graph.relayoutData":
+        zoom_keys = ["xaxis.range[0]",
+                     "xaxis.range[1]",
+                     "yaxis.range[0]",
+                     "yaxis.range[1]"]
+        if not all([e in relayout_data for e in zoom_keys]):
+            raise PreventUpdate
+
+        main_fig = go.Figure(old_main_fig)
+        main_fig_x_axis = go.Figure(old_main_fig_x_axis)
+        main_fig_y_axis = go.Figure(old_main_fig_y_axis)
+
+        old_x_axis_range = old_main_fig_x_axis["layout"]["xaxis"]["range"]
+        new_x_axis_range = old_main_fig["layout"]["xaxis"]["range"]
+        new_y_axis_range = old_main_fig["layout"]["yaxis"]["range"]
+        # Should be about equal across x and y
+        change_in_range = new_x_axis_range[1] - new_x_axis_range[0]
+        change_in_range /= (old_x_axis_range[1] - old_x_axis_range[0])
+
+        main_fig_nodes_trace = \
+            [e for e in old_main_fig["data"]
+             if "name" in e and e["name"] == "main_fig_nodes_trace"][0]
+        old_marker_size = main_fig_nodes_trace["marker"]["size"]
+        new_marker_size = old_marker_size / change_in_range
+        old_textfont_size = main_fig_nodes_trace["textfont"]["size"]
+        new_textfont_size = old_textfont_size / change_in_range
+
+        main_fig.update_traces(marker={"size": new_marker_size},
+                               textfont={"size": new_textfont_size},
+                               selector={"name": "main_fig_nodes_trace"})
+        main_fig_x_axis.update_layout(xaxis={"range": new_x_axis_range})
+        main_fig_y_axis.update_layout(yaxis={"range": new_y_axis_range})
+
+        return (main_fig,
+                no_update,
+                main_fig_x_axis,
+                no_update,
+                main_fig_y_axis,
+                no_update,
+                no_update,
+                no_update,
+                no_update,
+                no_update)
     else:
         msg = "Unexpected trigger trying to update main graph: %s" % trigger
         raise RuntimeError(msg)
