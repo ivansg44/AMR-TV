@@ -1043,6 +1043,17 @@ def update_main_viz(selected_nodes, _, relayout_data, sample_file_contents,
         main_fig.update_traces(marker={"size": new_marker_size},
                                textfont={"size": new_textfont_size},
                                selector={"name": "main_fig_nodes_trace"})
+        main_fig_x_axis.update_traces(textfont={"size": new_textfont_size},
+                                      selector={
+                                          "name": "main_fig_x_axis_trace"
+                                      })
+        main_fig_y_axis.update_traces(textfont={"size": new_textfont_size},
+                                      selector={
+                                          "name": "main_fig_y_axis_trace"
+                                      })
+
+        main_fig.update_layout(xaxis={"range": new_x_axis_range},
+                               yaxis={"range": new_y_axis_range})
         main_fig_x_axis.update_layout(xaxis={"range": new_x_axis_range})
         main_fig_y_axis.update_layout(yaxis={"range": new_y_axis_range})
 

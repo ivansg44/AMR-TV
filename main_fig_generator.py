@@ -141,12 +141,10 @@ def get_main_fig(app_data):
             "showlegend": False,
             "xaxis": {
                 "range": app_data["main_fig_xaxis_range"],
-                # "fixedrange": True,
                 "visible": False
             },
             "yaxis": {
                 "range": app_data["main_fig_yaxis_range"],
-                # "fixedrange": True,
                 "visible": False
             },
             "plot_bgcolor": "white",
@@ -304,7 +302,8 @@ def get_main_fig_x_axis(app_data):
             textfont={
                 "size": 16
             },
-            hoverinfo="skip"
+            hoverinfo="skip",
+            name="main_fig_x_axis_trace"
         ),
         layout={
             "margin": {
@@ -345,7 +344,8 @@ def get_main_fig_y_axis(app_data):
             textfont={
                 "size": 16
             },
-            hoverinfo="skip"
+            hoverinfo="skip",
+            name="main_fig_y_axis_trace"
         ),
         layout={
             "margin": {
