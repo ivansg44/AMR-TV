@@ -95,7 +95,7 @@ def launch_app(_):
                                         className="p-0",
                                         style={"height": "80vh",
                                                "width": "10vw",
-                                               "overflow": "hidden"},
+                                               "overflowY": "scroll"},
                                         width=2
                                     ),
                                     dbc.Col(
@@ -111,7 +111,7 @@ def launch_app(_):
                                         className="p-0",
                                         style={"height": "80vh",
                                                "width": "70vw",
-                                               "overflow": "scroll"},
+                                               "overflow": "hidden"},
                                         width=10
                                     ),
                                 ]),
@@ -128,7 +128,7 @@ def launch_app(_):
                                         className="p-0",
                                         style={"height": "10vh",
                                                "width": "70vw",
-                                               "overflow": "hidden"},
+                                               "overflowX": "scroll"},
                                         width={"size": 10, "offset": 2}
                                     ),
                                 )],
