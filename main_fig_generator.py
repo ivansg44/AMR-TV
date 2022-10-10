@@ -289,7 +289,14 @@ def get_link_label_annotations(app_data):
 
 
 def get_arc_shapes(app_data, line_width):
-    """TODO"""
+    """Get main graph arc annotations in viz.
+
+    :param app_data: ``data_parser.get_app_data`` ret val
+    :type app_data: dict
+    :return: Plotly figure object that shows the arc links on the main
+        graph.
+    :rtype: go.Figure
+    """
     shapes = []
     for link in app_data["main_fig_arcs_dict"]:
         link_dict = app_data["main_fig_arcs_dict"][link]

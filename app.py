@@ -970,7 +970,7 @@ def select_nodes(click_data, selected_nodes):
 def update_main_viz(selected_nodes, _, relayout_data, sample_file_contents,
                     config_file_contents, old_main_fig, old_main_fig_x_axis,
                     old_main_fig_y_axis):
-    """Update main graph, axes, zoomed-out main graph, and legends.TODO
+    """Update main graph, axes, zoomed-out main graph, and legends.
 
     Current triggers:
 
@@ -980,12 +980,20 @@ def update_main_viz(selected_nodes, _, relayout_data, sample_file_contents,
     :param selected_nodes: Currently selected nodes
     :type selected_nodes: dict
     :param _: User clicked viz btn
+    :param relayout_data: Information on main graph relayout event
+    :type relayout_data: dict
     :param sample_file_contents: Contents of uploaded sample file
     :type sample_file_contents: str
     :param config_file_contents: Contents of uploaded config file
     :type config_file_contents: str
+    :param old_main_fig: Current main fig
+    :type old_main_fig: go.Figure
+    :param old_main_fig_x_axis: Current main x-axis fig
+    :type old_main_fig_x_axis: go.Figure
+    :param old_main_fig_y_axis: Current main y-axis fig
+    :type old_main_fig_y_axis: go.Figure
     :return: New main graphs, axes, and legends
-    :rtype: tuple[plotly.graph_objects.Figure]
+    :rtype: tuple[go.Figure]
     """
     ctx = dash.callback_context
     trigger = ctx.triggered[0]["prop_id"]
