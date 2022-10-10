@@ -193,8 +193,8 @@ def get_zoomed_out_main_fig(app_data):
                 "range": app_data["main_fig_yaxis_range"],
                 "fixedrange": True,
                 "tickmode": "array",
-                "tickvals": app_data["main_fig_yaxis_tickvals"],
-                "visible": False
+                "tickvals": app_data["zoomed_out_main_fig_yaxis_tickvals"],
+                "ticktext": app_data["zoomed_out_main_fig_yaxis_ticktext"]
             },
             "plot_bgcolor": "white"
         },
