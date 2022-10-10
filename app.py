@@ -1029,25 +1029,29 @@ def update_main_viz(selected_nodes, _, relayout_data, sample_file_contents,
         main_fig_x_axis = go.Figure(old_main_fig_x_axis)
         main_fig_y_axis = go.Figure(old_main_fig_y_axis)
 
+        first_x_axis_range = old_main_fig_x_axis["data"][0]["customdata"]
+        first_y_axis_range = old_main_fig_y_axis["data"][0]["customdata"]
         old_x_axis_range = old_main_fig_x_axis["layout"]["xaxis"]["range"]
+
         if zoom_event:
             new_x_axis_range = old_main_fig["layout"]["xaxis"]["range"]
             new_y_axis_range = old_main_fig["layout"]["yaxis"]["range"]
         else:
-            new_x_axis_range = old_main_fig_x_axis["data"][0]["customdata"]
-            new_y_axis_range = old_main_fig_y_axis["data"][0]["customdata"]
+            new_x_axis_range = first_x_axis_range
+            new_y_axis_range = first_y_axis_range
 
         # Should be about equal across x and y
         change_in_range = new_x_axis_range[1] - new_x_axis_range[0]
-        change_in_range /= (old_x_axis_range[1] - old_x_axis_range[0])
+        change_in_range /= (first_x_axis_range[1] - first_x_axis_range[0])
 
+        # TODO do not used hardcoded values
         main_fig_nodes_trace = \
             [e for e in old_main_fig["data"]
              if "name" in e and e["name"] == "main_fig_nodes_trace"][0]
         old_marker_size = main_fig_nodes_trace["marker"]["size"]
-        new_marker_size = old_marker_size / change_in_range
+        new_marker_size = max(1, 24/change_in_range)
         old_textfont_size = main_fig_nodes_trace["textfont"]["size"]
-        new_textfont_size = old_textfont_size / change_in_range
+        new_textfont_size = max(1, 16/change_in_range)
 
         main_fig.update_traces(marker={"size": new_marker_size},
                                textfont={"size": new_textfont_size},
