@@ -43,13 +43,20 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
           document.getElementById('main-graph-x-axis-col');
       const mainGraphYAxisColEl =
           document.getElementById('main-graph-y-axis-col');
-      mainGraphColEl.addEventListener(
+      mainGraphXAxisColEl.addEventListener(
           'scroll',
           ()=> {
-            const scrollLeft = mainGraphColEl.scrollLeft;
-            const scrollTop = mainGraphColEl.scrollTop;
-            mainGraphXAxisColEl.scroll(scrollLeft, 0);
-            mainGraphYAxisColEl.scroll(0, scrollTop);
+            const scrollLeft = mainGraphXAxisColEl.scrollLeft;
+            const scrollTop = mainGraphYAxisColEl.scrollTop;
+            mainGraphColEl.scroll(scrollLeft, scrollTop);
+          }
+      );
+      mainGraphYAxisColEl.addEventListener(
+          'scroll',
+          ()=> {
+            const scrollLeft = mainGraphXAxisColEl.scrollLeft;
+            const scrollTop = mainGraphYAxisColEl.scrollTop;
+            mainGraphColEl.scroll(scrollLeft, scrollTop);
           }
       );
       return true;
