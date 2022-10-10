@@ -17,7 +17,17 @@ from expression_evaluator import eval_expr
 
 
 def parse_fields_from_example_file(example_file_base64_str, delimiter):
-    """TODO"""
+    """Return list of fields from example file.
+
+    This is a list corresponding to values in the top row of example
+    file.
+
+    :param example_file_base64_str: Base64 encoded str corresponding to
+        contents of user uploaded example file.
+    :type example_file_base64_str: str
+    :param delimiter: Delimiter in example file
+    :type delimiter: str
+    """
     example_file_str = b64decode(example_file_base64_str).decode("utf-8")
     reader = csv.reader(StringIO(example_file_str), delimiter=delimiter)
     for row in reader:
@@ -478,7 +488,7 @@ def get_node_color_attr_dict(node_color_attr_list):
 
 def get_sample_links_dict(sample_data_dict, links_config, primary_y,
                           links_across_primary_y, max_day_range):
-    """Get a dict of all links to viz in main graph. TODO
+    """Get a dict of all links to viz in main graph.
 
     The keys in the dict are different link labels. The values are a
     nested dict. The keys in the nested dict are tuples containing two
@@ -487,8 +497,7 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
     these nodes, or ``None`` if no weight is calculated.
 
     We filter out certain links using ``weight_filters`` and
-    ``attr_val_filters``. If the user specifies ``minimize_loops``, we
-    generate minimum spanning trees for each group of connected nodes.
+    ``attr_val_filters``.
 
     :param sample_data_dict: ``get_sample_data_dict`` ret val
     :type sample_data_dict: dict
@@ -524,7 +533,6 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
         weight_exp = links_config[link]["weight_exp"]
         weight_filters = links_config[link]["weight_filters"]
         attr_filters = links_config[link]["attr_filters"]
-
 
         for i in range(len(sample_list)):
             sample_i = sample_list[i]
@@ -635,19 +643,23 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
 
 def filter_link_loops(sample_links_dict, links_config, main_fig_nodes_x_dict,
                       main_fig_nodes_y_dict):
-    """Remove links forming loops in a network.TODO
+    """Remove links forming loops in a network.
 
     Every group of connected nodes is converted into a minimum spanning
     tree using Kruskal's algorithm. The weights assigned to each link
-    for this algorithm are equal to difference in sampling time b/w
-    nodes.
+    for this algorithm are equal to the graphic distance b/w nodes in
+    the plot.
 
-    :param some_sample_links: Nested dict in ``get_sample_links_dict``
-        ret val.
-    :type some_sample_links: dict
-    :param sample_data_dict: ``get_sample_data_dict`` ret val
-    :type sample_data_dict: dict
-    :return: ``some_sample_links`` with certain links removed to
+    :param sample_links_dict: ``get_sample_links_dict`` ret val
+    :type sample_links_dict: dict
+    :param links_config: dict of criteria for different user-specified
+        links.
+    :type links_config: dict
+    :param main_fig_nodes_x_dict: ``get_main_fig_nodes_x_dict`` ret val
+    :type main_fig_nodes_x_dict: dict
+    :param main_fig_nodes_y_dict: ``get_main_fig_nodes_y_dict`` ret val
+    :type main_fig_nodes_y_dict: dict
+    :return: ``sample_links_dict`` with certain links removed to
         prevent loops.
     :rtype: dict
     """
@@ -659,8 +671,8 @@ def filter_link_loops(sample_links_dict, links_config, main_fig_nodes_x_dict,
             # ``weight`` is a reserved keyword in ``add_edge``
             weight_ = sample_links_dict[link][(sample, other_sample)]
 
-            # nx will use the difference in datetimes as weight, for mst
-            # purposes.TODO
+            # nx will use the difference in graphic distance b/w nodes
+            # in the plot as weight, for mst purposes.
             # TODO: allow users to specify own edge weight expressions
             x0 = main_fig_nodes_x_dict["staggered"][sample]
             x1 = main_fig_nodes_x_dict["staggered"][other_sample]
@@ -722,7 +734,9 @@ def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
                             main_fig_height, main_fig_width, xaxis_range,
                             yaxis_range):
     """Get dict with info used by Plotly to viz links in main graph.
-    TODO
+
+    These are straight links, so this does not include links b/w nodes
+    w/ the same x-val, b/c we draw arcs b/w such nodes.
 
     :param sample_links_dict: ``get_sample_links_dict`` ret val
     :type sample_links_dict: dict
@@ -804,11 +818,31 @@ def get_main_fig_arcs_dict(sample_links_dict, main_fig_nodes_x_dict,
                            main_fig_nodes_y_dict, selected_samples,
                            main_fig_height, main_fig_width, xaxis_range,
                            yaxis_range):
-    """TODO"""
-    ret = {}
+    """Get dict with info used by Plotly to viz arcs in main graph.
 
-    x_pixel_per_unit = main_fig_width / (xaxis_range[1] - xaxis_range[0])
-    y_pixel_per_unit = main_fig_height / (yaxis_range[1] - yaxis_range[0])
+    These are arcs, so this does not include straight links b/w nodes
+    w/ different x-vals, b/c we draw straight links b/w such nodes.
+
+    :param sample_links_dict: ``get_sample_links_dict`` ret val
+    :type sample_links_dict: dict
+    :param main_fig_nodes_x_dict: ``get_main_fig_nodes_x_dict`` ret val
+    :type main_fig_nodes_x_dict: dict
+    :param main_fig_nodes_y_dict: ``get_main_fig_nodes_y_dict`` ret val
+    :type main_fig_nodes_y_dict: dict
+    :param selected_samples: Samples selected by users
+    :type selected_samples: set[str]
+    :param main_fig_height: Height for main fig
+    :type main_fig_height: int
+    :param main_fig_width: Width for main fig
+    :type main_fig_width: int
+    :param xaxis_range: Main graph x-axis min and max val
+    :type xaxis_range: list
+    :param yaxis_range: Main graph y-axis min and max val
+    :type yaxis_range: list
+    :return: Dict with info used by Plotly to viz links in main graph
+    :rtype: dict
+    """
+    ret = {}
 
     arc_degree_translation_dict = {}
     arc_unit_degree_translation = 10
@@ -1107,7 +1141,15 @@ def get_zoomed_out_main_fig_yaxis_tickvals(track_y_vals_dict):
 def get_main_fig_nodes_y_dict(sample_data_dict, sample_links_dict, date_attr,
                               track_list, track_date_node_count_dict,
                               max_node_count_at_track_dict, track_y_vals_dict):
-    """Get dict mapping nodes to y vals. TODO
+    """Get dict mapping nodes to y vals.
+
+    We re-order nodes that occupy the same x and y position, to
+    minimize the total length of arcs and links. We use a slightly
+    modified version of the heuristic described here:
+
+    https://doi.org/10.1109/TST.2012.6297585
+
+    Our modification is that we only reorder within the x/y position.
 
     :param sample_data_dict: Sample file data parsed into dict obj
     :rtype: dict
