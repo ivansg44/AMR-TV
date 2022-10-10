@@ -31,7 +31,8 @@ def get_main_fig_nodes(app_data):
             "size": 16
         },
         hoverinfo="text",
-        hovertext=app_data["main_fig_nodes_hovertext"]
+        hovertext=app_data["main_fig_nodes_hovertext"],
+        name="main_fig_nodes_trace"
     )
     return nodes
 
@@ -140,15 +141,14 @@ def get_main_fig(app_data):
             "showlegend": False,
             "xaxis": {
                 "range": app_data["main_fig_xaxis_range"],
-                "fixedrange": True,
                 "visible": False
             },
             "yaxis": {
                 "range": app_data["main_fig_yaxis_range"],
-                "fixedrange": True,
                 "visible": False
             },
-            "plot_bgcolor": "white"
+            "plot_bgcolor": "white",
+            "dragmode": "pan"
         },
     )
 
@@ -325,7 +325,9 @@ def get_main_fig_x_axis(app_data):
             textfont={
                 "size": 16
             },
-            hoverinfo="skip"
+            hoverinfo="skip",
+            name="main_fig_x_axis_trace",
+            customdata=app_data["main_fig_xaxis_range"]
         ),
         layout={
             "margin": {
@@ -366,7 +368,9 @@ def get_main_fig_y_axis(app_data):
             textfont={
                 "size": 16
             },
-            hoverinfo="skip"
+            hoverinfo="skip",
+            name="main_fig_y_axis_trace",
+            customdata=app_data["main_fig_yaxis_range"]
         ),
         layout={
             "margin": {
