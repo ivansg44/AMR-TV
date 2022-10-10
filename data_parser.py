@@ -6,13 +6,14 @@ import csv
 from datetime import datetime
 from io import StringIO
 from json import loads
-from math import atan, degrees, sqrt
+from math import atan, degrees, radians, sqrt, tan
 from re import compile
 
 import networkx as nx
 
 from adaptagrams.cola import adaptagrams as ag
 from expression_evaluator import eval_expr
+
 
 def parse_fields_from_example_file(example_file_base64_str, delimiter):
     """TODO"""
@@ -75,14 +76,6 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     max_node_count_at_track_dict = \
         get_max_node_count_at_track_dict(track_date_node_count_dict)
     track_y_vals_dict = get_track_y_vals_dict(max_node_count_at_track_dict)
-    main_fig_nodes_y_dict = get_main_fig_nodes_y_dict(
-        sample_data_dict,
-        date_attr=config_file_dict["date_attr"],
-        track_list=track_list,
-        track_date_node_count_dict=track_date_node_count_dict,
-        max_node_count_at_track_dict=max_node_count_at_track_dict,
-        track_y_vals_dict=track_y_vals_dict
-    )
 
     num_of_primary_facets = \
         len({k[0] for k in max_node_count_at_track_dict}) - 1
@@ -135,15 +128,6 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     xaxis_range = [0.5, len(date_x_vals_dict) + 0.5]
     yaxis_range = [0.5, sum(max_node_count_at_track_dict.values())+0.5]
 
-    if vpsc:
-        node_overlap_dict = \
-            remove_node_overlap(main_fig_nodes_x_dict,
-                                main_fig_nodes_y_dict,
-                                xaxis_range,
-                                yaxis_range)
-        main_fig_nodes_x_dict = node_overlap_dict["main_fig_nodes_x_dict"]
-        main_fig_nodes_y_dict = node_overlap_dict["main_fig_nodes_y_dict"]
-
     main_fig_height = get_main_fig_height(max_node_count_at_track_dict)
     main_fig_width = len(date_x_vals_dict) * 144
 
@@ -155,9 +139,45 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         max_day_range=config_file_dict["max_day_range"]
     )
 
+    main_fig_nodes_y_dict = get_main_fig_nodes_y_dict(
+        sample_data_dict=sample_data_dict,
+        sample_links_dict=sample_links_dict,
+        date_attr=config_file_dict["date_attr"],
+        track_list=track_list,
+        track_date_node_count_dict=track_date_node_count_dict,
+        max_node_count_at_track_dict=max_node_count_at_track_dict,
+        track_y_vals_dict=track_y_vals_dict
+    )
+
+    if vpsc:
+        node_overlap_dict = \
+            remove_node_overlap(main_fig_nodes_x_dict,
+                                main_fig_nodes_y_dict,
+                                xaxis_range,
+                                yaxis_range)
+        main_fig_nodes_x_dict = node_overlap_dict["main_fig_nodes_x_dict"]
+        main_fig_nodes_y_dict = node_overlap_dict["main_fig_nodes_y_dict"]
+
+    sample_links_dict = \
+        filter_link_loops(sample_links_dict=sample_links_dict,
+                          links_config=config_file_dict["links_config"],
+                          main_fig_nodes_x_dict=main_fig_nodes_x_dict,
+                          main_fig_nodes_y_dict=main_fig_nodes_y_dict)
+
     link_color_dict = get_link_color_dict(sample_links_dict)
 
     main_fig_links_dict = get_main_fig_links_dict(
+        sample_links_dict=sample_links_dict,
+        main_fig_nodes_x_dict=main_fig_nodes_x_dict,
+        main_fig_nodes_y_dict=main_fig_nodes_y_dict,
+        selected_samples=selected_samples,
+        main_fig_height=main_fig_height,
+        main_fig_width=main_fig_width,
+        xaxis_range=xaxis_range,
+        yaxis_range=yaxis_range
+    )
+
+    main_fig_arcs_dict = get_main_fig_arcs_dict(
         sample_links_dict=sample_links_dict,
         main_fig_nodes_x_dict=main_fig_nodes_x_dict,
         main_fig_nodes_y_dict=main_fig_nodes_y_dict,
@@ -218,7 +238,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         "main_fig_yaxis_ticktext":
             main_fig_yaxis_ticktext,
         "main_fig_nodes_x":
-            [main_fig_nodes_x_dict[k] for k in sample_data_dict],
+            [main_fig_nodes_x_dict["staggered"][k] for k in sample_data_dict],
         "main_fig_nodes_y":
             [main_fig_nodes_y_dict[k] for k in sample_data_dict],
         "main_fig_nodes_marker_symbol":
@@ -235,6 +255,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
             main_fig_nodes_hovertext,
         "node_color_attr_dict": node_color_attr_dict,
         "main_fig_links_dict": main_fig_links_dict,
+        "main_fig_arcs_dict": main_fig_arcs_dict,
         "main_fig_link_arrowheads_dict": main_fig_link_arrowheads_dict,
         "main_fig_link_labels_dict": main_fig_link_labels_dict,
         "link_color_dict": link_color_dict,
@@ -446,7 +467,7 @@ def get_node_color_attr_dict(node_color_attr_list):
 
 def get_sample_links_dict(sample_data_dict, links_config, primary_y,
                           links_across_primary_y, max_day_range):
-    """Get a dict of all links to viz in main graph.
+    """Get a dict of all links to viz in main graph. TODO
 
     The keys in the dict are different link labels. The values are a
     nested dict. The keys in the nested dict are tuples containing two
@@ -489,7 +510,6 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
         all_eq_list = links_config[link]["all_eq"]
         all_neq_list = links_config[link]["all_neq"]
         any_eq_list = links_config[link]["any_eq"]
-        minimize_loops = bool(links_config[link]["minimize_loops"])
         weight_exp = links_config[link]["weight_exp"]
         weight_filters = links_config[link]["weight_filters"]
         attr_filters = links_config[link]["attr_filters"]
@@ -599,16 +619,12 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
                         sample_links_dict[link][(sample_j, sample_i)] = \
                             link_weight
 
-        if minimize_loops:
-            sample_links_dict[link] = \
-                filter_link_loops(sample_links_dict[link],
-                                  sample_data_dict)
-
     return sample_links_dict
 
 
-def filter_link_loops(some_sample_links, sample_data_dict):
-    """Remove links forming loops in a network.
+def filter_link_loops(sample_links_dict, links_config, main_fig_nodes_x_dict,
+                      main_fig_nodes_y_dict):
+    """Remove links forming loops in a network.TODO
 
     Every group of connected nodes is converted into a minimum spanning
     tree using Kruskal's algorithm. The weights assigned to each link
@@ -625,40 +641,46 @@ def filter_link_loops(some_sample_links, sample_data_dict):
     :rtype: dict
     """
     graph = nx.Graph()
-    for (sample, other_sample) in some_sample_links:
-        # ``weight`` is a reserved keyword in ``add_edge``
-        weight_ = some_sample_links[(sample, other_sample)]
+    for link in sample_links_dict:
+        if not bool(links_config[link]["minimize_loops"]):
+            continue
+        for (sample, other_sample) in sample_links_dict[link]:
+            # ``weight`` is a reserved keyword in ``add_edge``
+            weight_ = sample_links_dict[link][(sample, other_sample)]
 
-        # nx will use the difference in datetimes as weight, for mst
-        # purposes.
-        # TODO: allow users to specify own edge weight expressions
-        sample_datetime = sample_data_dict[sample]["datetime_obj"]
-        other_sample_datetime = sample_data_dict[other_sample]["datetime_obj"]
-        weight = (other_sample_datetime - sample_datetime).days
-        # Need to track original order because graph is undirected
-        order = (sample, other_sample)
+            # nx will use the difference in datetimes as weight, for mst
+            # purposes.TODO
+            # TODO: allow users to specify own edge weight expressions
+            x0 = main_fig_nodes_x_dict["staggered"][sample]
+            x1 = main_fig_nodes_x_dict["staggered"][other_sample]
+            y0 = main_fig_nodes_y_dict[sample]
+            y1 = main_fig_nodes_y_dict[other_sample]
+            weight = sqrt((x1-x0)**2 + (y1-y0)**2)
+            # Need to track original order because graph is undirected
+            order = (sample, other_sample)
 
-        graph.add_edge(sample,
-                       other_sample,
-                       weight=weight,
-                       weight_=weight_,
-                       order=order)
+            graph.add_edge(sample,
+                           other_sample,
+                           weight=weight,
+                           weight_=weight_,
+                           order=order)
 
-    disjoint_subgraphs = \
-        [graph.subgraph(c).copy() for c in nx.connected_components(graph)]
-    disjoint_mst_subgraphs = \
-        [nx.minimum_spanning_tree(g) for g in disjoint_subgraphs]
-    disjoint_mst_subgraph_edgeviews = \
-        [g.edges(data=True) for g in disjoint_mst_subgraphs]
+        disjoint_subgraphs = \
+            [graph.subgraph(c).copy() for c in nx.connected_components(graph)]
+        disjoint_mst_subgraphs = \
+            [nx.minimum_spanning_tree(g) for g in disjoint_subgraphs]
+        disjoint_mst_subgraph_edgeviews = \
+            [g.edges(data=True) for g in disjoint_mst_subgraphs]
 
-    ret = {}
-    for edgeview in disjoint_mst_subgraph_edgeviews:
-        for (sample, other_sample, data) in edgeview:
-            weight_ = data["weight_"]
-            order = data["order"]
-            ret[order] = weight_
+        new_link_dict = {}
+        for edgeview in disjoint_mst_subgraph_edgeviews:
+            for (sample, other_sample, data) in edgeview:
+                weight_ = data["weight_"]
+                order = data["order"]
+                new_link_dict[order] = weight_
+        sample_links_dict[link] = new_link_dict
 
-    return ret
+    return sample_links_dict
 
 
 def get_link_color_dict(sample_links_dict):
@@ -689,6 +711,7 @@ def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
                             main_fig_height, main_fig_width, xaxis_range,
                             yaxis_range):
     """Get dict with info used by Plotly to viz links in main graph.
+    TODO
 
     :param sample_links_dict: ``get_sample_links_dict`` ret val
     :type sample_links_dict: dict
@@ -734,16 +757,16 @@ def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
             if selected_samples and not selected_link:
                 continue
 
-            x0 = main_fig_nodes_x_dict[sample]
+            unstaggered_x0 = main_fig_nodes_x_dict["unstaggered"][sample]
+            unstaggered_x1 = main_fig_nodes_x_dict["unstaggered"][other_sample]
+
+            x0 = main_fig_nodes_x_dict["staggered"][sample]
             y0 = main_fig_nodes_y_dict[sample]
-            x1 = main_fig_nodes_x_dict[other_sample]
+            x1 = main_fig_nodes_x_dict["staggered"][other_sample]
             y1 = main_fig_nodes_y_dict[other_sample]
 
-            if (x1 - x0) == 0:
-                x0 += link_parallel_translation \
-                      * (y_pixel_per_unit / x_pixel_per_unit)
-                x1 += link_parallel_translation \
-                      * (y_pixel_per_unit / x_pixel_per_unit)
+            if (unstaggered_x1 - unstaggered_x0) == 0:
+                continue
             elif (y1 - y0) == 0:
                 y0 += link_parallel_translation
                 y1 += link_parallel_translation
@@ -762,6 +785,53 @@ def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
 
             ret[link]["x"] += [x0, x1, None]
             ret[link]["y"] += [y0, y1, None]
+
+    return ret
+
+
+def get_main_fig_arcs_dict(sample_links_dict, main_fig_nodes_x_dict,
+                           main_fig_nodes_y_dict, selected_samples,
+                           main_fig_height, main_fig_width, xaxis_range,
+                           yaxis_range):
+    """TODO"""
+    ret = {}
+
+    x_pixel_per_unit = main_fig_width / (xaxis_range[1] - xaxis_range[0])
+    y_pixel_per_unit = main_fig_height / (yaxis_range[1] - yaxis_range[0])
+
+    arc_degree_translation_dict = {}
+    arc_unit_degree_translation = 10
+    for i, link in enumerate(sample_links_dict):
+        arc_degree_translation_dict[link] = i * arc_unit_degree_translation
+
+    for link in sample_links_dict:
+        arc_degree_translation = arc_degree_translation_dict[link]
+        ret[link] = {"x": [], "y": []}
+
+        for (sample, other_sample) in sample_links_dict[link]:
+            selected_link = \
+                sample in selected_samples or other_sample in selected_samples
+            if selected_samples and not selected_link:
+                continue
+
+            unstaggered_x0 = main_fig_nodes_x_dict["unstaggered"][sample]
+            unstaggered_x1 = main_fig_nodes_x_dict["unstaggered"][other_sample]
+
+            x0 = main_fig_nodes_x_dict["staggered"][sample]
+            y0 = main_fig_nodes_y_dict[sample]
+            x1 = main_fig_nodes_x_dict["staggered"][other_sample]
+            y1 = main_fig_nodes_y_dict[other_sample]
+
+            if (unstaggered_x1 - unstaggered_x0) != 0:
+                continue
+
+            d = abs(y1 - y0) / 2
+            e = d / (tan(radians(110+arc_degree_translation)))
+            cx = unstaggered_x0 + e
+            cy = (y0 + y1) / 2
+
+            ret[link]["x"] += [[x0, cx, x1]]
+            ret[link]["y"] += [[y0, cy, y1]]
 
     return ret
 
@@ -927,7 +997,10 @@ def get_main_fig_nodes_x_dict(sample_data_dict, date_attr, date_list,
         else:
             helper_obj[date] = [1/(4 * (count - 1)), 0]
 
-    main_fig_nodes_x_dict = {}
+    main_fig_nodes_x_dict = {
+        "unstaggered": {},
+        "staggered": {}
+    }
     for sample in sample_data_dict:
         sample_date = sample_data_dict[sample][date_attr]
         [stagger, multiplier] = helper_obj[sample_date]
@@ -936,7 +1009,8 @@ def get_main_fig_nodes_x_dict(sample_data_dict, date_attr, date_list,
         lowest_x = unstaggered_x - (1/8)
         staggered_x = lowest_x + (stagger * multiplier)
 
-        main_fig_nodes_x_dict[sample] = staggered_x
+        main_fig_nodes_x_dict["unstaggered"][sample] = unstaggered_x
+        main_fig_nodes_x_dict["staggered"][sample] = staggered_x
         helper_obj[sample_date][1] += 1
 
     return main_fig_nodes_x_dict
@@ -1004,10 +1078,10 @@ def get_main_fig_yaxis_ticktext(track_y_vals_dict):
     return ret
 
 
-def get_main_fig_nodes_y_dict(sample_data_dict, date_attr, track_list,
-                              track_date_node_count_dict,
+def get_main_fig_nodes_y_dict(sample_data_dict, sample_links_dict, date_attr,
+                              track_list, track_date_node_count_dict,
                               max_node_count_at_track_dict, track_y_vals_dict):
-    """Get dict mapping nodes to y vals.
+    """Get dict mapping nodes to y vals. TODO
 
     :param sample_data_dict: Sample file data parsed into dict obj
     :rtype: dict
@@ -1026,21 +1100,54 @@ def get_main_fig_nodes_y_dict(sample_data_dict, date_attr, track_list,
     :return: Dict mapping nodes to y vals
     :rtype: dict
     """
+    xy_ordered_nodes_dict = {}
+    for i, sample in enumerate(sample_data_dict):
+        sample_date = sample_data_dict[sample][date_attr]
+        sample_track = track_list[i]
+        xy = (sample_track, sample_date)
+        if xy not in xy_ordered_nodes_dict:
+            xy_ordered_nodes_dict[xy] = [sample]
+        else:
+            xy_ordered_nodes_dict[xy].append(sample)
+
+    for xy in xy_ordered_nodes_dict:
+        for i in range(3 * len(xy_ordered_nodes_dict[xy])):
+            ordered_nodes = xy_ordered_nodes_dict[xy]
+            average_neighbour_distance_dict = {}
+            for j in range(0, len(ordered_nodes)):
+                sum_of_neighbours = 0
+                num_of_neighbours = 0
+                for k in range(1, len(ordered_nodes)):
+                    for link in sample_links_dict:
+                        link_dict = sample_links_dict[link]
+                        if (j, k) in link_dict or (k, j) in link_dict:
+                            sum_of_neighbours += abs(k - j)
+                            num_of_neighbours += 1
+                if num_of_neighbours:
+                    avg_distance = sum_of_neighbours / num_of_neighbours
+                else:
+                    avg_distance = 0
+                average_neighbour_distance_dict[ordered_nodes[j]] = \
+                    avg_distance
+            xy_ordered_nodes_dict[xy] = \
+                sorted(ordered_nodes,
+                       key=lambda e: average_neighbour_distance_dict[e])
+
     helper_obj = {k: [max_node_count_at_track_dict[k[0]]/(v+1), 1]
                   for k, v in track_date_node_count_dict.items()}
 
     main_fig_nodes_y_dict = {}
-    for i, sample in enumerate(sample_data_dict):
-        sample_date = sample_data_dict[sample][date_attr]
-        sample_track = track_list[i]
-        [stagger, multiplier] = helper_obj[(sample_track, sample_date)]
+    for (sample_track, sample_date) in xy_ordered_nodes_dict:
+        for sample in xy_ordered_nodes_dict[(sample_track, sample_date)]:
+            [stagger, multiplier] = helper_obj[(sample_track, sample_date)]
 
-        unstaggered_y = track_y_vals_dict[sample_track]
-        lowest_y = unstaggered_y - max_node_count_at_track_dict[sample_track]/2
-        staggered_y = lowest_y + (stagger * multiplier)
+            unstaggered_y = track_y_vals_dict[sample_track]
+            lowest_y = \
+                unstaggered_y - max_node_count_at_track_dict[sample_track]/2
+            staggered_y = lowest_y + (stagger * multiplier)
 
-        main_fig_nodes_y_dict[sample] = staggered_y
-        helper_obj[(sample_track, sample_date)][1] += 1
+            main_fig_nodes_y_dict[sample] = staggered_y
+            helper_obj[(sample_track, sample_date)][1] += 1
 
     return main_fig_nodes_y_dict
 
@@ -1209,8 +1316,8 @@ def remove_node_overlap(main_fig_nodes_x_dict, main_fig_nodes_y_dict,
     """
     rectangles = []
 
-    for k in main_fig_nodes_x_dict:
-        x = main_fig_nodes_x_dict[k]
+    for k in main_fig_nodes_x_dict["unstaggered"]:
+        x = main_fig_nodes_x_dict["staggered"][k]
         y = main_fig_nodes_y_dict[k]
         rectangles.append(ag.Rectangle(x-1, x+1, y-1, y+1))
 
@@ -1218,10 +1325,10 @@ def remove_node_overlap(main_fig_nodes_x_dict, main_fig_nodes_y_dict,
     [y_min, y_max] = yaxis_range
     rectangle_ptrs = ag.RectanglePtrs(rectangles)
     ag.removeoverlaps(rectangle_ptrs)
-    for k, ptr in zip(main_fig_nodes_x_dict, rectangle_ptrs):
+    for k, ptr in zip(main_fig_nodes_x_dict["unstaggered"], rectangle_ptrs):
         x = ptr.getCentreX()
         y = ptr.getCentreY()
-        main_fig_nodes_x_dict[k] = x
+        main_fig_nodes_x_dict["staggered"][k] = x
         main_fig_nodes_y_dict[k] = y
         if x < x_min:
             x_min = x - 0.5

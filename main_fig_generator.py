@@ -156,7 +156,9 @@ def get_main_fig(app_data):
                                                      arrow_width=3,
                                                      arrow_size=0.6)
     main_fig_annotations += get_link_label_annotations(app_data)
-    ret.update_layout(annotations=main_fig_annotations)
+    main_fig_shapes = get_arc_shapes(app_data, line_width=3)
+    ret.update_layout(annotations=main_fig_annotations,
+                      shapes=main_fig_shapes)
 
     return ret
 
@@ -205,8 +207,10 @@ def get_zoomed_out_main_fig(app_data):
 
     zoomed_out_main_fig_annotations = \
         get_arrowhead_annotations(app_data, arrow_width=1, arrow_size=1)
+    zoomed_out_main_fig_shapes = get_arc_shapes(app_data, line_width=1)
     ret.update_layout(
-        annotations=zoomed_out_main_fig_annotations
+        annotations=zoomed_out_main_fig_annotations,
+        shapes=zoomed_out_main_fig_shapes
     )
 
     return ret
@@ -282,6 +286,25 @@ def get_link_label_annotations(app_data):
             })
 
     return annotations
+
+
+def get_arc_shapes(app_data, line_width):
+    """TODO"""
+    shapes = []
+    for link in app_data["main_fig_arcs_dict"]:
+        link_dict = app_data["main_fig_arcs_dict"][link]
+        (r, g, b) = app_data["link_color_dict"][link]
+        for i in range(len(link_dict["x"])):
+            [x0, cx, x1] = link_dict["x"][i]
+            [y0, cy, y1] = link_dict["y"][i]
+            shapes.append({
+                "type": "path",
+                "path": "M %s,%s Q %s,%s %s,%s  " % (x0, y0, cx, cy, x1, y1),
+                "line_color": "rgb(%s, %s, %s)" % (r, g, b),
+                "line_width": line_width,
+                "layer": "below"
+            })
+    return shapes
 
 
 def get_main_fig_x_axis(app_data):
