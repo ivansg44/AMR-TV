@@ -303,7 +303,8 @@ def get_main_fig_x_axis(app_data):
                 "size": 16
             },
             hoverinfo="skip",
-            name="main_fig_x_axis_trace"
+            name="main_fig_x_axis_trace",
+            customdata=app_data["main_fig_xaxis_range"]
         ),
         layout={
             "margin": {
@@ -345,7 +346,8 @@ def get_main_fig_y_axis(app_data):
                 "size": 16
             },
             hoverinfo="skip",
-            name="main_fig_y_axis_trace"
+            name="main_fig_y_axis_trace",
+            customdata=app_data["main_fig_yaxis_range"]
         ),
         layout={
             "margin": {

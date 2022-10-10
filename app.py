@@ -1018,7 +1018,11 @@ def update_main_viz(selected_nodes, _, relayout_data, sample_file_contents,
                      "xaxis.range[1]",
                      "yaxis.range[0]",
                      "yaxis.range[1]"]
-        if not all([e in relayout_data for e in zoom_keys]):
+        autorange_keys = ["xaxis.autorange",
+                          "yaxis.autorange"]
+        zoom_event = all([e in relayout_data for e in zoom_keys])
+        autorange_event = all([e in relayout_data for e in autorange_keys])
+        if not zoom_event and not autorange_event:
             raise PreventUpdate
 
         main_fig = go.Figure(old_main_fig)
@@ -1026,8 +1030,13 @@ def update_main_viz(selected_nodes, _, relayout_data, sample_file_contents,
         main_fig_y_axis = go.Figure(old_main_fig_y_axis)
 
         old_x_axis_range = old_main_fig_x_axis["layout"]["xaxis"]["range"]
-        new_x_axis_range = old_main_fig["layout"]["xaxis"]["range"]
-        new_y_axis_range = old_main_fig["layout"]["yaxis"]["range"]
+        if zoom_event:
+            new_x_axis_range = old_main_fig["layout"]["xaxis"]["range"]
+            new_y_axis_range = old_main_fig["layout"]["yaxis"]["range"]
+        else:
+            new_x_axis_range = old_main_fig_x_axis["data"][0]["customdata"]
+            new_y_axis_range = old_main_fig_y_axis["data"][0]["customdata"]
+
         # Should be about equal across x and y
         change_in_range = new_x_axis_range[1] - new_x_axis_range[0]
         change_in_range /= (old_x_axis_range[1] - old_x_axis_range[0])
@@ -1052,8 +1061,10 @@ def update_main_viz(selected_nodes, _, relayout_data, sample_file_contents,
                                           "name": "main_fig_y_axis_trace"
                                       })
 
-        main_fig.update_layout(xaxis={"range": new_x_axis_range},
-                               yaxis={"range": new_y_axis_range})
+        main_fig.update_layout(xaxis={"range": new_x_axis_range,
+                                      "autorange": False},
+                               yaxis={"range": new_y_axis_range,
+                                      "autorange": False})
         main_fig_x_axis.update_layout(xaxis={"range": new_x_axis_range})
         main_fig_y_axis.update_layout(yaxis={"range": new_y_axis_range})
 
