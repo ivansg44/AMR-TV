@@ -5,6 +5,7 @@ from collections import Counter
 import csv
 from datetime import datetime
 from io import StringIO
+from itertools import groupby
 from json import loads
 from math import atan, degrees, radians, sqrt, tan
 from re import compile
@@ -213,6 +214,12 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         main_fig_nodes_textfont_color = "black"
 
     main_fig_yaxis_ticktext = get_main_fig_yaxis_ticktext(track_y_vals_dict)
+    zoomed_out_main_fig_yaxis_tickvals = \
+        get_zoomed_out_main_fig_yaxis_tickvals(track_y_vals_dict)
+    zoomed_out_main_fig_yaxis_ticktext = list(dict.fromkeys(
+        [";".join("null" if j is None else j for j in i[0])
+         for i in track_y_vals_dict]
+    ))
 
     if vpsc:
         xaxis_range = node_overlap_dict["xaxis_range"]
@@ -269,7 +276,11 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         "main_fig_secondary_facet_y":
             get_main_fig_secondary_facet_y(max_node_count_at_track_dict),
         "main_fig_height": main_fig_height,
-        "main_fig_width": main_fig_width
+        "main_fig_width": main_fig_width,
+        "zoomed_out_main_fig_yaxis_tickvals":
+            zoomed_out_main_fig_yaxis_tickvals,
+        "zoomed_out_main_fig_yaxis_ticktext":
+            zoomed_out_main_fig_yaxis_ticktext
     }
 
     return app_data
@@ -1075,6 +1086,21 @@ def get_main_fig_yaxis_ticktext(track_y_vals_dict):
                 "; ".join(["null" if e is None else e for e in inner_track])
             )
         ret.append("<br>".join(inner_ret))
+    return ret
+
+
+def get_zoomed_out_main_fig_yaxis_tickvals(track_y_vals_dict):
+    """Get tickvals for zoomed out main fig.
+
+    :param track_y_vals_dict: ``get_track_y_vals_dict`` ret val
+    :type track_y_vals_dict: dict
+    :return: Dict with label corresponding to each possible track
+    :rtype: dict
+    """
+    ret = []
+    for key, group in groupby(track_y_vals_dict.items(), lambda x: x[0][0]):
+        group_list = list(group)
+        ret.append(sum([e[1] for e in group_list])/len(group_list))
     return ret
 
 
