@@ -11,6 +11,7 @@ from math import atan, degrees, radians, sqrt, tan
 from re import compile
 
 import networkx as nx
+import pandas as pd
 
 from adaptagrams.cola import adaptagrams as ag
 from expression_evaluator import eval_expr
@@ -36,8 +37,8 @@ def parse_fields_from_example_file(example_file_base64_str, delimiter):
 
 
 def get_app_data(sample_file_base64_str, config_file_base64_str,
-                 selected_nodes=None, vpsc=False):
-    """Get data from uploaded file that is used to generate viz.
+                 matrix_file_base64_str=None, selected_nodes=None, vpsc=False):
+    """Get data from uploaded file that is used to generate viz.TODO
 
     :param sample_file_base64_str: Base64 encoded str corresponding to
         contents of user uploaded sample file.
@@ -59,6 +60,11 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
 
     config_file_str = b64decode(config_file_base64_str).decode("utf-8")
     config_file_dict = loads(config_file_str)
+
+    matrix_file_str = b64decode(matrix_file_base64_str).decode("utf-8")
+    matrix_file_df = pd.read_csv(StringIO(matrix_file_str),
+                                 sep="\t",
+                                 index_col=0)
 
     sample_data_dict = get_sample_data_dict(sample_file_str,
                                             config_file_dict["delimiter"],

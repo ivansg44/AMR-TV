@@ -27,6 +27,13 @@ def get_upload_data_modal():
                                id="select-config-file-btn"),
                     id="upload-config-file",
                     className="mt-1"
+                ),
+                dcc.Upload(
+                    dbc.Button("Optional matrix file",
+                               id="select-matrix-file-btn",
+                               color="light"),
+                    id="upload-matrix-file",
+                    className="mt-1"
                 )
             ]),
             dbc.ModalFooter(

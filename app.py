@@ -293,6 +293,18 @@ def edit_upload_data_modal_after_config_file_upload(_, filename):
 
 
 @app.callback(
+    Output("select-matrix-file-btn", "children"),
+    Output("select-matrix-file-btn", "color"),
+    Input("upload-matrix-file", "contents"),
+    Input("upload-matrix-file", "filename"),
+    prevent_initial_call=True
+)
+def edit_upload_data_modal_after_matrix_file_upload(_, filename):
+    """TODO"""
+    return filename, "success"
+
+
+@app.callback(
     Output("viz-btn", "color"),
     Input("upload-sample-file", "contents"),
     Input("upload-config-file", "contents"),
@@ -949,6 +961,7 @@ def select_nodes(click_data, selected_nodes):
     state=[
         State("upload-sample-file", "contents"),
         State("upload-config-file", "contents"),
+        State("upload-matrix-file", "contents"),
         State("main-graph", "figure"),
         State("main-graph-x-axis", "figure"),
         State("main-graph-y-axis", "figure")
@@ -968,9 +981,9 @@ def select_nodes(click_data, selected_nodes):
     prevent_initial_call=True
 )
 def update_main_viz(selected_nodes, _, relayout_data, sample_file_contents,
-                    config_file_contents, old_main_fig, old_main_fig_x_axis,
-                    old_main_fig_y_axis):
-    """Update main graph, axes, zoomed-out main graph, and legends.
+                    config_file_contents, matrix_file_contents, old_main_fig,
+                    old_main_fig_x_axis, old_main_fig_y_axis):
+    """Update main graph, axes, zoomed-out main graph, and legends.TODO
 
     Current triggers:
 
@@ -1003,22 +1016,31 @@ def update_main_viz(selected_nodes, _, relayout_data, sample_file_contents,
 
     sample_file_base64_str = sample_file_contents.split(",")[1]
     config_file_base64_str = config_file_contents.split(",")[1]
+    matrix_file_base64_str = \
+        matrix_file_contents.split(",")[1] if matrix_file_contents else None
 
     if trigger == "selected-nodes.data":
         app_data = get_app_data(sample_file_base64_str,
                                 config_file_base64_str,
+                                matrix_file_base64_str=matrix_file_base64_str,
                                 selected_nodes=selected_nodes)
-        zoomed_out_app_data = get_app_data(sample_file_base64_str,
-                                           config_file_base64_str,
-                                           selected_nodes=selected_nodes,
-                                           vpsc=True)
+        zoomed_out_app_data = \
+            get_app_data(sample_file_base64_str,
+                         config_file_base64_str,
+                         matrix_file_base64_str=matrix_file_base64_str,
+                         selected_nodes=selected_nodes,
+                         vpsc=True)
         main_fig = get_main_fig(app_data)
         zoomed_out_main_fig = get_zoomed_out_main_fig(zoomed_out_app_data)
     elif trigger == "viz-btn.n_clicks":
-        app_data = get_app_data(sample_file_base64_str, config_file_base64_str)
-        zoomed_out_app_data = get_app_data(sample_file_base64_str,
-                                           config_file_base64_str,
-                                           vpsc=True)
+        app_data = get_app_data(sample_file_base64_str,
+                                config_file_base64_str,
+                                matrix_file_base64_str=matrix_file_base64_str)
+        zoomed_out_app_data = \
+            get_app_data(sample_file_base64_str,
+                         config_file_base64_str,
+                         matrix_file_base64_str=matrix_file_base64_str,
+                         vpsc=True)
         main_fig = get_main_fig(app_data)
         zoomed_out_main_fig = get_zoomed_out_main_fig(zoomed_out_app_data)
     elif trigger == "main-graph.relayoutData":
