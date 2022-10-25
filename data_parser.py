@@ -670,8 +670,8 @@ def filter_link_loops(sample_links_dict, links_config, main_fig_nodes_x_dict,
         prevent loops.
     :rtype: dict
     """
-    graph = nx.Graph()
     for link in sample_links_dict:
+        graph = nx.Graph()
         if not bool(links_config[link]["minimize_loops"]):
             continue
         for (sample, other_sample) in sample_links_dict[link]:
