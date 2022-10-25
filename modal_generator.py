@@ -750,6 +750,12 @@ def get_duplicating_link_section(example_file_field_opts, index, alerts=False):
                             "between the nodes connected by each link with: ",
                             B("abs(@mass@ - !mass!)")
                         ]),
+                        P([
+                            "If you upload a matrix, you can also reference "
+                            "the pairwise matrix value for the two nodes "
+                            "with ",
+                            B("{{matrix}}")
+                        ])
                     ],
                 ) if alerts else None,
                 dbc.Row(
