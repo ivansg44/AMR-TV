@@ -300,7 +300,19 @@ def edit_upload_data_modal_after_config_file_upload(_, filename):
     prevent_initial_call=True
 )
 def edit_upload_data_modal_after_matrix_file_upload(_, filename):
-    """TODO"""
+    """Edit upload data modal css after user uploads matrix file.
+
+    Current changes:
+
+    * Filename replaces content of upload matrix file btn
+    * Upload matrix file btn color changes
+
+    :param _: User uploaded matrix file
+    :param filename: Matrix filename
+    :type filename: str
+    :return: Text inside upload matrix file btn, and btn color
+    :rtype: (str, str)
+    """
     return filename, "success"
 
 
@@ -983,7 +995,7 @@ def select_nodes(click_data, selected_nodes):
 def update_main_viz(selected_nodes, _, relayout_data, sample_file_contents,
                     config_file_contents, matrix_file_contents, old_main_fig,
                     old_main_fig_x_axis, old_main_fig_y_axis):
-    """Update main graph, axes, zoomed-out main graph, and legends.TODO
+    """Update main graph, axes, zoomed-out main graph, and legends.
 
     Current triggers:
 
@@ -999,6 +1011,8 @@ def update_main_viz(selected_nodes, _, relayout_data, sample_file_contents,
     :type sample_file_contents: str
     :param config_file_contents: Contents of uploaded config file
     :type config_file_contents: str
+    :param matrix_file_contents: Contents of uploaded matrix file
+    :type matrix_file_contents: str
     :param old_main_fig: Current main fig
     :type old_main_fig: go.Figure
     :param old_main_fig_x_axis: Current main x-axis fig

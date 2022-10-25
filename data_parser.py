@@ -38,7 +38,7 @@ def parse_fields_from_example_file(example_file_base64_str, delimiter):
 
 def get_app_data(sample_file_base64_str, config_file_base64_str,
                  matrix_file_base64_str=None, selected_nodes=None, vpsc=False):
-    """Get data from uploaded file that is used to generate viz.TODO
+    """Get data from uploaded file that is used to generate viz.
 
     :param sample_file_base64_str: Base64 encoded str corresponding to
         contents of user uploaded sample file.
@@ -46,6 +46,9 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     :param config_file_base64_str: Base64 encoded str corresponding to
         contents of user uploaded config file.
     :type config_file_base64_str: str
+    :param matrix_file_base64_str: Base64 encoded str corresponding to
+        contents of user uploaded matrix file.
+    :type matrix_file_base64_str: str
     :param selected_nodes: Nodes selected by user
     :type selected_nodes: dict
     :param vpsc: Run vpsc nodal overlap removal algorithm
@@ -393,11 +396,13 @@ def sorting_key(track):
 
 def get_sample_data_dict(sample_file_str, sample_id_attr, delimiter, date,
                          date_input, date_output, null_vals):
-    """Parse sample data file into dict obj.TODO
+    """Parse sample data file into dict obj.
 
     :param sample_file_str: Str corresponding to contents of user
         uploaded sample file.
     :type sample_file_str: str
+    :param sample_id_attr: Sample file attr corresponding to sample ids
+    :type sample_id_attr: str
     :param delimiter: Delimiter in sample file
     :type delimiter: str
     :param date: Sample file attr encoded by sample date/x-axis
