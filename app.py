@@ -800,9 +800,9 @@ def continue_config_file_generation(started, delimiter,
         if val is not None and val != "":
             link_dict[id_["index"]]["label"] = val
     for id_, val in zip(link_min_loop_ids, link_min_loop_vals):
-        link_dict[id_["index"]]["minimize_loops"] = val
+        link_dict[id_["index"]]["minimize_loops"] = int(val)
     for id_, val in zip(link_arrowhead_ids, link_arrowhead_vals):
-        link_dict[id_["index"]]["show_arrowheads"] = val
+        link_dict[id_["index"]]["show_arrowheads"] = int(val)
     for id_, val in zip(link_weight_exp_ids, link_weight_exp_vals):
         if val is None:
             val = ""
