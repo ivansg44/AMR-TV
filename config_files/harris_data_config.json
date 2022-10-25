@@ -1,4 +1,5 @@
 {
+  "sample_id": "patient_id",
   "delimiter": "\t",
   "y_axes": [
     ["subtree"],

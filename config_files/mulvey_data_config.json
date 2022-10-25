@@ -1,4 +1,5 @@
 {
+  "sample_id": "sample id",
   "delimiter": "\t",
   "y_axes": [
     ["incompatibility group"],
