@@ -1,5 +1,5 @@
 {
-  "sample_id": "Patient ID",
+  "sample_id": "Sample ID / Isolate",
   "delimiter": ",",
   "y_axes": [
     ["Location"],
