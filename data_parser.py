@@ -215,6 +215,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     main_fig_link_labels_dict = get_main_fig_link_labels_dict(
         sample_links_dict=sample_links_dict,
         main_fig_links_dict=main_fig_links_dict,
+        main_fig_nodes_x_dict=main_fig_nodes_x_dict,
         selected_samples=selected_samples,
         main_fig_height=main_fig_height,
         main_fig_width=main_fig_width,
@@ -942,14 +943,17 @@ def get_main_fig_link_arrowheads_dict(main_fig_links_dict, links_config,
 
 
 def get_main_fig_link_labels_dict(sample_links_dict, main_fig_links_dict,
-                                  selected_samples, main_fig_height,
-                                  main_fig_width, xaxis_range, yaxis_range):
+                                  main_fig_nodes_x_dict, selected_samples,
+                                  main_fig_height, main_fig_width, xaxis_range,
+                                  yaxis_range):
     """Get dict with info used by Plotly to viz link labels.
 
     :param sample_links_dict: ``get_sample_links_dict`` ret val
     :type sample_links_dict: dict
     :param main_fig_links_dict: Dict with info used by Plotly to viz
         links in main graph.
+    :param main_fig_nodes_x_dict: ``get_main_fig_nodes_x_dict`` ret val
+    :type main_fig_nodes_x_dict: dict
     :type main_fig_links_dict: dict
     :param selected_samples: Samples selected by users
     :type selected_samples: set[str]
@@ -979,6 +983,11 @@ def get_main_fig_link_labels_dict(sample_links_dict, main_fig_links_dict,
             selected_link = \
                 sample in selected_samples or other_sample in selected_samples
             if selected_samples and not selected_link:
+                continue
+
+            unstaggered_x0 = main_fig_nodes_x_dict["unstaggered"][sample]
+            unstaggered_x1 = main_fig_nodes_x_dict["unstaggered"][other_sample]
+            if (unstaggered_x1 - unstaggered_x0) == 0:
                 continue
 
             weight = sample_links_dict[link][(sample, other_sample)]
