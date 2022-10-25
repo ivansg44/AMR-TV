@@ -3,3 +3,5 @@ dash-bootstrap-components==0.12.2
 networkx==2.8.5
 # https://github.com/plotly/dash/issues/1992
 Werkzeug==2.0.0
+numpy==1.23.4
+pandas==1.5.1

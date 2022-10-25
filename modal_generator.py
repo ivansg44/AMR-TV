@@ -27,6 +27,13 @@ def get_upload_data_modal():
                                id="select-config-file-btn"),
                     id="upload-config-file",
                     className="mt-1"
+                ),
+                dcc.Upload(
+                    dbc.Button("Optional matrix file",
+                               id="select-matrix-file-btn",
+                               color="light"),
+                    id="upload-matrix-file",
+                    className="mt-1"
                 )
             ]),
             dbc.ModalFooter(
@@ -124,6 +131,31 @@ def get_create_config_modal_form(example_file_field_opts):
     :rtype: list
     """
     ret = [
+        get_create_config_help_btn("sample-id-fields"),
+        get_create_config_help_alert(
+            "sample-id-fields",
+            [
+                P([
+                    B("Sample ID field"),
+                    " is the field from your data that contains your sample "
+                    "identifiers. If you upload a matrix, the row and column "
+                    "headers must correspond to this Sample ID field."
+                ])
+            ]
+        ),
+        dbc.Row(
+            dbc.Col(
+                [
+                    dbc.Label("Sample ID field:",
+                              html_for="sample-field-select"),
+                    dbc.Select(
+                        id="sample-field-select",
+                        options=example_file_field_opts
+                    )
+                ]
+            ),
+            className="mb-3"
+        ),
         get_create_config_help_btn("date-fields"),
         get_create_config_help_alert(
             "date-fields",
@@ -743,6 +775,12 @@ def get_duplicating_link_section(example_file_field_opts, index, alerts=False):
                             "between the nodes connected by each link with: ",
                             B("abs(@mass@ - !mass!)")
                         ]),
+                        P([
+                            "If you upload a matrix, you can also reference "
+                            "the pairwise matrix value for the two nodes "
+                            "with ",
+                            B("{{matrix}}")
+                        ])
                     ],
                 ) if alerts else None,
                 dbc.Row(

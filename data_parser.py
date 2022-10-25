@@ -11,6 +11,7 @@ from math import atan, degrees, radians, sqrt, tan
 from re import compile
 
 import networkx as nx
+import pandas as pd
 
 from adaptagrams.cola import adaptagrams as ag
 from expression_evaluator import eval_expr
@@ -36,7 +37,7 @@ def parse_fields_from_example_file(example_file_base64_str, delimiter):
 
 
 def get_app_data(sample_file_base64_str, config_file_base64_str,
-                 selected_nodes=None, vpsc=False):
+                 matrix_file_base64_str=None, selected_nodes=None, vpsc=False):
     """Get data from uploaded file that is used to generate viz.
 
     :param sample_file_base64_str: Base64 encoded str corresponding to
@@ -45,6 +46,9 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     :param config_file_base64_str: Base64 encoded str corresponding to
         contents of user uploaded config file.
     :type config_file_base64_str: str
+    :param matrix_file_base64_str: Base64 encoded str corresponding to
+        contents of user uploaded matrix file.
+    :type matrix_file_base64_str: str
     :param selected_nodes: Nodes selected by user
     :type selected_nodes: dict
     :param vpsc: Run vpsc nodal overlap removal algorithm
@@ -60,7 +64,16 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     config_file_str = b64decode(config_file_base64_str).decode("utf-8")
     config_file_dict = loads(config_file_str)
 
+    if matrix_file_base64_str:
+        matrix_file_str = b64decode(matrix_file_base64_str).decode("utf-8")
+        matrix_file_df = pd.read_csv(StringIO(matrix_file_str),
+                                     sep="\t",
+                                     index_col=0)
+    else:
+        matrix_file_df = None
+
     sample_data_dict = get_sample_data_dict(sample_file_str,
+                                            config_file_dict["sample_id"],
                                             config_file_dict["delimiter"],
                                             config_file_dict["date_attr"],
                                             config_file_dict["date_input"],
@@ -147,7 +160,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         links_config=config_file_dict["links_config"],
         primary_y=config_file_dict["y_axes"][0],
         links_across_primary_y=config_file_dict["links_across_primary_y"],
-        max_day_range=config_file_dict["max_day_range"]
+        max_day_range=config_file_dict["max_day_range"],
+        matrix_file_df=matrix_file_df
     )
 
     main_fig_nodes_y_dict = get_main_fig_nodes_y_dict(
@@ -380,13 +394,15 @@ def sorting_key(track):
     return ret
 
 
-def get_sample_data_dict(sample_file_str, delimiter, date, date_input,
-                         date_output, null_vals):
+def get_sample_data_dict(sample_file_str, sample_id_attr, delimiter, date,
+                         date_input, date_output, null_vals):
     """Parse sample data file into dict obj.
 
     :param sample_file_str: Str corresponding to contents of user
         uploaded sample file.
     :type sample_file_str: str
+    :param sample_id_attr: Sample file attr corresponding to sample ids
+    :type sample_id_attr: str
     :param delimiter: Delimiter in sample file
     :type delimiter: str
     :param date: Sample file attr encoded by sample date/x-axis
@@ -413,7 +429,7 @@ def get_sample_data_dict(sample_file_str, delimiter, date, date_input,
         row["datetime_obj"] = datetime.strptime(row[date], date_input)
         row[date] = row["datetime_obj"].strftime(date_output)
 
-        sample_data_dict[i] = row
+        sample_data_dict[row[sample_id_attr]] = row
     return sample_data_dict
 
 
@@ -488,7 +504,8 @@ def get_node_color_attr_dict(node_color_attr_list):
 
 
 def get_sample_links_dict(sample_data_dict, links_config, primary_y,
-                          links_across_primary_y, max_day_range):
+                          links_across_primary_y, max_day_range,
+                          matrix_file_df):
     """Get a dict of all links to viz in main graph.
 
     The keys in the dict are different link labels. The values are a
@@ -517,7 +534,7 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
     """
     sample_links_dict = {k: {} for k in links_config}
     sample_list = list(sample_data_dict.keys())
-    regex_obj = compile("!.*?!|@.*?@")
+    regex_obj = compile("!.*?!|@.*?@|{{matrix}}")
 
     def get_sample_attr_list(sample_data, link_config_list, filters):
         # Get the attr values for a sample, corresponding to one of the
@@ -609,6 +626,13 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
                             elif match[0] == "@":
                                 exp_attr = match.strip("@")
                                 return sample_j_data[exp_attr]
+                            elif match == "{{matrix}}":
+                                if matrix_file_df is None:
+                                    msg = "Specified matrix in weight exp, " \
+                                          "but no matrix file provided"
+                                    raise RuntimeError(msg)
+                                matrix_val = matrix_file_df[sample_i][sample_j]
+                                return str(matrix_val)
                             else:
                                 msg = "Unexpected regex match obj when " \
                                       "parsing weight expression: " + match
@@ -664,8 +688,8 @@ def filter_link_loops(sample_links_dict, links_config, main_fig_nodes_x_dict,
         prevent loops.
     :rtype: dict
     """
-    graph = nx.Graph()
     for link in sample_links_dict:
+        graph = nx.Graph()
         if not bool(links_config[link]["minimize_loops"]):
             continue
         for (sample, other_sample) in sample_links_dict[link]:

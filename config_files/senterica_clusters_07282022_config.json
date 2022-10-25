@@ -1,4 +1,5 @@
 {
+  "sample_id": "Sample",
   "delimiter": "\t",
   "y_axes": [
     ["threshold_10"],
