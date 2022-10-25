@@ -187,7 +187,8 @@ def get_zoomed_out_main_fig(app_data):
                 "fixedrange": True,
                 "tickmode": "array",
                 "tickvals": app_data["main_fig_xaxis_tickvals"],
-                "visible": False
+                "ticktext": app_data["main_fig_xaxis_ticktext"],
+                "tickangle": -90
             },
             "yaxis": {
                 "range": app_data["main_fig_yaxis_range"],
