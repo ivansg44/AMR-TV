@@ -1131,15 +1131,21 @@ def update_main_viz(selected_nodes, _, relayout_data, sample_file_contents,
         raise RuntimeError(msg)
 
     main_fig_x_axis = get_main_fig_x_axis(app_data)
-    main_fig_x_axis_style = {"height": "100%",
-                             "width": app_data["main_fig_width"]}
+    main_fig_x_axis_style = {
+        "height": "100%",
+        "width": "max(100%%, %spx)" % app_data["main_fig_width"]
+    }
 
     main_fig_y_axis = get_main_fig_y_axis(app_data)
-    main_fig_y_axis_style = {"height": app_data["main_fig_height"],
-                             "width": "100%"}
+    main_fig_y_axis_style = {
+        "height": "max(100%%, %spx)" % app_data["main_fig_height"],
+        "width": "100%"
+    }
 
-    main_fig_style = {"height": app_data["main_fig_height"],
-                      "width": app_data["main_fig_width"]}
+    main_fig_style = {
+        "height": "max(100%%, %spx)" % app_data["main_fig_height"],
+        "width": "max(100%%, %spx)" % app_data["main_fig_width"]
+    }
     node_symbol_legend_fig = get_node_symbol_legend_fig(app_data)
     link_legend_fig = get_link_legend_fig(app_data)
     node_color_legend_fig = get_node_color_legend_fig(app_data)
