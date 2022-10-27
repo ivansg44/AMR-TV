@@ -187,7 +187,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         filter_link_loops(sample_links_dict=sample_links_dict,
                           links_config=config_file_dict["links_config"],
                           main_fig_nodes_x_dict=main_fig_nodes_x_dict,
-                          main_fig_nodes_y_dict=main_fig_nodes_y_dict)
+                          main_fig_nodes_y_dict=main_fig_nodes_y_dict,
+                          matrix_file_df=matrix_file_df)
 
     link_color_dict = get_link_color_dict(sample_links_dict)
 
@@ -529,6 +530,8 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
     :type links_across_primary_y: bool
     :param max_day_range: Maximum day range to still consider links
     :type max_day_range: int
+    :param matrix_file_df: Dataframe encoding user uploaded matrix
+    :type matrix_file_df: pd.DataFrame | None
     :return: Dict detailing links to viz in main graph
     :rtype: dict
     """
@@ -667,7 +670,7 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
 
 
 def filter_link_loops(sample_links_dict, links_config, main_fig_nodes_x_dict,
-                      main_fig_nodes_y_dict):
+                      main_fig_nodes_y_dict, matrix_file_df):
     """Remove links forming loops in a network.
 
     Every group of connected nodes is converted into a minimum spanning
@@ -684,6 +687,8 @@ def filter_link_loops(sample_links_dict, links_config, main_fig_nodes_x_dict,
     :type main_fig_nodes_x_dict: dict
     :param main_fig_nodes_y_dict: ``get_main_fig_nodes_y_dict`` ret val
     :type main_fig_nodes_y_dict: dict
+    :param matrix_file_df: Dataframe encoding user uploaded matrix
+    :type matrix_file_df: pd.DataFrame | None
     :return: ``sample_links_dict`` with certain links removed to
         prevent loops.
     :rtype: dict
@@ -696,14 +701,18 @@ def filter_link_loops(sample_links_dict, links_config, main_fig_nodes_x_dict,
             # ``weight`` is a reserved keyword in ``add_edge``
             weight_ = sample_links_dict[link][(sample, other_sample)]
 
-            # nx will use the difference in graphic distance b/w nodes
-            # in the plot as weight, for mst purposes.
-            # TODO: allow users to specify own edge weight expressions
-            x0 = main_fig_nodes_x_dict["staggered"][sample]
-            x1 = main_fig_nodes_x_dict["staggered"][other_sample]
-            y0 = main_fig_nodes_y_dict[sample]
-            y1 = main_fig_nodes_y_dict[other_sample]
-            weight = sqrt((x1-x0)**2 + (y1-y0)**2)
+            if matrix_file_df is None:
+                # nx will use the difference in graphic distance b/w nodes
+                # in the plot as weight, for mst purposes.
+                # TODO: allow users to specify own edge weight expressions
+                x0 = main_fig_nodes_x_dict["staggered"][sample]
+                x1 = main_fig_nodes_x_dict["staggered"][other_sample]
+                y0 = main_fig_nodes_y_dict[sample]
+                y1 = main_fig_nodes_y_dict[other_sample]
+                weight = sqrt((x1-x0)**2 + (y1-y0)**2)
+            else:
+                weight = matrix_file_df[sample][other_sample]
+
             # Need to track original order because graph is undirected
             order = (sample, other_sample)
 
