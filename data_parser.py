@@ -142,12 +142,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         ["<br>".join(["<b>%s</b>" % v[e] for e in label_attr])
          for v in sample_data_vals]
 
-    main_fig_nodes_hovertext = \
-        get_main_fig_nodes_hovertext(sample_data_dict,
-                                     main_fig_nodes_text,
-                                     date_list,
-                                     track_list,
-                                     config_file_dict["links_config"])
+    main_fig_nodes_hovertext = [k for k in sample_data_dict]
 
     xaxis_range = [0.5, len(date_x_vals_dict) + 0.5]
     yaxis_range = [0.5, sum(max_node_count_at_track_dict.values())+0.5]
@@ -1260,47 +1255,6 @@ def get_main_fig_nodes_y_dict(sample_data_dict, sample_links_dict, date_attr,
             helper_obj[(sample_track, sample_date)][1] += 1
 
     return main_fig_nodes_y_dict
-
-
-def get_main_fig_nodes_hovertext(sample_data_dict, main_fig_nodes_text,
-                                 date_list, track_list, links_config):
-    """Get hovertext for nodes in main fig.
-
-    :param sample_data_dict: Sample file data parsed into dict obj
-    :type sample_data_dict: dict
-    :param main_fig_nodes_text: List of node labels wrt all nodes
-    :type main_fig_nodes_text: list[str]
-    :param date_list: List of sample dates wrt all nodes
-    :type date_list: list
-    :param track_list: List of sample tracks wrt all nodes
-    :type track_list: list
-    :return: List of d3-formatted text to display on hover across all
-        nodes in main fig.
-    :rtype: list[str]
-    """
-    ret = []
-    link_attrs_dict = {}
-    for link in links_config:
-        link_attrs = links_config[link]
-        link_attrs_dict[link] = \
-            dict.fromkeys(link_attrs["all_eq"]
-                          + link_attrs["all_neq"]
-                          + link_attrs["any_eq"])
-    for i, sample in enumerate(sample_data_dict):
-        sample_data = sample_data_dict[sample]
-        sample_label_vals = [main_fig_nodes_text[i],
-                             date_list[i],
-                             str(track_list[i]),
-                             ""]
-        for link in links_config:
-            sample_label_vals.append("<b>" + link + "</b>:")
-            attrs = link_attrs_dict[link]
-            attr_vals = \
-                ["null" if e is None else sample_data[e] for e in attrs]
-            sample_label_vals += \
-                ["%s: %s" % (i, j) for i, j in zip(attrs, attr_vals)]
-        ret.append("<br>".join(sample_label_vals))
-    return ret
 
 
 def get_main_fig_primary_facet_x(xaxis_range, num_of_facets):

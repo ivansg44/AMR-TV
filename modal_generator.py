@@ -138,8 +138,10 @@ def get_create_config_modal_form(example_file_field_opts):
                 P([
                     B("Sample ID field"),
                     " is the field from your data that contains your sample "
-                    "identifiers. If you upload a matrix, the row and column "
-                    "headers must correspond to this Sample ID field."
+                    "identifiers. Hovering over a node will display the "
+                    "Sample ID value corresponding to that node. If you "
+                    "upload a matrix, the row and column headers must "
+                    "correspond to this Sample ID field."
                 ])
             ]
         ),
