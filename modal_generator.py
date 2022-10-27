@@ -684,11 +684,14 @@ def get_duplicating_link_section(example_file_field_opts, index, alerts=False):
                               href="https://bit.ly/2VxWqSp",
                               target="_blank",
                               rel="noopener noreferrer"),
-                            ". The weight assigned to each link or edge when "
-                            "generating MSTs is equal to the difference in ",
-                            B("Date field"),
-                            " values between the two nodes connected by the "
-                            "link."
+                            ". If an optional matrix file was provided, the "
+                            "weight assigned to each link or edge when "
+                            "generating MSTs is equal to the corresponding "
+                            "matrix cell value encoding the two nodes "
+                            "connected by said link. If an optional matrix "
+                            "file was not provided, the difference in "
+                            "graphical distance on the plot between the two "
+                            "nodes connected by the link is used."
                         ]),
                         P([
                             A("Kruskal's algorithm",
