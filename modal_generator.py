@@ -138,8 +138,10 @@ def get_create_config_modal_form(example_file_field_opts):
                 P([
                     B("Sample ID field"),
                     " is the field from your data that contains your sample "
-                    "identifiers. If you upload a matrix, the row and column "
-                    "headers must correspond to this Sample ID field."
+                    "identifiers. Hovering over a node will display the "
+                    "Sample ID value corresponding to that node. If you "
+                    "upload a matrix, the row and column headers must "
+                    "correspond to this Sample ID field."
                 ])
             ]
         ),
@@ -684,11 +686,14 @@ def get_duplicating_link_section(example_file_field_opts, index, alerts=False):
                               href="https://bit.ly/2VxWqSp",
                               target="_blank",
                               rel="noopener noreferrer"),
-                            ". The weight assigned to each link or edge when "
-                            "generating MSTs is equal to the difference in ",
-                            B("Date field"),
-                            " values between the two nodes connected by the "
-                            "link."
+                            ". If an optional matrix file was provided, the "
+                            "weight assigned to each link or edge when "
+                            "generating MSTs is equal to the corresponding "
+                            "matrix cell value encoding the two nodes "
+                            "connected by said link. If an optional matrix "
+                            "file was not provided, the difference in "
+                            "graphical distance on the plot between the two "
+                            "nodes connected by the link is used."
                         ]),
                         P([
                             A("Kruskal's algorithm",
