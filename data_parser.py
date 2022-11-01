@@ -94,6 +94,9 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
                                   date_list=date_list,
                                   date_x_vals_dict=date_x_vals_dict)
 
+    zoomed_out_main_fig_x_axis_dict = \
+        get_zoomed_out_main_fig_x_axis_dict(datetime_list)
+
     track_list = \
         get_unsorted_track_list(sample_data_dict, config_file_dict["y_axes"])
     track_date_node_count_dict = Counter(zip(track_list, date_list))
@@ -298,6 +301,10 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
             get_main_fig_secondary_facet_y(max_node_count_at_track_dict),
         "main_fig_height": main_fig_height,
         "main_fig_width": main_fig_width,
+        "zoomed_out_main_fig_xaxis_tickvals":
+            list(zoomed_out_main_fig_x_axis_dict.values()),
+        "zoomed_out_main_fig_xaxis_ticktext":
+            list(zoomed_out_main_fig_x_axis_dict.keys()),
         "zoomed_out_main_fig_yaxis_tickvals":
             zoomed_out_main_fig_yaxis_tickvals,
         "zoomed_out_main_fig_yaxis_ticktext":
@@ -422,8 +429,10 @@ def get_sample_data_dict(sample_file_str, sample_id_attr, delimiter, date,
             continue
         row = {k: (None if row[k] in null_vals else row[k]) for k in row}
 
-        row["datetime_obj"] = datetime.strptime(row[date], date_input)
-        row[date] = row["datetime_obj"].strftime(date_output)
+        input_datetime_obj = datetime.strptime(row[date], date_input)
+        row[date] = input_datetime_obj.strftime(date_output)
+        # We want to keep track of the datetime obj using output format
+        row["datetime_obj"] = datetime.strptime(row[date], date_output)
 
         sample_data_dict[row[sample_id_attr]] = row
     return sample_data_dict
@@ -1096,6 +1105,27 @@ def get_main_fig_nodes_x_dict(sample_data_dict, date_attr, date_list,
         helper_obj[sample_date][1] += 1
 
     return main_fig_nodes_x_dict
+
+
+def get_zoomed_out_main_fig_x_axis_dict(datetime_list):
+    """TODO"""
+    sorted_datetime_list = sorted(datetime_list)
+    sorted_datetime_table = dict.fromkeys(sorted_datetime_list)
+
+    granular_date_list = [e.year for e in sorted_datetime_table]
+    if len(set(granular_date_list)) < 2:
+        granular_date_list = [e.month for e in sorted_datetime_table]
+        granular_date_list = \
+            [datetime.strptime(str(e), "%m") for e in granular_date_list]
+        granular_date_list = [e.strftime("%B") for e in granular_date_list]
+
+    ret = {}
+    acc = 1
+    for date, count in Counter(granular_date_list).items():
+        ret[date] = acc + (count-1)/2
+        acc += count
+
+    return ret
 
 
 def get_max_node_count_at_track_dict(track_date_node_count_dict):
