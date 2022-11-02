@@ -178,6 +178,10 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         main_fig_nodes_x_dict = node_overlap_dict["main_fig_nodes_x_dict"]
         main_fig_nodes_y_dict = node_overlap_dict["main_fig_nodes_y_dict"]
 
+    zoomed_out_main_fig_x_axis_dict = \
+        get_zoomed_out_main_fig_x_axis_dict(datetime_list,
+                                            main_fig_nodes_x_dict)
+
     sample_links_dict = \
         filter_link_loops(sample_links_dict=sample_links_dict,
                           links_config=config_file_dict["links_config"],
@@ -298,6 +302,10 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
             get_main_fig_secondary_facet_y(max_node_count_at_track_dict),
         "main_fig_height": main_fig_height,
         "main_fig_width": main_fig_width,
+        "zoomed_out_main_fig_xaxis_tickvals":
+            list(zoomed_out_main_fig_x_axis_dict.values()),
+        "zoomed_out_main_fig_xaxis_ticktext":
+            list(zoomed_out_main_fig_x_axis_dict.keys()),
         "zoomed_out_main_fig_yaxis_tickvals":
             zoomed_out_main_fig_yaxis_tickvals,
         "zoomed_out_main_fig_yaxis_ticktext":
@@ -422,8 +430,10 @@ def get_sample_data_dict(sample_file_str, sample_id_attr, delimiter, date,
             continue
         row = {k: (None if row[k] in null_vals else row[k]) for k in row}
 
-        row["datetime_obj"] = datetime.strptime(row[date], date_input)
-        row[date] = row["datetime_obj"].strftime(date_output)
+        input_datetime_obj = datetime.strptime(row[date], date_input)
+        row[date] = input_datetime_obj.strftime(date_output)
+        # We want to keep track of the datetime obj using output format
+        row["datetime_obj"] = datetime.strptime(row[date], date_output)
 
         sample_data_dict[row[sample_id_attr]] = row
     return sample_data_dict
@@ -1096,6 +1106,38 @@ def get_main_fig_nodes_x_dict(sample_data_dict, date_attr, date_list,
         helper_obj[sample_date][1] += 1
 
     return main_fig_nodes_x_dict
+
+
+def get_zoomed_out_main_fig_x_axis_dict(datetime_list, main_fig_nodes_x_dict):
+    """Get tick labels and vals for zoomed out main fig.
+
+    We bin dates by year, or month if all dates are in the same year.
+    We assign a tick at the earliest x-axis position for a bin val.
+
+    :param datetime_list: List of sample datetime objs wrt all nodes
+    :type datetime_list: list
+    :param main_fig_nodes_x_dict: ``get_main_fig_nodes_x_dict`` ret val
+    :type main_fig_nodes_x_dict: dict
+    :return: Dict with keys as tick labels, and vals as tick vals
+    :rtype: dict
+    """
+    date_bin_list = [e.year for e in datetime_list]
+    just_one_year = len(set(date_bin_list)) == 1
+    if just_one_year:
+        date_bin_list = [e.month for e in datetime_list]
+
+    x_dict_vals = main_fig_nodes_x_dict["staggered"].values()
+    date_bin_x_zip_obj = zip(date_bin_list, x_dict_vals)
+    ret = {}
+    for k, group in groupby(sorted(date_bin_x_zip_obj),
+                            lambda x: x[0]):
+        if just_one_year:
+            date = datetime.strptime(str(k), "%m").strftime("%B")
+        else:
+            date = k
+        ret[date] = min(group, key=lambda x: x[1])[1]
+
+    return ret
 
 
 def get_max_node_count_at_track_dict(track_date_node_count_dict):
