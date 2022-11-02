@@ -94,9 +94,6 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
                                   date_list=date_list,
                                   date_x_vals_dict=date_x_vals_dict)
 
-    zoomed_out_main_fig_x_axis_dict = \
-        get_zoomed_out_main_fig_x_axis_dict(datetime_list)
-
     track_list = \
         get_unsorted_track_list(sample_data_dict, config_file_dict["y_axes"])
     track_date_node_count_dict = Counter(zip(track_list, date_list))
@@ -180,6 +177,10 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
                                 yaxis_range)
         main_fig_nodes_x_dict = node_overlap_dict["main_fig_nodes_x_dict"]
         main_fig_nodes_y_dict = node_overlap_dict["main_fig_nodes_y_dict"]
+
+    zoomed_out_main_fig_x_axis_dict = \
+        get_zoomed_out_main_fig_x_axis_dict(datetime_list,
+                                            main_fig_nodes_x_dict)
 
     sample_links_dict = \
         filter_link_loops(sample_links_dict=sample_links_dict,
@@ -1107,23 +1108,23 @@ def get_main_fig_nodes_x_dict(sample_data_dict, date_attr, date_list,
     return main_fig_nodes_x_dict
 
 
-def get_zoomed_out_main_fig_x_axis_dict(datetime_list):
+def get_zoomed_out_main_fig_x_axis_dict(datetime_list, main_fig_nodes_x_dict):
     """TODO"""
-    sorted_datetime_list = sorted(datetime_list)
-    sorted_datetime_table = dict.fromkeys(sorted_datetime_list)
+    date_bin_list = [e.year for e in datetime_list]
+    just_one_year = len(set(date_bin_list)) == 1
+    if just_one_year:
+        date_bin_list = [e.month for e in datetime_list]
 
-    granular_date_list = [e.year for e in sorted_datetime_table]
-    if len(set(granular_date_list)) < 2:
-        granular_date_list = [e.month for e in sorted_datetime_table]
-        granular_date_list = \
-            [datetime.strptime(str(e), "%m") for e in granular_date_list]
-        granular_date_list = [e.strftime("%B") for e in granular_date_list]
-
+    x_dict_vals = main_fig_nodes_x_dict["staggered"].values()
+    date_bin_x_zip_obj = zip(date_bin_list, x_dict_vals)
     ret = {}
-    acc = 1
-    for date, count in Counter(granular_date_list).items():
-        ret[date] = acc + (count-1)/2
-        acc += count
+    for k, group in groupby(sorted(date_bin_x_zip_obj),
+                            lambda x: x[0]):
+        if just_one_year:
+            date = datetime.strptime(str(k), "%m").strftime("%B")
+        else:
+            date = k
+        ret[date] = min(group, key=lambda x: x[1])[1]
 
     return ret
 

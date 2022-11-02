@@ -188,14 +188,16 @@ def get_zoomed_out_main_fig(app_data):
                 "tickmode": "array",
                 "tickvals": app_data["zoomed_out_main_fig_xaxis_tickvals"],
                 "ticktext": app_data["zoomed_out_main_fig_xaxis_ticktext"],
-                "tickangle": -90
+                "tickangle": -90,
+                "linecolor": "black"
             },
             "yaxis": {
                 "range": app_data["main_fig_yaxis_range"],
                 "fixedrange": True,
                 "tickmode": "array",
                 "tickvals": app_data["zoomed_out_main_fig_yaxis_tickvals"],
-                "ticktext": app_data["zoomed_out_main_fig_yaxis_ticktext"]
+                "ticktext": app_data["zoomed_out_main_fig_yaxis_ticktext"],
+                "linecolor": "black"
             },
             "plot_bgcolor": "white"
         },
