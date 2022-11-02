@@ -1109,7 +1109,18 @@ def get_main_fig_nodes_x_dict(sample_data_dict, date_attr, date_list,
 
 
 def get_zoomed_out_main_fig_x_axis_dict(datetime_list, main_fig_nodes_x_dict):
-    """TODO"""
+    """Get tick labels and vals for zoomed out main fig.
+
+    We bin dates by year, or month if all dates are in the same year.
+    We assign a tick at the earliest x-axis position for a bin val.
+
+    :param datetime_list: List of sample datetime objs wrt all nodes
+    :type datetime_list: list
+    :param main_fig_nodes_x_dict: ``get_main_fig_nodes_x_dict`` ret val
+    :type main_fig_nodes_x_dict: dict
+    :return: Dict with keys as tick labels, and vals as tick vals
+    :rtype: dict
+    """
     date_bin_list = [e.year for e in datetime_list]
     just_one_year = len(set(date_bin_list)) == 1
     if just_one_year:
