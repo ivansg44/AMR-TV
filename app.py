@@ -142,7 +142,9 @@ def launch_app(_):
                                 dcc.Graph(
                                     figure={},
                                     id="zoomed-out-main-graph",
-                                    config={"displayModeBar": False}
+                                    config={"displayModeBar": False},
+                                    style={"height": "85vh",
+                                           "width": "80vw"}
                                 ),
                                 id="zoomed-out-main-graph-tab",
                                 label="Zoomed out",
