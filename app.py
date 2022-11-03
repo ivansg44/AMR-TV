@@ -190,7 +190,10 @@ def launch_app(_):
                             ),
                         )
                     ],
-                    width=2
+                    width=2,
+                    style={
+                        "overflowY": "scroll"
+                    }
                 )
             ]
         ),
