@@ -309,7 +309,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         "zoomed_out_main_fig_yaxis_tickvals":
             zoomed_out_main_fig_yaxis_tickvals,
         "zoomed_out_main_fig_yaxis_ticktext":
-            zoomed_out_main_fig_yaxis_ticktext
+            zoomed_out_main_fig_yaxis_ticktext,
+        "y_axis_attributes": [";".join(e) for e in config_file_dict["y_axes"]]
     }
 
     return app_data

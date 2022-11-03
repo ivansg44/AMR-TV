@@ -18,6 +18,7 @@ from dash.dependencies import (ClientsideFunction,
                                MATCH)
 from dash.exceptions import PreventUpdate
 import dash_bootstrap_components as dbc
+import dash_html_components as html
 import dash_core_components as dcc
 from dash_html_components import Div
 import plotly.graph_objects as go
@@ -142,7 +143,9 @@ def launch_app(_):
                                 dcc.Graph(
                                     figure={},
                                     id="zoomed-out-main-graph",
-                                    config={"displayModeBar": False}
+                                    config={"displayModeBar": False},
+                                    style={"height": "85vh",
+                                           "width": "80vw"}
                                 ),
                                 id="zoomed-out-main-graph-tab",
                                 label="Zoomed out",
@@ -155,6 +158,13 @@ def launch_app(_):
                 ),
                 dbc.Col(
                     children=[
+                        dbc.Row(
+                            dbc.Col(
+                                children=[],
+                                id="y-axis-legend-col",
+                                className="border-bottom text-center"
+                            ),
+                        ),
                         dbc.Row(
                             dbc.Col(
                                 dcc.Graph(
@@ -188,7 +198,11 @@ def launch_app(_):
                             ),
                         )
                     ],
-                    width=2
+                    width=2,
+                    style={
+                        "height": "90vh",
+                        "overflowY": "scroll"
+                    }
                 )
             ]
         ),
@@ -986,7 +1000,8 @@ def select_nodes(click_data, selected_nodes):
         Output("zoomed-out-main-graph", "figure"),
         Output("node-shape-legend-graph", "figure"),
         Output("link-legend-graph", "figure"),
-        Output("node-color-legend-graph", "figure")
+        Output("node-color-legend-graph", "figure"),
+        Output("y-axis-legend-col", "children")
     ],
     prevent_initial_call=True
 )
@@ -1123,6 +1138,7 @@ def update_main_viz(selected_nodes, _, relayout_data, sample_file_contents,
                 no_update,
                 no_update,
                 no_update,
+                no_update,
                 no_update)
     else:
         msg = "Unexpected trigger trying to update main graph: %s" % trigger
@@ -1148,6 +1164,9 @@ def update_main_viz(selected_nodes, _, relayout_data, sample_file_contents,
     link_legend_fig = get_link_legend_fig(app_data)
     node_color_legend_fig = get_node_color_legend_fig(app_data)
 
+    y_axis_legend = [html.H5("y-axis attributes:")]
+    y_axis_legend += [html.P(e) for e in app_data["y_axis_attributes"]]
+
     return (main_fig,
             main_fig_style,
             main_fig_x_axis,
@@ -1157,7 +1176,8 @@ def update_main_viz(selected_nodes, _, relayout_data, sample_file_contents,
             zoomed_out_main_fig,
             node_symbol_legend_fig,
             link_legend_fig,
-            node_color_legend_fig)
+            node_color_legend_fig,
+            y_axis_legend)
 
 
 # Switch to main graph tab and scroll to corresponding node, after
