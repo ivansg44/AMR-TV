@@ -1,8 +1,8 @@
 {
   "sample_id": "Sample ID / Isolate",
   "delimiter": ",",
-  "y_axes": [
-    ["Location"],
+  "primary_y_axis": ["Location"],
+  "secondary_y_axes": [
     ["rep_type(s)"]
   ],
   "date_attr": "Date of collection",
