@@ -316,7 +316,10 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
             zoomed_out_main_fig_yaxis_tickvals,
         "zoomed_out_main_fig_yaxis_ticktext":
             zoomed_out_main_fig_yaxis_ticktext,
-        "y_axis_attributes": y_axis_attributes
+        "primary_y_axis_attributes":
+            ";".join(config_file_dict["primary_y_axis"]),
+        "secondary_y_axes_attributes":
+            [";".join(e) for e in config_file_dict["secondary_y_axes"]]
     }
 
     return app_data

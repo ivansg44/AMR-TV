@@ -1164,8 +1164,11 @@ def update_main_viz(selected_nodes, _, relayout_data, sample_file_contents,
     link_legend_fig = get_link_legend_fig(app_data)
     node_color_legend_fig = get_node_color_legend_fig(app_data)
 
-    y_axis_legend = [html.H5("y-axis attributes:")]
-    y_axis_legend += [html.P(e) for e in app_data["y_axis_attributes"]]
+    y_axis_legend = [html.H5("primary y-axis attribute:")]
+    y_axis_legend += [html.P(app_data["primary_y_axis_attributes"])]
+    y_axis_legend += [html.H5("secondary y-axis attributes:")]
+    y_axis_legend += \
+        [html.P(e) for e in app_data["secondary_y_axes_attributes"]]
 
     return (main_fig,
             main_fig_style,
