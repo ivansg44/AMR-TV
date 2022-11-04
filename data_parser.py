@@ -64,6 +64,10 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     config_file_str = b64decode(config_file_base64_str).decode("utf-8")
     config_file_dict = loads(config_file_str)
 
+    y_axis_attributes = [config_file_dict["primary_y_axis"]]
+    y_axis_attributes += \
+        [";".join(e) for e in config_file_dict["secondary_y_axes"]]
+
     if matrix_file_base64_str:
         matrix_file_str = b64decode(matrix_file_base64_str).decode("utf-8")
         matrix_file_df = pd.read_csv(StringIO(matrix_file_str),
@@ -95,7 +99,9 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
                                   date_x_vals_dict=date_x_vals_dict)
 
     track_list = \
-        get_unsorted_track_list(sample_data_dict, config_file_dict["y_axes"])
+        get_unsorted_track_list(sample_data_dict,
+                                config_file_dict["primary_y_axis"],
+                                config_file_dict["secondary_y_axes"])
     track_date_node_count_dict = Counter(zip(track_list, date_list))
     max_node_count_at_track_dict = \
         get_max_node_count_at_track_dict(track_date_node_count_dict)
@@ -153,7 +159,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     sample_links_dict = get_sample_links_dict(
         sample_data_dict=sample_data_dict,
         links_config=config_file_dict["links_config"],
-        primary_y=config_file_dict["y_axes"][0],
+        primary_y=config_file_dict["primary_y_axis"],
         links_across_primary_y=config_file_dict["links_across_primary_y"],
         max_day_range=config_file_dict["max_day_range"],
         matrix_file_df=matrix_file_df
@@ -310,13 +316,14 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
             zoomed_out_main_fig_yaxis_tickvals,
         "zoomed_out_main_fig_yaxis_ticktext":
             zoomed_out_main_fig_yaxis_ticktext,
-        "y_axis_attributes": [";".join(e) for e in config_file_dict["y_axes"]]
+        "y_axis_attributes": y_axis_attributes
     }
 
     return app_data
 
 
-def get_unsorted_track_list(sample_data_dict, y_axes):
+def get_unsorted_track_list(sample_data_dict, primary_y_axis,
+                            secondary_y_axes):
     """Get an unsorted list of tracks assigned across all nodes.
 
     A track for a node (N) consists of:
@@ -343,15 +350,18 @@ def get_unsorted_track_list(sample_data_dict, y_axes):
 
     :param sample_data_dict: ``get_sample_data_dict`` ret val
     :type sample_data_dict: dict
-    :param y_axes: List of lists, with inner lists populated by
-        attributes to collect from nodes when calculating their
+    :param primary_y_axis: First y-axis list specified by user
+    :type primary_y_axis: list[str]
+    :param secondary_y_axes: List of lists, with inner lists populated
+        by attributes to collect from nodes when calculating their
         position along the y axis.
-    :type y_axes: list[list[str]]
+    :type secondary_y_axes: list[list[str]]
     :return: Unsorted list of tracks assigned across all nodes
     :rtype: list[tuple[tuple[str]]]
     """
     lists_to_zip = []
     vals = sample_data_dict.values()
+    y_axes = [primary_y_axis] + secondary_y_axes
     for axis_list in y_axes:
         lists_to_zip.append([tuple([i[j] for j in axis_list]) for i in vals])
     ret = list(zip(*lists_to_zip))
@@ -529,7 +539,7 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
     :param links_config: dict of criteria for different user-specified
         links.
     :type links_config: dict
-    :param primary_y: First list specified by user in y-axes
+    :param primary_y: Primary y-axis val specified by user
     :type primary_y: list[str]
     :param links_across_primary_y: Whether we consider links across
         different primary y vals.
