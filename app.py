@@ -902,8 +902,9 @@ def continue_config_file_generation(started, delimiter,
         "links_across_primary_y": int(links_across_primary_y),
         "max_day_range": max_day_range,
         "null_vals": null_vals,
-        "y_axes": [[e] for e in y_axis_fields
-                   if e is not None or ""],
+        "primary_y_axis": first_y_axis_field,
+        "secondary_y_axes": [[e] for e in y_axis_fields[1:]
+                             if e is not None or ""],
         "label_attr": [e for e in node_label_fields
                        if e is not None or ""],
         "node_color_attr": [e for e in node_color_fields
