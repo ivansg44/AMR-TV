@@ -902,8 +902,9 @@ def continue_config_file_generation(started, delimiter,
         "links_across_primary_y": int(links_across_primary_y),
         "max_day_range": max_day_range,
         "null_vals": null_vals,
-        "y_axes": [[e] for e in y_axis_fields
-                   if e is not None or ""],
+        "primary_y_axis": first_y_axis_field,
+        "secondary_y_axes": [[e] for e in y_axis_fields[1:]
+                             if e is not None or ""],
         "label_attr": [e for e in node_label_fields
                        if e is not None or ""],
         "node_color_attr": [e for e in node_color_fields
@@ -1164,8 +1165,11 @@ def update_main_viz(selected_nodes, _, relayout_data, sample_file_contents,
     link_legend_fig = get_link_legend_fig(app_data)
     node_color_legend_fig = get_node_color_legend_fig(app_data)
 
-    y_axis_legend = [html.H5("y-axis attributes:")]
-    y_axis_legend += [html.P(e) for e in app_data["y_axis_attributes"]]
+    y_axis_legend = [html.H5("primary y-axis attribute:")]
+    y_axis_legend += [html.P(app_data["primary_y_axis_attributes"])]
+    y_axis_legend += [html.H5("secondary y-axis attributes:")]
+    y_axis_legend += \
+        [html.P(e) for e in app_data["secondary_y_axes_attributes"]]
 
     return (main_fig,
             main_fig_style,

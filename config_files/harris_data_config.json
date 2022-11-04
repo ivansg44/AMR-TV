@@ -1,8 +1,8 @@
 {
   "sample_id": "patient_id",
   "delimiter": "\t",
-  "y_axes": [
-    ["subtree"],
+  "primary_y_axis": ["subtree"],
+  "secondary_y_axes": [
     ["location"]
   ],
   "date_attr": "date",

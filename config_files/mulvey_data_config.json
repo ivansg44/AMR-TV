@@ -1,8 +1,8 @@
 {
   "sample_id": "sample id",
   "delimiter": "\t",
-  "y_axes": [
-    ["incompatibility group"],
+  "primary_y_axis": ["incompatibility group"],
+  "secondary_y_axes": [
     ["sequence type"],
     ["Tn4401 variant"]
   ],

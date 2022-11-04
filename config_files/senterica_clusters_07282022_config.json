@@ -1,8 +1,8 @@
 {
   "sample_id": "Sample",
   "delimiter": "\t",
-  "y_axes": [
-    ["threshold_10"],
+  "primary_y_axis": ["threshold_10"],
+  "secondary_y_axes": [
     ["farm_no"]
   ],
   "date_attr": "collection_date",
