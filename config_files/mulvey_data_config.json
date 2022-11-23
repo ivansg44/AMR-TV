@@ -18,6 +18,7 @@
       "minimize_loops": 0,
       "show_arrowheads": 1,
       "weight_exp": "@SNV distance@-!SNV distance!",
+      "show_weights": 1,
       "weight_filters": {},
       "attr_filters": {}
     },
@@ -28,6 +29,7 @@
       "minimize_loops": 1,
       "show_arrowheads": 1,
       "weight_exp": "",
+      "show_weights": 0,
       "weight_filters": {},
       "attr_filters": {
       }
