@@ -192,8 +192,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         filter_link_loops(sample_links_dict=sample_links_dict,
                           links_config=config_file_dict["links_config"],
                           main_fig_nodes_x_dict=main_fig_nodes_x_dict,
-                          main_fig_nodes_y_dict=main_fig_nodes_y_dict,
-                          matrix_file_df=matrix_file_df)
+                          main_fig_nodes_y_dict=main_fig_nodes_y_dict)
 
     link_color_dict = get_link_color_dict(sample_links_dict)
 
@@ -690,12 +689,13 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
 
 
 def filter_link_loops(sample_links_dict, links_config, main_fig_nodes_x_dict,
-                      main_fig_nodes_y_dict, matrix_file_df):
+                      main_fig_nodes_y_dict):
     """Remove links forming loops in a network.
 
     Every group of connected nodes is converted into a minimum spanning
     tree using Kruskal's algorithm. The weights assigned to each link
-    for this algorithm are equal to the graphic distance b/w nodes in
+    for this algorithm are equal to the weights calculated for each link, or
+    if a weight expression was not provided, graphic distance b/w nodes in
     the plot.
 
     :param sample_links_dict: ``get_sample_links_dict`` ret val
@@ -707,8 +707,6 @@ def filter_link_loops(sample_links_dict, links_config, main_fig_nodes_x_dict,
     :type main_fig_nodes_x_dict: dict
     :param main_fig_nodes_y_dict: ``get_main_fig_nodes_y_dict`` ret val
     :type main_fig_nodes_y_dict: dict
-    :param matrix_file_df: Dataframe encoding user uploaded matrix
-    :type matrix_file_df: pd.DataFrame | None
     :return: ``sample_links_dict`` with certain links removed to
         prevent loops.
     :rtype: dict
@@ -718,20 +716,16 @@ def filter_link_loops(sample_links_dict, links_config, main_fig_nodes_x_dict,
         if not bool(links_config[link]["minimize_loops"]):
             continue
         for (sample, other_sample) in sample_links_dict[link]:
-            # ``weight`` is a reserved keyword in ``add_edge``
-            weight_ = sample_links_dict[link][(sample, other_sample)]
+            weight = sample_links_dict[link][(sample, other_sample)]
 
-            if matrix_file_df is None:
+            if weight is None:
                 # nx will use the difference in graphic distance b/w nodes
                 # in the plot as weight, for mst purposes.
-                # TODO: allow users to specify own edge weight expressions
                 x0 = main_fig_nodes_x_dict["staggered"][sample]
                 x1 = main_fig_nodes_x_dict["staggered"][other_sample]
                 y0 = main_fig_nodes_y_dict[sample]
                 y1 = main_fig_nodes_y_dict[other_sample]
                 weight = sqrt((x1-x0)**2 + (y1-y0)**2)
-            else:
-                weight = matrix_file_df[sample][other_sample]
 
             # Need to track original order because graph is undirected
             order = (sample, other_sample)
@@ -739,7 +733,6 @@ def filter_link_loops(sample_links_dict, links_config, main_fig_nodes_x_dict,
             graph.add_edge(sample,
                            other_sample,
                            weight=weight,
-                           weight_=weight_,
                            order=order)
 
         disjoint_subgraphs = \
@@ -752,9 +745,7 @@ def filter_link_loops(sample_links_dict, links_config, main_fig_nodes_x_dict,
         new_link_dict = {}
         for edgeview in disjoint_mst_subgraph_edgeviews:
             for (sample, other_sample, data) in edgeview:
-                weight_ = data["weight_"]
-                order = data["order"]
-                new_link_dict[order] = weight_
+                new_link_dict[data["order"]] = data["weight"]
         sample_links_dict[link] = new_link_dict
 
     return sample_links_dict
