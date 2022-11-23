@@ -228,6 +228,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
 
     main_fig_link_labels_dict = get_main_fig_link_labels_dict(
         sample_links_dict=sample_links_dict,
+        links_config=config_file_dict["links_config"],
         main_fig_links_dict=main_fig_links_dict,
         main_fig_nodes_x_dict=main_fig_nodes_x_dict,
         selected_samples=selected_samples,
@@ -988,14 +989,17 @@ def get_main_fig_link_arrowheads_dict(main_fig_links_dict, links_config,
     return ret
 
 
-def get_main_fig_link_labels_dict(sample_links_dict, main_fig_links_dict,
-                                  main_fig_nodes_x_dict, selected_samples,
-                                  main_fig_height, main_fig_width, xaxis_range,
-                                  yaxis_range):
+def get_main_fig_link_labels_dict(sample_links_dict, links_config,
+                                  main_fig_links_dict, main_fig_nodes_x_dict,
+                                  selected_samples, main_fig_height,
+                                  main_fig_width, xaxis_range, yaxis_range):
     """Get dict with info used by Plotly to viz link labels.
 
     :param sample_links_dict: ``get_sample_links_dict`` ret val
     :type sample_links_dict: dict
+    :param links_config: dict of criteria for different user-specified
+        links.
+    :type links_config: dict
     :param main_fig_links_dict: Dict with info used by Plotly to viz
         links in main graph.
     :param main_fig_nodes_x_dict: ``get_main_fig_nodes_x_dict`` ret val
@@ -1020,6 +1024,8 @@ def get_main_fig_link_labels_dict(sample_links_dict, main_fig_links_dict,
     y_pixel_per_unit = main_fig_height / (yaxis_range[1] - yaxis_range[0])
 
     for link in sample_links_dict:
+        if not links_config[link]["show_weights"]:
+            continue
         ret[link] = {"x": [], "y": [], "text": [], "textangle": []}
 
         # Keeping a local variable instead of using ``enumerate``,

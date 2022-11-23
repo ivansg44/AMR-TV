@@ -17,6 +17,7 @@
       "minimize_loops": 0,
       "show_arrowheads": 0,
       "weight_exp": "",
+      "show_weights": 0,
       "weight_filters": {},
       "attr_filters": {}
     }

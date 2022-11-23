@@ -17,6 +17,7 @@
       "minimize_loops": 1,
       "show_arrowheads": 0,
       "weight_exp": "abs(@snp_dist@-!snp_dist!)",
+      "show_weights": 1,
       "weight_filters": {
         "greater_than": 5
       },
