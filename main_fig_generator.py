@@ -156,6 +156,7 @@ def get_main_fig(app_data):
                                                      arrow_width=3,
                                                      arrow_size=0.6)
     main_fig_annotations += get_link_label_annotations(app_data)
+    main_fig_annotations += get_arc_label_annotations(app_data)
     main_fig_shapes = get_arc_shapes(app_data, line_width=3)
     ret.update_layout(annotations=main_fig_annotations,
                       shapes=main_fig_shapes)
@@ -315,6 +316,34 @@ def get_arc_shapes(app_data, line_width):
                 "layer": "below"
             })
     return shapes
+
+
+def get_arc_label_annotations(app_data):
+    """Get annotations to be added as arc labels to main fig.
+
+    :param app_data: ``data_parser.get_app_data`` ret val
+    :type app_data: dict
+    :return: list of annotations to be added as arc labels
+    :rtype: list
+    """
+    annotations = []
+    for link in app_data["main_fig_arc_labels_dict"]:
+        link_label_dict = app_data["main_fig_arc_labels_dict"][link]
+        link_color = app_data["link_color_dict"][link]
+        for i in range(len(link_label_dict["x"])):
+            annotations.append({
+                "x": link_label_dict["x"][i],
+                "y": link_label_dict["y"][i],
+                "text": link_label_dict["text"][i],
+                "showarrow": False,
+                "font": {
+                    "color": "rgb(%s, %s, %s)" % link_color,
+                    "size": 12
+                },
+                "bgcolor": "white"
+            })
+
+    return annotations
 
 
 def get_main_fig_x_axis(app_data):
