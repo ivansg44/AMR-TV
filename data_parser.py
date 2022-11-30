@@ -211,11 +211,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         sample_links_dict=sample_links_dict,
         main_fig_nodes_x_dict=main_fig_nodes_x_dict,
         main_fig_nodes_y_dict=main_fig_nodes_y_dict,
-        selected_samples=selected_samples,
-        main_fig_height=main_fig_height,
-        main_fig_width=main_fig_width,
-        xaxis_range=xaxis_range,
-        yaxis_range=yaxis_range
+        selected_samples=selected_samples
     )
 
     main_fig_link_arrowheads_dict = get_main_fig_link_arrowheads_dict(
@@ -235,6 +231,14 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         main_fig_width=main_fig_width,
         xaxis_range=xaxis_range,
         yaxis_range=yaxis_range
+    )
+
+    main_fig_arc_labels_dict = get_main_fig_arc_labels_dict(
+        sample_links_dict=sample_links_dict,
+        links_config=config_file_dict["links_config"],
+        main_fig_arcs_dict=main_fig_arcs_dict,
+        main_fig_nodes_x_dict=main_fig_nodes_x_dict,
+        selected_samples=selected_samples
     )
 
     if selected_samples:
@@ -296,6 +300,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         "main_fig_arcs_dict": main_fig_arcs_dict,
         "main_fig_link_arrowheads_dict": main_fig_link_arrowheads_dict,
         "main_fig_link_labels_dict": main_fig_link_labels_dict,
+        "main_fig_arc_labels_dict": main_fig_arc_labels_dict,
         "link_color_dict": link_color_dict,
         "main_fig_primary_facet_x":
             get_main_fig_primary_facet_x(xaxis_range, num_of_primary_facets),
@@ -860,9 +865,7 @@ def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
 
 
 def get_main_fig_arcs_dict(sample_links_dict, main_fig_nodes_x_dict,
-                           main_fig_nodes_y_dict, selected_samples,
-                           main_fig_height, main_fig_width, xaxis_range,
-                           yaxis_range):
+                           main_fig_nodes_y_dict, selected_samples):
     """Get dict with info used by Plotly to viz arcs in main graph.
 
     These are arcs, so this does not include straight links b/w nodes
@@ -876,15 +879,7 @@ def get_main_fig_arcs_dict(sample_links_dict, main_fig_nodes_x_dict,
     :type main_fig_nodes_y_dict: dict
     :param selected_samples: Samples selected by users
     :type selected_samples: set[str]
-    :param main_fig_height: Height for main fig
-    :type main_fig_height: int
-    :param main_fig_width: Width for main fig
-    :type main_fig_width: int
-    :param xaxis_range: Main graph x-axis min and max val
-    :type xaxis_range: list
-    :param yaxis_range: Main graph y-axis min and max val
-    :type yaxis_range: list
-    :return: Dict with info used by Plotly to viz links in main graph
+    :return: Dict with info used by Plotly to viz arcs in main graph
     :rtype: dict
     """
     ret = {}
@@ -993,9 +988,9 @@ def get_main_fig_link_labels_dict(sample_links_dict, links_config,
     :type links_config: dict
     :param main_fig_links_dict: Dict with info used by Plotly to viz
         links in main graph.
+    :type main_fig_links_dict: dict
     :param main_fig_nodes_x_dict: ``get_main_fig_nodes_x_dict`` ret val
     :type main_fig_nodes_x_dict: dict
-    :type main_fig_links_dict: dict
     :param selected_samples: Samples selected by users
     :type selected_samples: set[str]
     :param main_fig_height: Height for main fig
@@ -1006,7 +1001,8 @@ def get_main_fig_link_labels_dict(sample_links_dict, links_config,
     :type xaxis_range: list
     :param yaxis_range: Main graph y-axis min and max val
     :type yaxis_range: list
-    :return: Dict with info used by Plotly to viz links in main graph
+    :return: Dict with info used by Plotly to viz link labels in main
+        graph.
     :rtype: dict
     """
     ret = {}
@@ -1046,13 +1042,79 @@ def get_main_fig_link_labels_dict(sample_links_dict, links_config,
             xmid = (x0 + x1)/2
             ymid = (y0 + y1)/2
 
-            slope = ((y1-y0) * y_pixel_per_unit) / ((x1-x0) * x_pixel_per_unit)
-            textangle = -degrees(atan(slope))
+            # With vpsc, sometimes staggered nodes occupy same col
+            try:
+                slope =\
+                    ((y1-y0) * y_pixel_per_unit) / ((x1-x0) * x_pixel_per_unit)
+                textangle = -degrees(atan(slope))
+            except ZeroDivisionError:
+                textangle = 0
 
             ret[link]["x"].append(xmid)
             ret[link]["y"].append(ymid)
             ret[link]["text"].append(weight)
             ret[link]["textangle"].append(textangle)
+
+            i += 1
+
+    return ret
+
+
+def get_main_fig_arc_labels_dict(sample_links_dict, links_config,
+                                 main_fig_arcs_dict, main_fig_nodes_x_dict,
+                                 selected_samples):
+    """Get dict with info used by Plotly to viz arc labels.
+
+    :param sample_links_dict: ``get_sample_links_dict`` ret val
+    :type sample_links_dict: dict
+    :param links_config: dict of criteria for different user-specified
+        links.
+    :type links_config: dict
+    :param main_fig_arcs_dict: Dict with info used by Plotly to viz
+        links in main graph.
+    :type main_fig_arcs_dict: dict
+    :param main_fig_nodes_x_dict: ``get_main_fig_nodes_x_dict`` ret val
+    :type main_fig_nodes_x_dict: dict
+    :param selected_samples: Samples selected by users
+    :type selected_samples: set[str]
+    :return: Dict with info used by Plotly to viz arc labels in main graph
+    :rtype: dict
+    """
+    ret = {}
+
+    for link in sample_links_dict:
+        if not links_config[link]["show_weights"]:
+            continue
+        ret[link] = {"x": [], "y": [], "text": []}
+
+        # Keeping a local variable instead of using ``enumerate``,
+        # because we do not want to increment i in certain cases.
+        i = 0
+        for (sample, other_sample) in sample_links_dict[link]:
+            selected_link = \
+                sample in selected_samples or other_sample in selected_samples
+            if selected_samples and not selected_link:
+                continue
+
+            unstaggered_x0 = main_fig_nodes_x_dict["unstaggered"][sample]
+            unstaggered_x1 = main_fig_nodes_x_dict["unstaggered"][other_sample]
+            if (unstaggered_x1 - unstaggered_x0) != 0:
+                continue
+
+            weight = sample_links_dict[link][(sample, other_sample)]
+            if weight is None:
+                i += 1
+                continue
+
+            # https://stackoverflow.com/a/5634528/11472358
+            [x0, cx, x1] = main_fig_arcs_dict[link]["x"][i]
+            [y0, cy, y1] = main_fig_arcs_dict[link]["y"][i]
+            x = (0.5**2 * x0) + (2*0.5*0.5*cx) + (0.5**2 * x1)
+            y = (0.5**2 * y0) + (2*0.5*0.5*cy) + (0.5**2 * y1)
+
+            ret[link]["x"].append(x)
+            ret[link]["y"].append(y)
+            ret[link]["text"].append(weight)
 
             i += 1
 
