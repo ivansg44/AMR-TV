@@ -152,9 +152,12 @@ def get_main_fig(app_data):
         },
     )
 
-    main_fig_annotations = get_arrowhead_annotations(app_data,
-                                                     arrow_width=3,
-                                                     arrow_size=0.6)
+    main_fig_annotations = get_link_arrowhead_annotations(app_data,
+                                                          arrow_width=3,
+                                                          arrow_size=0.6)
+    main_fig_annotations += get_arc_arrowhead_annotations(app_data,
+                                                          arrow_width=3,
+                                                          arrow_size=0.6)
     main_fig_annotations += get_link_label_annotations(app_data)
     main_fig_annotations += get_arc_label_annotations(app_data)
     main_fig_shapes = get_arc_shapes(app_data, line_width=3)
@@ -210,7 +213,9 @@ def get_zoomed_out_main_fig(app_data):
     ret.update_traces(line_width=1)
 
     zoomed_out_main_fig_annotations = \
-        get_arrowhead_annotations(app_data, arrow_width=1, arrow_size=1)
+        get_link_arrowhead_annotations(app_data, arrow_width=1, arrow_size=1)
+    zoomed_out_main_fig_annotations +=\
+        get_arc_arrowhead_annotations(app_data, arrow_width=1, arrow_size=1)
     zoomed_out_main_fig_shapes = get_arc_shapes(app_data, line_width=1)
     ret.update_layout(
         annotations=zoomed_out_main_fig_annotations,
@@ -220,8 +225,8 @@ def get_zoomed_out_main_fig(app_data):
     return ret
 
 
-def get_arrowhead_annotations(app_data, arrow_width, arrow_size):
-    """Get annotations to be added as arrowheads to main fig.
+def get_link_arrowhead_annotations(app_data, arrow_width, arrow_size):
+    """Get annotations to be added as link arrowheads to main fig.
 
     Plotly does not allow you to add arrowheads to line traces, so a
     separate fn was built for this as a workaround. We add annotations,
@@ -239,6 +244,46 @@ def get_arrowhead_annotations(app_data, arrow_width, arrow_size):
     annotations = []
     for link in app_data["main_fig_link_arrowheads_dict"]:
         arrowhead_dict = app_data["main_fig_link_arrowheads_dict"][link]
+        arrowhead_color = app_data["link_color_dict"][link]
+        for i in range(len(arrowhead_dict["x"])):
+            annotations.append({
+                "x": arrowhead_dict["x"][i][1],
+                "y": arrowhead_dict["y"][i][1],
+                "ax": arrowhead_dict["x"][i][0],
+                "ay": arrowhead_dict["y"][i][0],
+                "xref": "x",
+                "yref": "y",
+                "axref": "x",
+                "ayref": "y",
+                "showarrow": True,
+                "arrowcolor": "rgb(%s, %s, %s)" % arrowhead_color,
+                "arrowhead": 1,
+                "arrowwidth": arrow_width,
+                "arrowsize": arrow_size
+            })
+
+    return annotations
+
+
+def get_arc_arrowhead_annotations(app_data, arrow_width, arrow_size):
+    """Get annotations to be added as arc arrowheads to main fig.
+
+    Plotly does not allow you to add arrowheads to line traces, so a
+    separate fn was built for this as a workaround. We add annotations,
+    which do allow arrowheads.
+
+    :param app_data: ``data_parser.get_app_data`` ret val
+    :type app_data: dict
+    :param arrow_width: Width of links
+    :type arrow_width: int
+    :param arrow_size: Size of arrowhead; must be greater than 0.3
+    :type arrow_size: float
+    :return: list of annotations to be added as arrowheads
+    :rtype: list
+    """
+    annotations = []
+    for link in app_data["main_fig_arc_arrowheads_dict"]:
+        arrowhead_dict = app_data["main_fig_arc_arrowheads_dict"][link]
         arrowhead_color = app_data["link_color_dict"][link]
         for i in range(len(arrowhead_dict["x"])):
             annotations.append({

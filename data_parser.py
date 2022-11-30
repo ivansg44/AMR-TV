@@ -221,6 +221,13 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         yaxis_range=yaxis_range
     )
 
+    main_fig_arc_arrowheads_dict = get_main_fig_arc_arrowheads_dict(
+        main_fig_arcs_dict=main_fig_arcs_dict,
+        links_config=config_file_dict["links_config"],
+        main_fig_height=main_fig_height,
+        yaxis_range=yaxis_range
+    )
+
     main_fig_link_labels_dict = get_main_fig_link_labels_dict(
         sample_links_dict=sample_links_dict,
         links_config=config_file_dict["links_config"],
@@ -299,6 +306,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         "main_fig_links_dict": main_fig_links_dict,
         "main_fig_arcs_dict": main_fig_arcs_dict,
         "main_fig_link_arrowheads_dict": main_fig_link_arrowheads_dict,
+        "main_fig_arc_arrowheads_dict": main_fig_arc_arrowheads_dict,
         "main_fig_link_labels_dict": main_fig_link_labels_dict,
         "main_fig_arc_labels_dict": main_fig_arc_labels_dict,
         "link_color_dict": link_color_dict,
@@ -975,6 +983,68 @@ def get_main_fig_link_arrowheads_dict(main_fig_links_dict, links_config,
     return ret
 
 
+def get_main_fig_arc_arrowheads_dict(main_fig_arcs_dict, links_config,
+                                     main_fig_height, yaxis_range):
+    """Get dict with info used by Plotly to add arrowheads to arcs.
+
+    :param main_fig_arcs_dict: Dict with info used by Plotly to viz
+        arcs in main graph.
+    :type main_fig_arcs_dict: dict
+    :param links_config: dict of criteria for different user-specified
+        links.
+    :type links_config: dict
+    :param main_fig_height: Height for main fig
+    :type main_fig_height: int
+    :param yaxis_range: Main graph y-axis min and max val
+    :type yaxis_range: list
+    :return: Dict with info used by Plotly to add arrowheads to links
+        in main graph.
+    :rtype: dict
+    """
+    ret = {}
+
+    y_pixel_per_unit = main_fig_height / (yaxis_range[1] - yaxis_range[0])
+
+    for link in main_fig_arcs_dict:
+        if not links_config[link]["show_arrowheads"]:
+            continue
+
+        ret[link] = {"x": [], "y": []}
+
+        link_x = main_fig_arcs_dict[link]["x"]
+        link_y = main_fig_arcs_dict[link]["y"]
+
+        for zip_el in zip(link_x, link_y):
+            [x0, cx, x1] = zip_el[0]
+            [y0, cy, y1] = zip_el[1]
+
+            # https://stackoverflow.com/a/5634528/11472358
+            # We want to find points along each arc that are a certain
+            # number of pixels away from the endpoint, but calculating
+            # the length of a quadratic bezier curve is not a trivial
+            # task. So we iteratively try some points a certain
+            # fraction towards the end, as calculated by formula in
+            # https://stackoverflow.com/a/5634528/11472358, until we
+            # find a point less than 20 pixels away.
+            t0 = 0.85
+            t1 = 0.90
+            euclidian_px_to_end = 21
+            while euclidian_px_to_end > 20 and t1 <= 0.99:
+                bx0 = ((1-t0)**2 * x0) + (2*(1-t0)*t0*cx) + (t0**2 * x1)
+                bx1 = ((1-t1)**2 * x0) + (2*(1-t1)*t1*cx) + (t1**2 * x1)
+                by0 = ((1-t0)**2 * y0) + (2*(1-t0)*t0*cy) + (t0**2 * y1)
+                by1 = ((1-t1)**2 * y0) + (2*(1-t1)*t1*cy) + (t1**2 * y1)
+                t0 += 0.01
+                t1 += 0.01
+                euclidian_px_to_end = \
+                    sqrt((x1-bx1)**2 + (y1-by1)**2) * y_pixel_per_unit
+
+            ret[link]["x"] += [[bx0, bx1]]
+            ret[link]["y"] += [[by0, by1]]
+
+    return ret
+
+
 def get_main_fig_link_labels_dict(sample_links_dict, links_config,
                                   main_fig_links_dict, main_fig_nodes_x_dict,
                                   selected_samples, main_fig_height,
@@ -1071,7 +1141,7 @@ def get_main_fig_arc_labels_dict(sample_links_dict, links_config,
         links.
     :type links_config: dict
     :param main_fig_arcs_dict: Dict with info used by Plotly to viz
-        links in main graph.
+        arcs in main graph.
     :type main_fig_arcs_dict: dict
     :param main_fig_nodes_x_dict: ``get_main_fig_nodes_x_dict`` ret val
     :type main_fig_nodes_x_dict: dict
