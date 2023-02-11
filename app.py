@@ -135,7 +135,7 @@ def launch_app(_):
                                 )],
                                 id="main-graph-tab",
                                 tab_id="main-graph-tab",
-                                label="Zoomed in",
+                                label="Free-zoom",
                                 style={"height": "90vh",
                                        "width": "80vw"}
                             ),
