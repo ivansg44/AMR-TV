@@ -1,0 +1,6 @@
+SampleID,Collection_date,Surname,Organism,MLST,Submitter,Predicted_mobility,PrimaryID,Left_flanks,Right_flanks,Incompatability_Groups,Relaxases
+BC21A475A,2020-10-10,Clinical,Enterobacter asburiae,100,HA1,conjugative,AA002,GTTCT|TTAAT,GTTCT|TTAAT,IncN;IncL/M,MOBP;MOBF
+BC21A494A,2020-12-01,Clinical,Citrobacter freundii,719,HA1,conjugative,AA002,GTTCT|TTAAT,GTTCT|TTAAT,IncN;IncL/M,MOBP;MOBF
+BC21A497A,2021-02-20,Clinical,Enterobacter cloacae,220,HA2,conjugative,AA002,GTTCT,GTTCT,IncN;IncL/M,MOBF
+BC21A498A,2021-03-30,Clinical,Klebsiella oxytoca,418,HA2,conjugative,AA552,GTTCT|TTAAT,GTTCT|TTAAT,IncN,MOBF
+BC21A515A,2021-04-22,Clinical,Klebsiella oxytoca,150,HA1,conjugative,AA552,GTTCT,GTTCT,IncN,MOBF
