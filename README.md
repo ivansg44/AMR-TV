@@ -14,7 +14,7 @@ Activate the environment:
 
 ## Clone the repo
 
-`(amr-tv) $ git clone git@github.com:ivansg44/thesis_project.git amr-tv --recurse-submodules`
+`(amr-tv) $ git clone git@github.com:ivansg44/AMR-TV.git amr-tv --recurse-submodules`
 
 ## Install AMR-TV pip requirements
 
