@@ -71,7 +71,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     if matrix_file_base64_str:
         matrix_file_str = b64decode(matrix_file_base64_str).decode("utf-8")
         matrix_file_df = pd.read_csv(StringIO(matrix_file_str),
-                                     sep="\t",
+                                     sep=config_file_dict["delimiter"],
                                      index_col=0)
     else:
         matrix_file_df = None
