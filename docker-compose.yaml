@@ -7,9 +7,3 @@ services:
     image: amr_tv_app
     ports:
       - "8050:8050"
-#    networks:
-#      - network
-#
-#networks:
-# network:
-#   driver: bridge
