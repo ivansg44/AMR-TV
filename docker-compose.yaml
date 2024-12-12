@@ -1,0 +1,9 @@
+version: "3"
+
+services:
+  app:
+    build: .
+    container_name: amr_tv_app
+    image: amr_tv_app
+    ports:
+      - "8050:8050"

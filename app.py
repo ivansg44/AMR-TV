@@ -21,6 +21,7 @@ import dash_bootstrap_components as dbc
 import dash_html_components as html
 import dash_core_components as dcc
 from dash_html_components import Div
+from flask import Flask
 import plotly.graph_objects as go
 
 from data_parser import get_app_data, parse_fields_from_example_file
@@ -38,7 +39,11 @@ from legend_fig_generator import (get_node_symbol_legend_fig,
                                   get_link_legend_fig,
                                   get_node_color_legend_fig)
 
+# For gunicorn during docker deployment
+server = Flask(__name__)
+
 app = Dash(
+    server=server,
     external_stylesheets=[dbc.themes.UNITED],
     # Fixes bug with debugger in Pycharm. See
     # https://bit.ly/3j86GL1.
@@ -1209,4 +1214,4 @@ app.clientside_callback(
 )
 
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run_server(debug=False)

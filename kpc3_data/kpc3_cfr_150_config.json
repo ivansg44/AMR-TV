@@ -1,0 +1,46 @@
+{
+  "sample_id": "SampleID",
+  "delimiter": ",",
+  "primary_y_axis": ["Submitter"],
+  "secondary_y_axes": [
+    ["PrimaryID"],
+    ["Left_flanks", "Right_flanks"],
+    ["Relaxases"],
+    ["Incompatability_Groups"]
+  ],
+  "date_attr": "Collection_date",
+  "date_input": "%Y-%m-%d",
+  "date_output": "%d-%m-%Y",
+  "label_attr": ["SampleID", "Organism"],
+  "links_config": {
+    "potential hgt": {
+      "all_eq": ["Left_flanks", "Right_flanks", "Relaxases", "Incompatability_Groups"],
+      "all_neq": [],
+      "any_eq": [],
+      "minimize_loops": 1,
+      "show_arrowheads": 0,
+      "weight_exp": "",
+      "show_weights": 0,
+      "weight_filters": {},
+      "attr_filters": {}
+    },
+    "potential clonal spread": {
+      "all_eq": ["Organism", "MLST", "Left_flanks", "Right_flanks", "Relaxases", "Incompatability_Groups"],
+      "all_neq": [],
+      "any_eq": [],
+      "minimize_loops": 1,
+      "show_arrowheads": 0,
+      "weight_exp": "{{matrix}}",
+      "show_weights": 1,
+      "weight_filters": {
+        "greater_than": 30
+      },
+      "attr_filters": {}
+    }
+  },
+  "node_color_attr": ["Predicted_mobility"],
+  "node_symbol_attr": ["Surname"],
+  "links_across_primary_y": 0,
+  "max_day_range": 60000,
+  "null_vals": ["-", "none"]
+}

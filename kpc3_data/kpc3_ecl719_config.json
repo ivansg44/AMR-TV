@@ -1,0 +1,46 @@
+{
+  "sample_id": "SampleID",
+  "delimiter": ",",
+  "primary_y_axis": ["Submitter"],
+  "secondary_y_axes": [
+    ["PrimaryID"],
+    ["Left_flanks", "Right_flanks"],
+    ["Relaxases"],
+    ["Incompatability_Groups"]
+  ],
+  "date_attr": "Collection_date",
+  "date_input": "%Y-%m-%d",
+  "date_output": "%d-%m-%Y",
+  "label_attr": ["SampleID", "Organism"],
+  "links_config": {
+    "potential hgt": {
+      "all_eq": ["Left_flanks", "Right_flanks", "MOBC", "MOBF", "MOBH", "MOBP", "MOBQ", "IncC", "IncFIA", "IncFIB", "IncFIC", "IncFII", "IncHI1A", "IncHI1B", "IncHI2A", "IncI-gamma/K1", "IncI1/B/O", "IncI2", "IncK2/Z", "IncL/M", "IncN", "IncP", "IncQ1", "IncR", "IncT", "IncU", "IncX3", "IncX4", "IncY"],
+      "all_neq": [],
+      "any_eq": [],
+      "minimize_loops": 1,
+      "show_arrowheads": 0,
+      "weight_exp": "",
+      "show_weights": 0,
+      "weight_filters": {},
+      "attr_filters": {}
+    },
+    "potential clonal spread": {
+      "all_eq": ["Organism", "MLST", "Left_flanks", "Right_flanks", "MOBC", "MOBF", "MOBH", "MOBP", "MOBQ", "IncC", "IncFIA", "IncFIB", "IncFIC", "IncFII", "IncHI1A", "IncHI1B", "IncHI2A", "IncI-gamma/K1", "IncI1/B/O", "IncI2", "IncK2/Z", "IncL/M", "IncN", "IncP", "IncQ1", "IncR", "IncT", "IncU", "IncX3", "IncX4", "IncY"],
+      "all_neq": [],
+      "any_eq": [],
+      "minimize_loops": 1,
+      "show_arrowheads": 0,
+      "weight_exp": "{{matrix}}",
+      "show_weights": 0,
+      "weight_filters": {
+        "greater_than": 30
+      },
+      "attr_filters": {}
+    }
+  },
+  "node_color_attr": ["Predicted_mobility"],
+  "node_symbol_attr": ["Surname"],
+  "links_across_primary_y": 0,
+  "max_day_range": 60000,
+  "null_vals": ["-", "none"]
+}
