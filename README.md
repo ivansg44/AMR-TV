@@ -24,6 +24,13 @@ Clean things up:
 
 ## Run AMR-TV
 
+### Development
+
+`$ docker-compose --file docker-compose.yaml
+--file docker-compose.local.yaml up`
+
+### Production
+
 `$ docker-compose up`
 
 AMR-TV will be available at http://0.0.0.0:8050/.
