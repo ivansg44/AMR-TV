@@ -29,8 +29,10 @@ Clean things up:
 `$ docker-compose --file docker-compose.yaml
 --file docker-compose.local.yaml up`
 
+AMR-TV will be available at http://0.0.0.0:8050/.
+
+Changes to Python files will be reflected on container restart.
+
 ### Production
 
 `$ docker-compose up`
-
-AMR-TV will be available at http://0.0.0.0:8050/.
