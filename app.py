@@ -189,7 +189,6 @@ def launch_app(_):
                                     className="border-bottom",
                                     config={"displayModeBar": False},
                                     style={"height": "30vh"}
-
                                 ),
                             ),
                         ),
