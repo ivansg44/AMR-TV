@@ -175,6 +175,7 @@ def launch_app(_):
                                 dcc.Graph(
                                     figure={},
                                     id="node-shape-legend-graph",
+                                    className="border-bottom",
                                     config={"displayModeBar": False},
                                     style={"height": "30vh"}
                                 ),
@@ -185,6 +186,7 @@ def launch_app(_):
                                 dcc.Graph(
                                     figure={},
                                     id="link-legend-graph",
+                                    className="border-bottom",
                                     config={"displayModeBar": False},
                                     style={"height": "30vh"}
 
