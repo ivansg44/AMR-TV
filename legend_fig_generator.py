@@ -42,8 +42,9 @@ def get_node_symbol_legend_fig(app_data):
     :return: Plotly figure object that shows node symbol legend in viz
     :rtype: go.Figure
     """
+    graph = get_node_symbol_legend_fig_nodes(app_data)
     fig = go.Figure(
-        data=[get_node_symbol_legend_fig_nodes(app_data)],
+        data=[graph],
         layout={
             "margin": {
                 "l": 0, "r": 0, "t": 0, "b": 0
@@ -57,7 +58,8 @@ def get_node_symbol_legend_fig(app_data):
                 "fixedrange": True
             },
             "showlegend": False,
-            "plot_bgcolor": "white"
+            "plot_bgcolor": "white",
+            "height": len(graph["y"]) * 50
         },
     )
     return fig
@@ -107,8 +109,9 @@ def get_link_legend_fig(app_data):
     :return: Plotly figure object that shows link legend in viz
     :rtype: go.Figure
     """
+    graph = get_link_legend_fig_links(app_data)
     fig = go.Figure(
-        data=get_link_legend_fig_links(app_data),
+        data=graph,
         layout={
             "margin": {
                 "l": 0, "r": 0, "t": 0, "b": 0, "pad": 0
@@ -123,7 +126,8 @@ def get_link_legend_fig(app_data):
                 "range": [len(app_data["main_fig_links_dict"])-0.5, -0.5]
             },
             "showlegend": False,
-            "plot_bgcolor": "white"
+            "plot_bgcolor": "white",
+            "height": len(graph) * 75,
         }
     )
     return fig
@@ -174,8 +178,9 @@ def get_node_color_legend_fig(app_data):
     :return: Plotly figure object that shows node color legend in viz
     :rtype: go.Figure
     """
+    graph = get_node_color_legend_fig_nodes(app_data)
     fig = go.Figure(
-        data=[get_node_color_legend_fig_nodes(app_data)],
+        data=[graph],
         layout={
             "margin": {
                 "l": 0, "r": 0, "t": 0, "b": 0
@@ -190,7 +195,9 @@ def get_node_color_legend_fig(app_data):
                 "fixedrange": True
             },
             "showlegend": False,
-            "plot_bgcolor": "white"
+            "plot_bgcolor": "white",
         },
     )
+    if graph:
+        fig.update_layout(height=len(graph["y"] * 50))
     return fig

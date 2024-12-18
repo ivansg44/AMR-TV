@@ -186,7 +186,6 @@ def launch_app(_):
                                             id="node-shape-legend-graph",
                                             className="border-bottom",
                                             config={"displayModeBar": False},
-                                            style={"height": "30vh"}
                                         ),
                                     ),
                                 ),
@@ -199,7 +198,6 @@ def launch_app(_):
                                     id="link-legend-graph",
                                     className="border-bottom",
                                     config={"displayModeBar": False},
-                                    style={"height": "30vh"}
                                 ),
                             ),
                         ),
@@ -218,7 +216,6 @@ def launch_app(_):
                                             figure={},
                                             id="node-color-legend-graph",
                                             config={"displayModeBar": False},
-                                            style={"height": "30vh"}
 
                                         ),
                                     ),
