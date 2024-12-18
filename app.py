@@ -171,37 +171,57 @@ def launch_app(_):
                             ),
                         ),
                         dbc.Row(
-                            dbc.Col(
-                                dcc.Graph(
-                                    figure={},
-                                    id="node-shape-legend-graph",
-                                    config={"displayModeBar": False},
-                                    style={"height": "30vh"}
+                            dbc.Col([
+                                dbc.Row(
+                                    dbc.Col(
+                                        children=[],
+                                        id="node-shape-legend-title",
+                                        className="text-center",
+                                    ),
                                 ),
-                            ),
+                                dbc.Row(
+                                    dbc.Col(
+                                        dcc.Graph(
+                                            figure={},
+                                            id="node-shape-legend-graph",
+                                            className="border-bottom",
+                                            config={"displayModeBar": False},
+                                        ),
+                                    ),
+                                ),
+                            ])
                         ),
                         dbc.Row(
                             dbc.Col(
                                 dcc.Graph(
                                     figure={},
                                     id="link-legend-graph",
+                                    className="border-bottom",
                                     config={"displayModeBar": False},
-                                    style={"height": "30vh"}
-
                                 ),
                             ),
                         ),
                         dbc.Row(
-                            dbc.Col(
-                                dcc.Graph(
-                                    figure={},
-                                    id="node-color-legend-graph",
-                                    config={"displayModeBar": False},
-                                    style={"height": "30vh"}
-
+                            dbc.Col([
+                                dbc.Row(
+                                    dbc.Col(
+                                        children=[],
+                                        id="node-color-legend-title",
+                                        className="text-center",
+                                    ),
                                 ),
-                            ),
-                        )
+                                dbc.Row(
+                                    dbc.Col(
+                                        dcc.Graph(
+                                            figure={},
+                                            id="node-color-legend-graph",
+                                            config={"displayModeBar": False},
+
+                                        ),
+                                    ),
+                                ),
+                            ]),
+                        ),
                     ],
                     width=2,
                     style={
@@ -1004,8 +1024,10 @@ def select_nodes(click_data, selected_nodes):
         Output("main-graph-y-axis", "figure"),
         Output("main-graph-y-axis", "style"),
         Output("zoomed-out-main-graph", "figure"),
+        Output("node-shape-legend-title", "children"),
         Output("node-shape-legend-graph", "figure"),
         Output("link-legend-graph", "figure"),
+        Output("node-color-legend-title", "children"),
         Output("node-color-legend-graph", "figure"),
         Output("y-axis-legend-col", "children")
     ],
@@ -1145,6 +1167,8 @@ def update_main_viz(selected_nodes, _, relayout_data, sample_file_contents,
                 no_update,
                 no_update,
                 no_update,
+                no_update,
+                no_update,
                 no_update)
     else:
         msg = "Unexpected trigger trying to update main graph: %s" % trigger
@@ -1166,8 +1190,10 @@ def update_main_viz(selected_nodes, _, relayout_data, sample_file_contents,
         "height": "max(100%%, %spx)" % app_data["main_fig_height"],
         "width": "max(100%%, %spx)" % app_data["main_fig_width"]
     }
+    node_symbol_legend_title = html.H5(app_data["node_symbol_attr"])
     node_symbol_legend_fig = get_node_symbol_legend_fig(app_data)
     link_legend_fig = get_link_legend_fig(app_data)
+    node_color_legend_title = html.H5(app_data["node_color_attr"])
     node_color_legend_fig = get_node_color_legend_fig(app_data)
 
     y_axis_legend = [html.H5("primary y-axis attribute:")]
@@ -1183,8 +1209,10 @@ def update_main_viz(selected_nodes, _, relayout_data, sample_file_contents,
             main_fig_y_axis,
             main_fig_y_axis_style,
             zoomed_out_main_fig,
+            node_symbol_legend_title,
             node_symbol_legend_fig,
             link_legend_fig,
+            node_color_legend_title,
             node_color_legend_fig,
             y_axis_legend)
 
