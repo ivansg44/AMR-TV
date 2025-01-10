@@ -37,7 +37,8 @@ def parse_fields_from_example_file(example_file_base64_str, delimiter):
 
 
 def get_app_data(sample_file_base64_str, config_file_base64_str,
-                 matrix_file_base64_str=None, selected_nodes=None, vpsc=False):
+                 matrix_file_base64_str=None, selected_nodes=None,
+                 filtered_node_symbols=None, vpsc=False):
     """Get data from uploaded file that is used to generate viz.
 
     :param sample_file_base64_str: Base64 encoded str corresponding to
@@ -51,6 +52,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     :type matrix_file_base64_str: str
     :param selected_nodes: Nodes selected by user
     :type selected_nodes: dict
+    :param filtered_node_symbols: Node symbols filtered by user
+    :type filtered_node_symbols: dict
     :param vpsc: Run vpsc nodal overlap removal algorithm
     :type vpsc: bool
     :return: Data derived from sample data, used to generate viz
@@ -58,6 +61,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     """
     if selected_nodes is None:
         selected_nodes = {}
+    if filtered_node_symbols is None:
+        filtered_node_symbols = {}
 
     sample_file_str = b64decode(sample_file_base64_str).decode("utf-8")
 
@@ -84,9 +89,6 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
                                             config_file_dict["date_output"],
                                             config_file_dict["null_vals"])
     sample_data_vals = sample_data_dict.values()
-    enumerated_samples = enumerate(sample_data_dict)
-    selected_samples = \
-        {k for i, k in enumerated_samples if str(i) in selected_nodes}
 
     date_list = [v[config_file_dict["date_attr"]] for v in sample_data_vals]
     datetime_list = [v["datetime_obj"] for v in sample_data_vals]
@@ -124,12 +126,26 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         node_symbol_attr_dict = {}
         main_fig_nodes_marker_symbol = "square"
 
-    node_range = range(len(sample_data_dict))
-    if selected_nodes:
-        main_fig_nodes_marker_opacity = \
-            [1 if str(e) in selected_nodes else 0.5 for e in node_range]
-    else:
-        main_fig_nodes_marker_opacity = 1
+    # Avoid selection of filtered nodes
+    filtered_node_indices = \
+        {str(i): None for i, e in enumerate(main_fig_nodes_marker_symbol)
+         if e in filtered_node_symbols}
+    selected_nodes = \
+        {k: v for k, v in selected_nodes.items()
+         if k not in filtered_node_indices}
+
+    main_fig_nodes_marker_opacity = []
+    partially_hidden_samples = set()
+    fully_hidden_samples = set()
+    for node_index, sample in enumerate(sample_data_dict):
+        if main_fig_nodes_marker_symbol[node_index] in filtered_node_symbols:
+            main_fig_nodes_marker_opacity.append(0)
+            fully_hidden_samples.add(sample)
+        elif selected_nodes and str(node_index) not in selected_nodes:
+            main_fig_nodes_marker_opacity.append(0.5)
+            partially_hidden_samples.add(sample)
+        else:
+            main_fig_nodes_marker_opacity.append(1)
 
     node_color_attr = config_file_dict["node_color_attr"]
     if node_color_attr:
@@ -200,7 +216,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         sample_links_dict=sample_links_dict,
         main_fig_nodes_x_dict=main_fig_nodes_x_dict,
         main_fig_nodes_y_dict=main_fig_nodes_y_dict,
-        selected_samples=selected_samples,
+        partially_hidden_samples=partially_hidden_samples,
+        fully_hidden_samples=fully_hidden_samples,
         main_fig_height=main_fig_height,
         main_fig_width=main_fig_width,
         xaxis_range=xaxis_range,
@@ -211,7 +228,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         sample_links_dict=sample_links_dict,
         main_fig_nodes_x_dict=main_fig_nodes_x_dict,
         main_fig_nodes_y_dict=main_fig_nodes_y_dict,
-        selected_samples=selected_samples
+        partially_hidden_samples=partially_hidden_samples,
+        fully_hidden_samples=fully_hidden_samples
     )
 
     main_fig_link_arrowheads_dict = get_main_fig_link_arrowheads_dict(
@@ -233,7 +251,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         links_config=config_file_dict["links_config"],
         main_fig_links_dict=main_fig_links_dict,
         main_fig_nodes_x_dict=main_fig_nodes_x_dict,
-        selected_samples=selected_samples,
+        partially_hidden_samples=partially_hidden_samples,
+        fully_hidden_samples=fully_hidden_samples,
         main_fig_height=main_fig_height,
         main_fig_width=main_fig_width,
         xaxis_range=xaxis_range,
@@ -245,13 +264,14 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         links_config=config_file_dict["links_config"],
         main_fig_arcs_dict=main_fig_arcs_dict,
         main_fig_nodes_x_dict=main_fig_nodes_x_dict,
-        selected_samples=selected_samples
+        partially_hidden_samples=partially_hidden_samples,
+        fully_hidden_samples=fully_hidden_samples
     )
 
-    if selected_samples:
-        ss = selected_samples
+    if partially_hidden_samples or fully_hidden_samples:
+        phs = partially_hidden_samples
         main_fig_nodes_textfont_color = \
-            ["black" if k in ss else "grey" for k in sample_data_dict]
+            ["grey" if k in phs else "black" for k in sample_data_dict]
     else:
         main_fig_nodes_textfont_color = "black"
 
@@ -272,8 +292,14 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
             list(range(len(node_symbol_attr_dict))),
         "node_shape_legend_fig_nodes_marker_symbol":
             list(node_symbol_attr_dict.values()),
+        "node_shape_legend_fig_nodes_marker_opacity":
+            [0.5 if e in filtered_node_symbols else 1
+             for e in node_symbol_attr_dict.values()],
         "node_shape_legend_fig_nodes_text":
             ["<b>%s</b>" % k for k in node_symbol_attr_dict.keys()],
+        "node_shape_legend_fig_nodes_textfont_color":
+            ["grey" if e in filtered_node_symbols else "black"
+             for e in node_symbol_attr_dict.values()],
         "main_fig_xaxis_range":
             xaxis_range,
         "main_fig_yaxis_range":
@@ -338,6 +364,32 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     }
 
     return app_data
+
+
+def is_link_rendered(sample, other_sample, partially_hidden_samples,
+                     fully_hidden_samples):
+    """Determines whether links b/w samples should be rendered in viz.
+
+    We do not render links where both samples are partially hidden, or
+    one sample is fully hidden.
+
+    :param sample: One sample in link
+    :type sample: str
+    :param other_sample: Other sample in link
+    :type other_sample: str
+    :param partially_hidden_samples: Semi-transparent samples
+    :type partially_hidden_samples: set[str]
+    :param fully_hidden_samples: Fully-transparent samples
+    :type fully_hidden_samples: set[str]
+    :return: True if link b/w samples should be fully rendered, False
+        otherwise.
+    :rtype: bool
+    """
+    hidden_cond_1 = \
+        {sample, other_sample}.intersection(fully_hidden_samples)
+    hidden_cond_2 = \
+        {sample, other_sample}.issubset(partially_hidden_samples)
+    return hidden_cond_1 or hidden_cond_2
 
 
 def get_unsorted_track_list(sample_data_dict, primary_y_axis,
@@ -790,9 +842,9 @@ def get_link_color_dict(sample_links_dict):
 
 
 def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
-                            main_fig_nodes_y_dict, selected_samples,
-                            main_fig_height, main_fig_width, xaxis_range,
-                            yaxis_range):
+                            main_fig_nodes_y_dict, partially_hidden_samples,
+                            fully_hidden_samples, main_fig_height,
+                            main_fig_width, xaxis_range, yaxis_range):
     """Get dict with info used by Plotly to viz links in main graph.
 
     These are straight links, so this does not include links b/w nodes
@@ -804,8 +856,10 @@ def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
     :type main_fig_nodes_x_dict: dict
     :param main_fig_nodes_y_dict: ``get_main_fig_nodes_y_dict`` ret val
     :type main_fig_nodes_y_dict: dict
-    :param selected_samples: Samples selected by users
-    :type selected_samples: set[str]
+    :param partially_hidden_samples: Semi-transparent samples
+    :type partially_hidden_samples: set[str]
+    :param fully_hidden_samples: Fully-transparent samples
+    :type fully_hidden_samples: set[str]
     :param main_fig_height: Height for main fig
     :type main_fig_height: int
     :param main_fig_width: Width for main fig
@@ -837,9 +891,11 @@ def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
         ret[link] = {"x": [], "y": []}
 
         for (sample, other_sample) in sample_links_dict[link]:
-            selected_link = \
-                sample in selected_samples or other_sample in selected_samples
-            if selected_samples and not selected_link:
+            render_link = is_link_rendered(sample,
+                                           other_sample,
+                                           partially_hidden_samples,
+                                           fully_hidden_samples)
+            if not render_link:
                 continue
 
             unstaggered_x0 = main_fig_nodes_x_dict["unstaggered"][sample]
@@ -875,7 +931,8 @@ def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
 
 
 def get_main_fig_arcs_dict(sample_links_dict, main_fig_nodes_x_dict,
-                           main_fig_nodes_y_dict, selected_samples):
+                           main_fig_nodes_y_dict, partially_hidden_samples,
+                           fully_hidden_samples):
     """Get dict with info used by Plotly to viz arcs in main graph.
 
     These are arcs, so this does not include straight links b/w nodes
@@ -887,8 +944,10 @@ def get_main_fig_arcs_dict(sample_links_dict, main_fig_nodes_x_dict,
     :type main_fig_nodes_x_dict: dict
     :param main_fig_nodes_y_dict: ``get_main_fig_nodes_y_dict`` ret val
     :type main_fig_nodes_y_dict: dict
-    :param selected_samples: Samples selected by users
-    :type selected_samples: set[str]
+    :param partially_hidden_samples: Semi-transparent samples
+    :type partially_hidden_samples: set[str]
+    :param fully_hidden_samples: Fully-transparent samples
+    :type fully_hidden_samples: set[str]
     :return: Dict with info used by Plotly to viz arcs in main graph
     :rtype: dict
     """
@@ -904,9 +963,11 @@ def get_main_fig_arcs_dict(sample_links_dict, main_fig_nodes_x_dict,
         ret[link] = {"x": [], "y": []}
 
         for (sample, other_sample) in sample_links_dict[link]:
-            selected_link = \
-                sample in selected_samples or other_sample in selected_samples
-            if selected_samples and not selected_link:
+            render_link = is_link_rendered(sample,
+                                           other_sample,
+                                           partially_hidden_samples,
+                                           fully_hidden_samples)
+            if not render_link:
                 continue
 
             unstaggered_x0 = main_fig_nodes_x_dict["unstaggered"][sample]
@@ -1049,7 +1110,8 @@ def get_main_fig_arc_arrowheads_dict(main_fig_arcs_dict, links_config,
 
 def get_main_fig_link_labels_dict(sample_links_dict, links_config,
                                   main_fig_links_dict, main_fig_nodes_x_dict,
-                                  selected_samples, main_fig_height,
+                                  partially_hidden_samples,
+                                  fully_hidden_samples, main_fig_height,
                                   main_fig_width, xaxis_range, yaxis_range):
     """Get dict with info used by Plotly to viz link labels.
 
@@ -1063,8 +1125,10 @@ def get_main_fig_link_labels_dict(sample_links_dict, links_config,
     :type main_fig_links_dict: dict
     :param main_fig_nodes_x_dict: ``get_main_fig_nodes_x_dict`` ret val
     :type main_fig_nodes_x_dict: dict
-    :param selected_samples: Samples selected by users
-    :type selected_samples: set[str]
+    :param partially_hidden_samples: Semi-transparent samples
+    :type partially_hidden_samples: set[str]
+    :param fully_hidden_samples: Fully-transparent samples
+    :type fully_hidden_samples: set[str]
     :param main_fig_height: Height for main fig
     :type main_fig_height: int
     :param main_fig_width: Width for main fig
@@ -1091,9 +1155,11 @@ def get_main_fig_link_labels_dict(sample_links_dict, links_config,
         # because we do not want to increment i in certain cases.
         i = 0
         for (sample, other_sample) in sample_links_dict[link]:
-            selected_link = \
-                sample in selected_samples or other_sample in selected_samples
-            if selected_samples and not selected_link:
+            render_link = is_link_rendered(sample,
+                                           other_sample,
+                                           partially_hidden_samples,
+                                           fully_hidden_samples)
+            if not render_link:
                 continue
 
             unstaggered_x0 = main_fig_nodes_x_dict["unstaggered"][sample]
@@ -1134,7 +1200,7 @@ def get_main_fig_link_labels_dict(sample_links_dict, links_config,
 
 def get_main_fig_arc_labels_dict(sample_links_dict, links_config,
                                  main_fig_arcs_dict, main_fig_nodes_x_dict,
-                                 selected_samples):
+                                 partially_hidden_samples, fully_hidden_samples):
     """Get dict with info used by Plotly to viz arc labels.
 
     :param sample_links_dict: ``get_sample_links_dict`` ret val
@@ -1147,8 +1213,10 @@ def get_main_fig_arc_labels_dict(sample_links_dict, links_config,
     :type main_fig_arcs_dict: dict
     :param main_fig_nodes_x_dict: ``get_main_fig_nodes_x_dict`` ret val
     :type main_fig_nodes_x_dict: dict
-    :param selected_samples: Samples selected by users
-    :type selected_samples: set[str]
+    :param partially_hidden_samples: Semi-transparent samples
+    :type partially_hidden_samples: set[str]
+    :param fully_hidden_samples: Fully-transparent samples
+    :type fully_hidden_samples: set[str]
     :return: Dict with info used by Plotly to viz arc labels in main graph
     :rtype: dict
     """
@@ -1163,9 +1231,11 @@ def get_main_fig_arc_labels_dict(sample_links_dict, links_config,
         # because we do not want to increment i in certain cases.
         i = 0
         for (sample, other_sample) in sample_links_dict[link]:
-            selected_link = \
-                sample in selected_samples or other_sample in selected_samples
-            if selected_samples and not selected_link:
+            render_link = is_link_rendered(sample,
+                                           other_sample,
+                                           partially_hidden_samples,
+                                           fully_hidden_samples)
+            if not render_link:
                 continue
 
             unstaggered_x0 = main_fig_nodes_x_dict["unstaggered"][sample]

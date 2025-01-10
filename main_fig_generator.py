@@ -11,6 +11,8 @@ def get_main_fig_nodes(app_data):
     :return: Plotly scatter obj of nodes in main fig
     :rtype: go.Scatter
     """
+    opacity = app_data["main_fig_nodes_marker_opacity"]
+    text = app_data["main_fig_nodes_text"]
     nodes = go.Scatter(
         x=app_data["main_fig_nodes_x"],
         y=app_data["main_fig_nodes_y"],
@@ -23,16 +25,18 @@ def get_main_fig_nodes(app_data):
             },
             "size": 24,
             "symbol": app_data["main_fig_nodes_marker_symbol"],
-            "opacity": app_data["main_fig_nodes_marker_opacity"]
+            "opacity": opacity
         },
-        text=app_data["main_fig_nodes_text"],
+        # There is a bug, where if you use "", it will not change later
+        text=[text[i] if e else " " for i, e in enumerate(opacity)],
         textfont={
             "color": app_data["main_fig_nodes_textfont_color"],
             "size": 16
         },
-        hoverinfo="text",
+        hoverinfo=["text" if e else "skip" for e in opacity],
         hovertext=app_data["main_fig_nodes_hovertext"],
-        name="main_fig_nodes_trace"
+        name="main_fig_nodes_trace",
+        customdata=app_data["main_fig_nodes_marker_opacity"]
     )
     return nodes
 

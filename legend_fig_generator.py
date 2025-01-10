@@ -22,14 +22,16 @@ def get_node_symbol_legend_fig_nodes(app_data):
                 "width": 1
             },
             "size": 24,
-            "symbol": app_data["node_shape_legend_fig_nodes_marker_symbol"]
+            "symbol": app_data["node_shape_legend_fig_nodes_marker_symbol"],
+            "opacity": app_data["node_shape_legend_fig_nodes_marker_opacity"]
         },
         text=app_data["node_shape_legend_fig_nodes_text"],
         textfont={
-            "color": "black",
+            "color": app_data["node_shape_legend_fig_nodes_textfont_color"],
             "size": 16
         },
-        hoverinfo="skip"
+        hoverinfo="none",
+        customdata=app_data["node_shape_legend_fig_nodes_marker_symbol"],
     )
     return nodes
 
