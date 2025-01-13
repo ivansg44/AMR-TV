@@ -389,7 +389,7 @@ def is_link_rendered(sample, other_sample, partially_hidden_samples,
         {sample, other_sample}.intersection(fully_hidden_samples)
     hidden_cond_2 = \
         {sample, other_sample}.issubset(partially_hidden_samples)
-    return hidden_cond_1 or hidden_cond_2
+    return not (hidden_cond_1 or hidden_cond_2)
 
 
 def get_unsorted_track_list(sample_data_dict, primary_y_axis,
