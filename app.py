@@ -999,6 +999,8 @@ def select_nodes(click_data, selected_nodes):
     if not clicked_node_opacity:
         raise PreventUpdate
     new_selected_nodes = selected_nodes
+    # TODO we need a way to reset selected nodes when viz is refreshed
+    #   rn we get away with it, because user has to refresh page
     clicked_node = str(click_data["points"][0]["pointIndex"])
     if clicked_node in selected_nodes:
         new_selected_nodes.pop(clicked_node)
@@ -1099,8 +1101,19 @@ def update_main_viz(selected_nodes, filtered_node_symbols, _, relayout_data,
     :return: New main graphs, axes, and legends
     :rtype: tuple[go.Figure]
     """
-    ctx = dash.callback_context
-    trigger = ctx.triggered[0]["prop_id"]
+    main_fig = no_update
+    main_fig_style = no_update
+    main_fig_x_axis = no_update
+    main_fig_x_axis_style = no_update
+    main_fig_y_axis = no_update
+    main_fig_y_axis_style = no_update
+    zoomed_out_main_fig = no_update
+    node_symbol_legend_title = no_update
+    node_symbol_legend_fig = no_update
+    link_legend_fig = no_update
+    node_color_legend_title = no_update
+    node_color_legend_fig = no_update
+    y_axis_legend = no_update
 
     if None in [sample_file_contents, config_file_contents]:
         raise PreventUpdate
@@ -1110,33 +1123,11 @@ def update_main_viz(selected_nodes, filtered_node_symbols, _, relayout_data,
     matrix_file_base64_str = \
         matrix_file_contents.split(",")[1] if matrix_file_contents else None
 
-    if trigger in {"selected-nodes.data", "filtered-node-symbols.data"}:
-        app_data = get_app_data(sample_file_base64_str,
-                                config_file_base64_str,
-                                matrix_file_base64_str=matrix_file_base64_str,
-                                selected_nodes=selected_nodes,
-                                filtered_node_symbols=filtered_node_symbols)
-        zoomed_out_app_data = \
-            get_app_data(sample_file_base64_str,
-                         config_file_base64_str,
-                         matrix_file_base64_str=matrix_file_base64_str,
-                         selected_nodes=selected_nodes,
-                         filtered_node_symbols=filtered_node_symbols,
-                         vpsc=True)
-        main_fig = get_main_fig(app_data)
-        zoomed_out_main_fig = get_zoomed_out_main_fig(zoomed_out_app_data)
-    elif trigger == "viz-btn.n_clicks":
-        app_data = get_app_data(sample_file_base64_str,
-                                config_file_base64_str,
-                                matrix_file_base64_str=matrix_file_base64_str)
-        zoomed_out_app_data = \
-            get_app_data(sample_file_base64_str,
-                         config_file_base64_str,
-                         matrix_file_base64_str=matrix_file_base64_str,
-                         vpsc=True)
-        main_fig = get_main_fig(app_data)
-        zoomed_out_main_fig = get_zoomed_out_main_fig(zoomed_out_app_data)
-    elif trigger == "main-graph.relayoutData":
+    ctx = dash.callback_context
+    trigger = ctx.triggered[0]["prop_id"]
+
+    # Not generating new fig; just zooming
+    if trigger == "main-graph.relayoutData":
         zoom_keys = ["xaxis.range[0]",
                      "xaxis.range[1]",
                      "yaxis.range[0]",
@@ -1154,7 +1145,6 @@ def update_main_viz(selected_nodes, filtered_node_symbols, _, relayout_data,
 
         first_x_axis_range = old_main_fig_x_axis["data"][0]["customdata"]
         first_y_axis_range = old_main_fig_y_axis["data"][0]["customdata"]
-        old_x_axis_range = old_main_fig_x_axis["layout"]["xaxis"]["range"]
 
         if zoom_event:
             new_x_axis_range = old_main_fig["layout"]["xaxis"]["range"]
@@ -1171,9 +1161,7 @@ def update_main_viz(selected_nodes, filtered_node_symbols, _, relayout_data,
         main_fig_nodes_trace = \
             [e for e in old_main_fig["data"]
              if "name" in e and e["name"] == "main_fig_nodes_trace"][0]
-        old_marker_size = main_fig_nodes_trace["marker"]["size"]
         new_marker_size = max(1, 24/change_in_range)
-        old_textfont_size = main_fig_nodes_trace["textfont"]["size"]
         new_textfont_size = max(1, 16/change_in_range)
 
         main_fig.update_traces(marker={"size": new_marker_size},
@@ -1194,51 +1182,70 @@ def update_main_viz(selected_nodes, filtered_node_symbols, _, relayout_data,
                                       "autorange": False})
         main_fig_x_axis.update_layout(xaxis={"range": new_x_axis_range})
         main_fig_y_axis.update_layout(yaxis={"range": new_y_axis_range})
-
-        return (main_fig,
-                no_update,
-                main_fig_x_axis,
-                no_update,
-                main_fig_y_axis,
-                no_update,
-                no_update,
-                no_update,
-                no_update,
-                no_update,
-                no_update,
-                no_update,
-                no_update)
+    # Generating new fig or selecting/filtering
     else:
-        msg = "Unexpected trigger trying to update main graph: %s" % trigger
-        raise RuntimeError(msg)
+        app_data = get_app_data(sample_file_base64_str,
+                                config_file_base64_str,
+                                matrix_file_base64_str=matrix_file_base64_str,
+                                selected_nodes=selected_nodes,
+                                filtered_node_symbols=filtered_node_symbols)
+        zoomed_out_app_data = \
+            get_app_data(sample_file_base64_str,
+                         config_file_base64_str,
+                         matrix_file_base64_str=matrix_file_base64_str,
+                         selected_nodes=selected_nodes,
+                         filtered_node_symbols=filtered_node_symbols,
+                         vpsc=True)
+        main_fig = get_main_fig(app_data)
+        zoomed_out_main_fig = get_zoomed_out_main_fig(zoomed_out_app_data)
+        node_symbol_legend_fig = get_node_symbol_legend_fig(app_data)
 
-    main_fig_x_axis = get_main_fig_x_axis(app_data)
-    main_fig_x_axis_style = {
-        "height": "100%",
-        "width": "max(100%%, %spx)" % app_data["main_fig_width"]
-    }
+        # Selecting/filtering
+        if old_main_fig:
+            first_x_axis_range = old_main_fig_x_axis["data"][0]["customdata"]
+            old_x_axis_range = old_main_fig["layout"]["xaxis"]["range"]
+            # Need to adjust some things if fig was zoomed
+            if first_x_axis_range != old_x_axis_range:
+                old_y_axis_range = old_main_fig["layout"]["yaxis"]["range"]
+                main_fig.update_layout(xaxis={"range": old_x_axis_range,
+                                              "autorange": False},
+                                       yaxis={"range": old_y_axis_range,
+                                              "autorange": False})
+                main_fig_nodes_trace = \
+                    [e for e in old_main_fig["data"]
+                     if "name" in e and e["name"] == "main_fig_nodes_trace"][0]
+                old_marker_size = main_fig_nodes_trace["marker"]["size"]
+                old_textfont_size = main_fig_nodes_trace["textfont"]["size"]
+                main_fig.update_traces(marker={"size": old_marker_size},
+                                       textfont={"size": old_textfont_size},
+                                       selector={"name": "main_fig_nodes_trace"})
+        else:
+            main_fig_x_axis = get_main_fig_x_axis(app_data)
+            main_fig_x_axis_style = {
+                "height": "100%",
+                "width": "max(100%%, %spx)" % app_data["main_fig_width"]
+            }
 
-    main_fig_y_axis = get_main_fig_y_axis(app_data)
-    main_fig_y_axis_style = {
-        "height": "max(100%%, %spx)" % app_data["main_fig_height"],
-        "width": "100%"
-    }
+            main_fig_y_axis = get_main_fig_y_axis(app_data)
+            main_fig_y_axis_style = {
+                "height": "max(100%%, %spx)" % app_data["main_fig_height"],
+                "width": "100%"
+            }
 
-    main_fig_style = {
-        "height": "max(100%%, %spx)" % app_data["main_fig_height"],
-        "width": "max(100%%, %spx)" % app_data["main_fig_width"]
-    }
-    node_symbol_legend_title = html.H5(app_data["node_symbol_attr"])
-    node_symbol_legend_fig = get_node_symbol_legend_fig(app_data)
-    link_legend_fig = get_link_legend_fig(app_data)
-    node_color_legend_title = html.H5(app_data["node_color_attr"])
-    node_color_legend_fig = get_node_color_legend_fig(app_data)
+            main_fig_style = {
+                "height": "max(100%%, %spx)" % app_data["main_fig_height"],
+                "width": "max(100%%, %spx)" % app_data["main_fig_width"]
+            }
+            node_symbol_legend_title = html.H5(app_data["node_symbol_attr"])
+            link_legend_fig = get_link_legend_fig(app_data)
+            node_color_legend_title = html.H5(app_data["node_color_attr"])
+            node_color_legend_fig = get_node_color_legend_fig(app_data)
 
-    y_axis_legend = [html.H5("primary y-axis attribute:")]
-    y_axis_legend += [html.P(app_data["primary_y_axis_attributes"])]
-    y_axis_legend += [html.H5("secondary y-axis attributes:")]
-    y_axis_legend += \
-        [html.P(e) for e in app_data["secondary_y_axes_attributes"]]
+            y_axis_legend = [html.H5("primary y-axis attribute:")]
+            y_axis_legend += [html.P(app_data["primary_y_axis_attributes"])]
+            y_axis_legend += [html.H5("secondary y-axis attributes:")]
+            y_axis_legend += \
+                [html.P(e) for e in app_data["secondary_y_axes_attributes"]]
 
     return (main_fig,
             main_fig_style,
