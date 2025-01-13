@@ -38,7 +38,8 @@ def parse_fields_from_example_file(example_file_base64_str, delimiter):
 
 def get_app_data(sample_file_base64_str, config_file_base64_str,
                  matrix_file_base64_str=None, selected_nodes=None,
-                 filtered_node_symbols=None, vpsc=False):
+                 filtered_node_symbols=None, filtered_node_colors=None,
+                 vpsc=False):
     """Get data from uploaded file that is used to generate viz.
 
     :param sample_file_base64_str: Base64 encoded str corresponding to
@@ -54,6 +55,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     :type selected_nodes: dict
     :param filtered_node_symbols: Node symbols filtered by user
     :type filtered_node_symbols: dict
+    :param filtered_node_colors: Node colors filtered by user
+    :type filtered_node_colors: dict
     :param vpsc: Run vpsc nodal overlap removal algorithm
     :type vpsc: bool
     :return: Data derived from sample data, used to generate viz
@@ -63,6 +66,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         selected_nodes = {}
     if filtered_node_symbols is None:
         filtered_node_symbols = {}
+    if filtered_node_colors is None:
+        filtered_node_colors = {}
 
     sample_file_str = b64decode(sample_file_base64_str).decode("utf-8")
 
@@ -126,27 +131,6 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         node_symbol_attr_dict = {}
         main_fig_nodes_marker_symbol = "square"
 
-    # Avoid selection of filtered nodes
-    filtered_node_indices = \
-        {str(i): None for i, e in enumerate(main_fig_nodes_marker_symbol)
-         if e in filtered_node_symbols}
-    selected_nodes = \
-        {k: v for k, v in selected_nodes.items()
-         if k not in filtered_node_indices}
-
-    main_fig_nodes_marker_opacity = []
-    partially_hidden_samples = set()
-    fully_hidden_samples = set()
-    for node_index, sample in enumerate(sample_data_dict):
-        if main_fig_nodes_marker_symbol[node_index] in filtered_node_symbols:
-            main_fig_nodes_marker_opacity.append(0)
-            fully_hidden_samples.add(sample)
-        elif selected_nodes and str(node_index) not in selected_nodes:
-            main_fig_nodes_marker_opacity.append(0.5)
-            partially_hidden_samples.add(sample)
-        else:
-            main_fig_nodes_marker_opacity.append(1)
-
     node_color_attr = config_file_dict["node_color_attr"]
     if node_color_attr:
         # Use tuples instead of lists for hashing
@@ -158,6 +142,32 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     else:
         node_color_attr_dict = {}
         main_fig_nodes_marker_color = "lightgrey"
+
+    # Avoid selection of filtered nodes
+    filtered_node_indices_set = set()
+    for i, _ in enumerate(main_fig_nodes_marker_symbol):
+        filter_cond_1 = \
+            main_fig_nodes_marker_symbol[i] in filtered_node_symbols
+        filter_cond_2 = \
+            main_fig_nodes_marker_color[i] in filtered_node_colors
+        if filter_cond_1 or filter_cond_2:
+            filtered_node_indices_set.add(i)
+    selected_nodes = \
+        {int(k): v for k, v in selected_nodes.items()
+         if int(k) not in filtered_node_indices_set}
+
+    main_fig_nodes_marker_opacity = []
+    partially_hidden_samples = set()
+    fully_hidden_samples = set()
+    for node_index, sample in enumerate(sample_data_dict):
+        if node_index in filtered_node_indices_set:
+            main_fig_nodes_marker_opacity.append(0)
+            fully_hidden_samples.add(sample)
+        elif selected_nodes and node_index not in selected_nodes:
+            main_fig_nodes_marker_opacity.append(0.5)
+            partially_hidden_samples.add(sample)
+        else:
+            main_fig_nodes_marker_opacity.append(1)
 
     label_attr = config_file_dict["label_attr"]
     main_fig_nodes_text = \
@@ -300,6 +310,12 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         "node_shape_legend_fig_nodes_textfont_color":
             ["grey" if e in filtered_node_symbols else "black"
              for e in node_symbol_attr_dict.values()],
+        "node_color_legend_fig_nodes_marker_opacity":
+            [0.5 if e in filtered_node_colors else 1
+             for e in node_color_attr_dict.values()],
+        "node_color_legend_fig_nodes_textfont_color":
+            ["grey" if e in filtered_node_colors else "black"
+             for e in node_color_attr_dict.values()],
         "main_fig_xaxis_range":
             xaxis_range,
         "main_fig_yaxis_range":

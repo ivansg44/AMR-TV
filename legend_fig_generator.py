@@ -159,15 +159,17 @@ def get_node_color_legend_fig_nodes(app_data):
                 "width": 1
             },
             "size": 24,
-            "symbol": "circle"
+            "symbol": "circle",
+            "opacity": app_data["node_color_legend_fig_nodes_marker_opacity"],
         },
         text=["<b>%s</b>" % e for e in node_color_attr_dict.keys()],
         textfont={
-            "color": "black",
+            "color": app_data["node_color_legend_fig_nodes_textfont_color"],
             "size": 16
         },
         textposition="middle right",
-        hoverinfo="skip"
+        hoverinfo="none",
+        customdata=list(node_color_attr_dict.values())
     )
     return nodes
 
