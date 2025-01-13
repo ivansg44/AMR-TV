@@ -36,7 +36,7 @@ def get_main_fig_nodes(app_data):
         hoverinfo=["text" if e else "skip" for e in opacity],
         hovertext=app_data["main_fig_nodes_hovertext"],
         name="main_fig_nodes_trace",
-        customdata=app_data["main_fig_nodes_marker_opacity"]
+        customdata=opacity
     )
     return nodes
 
