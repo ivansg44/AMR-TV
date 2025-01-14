@@ -68,16 +68,17 @@ def get_node_symbol_legend_fig(app_data):
 
 
 def get_link_legend_fig_links(app_data):
-    """Get plotly scatter objs of different links in link legend fig.
+    """Get plotly objs of different links in link legend fig.
 
     Basically, a list of different scatter objs that draw one of each
-    link you see in the legend.
+    link you see in the legend. Also, invisible bar objs to allow
+    easier registration of click events.
 
     :param app_data: ``data_parser.get_app_data`` ret val
     :type app_data: dict
-    :return: List of plotly scatter obj used to draw links in link
+    :return: List of plotly scatter/bar obj used to draw links in link
         legend fig.
-    :rtype: list[go.Scatter]
+    :rtype: list[go.Scatter|go.Bar]
     """
     links = []
     for i, attr in enumerate(app_data["main_fig_links_dict"]):
