@@ -1009,6 +1009,7 @@ def select_nodes(click_data, selected_nodes):
         new_selected_nodes[clicked_node] = None
     return new_selected_nodes, None
 
+
 @app.callback(
     inputs=Input("node-shape-legend-graph", "clickData"),
     state=State("filtered-node-symbols", "data"),
@@ -1035,6 +1036,7 @@ def filter_node_symbols(click_data, filtered_node_symbols):
     else:
         new_filtered_node_symbols[clicked_legend_symbol] = None
     return new_filtered_node_symbols, None
+
 
 @app.callback(
     inputs=Input("node-color-legend-graph", "clickData"),
