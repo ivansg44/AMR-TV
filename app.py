@@ -236,6 +236,7 @@ def launch_app(_):
         dcc.Store(id="selected-nodes", data={}),
         dcc.Store(id="filtered-node-symbols", data={}),
         dcc.Store(id="filtered-node-colors", data={}),
+        dcc.Store(id="filtered-link-types", data={}),
         dcc.Store(id="added-scroll-handlers", data=False),
         dcc.Store("new-upload"),
         dcc.Store("example-file-field-opts"),
@@ -1067,10 +1068,39 @@ def filter_node_colors(click_data, filtered_node_colors):
 
 
 @app.callback(
+    inputs=Input("link-legend-graph", "clickData"),
+    state=State("filtered-link-types", "data"),
+    output=[
+        Output("filtered-link-types", "data"),
+        Output("link-legend-graph", "clickData")
+    ],
+    prevent_initial_call=True
+)
+def filter_link_types(click_data, filtered_link_types):
+    """Filter nodes by color, when user clicks legend.
+
+    :param click_data: Information on node clicked by user
+    :type click_data: dict
+    :param filtered_link_types: Currently filtered link types
+    :type filtered_link_types: dict
+    :return: New table of filtered link types
+    :rtype: dict
+    """
+    new_filtered_link_types = filtered_link_types
+    clicked_legend_link_type = click_data["points"][0]["customdata"]
+    if clicked_legend_link_type in filtered_link_types:
+        new_filtered_link_types.pop(clicked_legend_link_type)
+    else:
+        new_filtered_link_types[clicked_legend_link_type] = None
+    return new_filtered_link_types, None
+
+
+@app.callback(
     inputs=[
         Input("selected-nodes", "data"),
         Input("filtered-node-symbols", "data"),
         Input("filtered-node-colors", "data"),
+        Input("filtered-link-types", "data"),
         Input("viz-btn", "n_clicks"),
         Input("main-graph", "relayoutData")
     ],
@@ -1100,8 +1130,8 @@ def filter_node_colors(click_data, filtered_node_colors):
     prevent_initial_call=True
 )
 def update_main_viz(selected_nodes, filtered_node_symbols,
-                    filtered_node_colors, _, relayout_data,
-                    sample_file_contents, config_file_contents,
+                    filtered_node_colors, filtered_link_types, _,
+                    relayout_data, sample_file_contents, config_file_contents,
                     matrix_file_contents, old_main_fig, old_main_fig_x_axis,
                     old_main_fig_y_axis):
     """Update main graph, axes, zoomed-out main graph, and legends.
@@ -1117,6 +1147,8 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
     :type filtered_node_symbols: dict
     :param filtered_node_colors: Currently filtered node colors
     :type filtered_node_colors: dict
+    :param filtered_link_types: Currently filtered link types
+    :type filtered_link_types: dict
     :param _: User clicked viz btn
     :param relayout_data: Information on main graph relayout event
     :type relayout_data: dict
@@ -1223,7 +1255,8 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
                                 matrix_file_base64_str=matrix_file_base64_str,
                                 selected_nodes=selected_nodes,
                                 filtered_node_symbols=filtered_node_symbols,
-                                filtered_node_colors=filtered_node_colors)
+                                filtered_node_colors=filtered_node_colors,
+                                filtered_link_types=filtered_link_types)
         zoomed_out_app_data = \
             get_app_data(sample_file_base64_str,
                          config_file_base64_str,
@@ -1231,11 +1264,13 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
                          selected_nodes=selected_nodes,
                          filtered_node_symbols=filtered_node_symbols,
                          filtered_node_colors=filtered_node_colors,
+                         filtered_link_types=filtered_link_types,
                          vpsc=True)
         main_fig = get_main_fig(app_data)
         zoomed_out_main_fig = get_zoomed_out_main_fig(zoomed_out_app_data)
         node_symbol_legend_fig = get_node_symbol_legend_fig(app_data)
         node_color_legend_fig = get_node_color_legend_fig(app_data)
+        link_legend_fig = get_link_legend_fig(app_data)
 
         # Selecting/filtering
         if old_main_fig:
@@ -1274,7 +1309,6 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
                 "width": "max(100%%, %spx)" % app_data["main_fig_width"]
             }
             node_symbol_legend_title = html.H5(app_data["node_symbol_attr"])
-            link_legend_fig = get_link_legend_fig(app_data)
             node_color_legend_title = html.H5(app_data["node_color_attr"])
 
             y_axis_legend = [html.H5("primary y-axis attribute:")]

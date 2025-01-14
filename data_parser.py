@@ -39,7 +39,7 @@ def parse_fields_from_example_file(example_file_base64_str, delimiter):
 def get_app_data(sample_file_base64_str, config_file_base64_str,
                  matrix_file_base64_str=None, selected_nodes=None,
                  filtered_node_symbols=None, filtered_node_colors=None,
-                 vpsc=False):
+                 filtered_link_types=None, vpsc=False):
     """Get data from uploaded file that is used to generate viz.
 
     :param sample_file_base64_str: Base64 encoded str corresponding to
@@ -57,6 +57,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     :type filtered_node_symbols: dict
     :param filtered_node_colors: Node colors filtered by user
     :type filtered_node_colors: dict
+    :param filtered_link_types: Link types filtered by user
+    :type filtered_link_types: dict
     :param vpsc: Run vpsc nodal overlap removal algorithm
     :type vpsc: bool
     :return: Data derived from sample data, used to generate viz
@@ -68,6 +70,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         filtered_node_symbols = {}
     if filtered_node_colors is None:
         filtered_node_colors = {}
+    if filtered_link_types is None:
+        filtered_link_types = {}
 
     sample_file_str = b64decode(sample_file_base64_str).decode("utf-8")
 
@@ -188,7 +192,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         primary_y=config_file_dict["primary_y_axis"],
         links_across_primary_y=config_file_dict["links_across_primary_y"],
         max_day_range=config_file_dict["max_day_range"],
-        matrix_file_df=matrix_file_df
+        matrix_file_df=matrix_file_df,
+        filtered_link_types=filtered_link_types
     )
 
     main_fig_nodes_y_dict = get_main_fig_nodes_y_dict(
@@ -316,6 +321,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         "node_color_legend_fig_nodes_textfont_color":
             ["grey" if e in filtered_node_colors else "black"
              for e in node_color_attr_dict.values()],
+        "filtered_link_types": filtered_link_types,
         "main_fig_xaxis_range":
             xaxis_range,
         "main_fig_yaxis_range":
@@ -608,7 +614,7 @@ def get_node_color_attr_dict(node_color_attr_list):
 
 def get_sample_links_dict(sample_data_dict, links_config, primary_y,
                           links_across_primary_y, max_day_range,
-                          matrix_file_df):
+                          matrix_file_df, filtered_link_types):
     """Get a dict of all links to viz in main graph.
 
     The keys in the dict are different link labels. The values are a
@@ -634,6 +640,8 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
     :type max_day_range: int
     :param matrix_file_df: Dataframe encoding user uploaded matrix
     :type matrix_file_df: pd.DataFrame | None
+    :param filtered_link_types: Link types filtered by user
+    :type filtered_link_types: dict
     :return: Dict detailing links to viz in main graph
     :rtype: dict
     """
@@ -650,6 +658,9 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
                 for e in link_config_list]
 
     for link in links_config:
+        if link in filtered_link_types:
+            continue
+
         all_eq_list = links_config[link]["all_eq"]
         all_neq_list = links_config[link]["all_neq"]
         any_eq_list = links_config[link]["any_eq"]

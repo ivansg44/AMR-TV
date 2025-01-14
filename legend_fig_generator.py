@@ -81,7 +81,9 @@ def get_link_legend_fig_links(app_data):
     """
     links = []
     for i, attr in enumerate(app_data["main_fig_links_dict"]):
+        filtered_link = attr in app_data["filtered_link_types"]
         (r, g, b) = app_data["link_color_dict"][attr]
+        a = "0.5" if filtered_link else "1"
         links.append(
             go.Scatter(
                 x=[0, 1],
@@ -89,15 +91,27 @@ def get_link_legend_fig_links(app_data):
                 mode="lines+text",
                 line={
                     "width": 3,
-                    "color": "rgb(%s, %s, %s)" % (r, g, b)
+                    "color": "rgba(%s, %s, %s, %s)" % (r, g, b, a),
                 },
                 text=["<b>%s</b>" % attr, None],
                 textfont={
-                    "color": "black",
+                    "color": "grey" if filtered_link else "black",
                     "size": 16
                 },
                 textposition="top right",
                 hoverinfo="skip"
+            )
+        )
+        # Invisible bar chart underneath to register clicks
+        links.append(
+            go.Bar(
+                x=[1],
+                y=[i],
+                hoverinfo="none",
+                orientation="h",
+                width=1,
+                opacity=0,
+                customdata=[attr]
             )
         )
     return links
@@ -129,7 +143,7 @@ def get_link_legend_fig(app_data):
             },
             "showlegend": False,
             "plot_bgcolor": "white",
-            "height": len(graph) * 75,
+            "height": len(graph)/2 * 75,
         }
     )
     return fig
