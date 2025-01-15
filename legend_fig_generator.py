@@ -4,12 +4,15 @@ import plotly.graph_objects as go
 
 
 def get_node_symbol_legend_fig_nodes(app_data):
-    """Get plotly scatter obj of nodes in node symbol legend.
+    """Get plotly objs in node symbol legend.
+
+    Basically, a scatter obj that draws nodes you see in the legend.
+    Also, invisible bar obj for easier registration of click events.
 
     :param app_data: ``data_parser.get_app_data`` ret val
     :type app_data: dict
-    :return: Plotly scatter obj of nodes in node symbol legend
-    :rtype: go.Scatter
+    :return: Plotly obj in node symbol legend
+    :rtype: list[go.Scatter|go.Bar]
     """
     nodes = go.Scatter(
         x=[1 for _ in app_data["node_shape_legend_fig_nodes_y"]],
@@ -30,10 +33,18 @@ def get_node_symbol_legend_fig_nodes(app_data):
             "color": app_data["node_shape_legend_fig_nodes_textfont_color"],
             "size": 16
         },
-        hoverinfo="none",
-        customdata=app_data["node_shape_legend_fig_nodes_marker_symbol"],
+        hoverinfo="skip"
     )
-    return nodes
+    easier_clicking = go.Bar(
+        x=[2 for _ in app_data["node_shape_legend_fig_nodes_y"]],
+        y=app_data["node_shape_legend_fig_nodes_y"],
+        hoverinfo="none",
+        orientation="h",
+        width=1,
+        opacity=0,
+        customdata=app_data["node_shape_legend_fig_nodes_marker_symbol"]
+    )
+    return [nodes, easier_clicking]
 
 
 def get_node_symbol_legend_fig(app_data):
@@ -46,7 +57,7 @@ def get_node_symbol_legend_fig(app_data):
     """
     graph = get_node_symbol_legend_fig_nodes(app_data)
     fig = go.Figure(
-        data=[graph],
+        data=graph,
         layout={
             "margin": {
                 "l": 0, "r": 0, "t": 0, "b": 0
@@ -61,7 +72,7 @@ def get_node_symbol_legend_fig(app_data):
             },
             "showlegend": False,
             "plot_bgcolor": "white",
-            "height": len(graph["y"]) * 50
+            "height": len(graph[0]["y"]) * 50
         },
     )
     return fig
