@@ -1,5 +1,6 @@
 """Fns for generating legend figs in viz."""
 
+import dash_core_components as dcc
 import plotly.graph_objects as go
 
 
@@ -78,68 +79,71 @@ def get_node_symbol_legend_fig(app_data):
     return fig
 
 
-def get_link_legend_fig_links(app_data):
-    """Get plotly objs of different links in link legend fig.
+def get_link_legend_fig_graph_objs(link_type, link_color, is_filtered):
+    """Get Plotly scatter/bar objs that render one link in link legend.
 
-    Basically, a list of different scatter objs that draw one of each
-    link you see in the legend. Also, invisible bar objs to allow
-    easier registration of click events.
+    The link legend has multiple links in it. This only draws one.
 
-    :param app_data: ``data_parser.get_app_data`` ret val
-    :type app_data: dict
-    :return: List of plotly scatter/bar obj used to draw links in link
-        legend fig.
-    :rtype: list[go.Scatter|go.Bar]
+    The scatter obj draws the link. An invisible bar obj allows easier
+    registration of click events.
+
+    :param link_type: ``data_parser.get_app_data`` ret val
+    :type link_type: str
+    :param link_color: RGB color val of link
+    :type link_color: tuple[int, int, int]
+    :param is_filtered: Whether link is filtered or not
+    :type is_filtered: bool
+    :return: Plotly scatter/bar obj used to draw a link in link legend
+    :rtype: list[go.Scatter, go.Bar]
     """
-    links = []
-    for i, attr in enumerate(app_data["main_fig_links_dict"]):
-        filtered_link = attr in app_data["filtered_link_types"]
-        (r, g, b) = app_data["link_color_dict"][attr]
-        a = "0.5" if filtered_link else "1"
-        links.append(
-            go.Scatter(
-                x=[0, 1],
-                y=[i, i],
-                mode="lines+text",
-                line={
-                    "width": 3,
-                    "color": "rgba(%s, %s, %s, %s)" % (r, g, b, a),
-                },
-                text=["<b>%s</b>" % attr, None],
-                textfont={
-                    "color": "grey" if filtered_link else "black",
-                    "size": 16
-                },
-                textposition="top right",
-                hoverinfo="skip"
-            )
-        )
-        # Invisible bar chart underneath to register clicks
-        links.append(
-            go.Bar(
-                x=[1],
-                y=[i],
-                hoverinfo="none",
-                orientation="h",
-                width=1,
-                opacity=0,
-                customdata=[attr]
-            )
-        )
-    return links
+    (r, g, b) = link_color
+    a = "0.5" if is_filtered else "1"
+    scatter_obj = go.Scatter(
+        x=[0, 1],
+        y=[1, 1],
+        mode="lines+text",
+        line={
+            "width": 3,
+            "color": "rgba(%s, %s, %s, %s)" % (r, g, b, a),
+        },
+        text=["<b>%s</b>" % link_type, None],
+        textfont={
+            "color": "grey" if is_filtered else "black",
+            "size": 16
+        },
+        textposition="top right",
+        hoverinfo="skip"
+    )
+    # Invisible bar chart underneath to register clicks
+    bar_obj = go.Bar(
+        x=[1],
+        y=[1],
+        hoverinfo="none",
+        orientation="h",
+        width=1,
+        opacity=0
+    )
+    return [scatter_obj, bar_obj]
 
 
-def get_link_legend_fig(app_data):
-    """Get link legend fig in viz.
+def get_link_legend_fig(link_type, link_color, is_filtered):
+    """Get Plotly fig that renders one link in link legend.
 
-    :param app_data: ``data_parser.get_app_data`` ret val
-    :type app_data: dict
-    :return: Plotly figure object that shows link legend in viz
+    The link legend has multiple links in it. This only draws one.
+
+    :param link_type: ``data_parser.get_app_data`` ret val
+    :type link_type: str
+    :param link_color: RGB color val of link
+    :type link_color: tuple[int, int, int]
+    :param is_filtered: Whether link is filtered or not
+    :type is_filtered: bool
+    :return: Plotly fig obj used to draw one link in link legend
     :rtype: go.Figure
     """
-    graph = get_link_legend_fig_links(app_data)
+    graph_objs = \
+        get_link_legend_fig_graph_objs(link_type, link_color, is_filtered)
     fig = go.Figure(
-        data=graph,
+        data=graph_objs,
         layout={
             "margin": {
                 "l": 0, "r": 0, "t": 0, "b": 0, "pad": 0
@@ -151,14 +155,38 @@ def get_link_legend_fig(app_data):
             "yaxis": {
                 "visible": False,
                 "fixedrange": True,
-                "range": [len(app_data["main_fig_links_dict"])-0.5, -0.5]
             },
             "showlegend": False,
             "plot_bgcolor": "white",
-            "height": len(graph)/2 * 75,
+            "height": 75,
         }
     )
     return fig
+
+
+def get_link_legend_col(app_data):
+    """Get link legend col in viz.
+
+    This is a list of graphs, one per link type, and sliders if a link
+    type has weights.
+
+    :param app_data: ``data_parser.get_app_data`` ret val
+    :type app_data: dict
+    :return: Graphs and sliders constituting link legend in viz
+    :rtype: list[dcc.Graph|dcc.RangeSlider]
+    """
+    children = []
+    for attr in app_data["main_fig_links_dict"]:
+        link_color = app_data["link_color_dict"][attr]
+        is_filtered = attr in app_data["filtered_link_types"]
+        children.append(
+            dcc.Graph(
+                figure=get_link_legend_fig(attr, link_color, is_filtered),
+                id={"type": "link-legend-fig", "index": attr},
+                config={"displayModeBar": False},
+            )
+        )
+    return children
 
 
 def get_node_color_legend_fig_nodes(app_data):

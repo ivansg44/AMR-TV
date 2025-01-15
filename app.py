@@ -36,7 +36,7 @@ from modal_generator import (get_upload_data_modal,
                              get_duplicating_link_section,
                              get_duplicating_attr_filter_section)
 from legend_fig_generator import (get_node_symbol_legend_fig,
-                                  get_link_legend_fig,
+                                  get_link_legend_col,
                                   get_node_color_legend_fig)
 
 # For gunicorn during docker deployment
@@ -193,12 +193,9 @@ def launch_app(_):
                         ),
                         dbc.Row(
                             dbc.Col(
-                                dcc.Graph(
-                                    figure={},
-                                    id="link-legend-graph",
-                                    className="border-bottom",
-                                    config={"displayModeBar": False},
-                                ),
+                                children=[],
+                                id="link-legend-col",
+                                className="border-bottom"
                             ),
                         ),
                         dbc.Row(
@@ -1068,31 +1065,41 @@ def filter_node_colors(click_data, filtered_node_colors):
 
 
 @app.callback(
-    inputs=Input("link-legend-graph", "clickData"),
+    inputs=Input({"type": "link-legend-fig", "index": ALL}, "clickData"),
     state=State("filtered-link-types", "data"),
     output=[
         Output("filtered-link-types", "data"),
-        Output("link-legend-graph", "clickData")
+        Output({"type": "link-legend-fig", "index": ALL}, "clickData")
     ],
     prevent_initial_call=True
 )
 def filter_link_types(click_data, filtered_link_types):
-    """Filter nodes by color, when user clicks legend.
+    """Filter links, when user clicks legend.
 
-    :param click_data: Information on node clicked by user
+    :param click_data: Click information on links in legend
     :type click_data: dict
     :param filtered_link_types: Currently filtered link types
     :type filtered_link_types: dict
     :return: New table of filtered link types
     :rtype: dict
     """
+    ctx = dash.callback_context
+    clicked_indices = [i for i, e in enumerate(ctx.inputs.values()) if e]
+    if not clicked_indices:
+        raise PreventUpdate
+    else:
+        # Should only be one clicked index, because we reset them all
+        # to None at the end of this fn.
+        clicked_index = clicked_indices[0]
+
+    clicked_legend_link_type = ctx.inputs_list[0][clicked_index]["id"]["index"]
     new_filtered_link_types = filtered_link_types
-    clicked_legend_link_type = click_data["points"][0]["customdata"]
     if clicked_legend_link_type in filtered_link_types:
         new_filtered_link_types.pop(clicked_legend_link_type)
     else:
         new_filtered_link_types[clicked_legend_link_type] = None
-    return new_filtered_link_types, None
+
+    return new_filtered_link_types, [None for _ in click_data]
 
 
 @app.callback(
@@ -1122,7 +1129,7 @@ def filter_link_types(click_data, filtered_link_types):
         Output("zoomed-out-main-graph", "figure"),
         Output("node-shape-legend-title", "children"),
         Output("node-shape-legend-graph", "figure"),
-        Output("link-legend-graph", "figure"),
+        Output("link-legend-col", "children"),
         Output("node-color-legend-title", "children"),
         Output("node-color-legend-graph", "figure"),
         Output("y-axis-legend-col", "children")
@@ -1176,7 +1183,7 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
     zoomed_out_main_fig = no_update
     node_symbol_legend_title = no_update
     node_symbol_legend_fig = no_update
-    link_legend_fig = no_update
+    link_legend_col = no_update
     node_color_legend_title = no_update
     node_color_legend_fig = no_update
     y_axis_legend = no_update
@@ -1270,7 +1277,7 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
         zoomed_out_main_fig = get_zoomed_out_main_fig(zoomed_out_app_data)
         node_symbol_legend_fig = get_node_symbol_legend_fig(app_data)
         node_color_legend_fig = get_node_color_legend_fig(app_data)
-        link_legend_fig = get_link_legend_fig(app_data)
+        link_legend_col = get_link_legend_col(app_data)
 
         # Selecting/filtering
         if old_main_fig:
@@ -1326,7 +1333,7 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
             zoomed_out_main_fig,
             node_symbol_legend_title,
             node_symbol_legend_fig,
-            link_legend_fig,
+            link_legend_col,
             node_color_legend_title,
             node_color_legend_fig,
             y_axis_legend)
