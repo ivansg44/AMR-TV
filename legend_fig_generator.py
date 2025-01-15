@@ -162,12 +162,15 @@ def get_link_legend_fig(app_data):
 
 
 def get_node_color_legend_fig_nodes(app_data):
-    """Get plotly scatter obj of nodes in node color legend.
+    """Get plotly objs in node color legend.
+
+    Basically, a scatter obj that draws nodes you see in the legend.
+    Also, invisible bar obj for easier registration of click events.
 
     :param app_data: ``data_parser.get_app_data`` ret val
     :type app_data: dict
-    :return: Plotly scatter obj of nodes in node color legend
-    :rtype: go.Scatter
+    :return: Plotly obj in node color legend
+    :rtype: list[go.Scatter|go.Bar]
     """
     node_color_attr_dict = app_data["node_color_attr_dict"]
 
@@ -194,10 +197,18 @@ def get_node_color_legend_fig_nodes(app_data):
             "size": 16
         },
         textposition="middle right",
+        hoverinfo="skip"
+    )
+    easier_clicking = go.Bar(
+        x=[5 for _ in node_color_attr_dict],
+        y=list(range(len(node_color_attr_dict))),
         hoverinfo="none",
+        orientation="h",
+        width=1,
+        opacity=0,
         customdata=list(node_color_attr_dict.values())
     )
-    return nodes
+    return [nodes, easier_clicking]
 
 
 def get_node_color_legend_fig(app_data):
@@ -210,7 +221,7 @@ def get_node_color_legend_fig(app_data):
     """
     graph = get_node_color_legend_fig_nodes(app_data)
     fig = go.Figure(
-        data=[graph],
+        data=graph,
         layout={
             "margin": {
                 "l": 0, "r": 0, "t": 0, "b": 0
@@ -229,5 +240,5 @@ def get_node_color_legend_fig(app_data):
         },
     )
     if graph:
-        fig.update_layout(height=len(graph["y"] * 50))
+        fig.update_layout(height=len(graph[0]["y"] * 50))
     return fig
