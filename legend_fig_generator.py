@@ -168,7 +168,7 @@ def get_link_legend_col(app_data):
     """Get link legend col in viz.
 
     This is a list of graphs, one per link type, and sliders if a link
-    type has weights.
+    type is visible and has weights.
 
     :param app_data: ``data_parser.get_app_data`` ret val
     :type app_data: dict
@@ -179,12 +179,28 @@ def get_link_legend_col(app_data):
     for attr in app_data["main_fig_links_dict"]:
         link_color = app_data["link_color_dict"][attr]
         is_filtered = attr in app_data["filtered_link_types"]
+
+        link_legend_fig = get_link_legend_fig(attr, link_color, is_filtered)
         children.append(
-            dcc.Graph(
-                figure=get_link_legend_fig(attr, link_color, is_filtered),
-                id={"type": "link-legend-fig", "index": attr},
-                config={"displayModeBar": False},
-            )
+            dcc.Graph(figure=link_legend_fig,
+                      id={"type": "link-legend-fig", "index": attr},
+                      config={"displayModeBar": False})
+        )
+
+        if attr not in app_data["weight_slider_info_dict"]:
+            continue
+        min_weight = app_data["weight_slider_info_dict"][attr]["min"]
+        max_weight = app_data["weight_slider_info_dict"][attr]["max"]
+        marks = app_data["weight_slider_info_dict"][attr]["marks"]
+        children.append(
+            dcc.RangeSlider(id={"type": "link-legend-slider", "index": attr},
+                            min=min_weight,
+                            max=max_weight,
+                            value=[min_weight, max_weight],
+                            step=None,
+                            marks=marks,
+                            allowCross=False,
+                            tooltip={})
         )
     return children
 

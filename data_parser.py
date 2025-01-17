@@ -7,7 +7,7 @@ from datetime import datetime
 from io import StringIO
 from itertools import groupby
 from json import loads
-from math import atan, degrees, radians, sqrt, tan
+from math import atan, ceil, degrees, floor, radians, sqrt, tan
 from re import compile
 
 import networkx as nx
@@ -219,6 +219,10 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         get_zoomed_out_main_fig_x_axis_dict(datetime_list,
                                             main_fig_nodes_x_dict)
 
+    # Needs to be before filtering link loops, to avoid using graphical
+    # distances as weights.
+    weight_slider_info_dict = get_weight_slider_info_dict(sample_links_dict)
+
     sample_links_dict = \
         filter_link_loops(sample_links_dict=sample_links_dict,
                           links_config=config_file_dict["links_config"],
@@ -358,6 +362,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         "main_fig_link_labels_dict": main_fig_link_labels_dict,
         "main_fig_arc_labels_dict": main_fig_arc_labels_dict,
         "link_color_dict": link_color_dict,
+        "weight_slider_info_dict": weight_slider_info_dict,
         "main_fig_primary_facet_x":
             get_main_fig_primary_facet_x(xaxis_range, num_of_primary_facets),
         "main_fig_primary_facet_y":
@@ -865,6 +870,64 @@ def get_link_color_dict(sample_links_dict):
         raise IndexError(msg)
     zip_obj = zip(sample_links_dict.keys(), available_link_color_list)
     ret = {k: v for (k, v) in zip_obj}
+    return ret
+
+
+def get_weight_slider_info_dict(sample_links_dict):
+    """Get information for sliders used in link legend.
+
+    Each visible link with weight exps gets a nested dict containing
+    `min`, `max`, and `marks` vals used by Dash.
+
+    :param sample_links_dict: ``get_sample_links_dict`` ret val
+    :type sample_links_dict: dict
+    :return: Dict with slider info for visible links with weight exps
+    """
+    ret = {}
+    for link in sample_links_dict:
+        link_dict = sample_links_dict[link]
+        # Link is filtered or has no weights
+        if not link_dict or next(iter(link_dict.values())) is None:
+            continue
+
+        ret[link] = {"marks": {}}
+        min_weight = None
+        max_weight = None
+        marks = ret[link]["marks"]
+
+        for weight in link_dict.values():
+            # Dash sliders currently have a bug that prevents typing
+            # whole numbers as floats. See https://bit.ly/3wgwh9p.
+            if weight % 1 == 0:
+                weight = int(weight)
+
+            if not min_weight or weight < min_weight:
+                min_weight = weight
+            if not max_weight or weight > max_weight:
+                max_weight = weight
+            marks[weight] = {
+                "label": str(weight),
+                "style": {"display": "none"}
+            }
+
+        min_mark = floor(min_weight)
+        ret[link]["min"] = min_mark
+        marks[min_mark] = {
+            "label": "Weight=%s" % min_mark,
+            "style": {"display": "none"}
+        }
+        max_mark = ceil(max_weight)
+        ret[link]["max"] = max_mark
+        marks[max_mark] = {
+            "label": str(max_mark),
+            "style": {"display": "none"}
+        }
+
+        if len(marks) > 1:
+            marks[min_mark]["style"].pop("display")
+            marks[max_mark]["style"].pop("display")
+        else:
+            marks[min_mark]["style"].pop("display")
     return ret
 
 
