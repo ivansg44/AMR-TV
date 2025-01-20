@@ -625,8 +625,9 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
     The keys in the dict are different link labels. The values are a
     nested dict. The keys in the nested dict are tuples containing two
     samples that satisfy the criteria for that link b/w them. The
-    values in the nested dict are weights assigned to the link b/w
-    these nodes, or ``None`` if no weight is calculated.
+    values in the nested dict are a dict describing weight val and
+    whether weight is filtered in the viz, or ``None`` if no weight is
+    calculated.
 
     We filter out certain links using ``weight_filters`` and
     ``attr_val_filters``.
@@ -762,18 +763,18 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
                         subbed_exp = regex_obj.sub(repl_fn, weight_exp)
                         link_weight = eval_expr(subbed_exp)
 
+                        filtered = False
                         if "not_equal" in weight_filters:
                             neq = weight_filters["not_equal"]
-                            if link_weight in neq:
-                                continue
-                        if "less_than" in weight_filters:
+                            filtered = link_weight in neq
+                        if not filtered and "less_than" in weight_filters:
                             le = weight_filters["less_than"]
-                            if link_weight < le:
-                                continue
-                        if "greater_than" in weight_filters:
+                            filtered = link_weight < le
+                        if not filtered and "greater_than" in weight_filters:
                             ge = weight_filters["greater_than"]
-                            if link_weight > ge:
-                                continue
+                            filtered = link_weight > ge
+                        link_weight = {"weight": link_weight,
+                                       "filtered": filtered}
                     else:
                         link_weight = None
 
@@ -797,6 +798,9 @@ def filter_link_loops(sample_links_dict, links_config, main_fig_nodes_x_dict,
     if a weight expression was not provided, graphic distance b/w nodes in
     the plot.
 
+    During this process, we also remove links that are supposed to be
+    filtered by weight.
+
     :param sample_links_dict: ``get_sample_links_dict`` ret val
     :type sample_links_dict: dict
     :param links_config: dict of criteria for different user-specified
@@ -815,23 +819,27 @@ def filter_link_loops(sample_links_dict, links_config, main_fig_nodes_x_dict,
         if not bool(links_config[link]["minimize_loops"]):
             continue
         for (sample, other_sample) in sample_links_dict[link]:
-            weight = sample_links_dict[link][(sample, other_sample)]
-
-            if weight is None:
+            weight_info = sample_links_dict[link][(sample, other_sample)]
+            if weight_info is None:
                 # nx will use the difference in graphic distance b/w nodes
                 # in the plot as weight, for mst purposes.
                 x0 = main_fig_nodes_x_dict["staggered"][sample]
                 x1 = main_fig_nodes_x_dict["staggered"][other_sample]
                 y0 = main_fig_nodes_y_dict[sample]
                 y1 = main_fig_nodes_y_dict[other_sample]
-                weight = sqrt((x1-x0)**2 + (y1-y0)**2)
+                weight_info = {"weight": sqrt((x1-x0)**2 + (y1-y0)**2),
+                               "filtered": False}
+
+            # Links already filtered by weight
+            if weight_info["filtered"]:
+                continue
 
             # Need to track original order because graph is undirected
             order = (sample, other_sample)
 
             graph.add_edge(sample,
                            other_sample,
-                           weight=weight,
+                           weight=weight_info["weight"],
                            order=order)
 
         disjoint_subgraphs = \
@@ -893,9 +901,14 @@ def get_weight_slider_info_dict(sample_links_dict):
         ret[link] = {"marks": {}}
         min_weight = None
         max_weight = None
+        min_unfiltered_weight = None
+        max_unfiltered_weight = None
         marks = ret[link]["marks"]
 
-        for weight in link_dict.values():
+        for val in link_dict.values():
+            weight = val["weight"]
+            filtered = val["filtered"]
+
             # Dash sliders currently have a bug that prevents typing
             # whole numbers as floats. See https://bit.ly/3wgwh9p.
             if weight % 1 == 0:
@@ -905,6 +918,11 @@ def get_weight_slider_info_dict(sample_links_dict):
                 min_weight = weight
             if not max_weight or weight > max_weight:
                 max_weight = weight
+            if not filtered:
+                if not min_unfiltered_weight or weight < min_unfiltered_weight:
+                    min_unfiltered_weight = weight
+                if not max_unfiltered_weight or weight > max_unfiltered_weight:
+                    max_unfiltered_weight = weight
             marks[weight] = {
                 "label": str(weight),
                 "style": {"display": "none"}
@@ -918,6 +936,7 @@ def get_weight_slider_info_dict(sample_links_dict):
         }
         max_mark = ceil(max_weight)
         ret[link]["max"] = max_mark
+        ret[link]["value"] = [min_unfiltered_weight, max_unfiltered_weight]
         marks[max_mark] = {
             "label": str(max_mark),
             "style": {"display": "none"}
@@ -1257,8 +1276,8 @@ def get_main_fig_link_labels_dict(sample_links_dict, links_config,
             if (unstaggered_x1 - unstaggered_x0) == 0:
                 continue
 
-            weight = sample_links_dict[link][(sample, other_sample)]
-            if weight is None:
+            weight_info = sample_links_dict[link][(sample, other_sample)]
+            if weight_info is None or weight_info["filtered"]:
                 i += 1
                 continue
 
@@ -1280,7 +1299,7 @@ def get_main_fig_link_labels_dict(sample_links_dict, links_config,
 
             ret[link]["x"].append(xmid)
             ret[link]["y"].append(ymid)
-            ret[link]["text"].append(weight)
+            ret[link]["text"].append(weight_info["weight"])
             ret[link]["textangle"].append(textangle)
 
             i += 1
@@ -1333,8 +1352,8 @@ def get_main_fig_arc_labels_dict(sample_links_dict, links_config,
             if (unstaggered_x1 - unstaggered_x0) != 0:
                 continue
 
-            weight = sample_links_dict[link][(sample, other_sample)]
-            if weight is None:
+            weight_info = sample_links_dict[link][(sample, other_sample)]
+            if weight_info is None or weight_info["filtered"]:
                 i += 1
                 continue
 
@@ -1346,7 +1365,7 @@ def get_main_fig_arc_labels_dict(sample_links_dict, links_config,
 
             ret[link]["x"].append(x)
             ret[link]["y"].append(y)
-            ret[link]["text"].append(weight)
+            ret[link]["text"].append(weight_info["weight"])
 
             i += 1
 

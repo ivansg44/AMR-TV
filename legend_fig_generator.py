@@ -191,12 +191,13 @@ def get_link_legend_col(app_data):
             continue
         min_weight = app_data["weight_slider_info_dict"][attr]["min"]
         max_weight = app_data["weight_slider_info_dict"][attr]["max"]
+        val = app_data["weight_slider_info_dict"][attr]["value"]
         marks = app_data["weight_slider_info_dict"][attr]["marks"]
         children.append(
             dcc.RangeSlider(id={"type": "link-legend-slider", "index": attr},
                             min=min_weight,
                             max=max_weight,
-                            value=[min_weight, max_weight],
+                            value=val,
                             step=None,
                             marks=marks,
                             allowCross=False,
