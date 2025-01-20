@@ -1108,6 +1108,7 @@ def filter_link_types(click_data, filtered_link_types):
         Input("filtered-node-symbols", "data"),
         Input("filtered-node-colors", "data"),
         Input("filtered-link-types", "data"),
+        Input({"type": "link-legend-slider", "index": ALL}, "value"),
         Input("viz-btn", "n_clicks"),
         Input("main-graph", "relayoutData")
     ],
@@ -1137,10 +1138,10 @@ def filter_link_types(click_data, filtered_link_types):
     prevent_initial_call=True
 )
 def update_main_viz(selected_nodes, filtered_node_symbols,
-                    filtered_node_colors, filtered_link_types, _,
-                    relayout_data, sample_file_contents, config_file_contents,
-                    matrix_file_contents, old_main_fig, old_main_fig_x_axis,
-                    old_main_fig_y_axis):
+                    filtered_node_colors, filtered_link_types,
+                    link_slider_vals, _, relayout_data, sample_file_contents,
+                    config_file_contents, matrix_file_contents, old_main_fig,
+                    old_main_fig_x_axis, old_main_fig_y_axis):
     """Update main graph, axes, zoomed-out main graph, and legends.
 
     Current triggers:
@@ -1156,6 +1157,9 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
     :type filtered_node_colors: dict
     :param filtered_link_types: Currently filtered link types
     :type filtered_link_types: dict
+    :param link_slider_vals: List of link dcc slider vals, in the
+        order they appear on the legend.
+    :type link_slider_vals: list[list]
     :param _: User clicked viz btn
     :param relayout_data: Information on main graph relayout event
     :type relayout_data: dict
@@ -1263,7 +1267,8 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
                                 selected_nodes=selected_nodes,
                                 filtered_node_symbols=filtered_node_symbols,
                                 filtered_node_colors=filtered_node_colors,
-                                filtered_link_types=filtered_link_types)
+                                filtered_link_types=filtered_link_types,
+                                link_slider_vals=link_slider_vals)
         zoomed_out_app_data = \
             get_app_data(sample_file_base64_str,
                          config_file_base64_str,
@@ -1272,6 +1277,7 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
                          filtered_node_symbols=filtered_node_symbols,
                          filtered_node_colors=filtered_node_colors,
                          filtered_link_types=filtered_link_types,
+                         link_slider_vals=link_slider_vals,
                          vpsc=True)
         main_fig = get_main_fig(app_data)
         zoomed_out_main_fig = get_zoomed_out_main_fig(zoomed_out_app_data)

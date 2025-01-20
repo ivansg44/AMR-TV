@@ -39,7 +39,7 @@ def parse_fields_from_example_file(example_file_base64_str, delimiter):
 def get_app_data(sample_file_base64_str, config_file_base64_str,
                  matrix_file_base64_str=None, selected_nodes=None,
                  filtered_node_symbols=None, filtered_node_colors=None,
-                 filtered_link_types=None, vpsc=False):
+                 filtered_link_types=None, link_slider_vals=None, vpsc=False):
     """Get data from uploaded file that is used to generate viz.
 
     :param sample_file_base64_str: Base64 encoded str corresponding to
@@ -59,6 +59,9 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     :type filtered_node_colors: dict
     :param filtered_link_types: Link types filtered by user
     :type filtered_link_types: dict
+    :param link_slider_vals: List of link dcc slider vals, in the
+        insertion order of links in config file.
+    :type link_slider_vals: list[list]
     :param vpsc: Run vpsc nodal overlap removal algorithm
     :type vpsc: bool
     :return: Data derived from sample data, used to generate viz
@@ -72,11 +75,23 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         filtered_node_colors = {}
     if filtered_link_types is None:
         filtered_link_types = {}
+    if link_slider_vals is None:
+        link_slider_vals = []
 
     sample_file_str = b64decode(sample_file_base64_str).decode("utf-8")
 
     config_file_str = b64decode(config_file_base64_str).decode("utf-8")
     config_file_dict = loads(config_file_str)
+
+    # Adjust filters if slider vals set
+    if link_slider_vals:
+        links_config_dict = config_file_dict["links_config"]
+        iter_obj = zip(links_config_dict.values(), link_slider_vals)
+        for link_config, [less_than, greater_than] in iter_obj:
+            if less_than is not None:
+                link_config["weight_filters"]["less_than"] = less_than
+            if greater_than is not None:
+                link_config["weight_filters"]["greater_than"] = greater_than
 
     y_axis_attributes = [config_file_dict["primary_y_axis"]]
     y_axis_attributes += \
