@@ -72,15 +72,30 @@ def launch_app(_):
     """
     children = [
         dbc.Row(
-            dbc.Col([
-                dbc.Button("Upload data",
-                           id="upload-data-btn",
-                           className="mr-1",
-                           color="primary"),
-                dbc.Button("Create config file",
-                           id="create-config-file-btn")
-            ]),
-            className="my-1"
+            children=[
+                dbc.Col(
+                    dbc.Button("Upload data",
+                               id="upload-data-btn",
+                               className="mr-1",
+                               color="primary"),
+                width="auto"
+                ),
+                dbc.Col(
+                    dbc.Button("Create config file",
+                               id="create-config-file-btn"),
+                    width="auto"
+                ),
+                dbc.Col(
+                    dcc.Loading(
+                        html.Div(id="graph-loading"),
+                        type="circle"
+                    ),
+                    width="1"
+                )
+            ],
+            className="my-1 g-0",
+            no_gutters=True,
+            align="center"
         ),
         dbc.Row(
             children=[
@@ -1133,7 +1148,8 @@ def filter_link_types(click_data, filtered_link_types):
         Output("link-legend-col", "children"),
         Output("node-color-legend-title", "children"),
         Output("node-color-legend-graph", "figure"),
-        Output("y-axis-legend-col", "children")
+        Output("y-axis-legend-col", "children"),
+        Output("graph-loading", "children")
     ],
     prevent_initial_call=True
 )
@@ -1191,6 +1207,7 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
     node_color_legend_title = no_update
     node_color_legend_fig = no_update
     y_axis_legend = no_update
+    graph_loading = None
 
     if None in [sample_file_contents, config_file_contents]:
         raise PreventUpdate
@@ -1342,7 +1359,8 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
             link_legend_col,
             node_color_legend_title,
             node_color_legend_fig,
-            y_axis_legend)
+            y_axis_legend,
+            graph_loading)
 
 
 # Switch to main graph tab and scroll to corresponding node, after
