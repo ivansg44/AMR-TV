@@ -1,6 +1,8 @@
 """Fns for generating legend figs in viz."""
 
+import dash_bootstrap_components as dbc
 import dash_core_components as dcc
+import dash_html_components as html
 import plotly.graph_objects as go
 
 
@@ -167,13 +169,14 @@ def get_link_legend_fig(link_type, link_color, is_filtered):
 def get_link_legend_col(app_data):
     """Get link legend col in viz.
 
-    This is a list of graphs, one per link type, and sliders if a link
-    type is visible and has weights.
+    This is a list of graphs, one per link type, and sliders/filter
+    btns if a link type is visible and has weights.
 
     :param app_data: ``data_parser.get_app_data`` ret val
     :type app_data: dict
-    :return: Graphs and sliders constituting link legend in viz
-    :rtype: list[dcc.Graph|dcc.RangeSlider]
+    :return: Graphs, sliders, and filter btns constituting link legend
+        in viz.
+    :rtype: list[dcc.Graph|dcc.RangeSlider|dbc.Button]
     """
     children = []
     for attr in app_data["main_fig_links_dict"]:
@@ -182,9 +185,13 @@ def get_link_legend_col(app_data):
 
         link_legend_fig = get_link_legend_fig(attr, link_color, is_filtered)
         children.append(
-            dcc.Graph(figure=link_legend_fig,
-                      id={"type": "link-legend-fig", "index": attr},
-                      config={"displayModeBar": False})
+            dbc.Row(
+                dbc.Col(
+                    dcc.Graph(figure=link_legend_fig,
+                              id={"type": "link-legend-fig", "index": attr},
+                              config={"displayModeBar": False})
+                )
+            )
         )
 
         if attr not in app_data["weight_slider_info_dict"]:
@@ -194,14 +201,34 @@ def get_link_legend_col(app_data):
         val = app_data["weight_slider_info_dict"][attr]["value"]
         marks = app_data["weight_slider_info_dict"][attr]["marks"]
         children.append(
-            dcc.RangeSlider(id={"type": "link-legend-slider", "index": attr},
-                            min=min_weight,
-                            max=max_weight,
-                            value=val,
-                            step=None,
-                            marks=marks,
-                            allowCross=False,
-                            tooltip={})
+            dbc.Row(
+                children = [
+                    dbc.Col(
+                        dcc.RangeSlider(id={"type": "link-legend-slider",
+                                            "index": attr},
+                                        className="pt-2",
+                                        min=min_weight,
+                                        max=max_weight,
+                                        value=val,
+                                        step=None,
+                                        marks=marks,
+                                        allowCross=False,
+                                        tooltip={})
+                    ),
+                    dbc.Col(
+                        dbc.Button(
+                            html.I(className="bi-funnel-fill",
+                                   style={"font-size": 16}),
+                            id={"type": "link-legend-filter", "index": attr},
+                            className="px-0 pt-1",
+                            color="link",
+                            size="sm"
+                        ),
+                        width="auto"
+                    )
+                ],
+                no_gutters=True
+            )
         )
     return children
 
