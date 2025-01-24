@@ -1118,6 +1118,20 @@ def filter_link_types(click_data, filtered_link_types):
 
 
 @app.callback(
+    inputs=Input({"type": "link-legend-filter-btn", "index": MATCH},
+                 "n_clicks"),
+    state=State({"type": "link-legend-filter-form", "index": MATCH},
+                "is_open"),
+    output=Output({"type": "link-legend-filter-form", "index": MATCH},
+                "is_open"),
+    prevent_initial_call=True
+)
+def toggle_link_legend_filter_form(_, is_open):
+    """TODO"""
+    return not is_open
+
+
+@app.callback(
     inputs=[
         Input("selected-nodes", "data"),
         Input("filtered-node-symbols", "data"),

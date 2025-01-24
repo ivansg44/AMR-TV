@@ -219,7 +219,8 @@ def get_link_legend_col(app_data):
                         dbc.Button(
                             html.I(className="bi-funnel-fill",
                                    style={"font-size": 16}),
-                            id={"type": "link-legend-filter", "index": attr},
+                            id={"type": "link-legend-filter-btn",
+                                "index": attr},
                             className="px-0 pt-1",
                             color="link",
                             size="sm"
@@ -228,6 +229,25 @@ def get_link_legend_col(app_data):
                     )
                 ],
                 no_gutters=True
+            )
+        )
+        # Assemble form for dealing with neq conditions
+        checklist = dbc.Checklist(
+            options=[
+                {"label": "Option 1", "value": 1},
+                {"label": "Option 2", "value": 2},
+                {"label": "Disabled Option", "value": 3, "disabled": True},
+            ],
+            value=[1, 2, 3]
+        )
+        children.append(
+            dbc.Row(
+                dbc.Col(
+                    dbc.Collapse(
+                        checklist,
+                        id={"type": "link-legend-filter-form", "index": attr}
+                    )
+                )
             )
         )
     return children
