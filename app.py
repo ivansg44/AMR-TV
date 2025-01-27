@@ -1013,8 +1013,6 @@ def select_nodes(click_data, selected_nodes):
     if not clicked_node_opacity:
         raise PreventUpdate
     new_selected_nodes = selected_nodes
-    # TODO we need a way to reset selected nodes when viz is refreshed
-    #   rn we get away with it, because user has to refresh page
     clicked_node = str(click_data["points"][0]["pointIndex"])
     if clicked_node in selected_nodes:
         new_selected_nodes.pop(clicked_node)
@@ -1292,6 +1290,14 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
         main_fig_y_axis.update_layout(yaxis={"range": new_y_axis_range})
     # Generating new fig or selecting/filtering
     else:
+        # Reset some stale vals if generating new fig
+        if trigger == "viz-btn.n_clicks":
+            selected_nodes = {}
+            filtered_node_symbols = {}
+            filtered_node_colors = {}
+            filtered_link_types = {}
+            link_slider_vals = []
+        # TODO reset some of these vals if generating new fig
         app_data = get_app_data(sample_file_base64_str,
                                 config_file_base64_str,
                                 matrix_file_base64_str=matrix_file_base64_str,
