@@ -231,14 +231,13 @@ def get_link_legend_col(app_data):
                 no_gutters=True
             )
         )
+
+        if attr not in app_data["weight_filter_form_dict"]:
+            continue
         # Assemble form for dealing with neq conditions
         checklist = dbc.Checklist(
-            options=[
-                {"label": "Option 1", "value": 1},
-                {"label": "Option 2", "value": 2},
-                {"label": "Disabled Option", "value": 3, "disabled": True},
-            ],
-            value=[1, 2, 3]
+            options=app_data["weight_filter_form_dict"][attr]["options"],
+            value=app_data["weight_filter_form_dict"][attr]["value"]
         )
         children.append(
             dbc.Row(

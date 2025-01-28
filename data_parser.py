@@ -240,6 +240,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     # * Filter links by weight
     # * Filter link loops
     weight_slider_info_dict = get_weight_slider_info_dict(sample_links_dict)
+    weight_filter_form_dict = get_weight_filter_form_dict(sample_links_dict)
     sample_links_dict = filter_links_by_weight(sample_links_dict)
     sample_links_dict = \
         filter_link_loops(sample_links_dict=sample_links_dict,
@@ -381,6 +382,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         "main_fig_arc_labels_dict": main_fig_arc_labels_dict,
         "link_color_dict": link_color_dict,
         "weight_slider_info_dict": weight_slider_info_dict,
+        "weight_filter_form_dict": weight_filter_form_dict,
         "main_fig_primary_facet_x":
             get_main_fig_primary_facet_x(xaxis_range, num_of_primary_facets),
         "main_fig_primary_facet_y":
@@ -985,6 +987,44 @@ def get_weight_slider_info_dict(sample_links_dict):
             marks[max_mark]["style"].pop("display")
         else:
             marks[min_mark]["style"].pop("display")
+    return ret
+
+
+def get_weight_filter_form_dict(sample_links_dict):
+    """Get information for filter forms used in link legend.
+
+    Each visible link with weight exps gets a nested dict containing
+    the params expected by dbc checklist.
+
+    :param sample_links_dict: ``get_sample_links_dict`` ret val
+    :type sample_links_dict: dict
+    :return: Dict with filter form info for visible links with weight
+        exps.
+    """
+    ret = {}
+    for link in sample_links_dict:
+        link_dict = sample_links_dict[link]
+        # Link is filtered or has no weights
+        if not link_dict or next(iter(link_dict.values())) is None:
+            continue
+
+        ret[link] = {"options": [], "value": []}
+
+        seen_weights = set()
+        sorted_vals = sorted(link_dict.values(), key=lambda x: x["weight"])
+        for val in sorted_vals:
+            weight = val["weight"]
+            if weight in seen_weights:
+                continue
+            seen_weights.add(weight)
+
+            opt = {"label": weight, "value": weight}
+            if val["filtered_by_range"]:
+                opt["disabled"] = True
+            ret[link]["options"].append(opt)
+
+            if not val["filtered_by_neq"]:
+                ret[link]["value"].append(weight)
     return ret
 
 
