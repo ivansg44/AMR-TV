@@ -234,10 +234,13 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         get_zoomed_out_main_fig_x_axis_dict(datetime_list,
                                             main_fig_nodes_x_dict)
 
-    # Needs to be before filtering link loops, to avoid using graphical
-    # distances as weights.
+    # Order of next few calls is important:
+    # * Get weight slider info
+    # * Get weight filter form info
+    # * Filter links by weight
+    # * Filter link loops
     weight_slider_info_dict = get_weight_slider_info_dict(sample_links_dict)
-
+    sample_links_dict = filter_links_by_weight(sample_links_dict)
     sample_links_dict = \
         filter_link_loops(sample_links_dict=sample_links_dict,
                           links_config=config_file_dict["links_config"],
@@ -778,18 +781,21 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
                         subbed_exp = regex_obj.sub(repl_fn, weight_exp)
                         link_weight = eval_expr(subbed_exp)
 
-                        filtered = False
+                        filtered_by_neq = False
+                        filtered_by_range = False
                         if "not_equal" in weight_filters:
                             neq = weight_filters["not_equal"]
-                            filtered = link_weight in neq
-                        if not filtered and "less_than" in weight_filters:
+                            filtered_by_neq = link_weight in neq
+                        if "less_than" in weight_filters:
                             le = weight_filters["less_than"]
-                            filtered = link_weight < le
-                        if not filtered and "greater_than" in weight_filters:
-                            ge = weight_filters["greater_than"]
-                            filtered = link_weight > ge
+                            filtered_by_range = link_weight < le
+                        if not filtered_by_range:
+                            if "greater_than" in weight_filters:
+                                ge = weight_filters["greater_than"]
+                                filtered_by_range = link_weight > ge
                         link_weight = {"weight": link_weight,
-                                       "filtered": filtered}
+                                       "filtered_by_neq": filtered_by_neq,
+                                       "filtered_by_range": filtered_by_range}
                     else:
                         link_weight = None
 
@@ -803,6 +809,25 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
     return sample_links_dict
 
 
+def filter_links_by_weight(sample_links_dict):
+    """Remove links filtered by weight.
+
+    :param sample_links_dict: ``get_sample_links_dict`` ret val
+    :type sample_links_dict: dict
+    """
+    for link in sample_links_dict:
+        for (sample, other_sample) in list(sample_links_dict[link]):
+            weight_info = sample_links_dict[link][(sample, other_sample)]
+            if weight_info is None:
+                # Keep links without weight
+                continue
+            filtered = weight_info["filtered_by_neq"]
+            filtered = filtered or weight_info["filtered_by_range"]
+            if filtered:
+                sample_links_dict[link].pop((sample, other_sample))
+    return sample_links_dict
+
+
 def filter_link_loops(sample_links_dict, links_config, main_fig_nodes_x_dict,
                       main_fig_nodes_y_dict):
     """Remove links forming loops in a network.
@@ -812,9 +837,6 @@ def filter_link_loops(sample_links_dict, links_config, main_fig_nodes_x_dict,
     for this algorithm are equal to the weights calculated for each link, or
     if a weight expression was not provided, graphic distance b/w nodes in
     the plot.
-
-    During this process, we also remove links that are supposed to be
-    filtered by weight.
 
     :param sample_links_dict: ``get_sample_links_dict`` ret val
     :type sample_links_dict: dict
@@ -843,11 +865,8 @@ def filter_link_loops(sample_links_dict, links_config, main_fig_nodes_x_dict,
                 y0 = main_fig_nodes_y_dict[sample]
                 y1 = main_fig_nodes_y_dict[other_sample]
                 weight_info = {"weight": sqrt((x1-x0)**2 + (y1-y0)**2),
-                               "filtered": False}
-
-            # Links already filtered by weight
-            if weight_info["filtered"]:
-                continue
+                               "filtered_by_neq": False,
+                               "filtered_by_range": False}
 
             # Need to track original order because graph is undirected
             order = (sample, other_sample)
@@ -921,8 +940,12 @@ def get_weight_slider_info_dict(sample_links_dict):
         marks = ret[link]["marks"]
 
         for val in link_dict.values():
+            # We do not include neq filtered vals in slider
+            if val["filtered_by_neq"]:
+                continue
+
             weight = val["weight"]
-            filtered = val["filtered"]
+            filtered_by_range = val["filtered_by_range"]
 
             # Dash sliders currently have a bug that prevents typing
             # whole numbers as floats. See https://bit.ly/3wgwh9p.
@@ -933,7 +956,7 @@ def get_weight_slider_info_dict(sample_links_dict):
                 min_weight = weight
             if not max_weight or weight > max_weight:
                 max_weight = weight
-            if not filtered:
+            if not filtered_by_range:
                 if not min_unfiltered_weight or weight < min_unfiltered_weight:
                     min_unfiltered_weight = weight
                 if not max_unfiltered_weight or weight > max_unfiltered_weight:
@@ -1292,7 +1315,9 @@ def get_main_fig_link_labels_dict(sample_links_dict, links_config,
                 continue
 
             weight_info = sample_links_dict[link][(sample, other_sample)]
-            if weight_info is None or weight_info["filtered"]:
+            if any([weight_info is None,
+                    weight_info["filtered_by_neq"],
+                    weight_info["filtered_by_range"]]):
                 i += 1
                 continue
 
@@ -1368,7 +1393,9 @@ def get_main_fig_arc_labels_dict(sample_links_dict, links_config,
                 continue
 
             weight_info = sample_links_dict[link][(sample, other_sample)]
-            if weight_info is None or weight_info["filtered"]:
+            if any([weight_info is None,
+                    weight_info["filtered_by_neq"],
+                    weight_info["filtered_by_range"]]):
                 i += 1
                 continue
 
