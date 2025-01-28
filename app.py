@@ -1297,6 +1297,9 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
             filtered_node_colors = {}
             filtered_link_types = {}
             link_slider_vals = []
+            old_main_fig = None
+            old_main_fig_x_axis = None
+            old_main_fig_y_axis = None
         # TODO reset some of these vals if generating new fig
         app_data = get_app_data(sample_file_base64_str,
                                 config_file_base64_str,
