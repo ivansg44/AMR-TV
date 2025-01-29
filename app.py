@@ -1118,9 +1118,9 @@ def filter_link_types(click_data, filtered_link_types):
 @app.callback(
     inputs=Input({"type": "link-legend-filter-btn", "index": MATCH},
                  "n_clicks"),
-    state=State({"type": "link-legend-filter-form", "index": MATCH},
+    state=State({"type": "link-legend-filter-collapse", "index": MATCH},
                 "is_open"),
-    output=Output({"type": "link-legend-filter-form", "index": MATCH},
+    output=Output({"type": "link-legend-filter-collapse", "index": MATCH},
                 "is_open"),
     prevent_initial_call=True
 )
@@ -1136,6 +1136,8 @@ def toggle_link_legend_filter_form(_, is_open):
         Input("filtered-node-colors", "data"),
         Input("filtered-link-types", "data"),
         Input({"type": "link-legend-slider", "index": ALL}, "value"),
+        Input({"type": "link-legend-filter-form", "index": ALL}, "options"),
+        Input({"type": "link-legend-filter-form", "index": ALL}, "value"),
         Input("viz-btn", "n_clicks"),
         Input("main-graph", "relayoutData")
     ],
@@ -1167,9 +1169,11 @@ def toggle_link_legend_filter_form(_, is_open):
 )
 def update_main_viz(selected_nodes, filtered_node_symbols,
                     filtered_node_colors, filtered_link_types,
-                    link_slider_vals, _, relayout_data, sample_file_contents,
-                    config_file_contents, matrix_file_contents, old_main_fig,
-                    old_main_fig_x_axis, old_main_fig_y_axis):
+                    link_slider_vals, link_filter_form_opts,
+                    link_filter_form_vals, _, relayout_data,
+                    sample_file_contents, config_file_contents,
+                    matrix_file_contents, old_main_fig, old_main_fig_x_axis,
+                    old_main_fig_y_axis):
     """Update main graph, axes, zoomed-out main graph, and legends.
 
     Current triggers:
@@ -1188,6 +1192,12 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
     :param link_slider_vals: List of link dcc slider vals, in the
         order they appear on the legend.
     :type link_slider_vals: list[list]
+    :param link_filter_form_opts: List of link filter form checklist
+        opts, in the order they appear on the legend.
+    :type link_filter_form_opts: list[list]
+    :param link_filter_form_vals: List of link filter form checklist
+        vals, in the order they appear on the legend.
+    :type link_filter_form_vals: list[list]
     :param _: User clicked viz btn
     :param relayout_data: Information on main graph relayout event
     :type relayout_data: dict
@@ -1220,6 +1230,14 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
     node_color_legend_fig = no_update
     y_axis_legend = no_update
     graph_loading = None
+
+    link_neq_vals = []
+    if link_filter_form_opts and link_filter_form_vals:
+        for opts, val in zip(link_filter_form_opts, link_filter_form_vals):
+            val_set = set(val)
+            link_neq_vals.append(
+                [e["value"] for e in opts if e["value"] not in val_set]
+            )
 
     if None in [sample_file_contents, config_file_contents]:
         raise PreventUpdate
@@ -1308,7 +1326,8 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
                                 filtered_node_symbols=filtered_node_symbols,
                                 filtered_node_colors=filtered_node_colors,
                                 filtered_link_types=filtered_link_types,
-                                link_slider_vals=link_slider_vals)
+                                link_slider_vals=link_slider_vals,
+                                link_neq_vals=link_neq_vals)
         zoomed_out_app_data = \
             get_app_data(sample_file_base64_str,
                          config_file_base64_str,
@@ -1318,6 +1337,7 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
                          filtered_node_colors=filtered_node_colors,
                          filtered_link_types=filtered_link_types,
                          link_slider_vals=link_slider_vals,
+                         link_neq_vals=link_neq_vals,
                          vpsc=True)
         main_fig = get_main_fig(app_data)
         zoomed_out_main_fig = get_zoomed_out_main_fig(zoomed_out_app_data)

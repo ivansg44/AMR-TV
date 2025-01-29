@@ -237,14 +237,16 @@ def get_link_legend_col(app_data):
         # Assemble form for dealing with neq conditions
         checklist = dbc.Checklist(
             options=app_data["weight_filter_form_dict"][attr]["options"],
-            value=app_data["weight_filter_form_dict"][attr]["value"]
+            value=app_data["weight_filter_form_dict"][attr]["value"],
+            id={"type": "link-legend-filter-form", "index": attr},
         )
         children.append(
             dbc.Row(
                 dbc.Col(
                     dbc.Collapse(
                         checklist,
-                        id={"type": "link-legend-filter-form", "index": attr}
+                        id={"type": "link-legend-filter-collapse",
+                            "index": attr}
                     )
                 )
             )

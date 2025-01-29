@@ -39,7 +39,8 @@ def parse_fields_from_example_file(example_file_base64_str, delimiter):
 def get_app_data(sample_file_base64_str, config_file_base64_str,
                  matrix_file_base64_str=None, selected_nodes=None,
                  filtered_node_symbols=None, filtered_node_colors=None,
-                 filtered_link_types=None, link_slider_vals=None, vpsc=False):
+                 filtered_link_types=None, link_slider_vals=None,
+                 link_neq_vals=None, vpsc=False):
     """Get data from uploaded file that is used to generate viz.
 
     :param sample_file_base64_str: Base64 encoded str corresponding to
@@ -62,6 +63,9 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     :param link_slider_vals: List of link dcc slider vals, in the
         insertion order of links in config file.
     :type link_slider_vals: list[list]
+    :param link_neq_vals: List of link filter form checklist
+        unchecked vals, in the order they appear on the legend.
+    :type link_neq_vals: list[list]
     :param vpsc: Run vpsc nodal overlap removal algorithm
     :type vpsc: bool
     :return: Data derived from sample data, used to generate viz
@@ -92,6 +96,13 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
                 link_config["weight_filters"]["less_than"] = less_than
             if greater_than is not None:
                 link_config["weight_filters"]["greater_than"] = greater_than
+    # Adjust filters if filter form unchecked vals set
+    if link_neq_vals:
+        links_config_dict = config_file_dict["links_config"]
+        iter_obj = zip(links_config_dict.values(), link_neq_vals)
+        for link_config, unchecked_vals in iter_obj:
+            if unchecked_vals is not None:
+                link_config["weight_filters"]["not_equal"] = unchecked_vals
 
     y_axis_attributes = [config_file_dict["primary_y_axis"]]
     y_axis_attributes += \
