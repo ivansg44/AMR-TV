@@ -1125,7 +1125,14 @@ def filter_link_types(click_data, filtered_link_types):
     prevent_initial_call=True
 )
 def toggle_link_legend_filter_form(_, is_open):
-    """TODO"""
+    """Toggle individual link legend filter forms.
+
+    :param _: Filter form toggle btn clicked
+    :param is_open: If filter form is already visible
+    :type is_open: bool
+    :return: Opposite of is_open
+    :rtype: bool
+    """
     return not is_open
 
 
