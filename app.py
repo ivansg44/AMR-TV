@@ -1242,14 +1242,6 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
     y_axis_legend = no_update
     graph_loading = None
 
-    link_neq_vals = []
-    if link_filter_form_opts and link_filter_form_vals:
-        for opts, val in zip(link_filter_form_opts, link_filter_form_vals):
-            val_set = set(val)
-            link_neq_vals.append(
-                [e["value"] for e in opts if e["value"] not in val_set]
-            )
-
     if None in [sample_file_contents, config_file_contents]:
         raise PreventUpdate
 
@@ -1326,10 +1318,21 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
             filtered_node_colors = {}
             filtered_link_types = {}
             link_slider_vals = []
+            link_filter_form_opts = []
+            link_filter_form_vals = []
             old_main_fig = None
             old_main_fig_x_axis = None
             old_main_fig_y_axis = None
             link_filter_form_collapse_states = None
+
+        link_neq_vals = []
+        if link_filter_form_opts and link_filter_form_vals:
+            for opts, val in zip(link_filter_form_opts, link_filter_form_vals):
+                val_set = set(val)
+                link_neq_vals.append(
+                    [e["value"] for e in opts if e["value"] not in val_set]
+                )
+
         # TODO reset some of these vals if generating new fig
         app_data = get_app_data(sample_file_base64_str,
                                 config_file_base64_str,

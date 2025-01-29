@@ -81,6 +81,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         filtered_link_types = {}
     if link_slider_vals is None:
         link_slider_vals = []
+    if link_neq_vals is None:
+        link_neq_vals = []
 
     sample_file_str = b64decode(sample_file_base64_str).decode("utf-8")
 
@@ -1029,10 +1031,7 @@ def get_weight_filter_form_dict(sample_links_dict):
                 continue
             seen_weights.add(weight)
 
-            opt = {"label": weight, "value": weight}
-            if val["filtered_by_range"]:
-                opt["disabled"] = True
-            ret[link]["options"].append(opt)
+            ret[link]["options"].append({"label": weight, "value": weight})
 
             if not val["filtered_by_neq"]:
                 ret[link]["value"].append(weight)
