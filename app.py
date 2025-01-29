@@ -1154,7 +1154,8 @@ def toggle_link_legend_filter_form(_, is_open):
         State("upload-matrix-file", "contents"),
         State("main-graph", "figure"),
         State("main-graph-x-axis", "figure"),
-        State("main-graph-y-axis", "figure")
+        State("main-graph-y-axis", "figure"),
+        State({"type": "link-legend-filter-collapse", "index": ALL}, "is_open")
     ],
     output=[
         Output("main-graph", "figure"),
@@ -1180,7 +1181,7 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
                     link_filter_form_vals, _, relayout_data,
                     sample_file_contents, config_file_contents,
                     matrix_file_contents, old_main_fig, old_main_fig_x_axis,
-                    old_main_fig_y_axis):
+                    old_main_fig_y_axis, link_filter_form_collapse_states):
     """Update main graph, axes, zoomed-out main graph, and legends.
 
     Current triggers:
@@ -1220,6 +1221,9 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
     :type old_main_fig_x_axis: go.Figure
     :param old_main_fig_y_axis: Current main y-axis fig
     :type old_main_fig_y_axis: go.Figure
+    :param link_filter_form_collapse_states: List of whether link
+        filter forms are open, in the order they appear on the legend.
+    :type link_filter_form_collapse_states: list[bool]
     :return: New main graphs, axes, and legends
     :rtype: tuple[go.Figure]
     """
@@ -1325,6 +1329,7 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
             old_main_fig = None
             old_main_fig_x_axis = None
             old_main_fig_y_axis = None
+            link_filter_form_collapse_states = None
         # TODO reset some of these vals if generating new fig
         app_data = get_app_data(sample_file_base64_str,
                                 config_file_base64_str,
@@ -1350,7 +1355,8 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
         zoomed_out_main_fig = get_zoomed_out_main_fig(zoomed_out_app_data)
         node_symbol_legend_fig = get_node_symbol_legend_fig(app_data)
         node_color_legend_fig = get_node_color_legend_fig(app_data)
-        link_legend_col = get_link_legend_col(app_data)
+        link_legend_col = get_link_legend_col(app_data,
+                                              link_filter_form_collapse_states)
 
         # Selecting/filtering
         if old_main_fig:

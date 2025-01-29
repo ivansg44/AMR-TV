@@ -166,7 +166,7 @@ def get_link_legend_fig(link_type, link_color, is_filtered):
     return fig
 
 
-def get_link_legend_col(app_data):
+def get_link_legend_col(app_data, link_filter_form_collapse_states=None):
     """Get link legend col in viz.
 
     This is a list of graphs, one per link type, and sliders/filter
@@ -174,12 +174,15 @@ def get_link_legend_col(app_data):
 
     :param app_data: ``data_parser.get_app_data`` ret val
     :type app_data: dict
+    :param link_filter_form_collapse_states: List of whether link
+        filter forms are open, in the order they appear on the legend.
+    :type link_filter_form_collapse_states: list[bool]
     :return: Graphs, sliders, and filter btns constituting link legend
         in viz.
     :rtype: list[dcc.Graph|dcc.RangeSlider|dbc.Button]
     """
     children = []
-    for attr in app_data["main_fig_links_dict"]:
+    for i, attr in enumerate(app_data["main_fig_links_dict"]):
         link_color = app_data["link_color_dict"][attr]
         is_filtered = attr in app_data["filtered_link_types"]
 
@@ -238,15 +241,21 @@ def get_link_legend_col(app_data):
         checklist = dbc.Checklist(
             options=app_data["weight_filter_form_dict"][attr]["options"],
             value=app_data["weight_filter_form_dict"][attr]["value"],
-            id={"type": "link-legend-filter-form", "index": attr},
+            id={"type": "link-legend-filter-form", "index": attr}
         )
+        if link_filter_form_collapse_states is None:
+            # Forms are collapsed on first launch
+            is_open = False
+        else:
+            is_open = link_filter_form_collapse_states[i]
         children.append(
             dbc.Row(
                 dbc.Col(
                     dbc.Collapse(
                         checklist,
                         id={"type": "link-legend-filter-collapse",
-                            "index": attr}
+                            "index": attr},
+                        is_open=is_open
                     )
                 )
             )
