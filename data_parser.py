@@ -39,9 +39,9 @@ def parse_fields_from_example_file(example_file_base64_str, delimiter):
 def get_app_data(sample_file_base64_str, config_file_base64_str,
                  matrix_file_base64_str=None, selected_nodes=None,
                  filtered_node_symbols=None, filtered_node_colors=None,
-                 filtered_link_types=None, link_slider_vals=None,
+                 filtered_link_types=None, link_slider_vals_dict=None,
                  link_neq_vals=None, vpsc=False):
-    """Get data from uploaded file that is used to generate viz.
+    """Get data from uploaded file that is used to generate viz.TODO
 
     :param sample_file_base64_str: Base64 encoded str corresponding to
         contents of user uploaded sample file.
@@ -79,8 +79,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         filtered_node_colors = {}
     if filtered_link_types is None:
         filtered_link_types = {}
-    if link_slider_vals is None:
-        link_slider_vals = []
+    if link_slider_vals_dict is None:
+        link_slider_vals_dict = {}
     if link_neq_vals is None:
         link_neq_vals = []
 
@@ -89,15 +89,14 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     config_file_str = b64decode(config_file_base64_str).decode("utf-8")
     config_file_dict = loads(config_file_str)
 
-    # Adjust filters if slider vals set
-    if link_slider_vals:
+    # Adjust filters if slider vals set by user through ui
+    if link_slider_vals_dict:
         links_config_dict = config_file_dict["links_config"]
-        iter_obj = zip(links_config_dict.values(), link_slider_vals)
-        for link_config, [less_than, greater_than] in iter_obj:
-            if less_than is not None:
-                link_config["weight_filters"]["less_than"] = less_than
-            if greater_than is not None:
-                link_config["weight_filters"]["greater_than"] = greater_than
+        for link in link_slider_vals_dict:
+            weight_filters = links_config_dict[link]["weight_filters"]
+            [less_than, greater_than] = link_slider_vals_dict[link]
+            weight_filters["less_than"] = less_than
+            weight_filters["greater_than"] = greater_than
     # Adjust filters if filter form unchecked vals set
     if link_neq_vals:
         links_config_dict = config_file_dict["links_config"]

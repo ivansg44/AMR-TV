@@ -254,7 +254,9 @@ def launch_app(_):
         dcc.Store("example-file-field-opts"),
         dcc.Store("config-file-generation-started", data=False),
         dcc.Store("config-json-str", data=""),
-        dcc.Download(id="download-config-json-str")
+        dcc.Download(id="download-config-json-str"),
+        # These dicts are easier to work with then the dcc vals
+        dcc.Store(id="link-legend-slider-vals-dict", data={})
     ]
 
     return children
@@ -1138,11 +1140,30 @@ def toggle_link_legend_filter_form(_, is_open):
 
 @app.callback(
     inputs=[
+        Input({"type": "link-legend-slider", "index": ALL}, "id"),
+        Input({"type": "link-legend-slider", "index": ALL}, "value")
+    ],
+    output=[
+        Output("link-legend-slider-vals-dict", "data")
+    ]
+)
+def update_link_legend_val_dicts(link_legend_slider_ids,
+                                 link_legend_slider_vals):
+    """TODO you could keep old vals in memory dash prevents circular callbacks"""
+    link_legend_slider_vals_dict = {}
+    for i, link_legend_slider_id in enumerate(link_legend_slider_ids):
+        link = link_legend_slider_id["index"]
+        link_legend_slider_vals_dict[link] = link_legend_slider_vals[i]
+    return (link_legend_slider_vals_dict,)
+
+
+@app.callback(
+    inputs=[
         Input("selected-nodes", "data"),
         Input("filtered-node-symbols", "data"),
         Input("filtered-node-colors", "data"),
         Input("filtered-link-types", "data"),
-        Input({"type": "link-legend-slider", "index": ALL}, "value"),
+        Input("link-legend-slider-vals-dict", "data"),
         Input({"type": "link-legend-filter-form", "index": ALL}, "options"),
         Input({"type": "link-legend-filter-form", "index": ALL}, "value"),
         Input("viz-btn", "n_clicks"),
@@ -1177,12 +1198,12 @@ def toggle_link_legend_filter_form(_, is_open):
 )
 def update_main_viz(selected_nodes, filtered_node_symbols,
                     filtered_node_colors, filtered_link_types,
-                    link_slider_vals, link_filter_form_opts,
+                    link_legend_slider_vals_dict, link_filter_form_opts,
                     link_filter_form_vals, _, relayout_data,
                     sample_file_contents, config_file_contents,
                     matrix_file_contents, old_main_fig, old_main_fig_x_axis,
                     old_main_fig_y_axis, link_filter_form_collapse_states):
-    """Update main graph, axes, zoomed-out main graph, and legends.
+    """Update main graph, axes, zoomed-out main graph, and legends.TODO
 
     Current triggers:
 
@@ -1313,11 +1334,12 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
     else:
         # Reset some stale vals if generating new fig
         if trigger == "viz-btn.n_clicks":
+            # TODO we still need to reset some of this in dcc store
             selected_nodes = {}
             filtered_node_symbols = {}
             filtered_node_colors = {}
             filtered_link_types = {}
-            link_slider_vals = []
+            link_legend_slider_vals_dict = {}
             link_filter_form_opts = []
             link_filter_form_vals = []
             old_main_fig = None
@@ -1334,15 +1356,16 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
                 )
 
         # TODO reset some of these vals if generating new fig
-        app_data = get_app_data(sample_file_base64_str,
-                                config_file_base64_str,
-                                matrix_file_base64_str=matrix_file_base64_str,
-                                selected_nodes=selected_nodes,
-                                filtered_node_symbols=filtered_node_symbols,
-                                filtered_node_colors=filtered_node_colors,
-                                filtered_link_types=filtered_link_types,
-                                link_slider_vals=link_slider_vals,
-                                link_neq_vals=link_neq_vals)
+        app_data = \
+            get_app_data(sample_file_base64_str,
+                         config_file_base64_str,
+                         matrix_file_base64_str=matrix_file_base64_str,
+                         selected_nodes=selected_nodes,
+                         filtered_node_symbols=filtered_node_symbols,
+                         filtered_node_colors=filtered_node_colors,
+                         filtered_link_types=filtered_link_types,
+                         link_slider_vals_dict=link_legend_slider_vals_dict,
+                         link_neq_vals=link_neq_vals)
         zoomed_out_app_data = \
             get_app_data(sample_file_base64_str,
                          config_file_base64_str,
@@ -1351,7 +1374,7 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
                          filtered_node_symbols=filtered_node_symbols,
                          filtered_node_colors=filtered_node_colors,
                          filtered_link_types=filtered_link_types,
-                         link_slider_vals=link_slider_vals,
+                         link_slider_vals_dict=link_legend_slider_vals_dict,
                          link_neq_vals=link_neq_vals,
                          vpsc=True)
         main_fig = get_main_fig(app_data)
