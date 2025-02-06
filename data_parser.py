@@ -988,11 +988,18 @@ def get_weight_slider_info_dict(sample_links_dict):
         }
         max_mark = ceil(max_weight)
         ret[link]["max"] = max_mark
-        ret[link]["value"] = [min_unfiltered_weight, max_unfiltered_weight]
         marks[max_mark] = {
             "label": str(max_mark),
             "style": {"display": "none"}
         }
+
+        # User specified a completely filtered range
+        # e.g., [30, 30], but then filtered 30
+        if min_unfiltered_weight is None:
+            min_unfiltered_weight = min_weight
+        if max_unfiltered_weight is None:
+            max_unfiltered_weight = max_weight
+        ret[link]["value"] = [min_unfiltered_weight, max_unfiltered_weight]
 
         if len(marks) > 1:
             marks[min_mark]["style"].pop("display")
