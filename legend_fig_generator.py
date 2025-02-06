@@ -166,8 +166,8 @@ def get_link_legend_fig(link_type, link_color, is_filtered):
     return fig
 
 
-def get_link_legend_col(app_data, link_filter_form_collapse_states=None):
-    """Get link legend col in viz.
+def get_link_legend_col(app_data, link_filter_collapse_states_dict):
+    """Get link legend col in viz.TODO
 
     This is a list of graphs, one per link type, and sliders/filter
     btns if a link type is visible and has weights.
@@ -182,7 +182,7 @@ def get_link_legend_col(app_data, link_filter_form_collapse_states=None):
     :rtype: list[dcc.Graph|dcc.RangeSlider|dbc.Button]
     """
     children = []
-    for i, attr in enumerate(app_data["main_fig_links_dict"]):
+    for attr in app_data["main_fig_links_dict"]:
         link_color = app_data["link_color_dict"][attr]
         is_filtered = attr in app_data["filtered_link_types"]
 
@@ -243,11 +243,11 @@ def get_link_legend_col(app_data, link_filter_form_collapse_states=None):
             value=app_data["weight_filter_form_dict"][attr]["value"],
             id={"type": "link-legend-filter-form", "index": attr}
         )
-        if link_filter_form_collapse_states is None:
-            # Forms are collapsed on first launch
+        if attr not in link_filter_collapse_states_dict:
+            # Forms are collapsed by default
             is_open = False
         else:
-            is_open = link_filter_form_collapse_states[i]
+            is_open = link_filter_collapse_states_dict[attr]
         children.append(
             dbc.Row(
                 dbc.Col(

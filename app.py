@@ -256,7 +256,8 @@ def launch_app(_):
         dcc.Store("config-json-str", data=""),
         dcc.Download(id="download-config-json-str"),
         # These dicts are easier to work with then the dcc vals
-        dcc.Store(id="link-legend-slider-vals-dict", data={})
+        dcc.Store(id="link-legend-slider-vals-dict", data={}),
+        dcc.Store(id="link-legend-filter-collapse-states-dict", data={})
     ]
 
     return children
@@ -1143,18 +1144,35 @@ def toggle_link_legend_filter_form(_, is_open):
         Input({"type": "link-legend-slider", "index": ALL}, "id"),
         Input({"type": "link-legend-slider", "index": ALL}, "value")
     ],
-    output=[
-        Output("link-legend-slider-vals-dict", "data")
-    ]
+    output=Output("link-legend-slider-vals-dict", "data"),
 )
-def update_link_legend_val_dicts(link_legend_slider_ids,
-                                 link_legend_slider_vals):
-    """TODO you could keep old vals in memory dash prevents circular callbacks"""
+def update_link_legend_slider_dict(link_legend_slider_ids,
+                                   link_legend_slider_vals):
+    """TODO"""
     link_legend_slider_vals_dict = {}
-    for i, link_legend_slider_id in enumerate(link_legend_slider_ids):
-        link = link_legend_slider_id["index"]
-        link_legend_slider_vals_dict[link] = link_legend_slider_vals[i]
-    return (link_legend_slider_vals_dict,)
+    for i, div_id in enumerate(link_legend_slider_ids):
+        link = div_id["index"]
+        link_legend_slider_vals_dict[link] = \
+            link_legend_slider_vals[i]
+    return link_legend_slider_vals_dict
+
+
+@app.callback(
+    inputs=[
+        Input({"type": "link-legend-filter-collapse", "index": ALL}, "id"),
+        Input({"type": "link-legend-filter-collapse", "index": ALL}, "is_open")
+    ],
+    output=Output("link-legend-filter-collapse-states-dict", "data")
+)
+def update_link_legend_collapse_dict(link_legend_filter_collapse_ids,
+                                     link_legend_filter_collapse_states):
+    """TODO"""
+    link_legend_filter_collapse_states_dict = {}
+    for i, div_id in enumerate(link_legend_filter_collapse_ids):
+        link = div_id["index"]
+        link_legend_filter_collapse_states_dict[link] = \
+            link_legend_filter_collapse_states[i]
+    return link_legend_filter_collapse_states_dict
 
 
 @app.callback(
@@ -1176,7 +1194,7 @@ def update_link_legend_val_dicts(link_legend_slider_ids,
         State("main-graph", "figure"),
         State("main-graph-x-axis", "figure"),
         State("main-graph-y-axis", "figure"),
-        State({"type": "link-legend-filter-collapse", "index": ALL}, "is_open")
+        State("link-legend-filter-collapse-states-dict", "data")
     ],
     output=[
         Output("main-graph", "figure"),
@@ -1202,7 +1220,7 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
                     link_filter_form_vals, _, relayout_data,
                     sample_file_contents, config_file_contents,
                     matrix_file_contents, old_main_fig, old_main_fig_x_axis,
-                    old_main_fig_y_axis, link_filter_form_collapse_states):
+                    old_main_fig_y_axis, link_filter_collapse_states_dict):
     """Update main graph, axes, zoomed-out main graph, and legends.TODO
 
     Current triggers:
@@ -1340,12 +1358,12 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
             filtered_node_colors = {}
             filtered_link_types = {}
             link_legend_slider_vals_dict = {}
+            link_filter_collapse_states_dict = {}
             link_filter_form_opts = []
             link_filter_form_vals = []
             old_main_fig = None
             old_main_fig_x_axis = None
             old_main_fig_y_axis = None
-            link_filter_form_collapse_states = None
 
         link_neq_vals = []
         if link_filter_form_opts and link_filter_form_vals:
@@ -1382,7 +1400,7 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
         node_symbol_legend_fig = get_node_symbol_legend_fig(app_data)
         node_color_legend_fig = get_node_color_legend_fig(app_data)
         link_legend_col = get_link_legend_col(app_data,
-                                              link_filter_form_collapse_states)
+                                              link_filter_collapse_states_dict)
 
         # Selecting/filtering
         if old_main_fig:
