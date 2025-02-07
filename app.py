@@ -257,7 +257,8 @@ def launch_app(_):
         dcc.Download(id="download-config-json-str"),
         # These dicts are easier to work with then the dcc vals
         dcc.Store(id="link-legend-slider-vals-dict", data={}),
-        dcc.Store(id="link-legend-filter-collapse-states-dict", data={})
+        dcc.Store(id="link-legend-filter-collapse-states-dict", data={}),
+        dcc.Store(id="link-legend-neq-dict", data={})
     ]
 
     return children
@@ -1177,13 +1178,34 @@ def update_link_legend_collapse_dict(link_legend_filter_collapse_ids,
 
 @app.callback(
     inputs=[
+        Input({"type": "link-legend-filter-form", "index": ALL}, "id"),
+        Input({"type": "link-legend-filter-form", "index": ALL}, "options"),
+        Input({"type": "link-legend-filter-form", "index": ALL}, "value")
+    ],
+    output=Output("link-legend-neq-dict", "data")
+)
+def update_link_legend_neq_dict(link_legend_filter_ids,
+                                link_legend_filter_opts,
+                                link_legend_filter_vals):
+    """TODO"""
+    link_legend_neq_dict = {}
+    for i, div_id in enumerate(link_legend_filter_ids):
+        link = div_id["index"]
+        opts = link_legend_filter_opts[i]
+        val_set = set(link_legend_filter_vals[i])
+        link_legend_neq_dict[link] = \
+            [e["value"] for e in opts if e["value"] not in val_set]
+    return link_legend_neq_dict
+
+
+@app.callback(
+    inputs=[
         Input("selected-nodes", "data"),
         Input("filtered-node-symbols", "data"),
         Input("filtered-node-colors", "data"),
         Input("filtered-link-types", "data"),
         Input("link-legend-slider-vals-dict", "data"),
-        Input({"type": "link-legend-filter-form", "index": ALL}, "options"),
-        Input({"type": "link-legend-filter-form", "index": ALL}, "value"),
+        Input("link-legend-neq-dict", "data"),
         Input("viz-btn", "n_clicks"),
         Input("main-graph", "relayoutData")
     ],
@@ -1216,9 +1238,8 @@ def update_link_legend_collapse_dict(link_legend_filter_collapse_ids,
 )
 def update_main_viz(selected_nodes, filtered_node_symbols,
                     filtered_node_colors, filtered_link_types,
-                    link_legend_slider_vals_dict, link_filter_form_opts,
-                    link_filter_form_vals, _, relayout_data,
-                    sample_file_contents, config_file_contents,
+                    link_legend_slider_vals_dict, link_legend_neq_dict, _,
+                    relayout_data, sample_file_contents, config_file_contents,
                     matrix_file_contents, old_main_fig, old_main_fig_x_axis,
                     old_main_fig_y_axis, link_filter_collapse_states_dict):
     """Update main graph, axes, zoomed-out main graph, and legends.TODO
@@ -1359,19 +1380,10 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
             filtered_link_types = {}
             link_legend_slider_vals_dict = {}
             link_filter_collapse_states_dict = {}
-            link_filter_form_opts = []
-            link_filter_form_vals = []
+            link_legend_neq_dict = {}
             old_main_fig = None
             old_main_fig_x_axis = None
             old_main_fig_y_axis = None
-
-        link_neq_vals = []
-        if link_filter_form_opts and link_filter_form_vals:
-            for opts, val in zip(link_filter_form_opts, link_filter_form_vals):
-                val_set = set(val)
-                link_neq_vals.append(
-                    [e["value"] for e in opts if e["value"] not in val_set]
-                )
 
         # TODO reset some of these vals if generating new fig
         app_data = \
@@ -1383,7 +1395,7 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
                          filtered_node_colors=filtered_node_colors,
                          filtered_link_types=filtered_link_types,
                          link_slider_vals_dict=link_legend_slider_vals_dict,
-                         link_neq_vals=link_neq_vals)
+                         link_neq_dict=link_legend_neq_dict)
         zoomed_out_app_data = \
             get_app_data(sample_file_base64_str,
                          config_file_base64_str,
@@ -1393,7 +1405,7 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
                          filtered_node_colors=filtered_node_colors,
                          filtered_link_types=filtered_link_types,
                          link_slider_vals_dict=link_legend_slider_vals_dict,
-                         link_neq_vals=link_neq_vals,
+                         link_neq_dict=link_legend_neq_dict,
                          vpsc=True)
         main_fig = get_main_fig(app_data)
         zoomed_out_main_fig = get_zoomed_out_main_fig(zoomed_out_app_data)

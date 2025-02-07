@@ -40,7 +40,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
                  matrix_file_base64_str=None, selected_nodes=None,
                  filtered_node_symbols=None, filtered_node_colors=None,
                  filtered_link_types=None, link_slider_vals_dict=None,
-                 link_neq_vals=None, vpsc=False):
+                 link_neq_dict=None, vpsc=False):
     """Get data from uploaded file that is used to generate viz.TODO
 
     :param sample_file_base64_str: Base64 encoded str corresponding to
@@ -81,8 +81,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         filtered_link_types = {}
     if link_slider_vals_dict is None:
         link_slider_vals_dict = {}
-    if link_neq_vals is None:
-        link_neq_vals = []
+    if link_neq_dict is None:
+        link_neq_dict = {}
 
     sample_file_str = b64decode(sample_file_base64_str).decode("utf-8")
 
@@ -99,12 +99,10 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         weight_filters["less_than"] = less_than
         weight_filters["greater_than"] = greater_than
     # Adjust filters if filter form unchecked vals set
-    if link_neq_vals:
-        links_config_dict = config_file_dict["links_config"]
-        iter_obj = zip(links_config_dict.values(), link_neq_vals)
-        for link_config, unchecked_vals in iter_obj:
-            if unchecked_vals is not None:
-                link_config["weight_filters"]["not_equal"] = unchecked_vals
+    for link in link_neq_dict:
+        weight_filters = links_config_dict[link]["weight_filters"]
+        not_equal = link_neq_dict[link]
+        weight_filters["not_equal"] = not_equal
 
     y_axis_attributes = [config_file_dict["primary_y_axis"]]
     y_axis_attributes += \
