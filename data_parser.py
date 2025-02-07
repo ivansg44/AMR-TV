@@ -98,6 +98,11 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         [less_than, greater_than] = link_slider_vals_dict[link]
         weight_filters["less_than"] = less_than
         weight_filters["greater_than"] = greater_than
+        # Edge case: slider [x, x] but x in neq vals
+        if less_than == greater_than and less_than in link_neq_dict[link]:
+            # Reset slider
+            del weight_filters["less_than"]
+            del weight_filters["greater_than"]
     # Adjust filters if filter form unchecked vals set
     for link in link_neq_dict:
         weight_filters = links_config_dict[link]["weight_filters"]
@@ -996,13 +1001,6 @@ def get_weight_slider_info_dict(sample_links_dict):
             "style": {"display": "none"}
         }
 
-        # TODO remove this?
-        # User specified a completely filtered range
-        # e.g., [30, 30], but then filtered 30
-        if min_unfiltered_weight is None:
-            min_unfiltered_weight = min_weight
-        if max_unfiltered_weight is None:
-            max_unfiltered_weight = max_weight
         ret[link]["value"] = [min_unfiltered_weight, max_unfiltered_weight]
 
         if len(marks) > 1:
