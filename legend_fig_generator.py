@@ -1,5 +1,7 @@
 """Fns for generating legend figs in viz."""
 
+from sys import maxsize
+
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
@@ -218,14 +220,16 @@ def get_link_legend_col(app_data, link_filter_collapse_states_dict):
                                      tooltip={})
         # User filtered all marks out of the slider
         else:
-            slider = dcc.Slider(className="pt-2",
-                                min=0,
-                                max=0,
-                                value=0,
-                                step=None,
-                                marks=marks,
-                                disabled=True,
-                                tooltip={})
+            slider = dcc.RangeSlider(id={"type": "link-legend-slider",
+                                         "index": attr},
+                                     className="pt-2",
+                                     min=-maxsize-1,
+                                     max=maxsize,
+                                     value=[-maxsize-1, maxsize],
+                                     step=None,
+                                     # marks=marks,
+                                     disabled=True,
+                                     tooltip={})
 
         children.append(
             dbc.Row(
