@@ -980,6 +980,10 @@ def get_weight_slider_info_dict(sample_links_dict):
                 "style": {"display": "none"}
             }
 
+        # All weights filtered
+        if not marks:
+            continue
+
         min_mark = floor(min_weight)
         ret[link]["min"] = min_mark
         marks[min_mark] = {

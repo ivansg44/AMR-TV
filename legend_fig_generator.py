@@ -197,27 +197,40 @@ def get_link_legend_col(app_data, link_filter_collapse_states_dict):
             )
         )
 
+        # Link does not have weights
         if attr not in app_data["weight_slider_info_dict"]:
             continue
-        min_weight = app_data["weight_slider_info_dict"][attr]["min"]
-        max_weight = app_data["weight_slider_info_dict"][attr]["max"]
-        val = app_data["weight_slider_info_dict"][attr]["value"]
+
         marks = app_data["weight_slider_info_dict"][attr]["marks"]
+        if marks:
+            min_weight = app_data["weight_slider_info_dict"][attr]["min"]
+            max_weight = app_data["weight_slider_info_dict"][attr]["max"]
+            val = app_data["weight_slider_info_dict"][attr]["value"]
+            slider = dcc.RangeSlider(id={"type": "link-legend-slider",
+                                         "index": attr},
+                                     className="pt-2",
+                                     min=min_weight,
+                                     max=max_weight,
+                                     value=val,
+                                     step=None,
+                                     marks=marks,
+                                     allowCross=False,
+                                     tooltip={})
+        # User filtered all marks out of the slider
+        else:
+            slider = dcc.Slider(className="pt-2",
+                                min=0,
+                                max=0,
+                                value=0,
+                                step=None,
+                                marks=marks,
+                                disabled=True,
+                                tooltip={})
+
         children.append(
             dbc.Row(
                 children = [
-                    dbc.Col(
-                        dcc.RangeSlider(id={"type": "link-legend-slider",
-                                            "index": attr},
-                                        className="pt-2",
-                                        min=min_weight,
-                                        max=max_weight,
-                                        value=val,
-                                        step=None,
-                                        marks=marks,
-                                        allowCross=False,
-                                        tooltip={})
-                    ),
+                    dbc.Col(slider),
                     dbc.Col(
                         dbc.Button(
                             html.I(className="bi-funnel-fill",
