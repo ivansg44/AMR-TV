@@ -250,7 +250,8 @@ def launch_app(_):
         dcc.Store(id="filtered-node-colors", data={}),
         dcc.Store(id="filtered-link-types", data={}),
         dcc.Store(id="added-scroll-handlers", data=False),
-        dcc.Store("new-upload"),
+        dcc.Store("new-upload", data=False),
+        dcc.Store("stale-vals-dict", data={}),
         dcc.Store("example-file-field-opts"),
         dcc.Store("config-file-generation-started", data=False),
         dcc.Store("config-json-str", data=""),
@@ -990,15 +991,18 @@ def download_config_file(config_json_str, filename):
 
 @app.callback(
     inputs=Input("main-graph", "clickData"),
-    state=State("selected-nodes", "data"),
+    state=[
+        State("selected-nodes", "data"),
+        State("stale-vals-dict", "data")
+    ],
     output=[
         Output("selected-nodes", "data"),
         Output("main-graph", "clickData")
     ],
     prevent_initial_call=True
 )
-def select_nodes(click_data, selected_nodes):
-    """Update selected nodes browser variable after clicking node.
+def select_nodes(click_data, selected_nodes, stale_vals_dict):
+    """Update selected nodes browser variable after clicking node.TODO
 
     The selected nodes are stored as str numbers representing the
     0-based order they appear in the original dataset. i.e., if you
@@ -1013,15 +1017,21 @@ def select_nodes(click_data, selected_nodes):
     :rtype: dict
     """
     clicked_node_opacity = click_data["points"][0]["customdata"]
+
     # Avoid selecting filtered nodes
     if not clicked_node_opacity:
         raise PreventUpdate
+
+    if stale_vals_dict["selected-nodes"]:
+        selected_nodes = {}
+
     new_selected_nodes = selected_nodes
     clicked_node = str(click_data["points"][0]["pointIndex"])
     if clicked_node in selected_nodes:
         new_selected_nodes.pop(clicked_node)
     else:
         new_selected_nodes[clicked_node] = None
+
     return new_selected_nodes, None
 
 
@@ -1200,6 +1210,27 @@ def update_link_legend_neq_dict(link_legend_filter_ids,
 
 @app.callback(
     inputs=[
+        Input("new-upload", "data"),
+        Input("selected-nodes", "data"),
+        # TODO dcc dict changes
+    ],
+    state=State("stale-vals-dict", "data"),
+    output=Output("stale-vals-dict", "data")
+)
+def update_stale_vals_dict(new_upload, _, stale_val_dict):
+    """TODO"""
+    trigger = dash.callback_context.triggered[0]["prop_id"].split(".data")[0]
+    if trigger in ("new-upload", "."):
+        return {
+            "selected-nodes": True
+        }
+    else:
+        stale_val_dict[trigger] = False
+        return stale_val_dict
+
+
+@app.callback(
+    inputs=[
         Input("selected-nodes", "data"),
         Input("filtered-node-symbols", "data"),
         Input("filtered-node-colors", "data"),
@@ -1232,7 +1263,8 @@ def update_link_legend_neq_dict(link_legend_filter_ids,
         Output("node-color-legend-title", "children"),
         Output("node-color-legend-graph", "figure"),
         Output("y-axis-legend-col", "children"),
-        Output("graph-loading", "children")
+        Output("graph-loading", "children"),
+        Output("new-upload", "data")
     ],
     prevent_initial_call=True
 )
@@ -1301,6 +1333,7 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
     node_color_legend_fig = no_update
     y_axis_legend = no_update
     graph_loading = None
+    new_upload = no_update
 
     if None in [sample_file_contents, config_file_contents]:
         raise PreventUpdate
@@ -1384,6 +1417,7 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
             old_main_fig = None
             old_main_fig_x_axis = None
             old_main_fig_y_axis = None
+            new_upload = True
 
         # TODO reset some of these vals if generating new fig
         app_data = \
@@ -1472,7 +1506,8 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
             node_color_legend_title,
             node_color_legend_fig,
             y_axis_legend,
-            graph_loading)
+            graph_loading,
+            new_upload)
 
 
 # Switch to main graph tab and scroll to corresponding node, after
