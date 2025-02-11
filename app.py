@@ -1037,15 +1037,18 @@ def select_nodes(click_data, selected_nodes, stale_vals_dict):
 
 @app.callback(
     inputs=Input("node-shape-legend-graph", "clickData"),
-    state=State("filtered-node-symbols", "data"),
+    state=[
+        State("filtered-node-symbols", "data"),
+        State("stale-vals-dict", "data")
+    ],
     output=[
         Output("filtered-node-symbols", "data"),
         Output("node-shape-legend-graph", "clickData")
     ],
     prevent_initial_call=True
 )
-def filter_node_symbols(click_data, filtered_node_symbols):
-    """Filter nodes by symbol, when user clicks legend.
+def filter_node_symbols(click_data, filtered_node_symbols, stale_vals_dict):
+    """Filter nodes by symbol, when user clicks legend.TODO
 
     :param click_data: Information on node clicked by user
     :type click_data: dict
@@ -1054,6 +1057,9 @@ def filter_node_symbols(click_data, filtered_node_symbols):
     :return: New table of filtered node symbols
     :rtype: dict
     """
+    if stale_vals_dict["filtered-node-symbols"]:
+        filtered_node_symbols = {}
+
     new_filtered_node_symbols = filtered_node_symbols
     clicked_legend_symbol = click_data["points"][0]["customdata"]
     if clicked_legend_symbol in filtered_node_symbols:
@@ -1212,18 +1218,19 @@ def update_link_legend_neq_dict(link_legend_filter_ids,
     inputs=[
         Input("new-upload", "data"),
         Input("selected-nodes", "data"),
+        Input("filtered-node-symbols", "data"),
         # TODO dcc dict changes
     ],
     state=State("stale-vals-dict", "data"),
     output=Output("stale-vals-dict", "data")
 )
-def update_stale_vals_dict(new_upload, _, stale_val_dict):
+def update_stale_vals_dict(new_upload, _, __, stale_val_dict):
     """TODO"""
-    trigger = dash.callback_context.triggered[0]["prop_id"].split(".data")[0]
+    ctx = dash.callback_context
+    trigger = ctx.triggered[0]["prop_id"].split(".data")[0]
     if trigger in ("new-upload", "."):
-        return {
-            "selected-nodes": True
-        }
+        return {e["id"]: True for e in ctx.inputs_list
+                if e["id"] != "new-upload"}
     else:
         stale_val_dict[trigger] = False
         return stale_val_dict
