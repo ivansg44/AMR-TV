@@ -1071,15 +1071,18 @@ def filter_node_symbols(click_data, filtered_node_symbols, stale_vals_tbl):
 
 @app.callback(
     inputs=Input("node-color-legend-graph", "clickData"),
-    state=State("filtered-node-colors", "data"),
+    state=[
+        State("filtered-node-colors", "data"),
+        State("stale-vals-tbl", "data")
+    ],
     output=[
         Output("filtered-node-colors", "data"),
         Output("node-color-legend-graph", "clickData")
     ],
     prevent_initial_call=True
 )
-def filter_node_colors(click_data, filtered_node_colors):
-    """Filter nodes by color, when user clicks legend.
+def filter_node_colors(click_data, filtered_node_colors, stale_vals_tbl):
+    """Filter nodes by color, when user clicks legend.TODO
 
     :param click_data: Information on node clicked by user
     :type click_data: dict
@@ -1088,6 +1091,9 @@ def filter_node_colors(click_data, filtered_node_colors):
     :return: New table of filtered node colors
     :rtype: dict
     """
+    if "filtered-node-colors" in stale_vals_tbl:
+        filtered_node_colors = {}
+
     new_filtered_node_colors = filtered_node_colors
     clicked_legend_color = click_data["points"][0]["customdata"]
     if clicked_legend_color in filtered_node_colors:
@@ -1393,9 +1399,6 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
         # Reset some stale vals if generating new fig
         if trigger == "viz-btn.n_clicks":
             # TODO we still need to reset some of this in dcc store
-            selected_nodes = {}
-            filtered_node_symbols = {}
-            filtered_node_colors = {}
             filtered_link_types = {}
             link_legend_slider_vals_dict = {}
             link_filter_collapse_states_dict = {}
@@ -1404,21 +1407,18 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
             old_main_fig_x_axis = None
             old_main_fig_y_axis = None
             stale_vals_tbl = {"selected-nodes": None,
-                              "filtered-node-symbols": None}
-        # More granular resetting when not a new fig
-        elif stale_vals_tbl:
+                              "filtered-node-symbols": None,
+                              "filtered-node-colors": None}
+        # More granular resetting when not a new fig TODO better desc
+        if stale_vals_tbl:
             trigger_id = trigger.split(".data")[0]
             stale_vals_tbl.pop(trigger_id, None)
-
-            _selected_nodes = {}
-            _filtered_node_symbols = {}
-            if trigger_id == "selected-nodes":
-                _selected_nodes = selected_nodes
-            elif trigger_id == "filtered-node-symbols":
-                _filtered_node_symbols = filtered_node_symbols
-
-            selected_nodes = _selected_nodes
-            filtered_node_symbols = _filtered_node_symbols
+            if "selected-nodes" in stale_vals_tbl:
+                selected_nodes = {}
+            if "filtered-node-symbols" in stale_vals_tbl:
+                filtered_node_symbols = {}
+            if "filtered-node-colors" in stale_vals_tbl:
+                filtered_node_colors = {}
 
         # TODO reset some of these vals if generating new fig
         app_data = \
