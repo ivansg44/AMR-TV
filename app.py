@@ -1105,15 +1105,18 @@ def filter_node_colors(click_data, filtered_node_colors, stale_vals_tbl):
 
 @app.callback(
     inputs=Input({"type": "link-legend-fig", "index": ALL}, "clickData"),
-    state=State("filtered-link-types", "data"),
+    state=[
+        State("filtered-link-types", "data"),
+        State("stale-vals-tbl", "data")
+    ],
     output=[
         Output("filtered-link-types", "data"),
         Output({"type": "link-legend-fig", "index": ALL}, "clickData")
     ],
     prevent_initial_call=True
 )
-def filter_link_types(click_data, filtered_link_types):
-    """Filter links, when user clicks legend.
+def filter_link_types(click_data, filtered_link_types, stale_vals_tbl):
+    """Filter links, when user clicks legend.TODO
 
     :param click_data: Click information on links in legend
     :type click_data: dict
@@ -1130,6 +1133,9 @@ def filter_link_types(click_data, filtered_link_types):
         # Should only be one clicked index, because we reset them all
         # to None at the end of this fn.
         clicked_index = clicked_indices[0]
+
+    if "filtered-link-types" in stale_vals_tbl:
+        filtered_link_types = {}
 
     clicked_legend_link_type = ctx.inputs_list[0][clicked_index]["id"]["index"]
     new_filtered_link_types = filtered_link_types
@@ -1408,7 +1414,8 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
             old_main_fig_y_axis = None
             stale_vals_tbl = {"selected-nodes": None,
                               "filtered-node-symbols": None,
-                              "filtered-node-colors": None}
+                              "filtered-node-colors": None,
+                              "filtered-link-types": None}
         # More granular resetting when not a new fig TODO better desc
         if stale_vals_tbl:
             trigger_id = trigger.split(".data")[0]
@@ -1419,6 +1426,8 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
                 filtered_node_symbols = {}
             if "filtered-node-colors" in stale_vals_tbl:
                 filtered_node_colors = {}
+            if "filtered-link-types" in stale_vals_tbl:
+                filtered_link_types = {}
 
         # TODO reset some of these vals if generating new fig
         app_data = \
