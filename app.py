@@ -36,7 +36,7 @@ from modal_generator import (get_upload_data_modal,
                              get_duplicating_link_section,
                              get_duplicating_attr_filter_section)
 from legend_fig_generator import (get_node_symbol_legend_fig,
-                                  get_link_legend_fig,
+                                  get_link_legend_col,
                                   get_node_color_legend_fig)
 
 # For gunicorn during docker deployment
@@ -72,15 +72,30 @@ def launch_app(_):
     """
     children = [
         dbc.Row(
-            dbc.Col([
-                dbc.Button("Upload data",
-                           id="upload-data-btn",
-                           className="mr-1",
-                           color="primary"),
-                dbc.Button("Create config file",
-                           id="create-config-file-btn")
-            ]),
-            className="my-1"
+            children=[
+                dbc.Col(
+                    dbc.Button("Upload data",
+                               id="upload-data-btn",
+                               className="mr-1",
+                               color="primary"),
+                width="auto"
+                ),
+                dbc.Col(
+                    dbc.Button("Create config file",
+                               id="create-config-file-btn"),
+                    width="auto"
+                ),
+                dbc.Col(
+                    dcc.Loading(
+                        html.Div(id="graph-loading"),
+                        type="circle"
+                    ),
+                    width="1"
+                )
+            ],
+            className="my-1 g-0",
+            no_gutters=True,
+            align="center"
         ),
         dbc.Row(
             children=[
@@ -193,12 +208,9 @@ def launch_app(_):
                         ),
                         dbc.Row(
                             dbc.Col(
-                                dcc.Graph(
-                                    figure={},
-                                    id="link-legend-graph",
-                                    className="border-bottom",
-                                    config={"displayModeBar": False},
-                                ),
+                                children=[],
+                                id="link-legend-col",
+                                className="border-bottom"
                             ),
                         ),
                         dbc.Row(
@@ -234,12 +246,20 @@ def launch_app(_):
         get_upload_data_modal(),
         get_create_config_file_modal(),
         dcc.Store(id="selected-nodes", data={}),
+        dcc.Store(id="filtered-node-symbols", data={}),
+        dcc.Store(id="filtered-node-colors", data={}),
+        dcc.Store(id="filtered-link-types", data={}),
         dcc.Store(id="added-scroll-handlers", data=False),
-        dcc.Store("new-upload"),
+        dcc.Store("new-upload", data=False),
+        dcc.Store("stale-vals-tbl", data={}),
         dcc.Store("example-file-field-opts"),
         dcc.Store("config-file-generation-started", data=False),
         dcc.Store("config-json-str", data=""),
-        dcc.Download(id="download-config-json-str")
+        dcc.Download(id="download-config-json-str"),
+        # These dicts are easier to work with then the dcc vals
+        dcc.Store(id="link-legend-slider-vals-dict", data={}),
+        dcc.Store(id="link-legend-filter-collapse-states-dict", data={}),
+        dcc.Store(id="link-legend-neq-dict", data={})
     ]
 
     return children
@@ -971,14 +991,17 @@ def download_config_file(config_json_str, filename):
 
 @app.callback(
     inputs=Input("main-graph", "clickData"),
-    state=State("selected-nodes", "data"),
+    state=[
+        State("selected-nodes", "data"),
+        State("stale-vals-tbl", "data")
+    ],
     output=[
         Output("selected-nodes", "data"),
         Output("main-graph", "clickData")
     ],
     prevent_initial_call=True
 )
-def select_nodes(click_data, selected_nodes):
+def select_nodes(click_data, selected_nodes, stale_vals_tbl):
     """Update selected nodes browser variable after clicking node.
 
     The selected nodes are stored as str numbers representing the
@@ -990,21 +1013,270 @@ def select_nodes(click_data, selected_nodes):
     :type click_data: dict
     :param selected_nodes: Currently selected nodes
     :type selected_nodes: dict
+    :param stale_vals_tbl: Collection identifying dcc vars specified in
+        previously generated viz.
+    :type stale_vals_tbl: dict[str[None]]
     :return: New table of selected nodes
     :rtype: dict
     """
+    clicked_node_opacity = click_data["points"][0]["customdata"]
+
+    # Avoid selecting filtered nodes
+    if not clicked_node_opacity:
+        raise PreventUpdate
+
+    # Avoid selecting nodes that were selected in previous viz
+    if "selected-nodes" in stale_vals_tbl:
+        selected_nodes = {}
+
     new_selected_nodes = selected_nodes
     clicked_node = str(click_data["points"][0]["pointIndex"])
     if clicked_node in selected_nodes:
         new_selected_nodes.pop(clicked_node)
     else:
         new_selected_nodes[clicked_node] = None
+
     return new_selected_nodes, None
+
+
+@app.callback(
+    inputs=Input("node-shape-legend-graph", "clickData"),
+    state=[
+        State("filtered-node-symbols", "data"),
+        State("stale-vals-tbl", "data")
+    ],
+    output=[
+        Output("filtered-node-symbols", "data"),
+        Output("node-shape-legend-graph", "clickData")
+    ],
+    prevent_initial_call=True
+)
+def filter_node_symbols(click_data, filtered_node_symbols, stale_vals_tbl):
+    """Filter nodes by symbol, when user clicks legend.
+
+    :param click_data: Information on node clicked by user
+    :type click_data: dict
+    :param filtered_node_symbols: Currently filtered node symbols
+    :type filtered_node_symbols: dict
+    :param stale_vals_tbl: Collection identifying dcc vars specified in
+        previously generated viz.
+    :type stale_vals_tbl: dict[str[None]]
+    :return: New table of filtered node symbols
+    :rtype: dict
+    """
+    # Avoid filtering symbols that were filtered in previous viz
+    if "filtered-node-symbols" in stale_vals_tbl:
+        filtered_node_symbols = {}
+
+    new_filtered_node_symbols = filtered_node_symbols
+    clicked_legend_symbol = click_data["points"][0]["customdata"]
+    if clicked_legend_symbol in filtered_node_symbols:
+        new_filtered_node_symbols.pop(clicked_legend_symbol)
+    else:
+        new_filtered_node_symbols[clicked_legend_symbol] = None
+    return new_filtered_node_symbols, None
+
+
+@app.callback(
+    inputs=Input("node-color-legend-graph", "clickData"),
+    state=[
+        State("filtered-node-colors", "data"),
+        State("stale-vals-tbl", "data")
+    ],
+    output=[
+        Output("filtered-node-colors", "data"),
+        Output("node-color-legend-graph", "clickData")
+    ],
+    prevent_initial_call=True
+)
+def filter_node_colors(click_data, filtered_node_colors, stale_vals_tbl):
+    """Filter nodes by color, when user clicks legend.
+
+    :param click_data: Information on node clicked by user
+    :type click_data: dict
+    :param filtered_node_colors: Currently filtered node colors
+    :type filtered_node_colors: dict
+    :param stale_vals_tbl: Collection identifying dcc vars specified in
+        previously generated viz.
+    :type stale_vals_tbl: dict[str[None]]
+    :return: New table of filtered node colors
+    :rtype: dict
+    """
+    # Avoid filtering colors that were filtered in previous viz
+    if "filtered-node-colors" in stale_vals_tbl:
+        filtered_node_colors = {}
+
+    new_filtered_node_colors = filtered_node_colors
+    clicked_legend_color = click_data["points"][0]["customdata"]
+    if clicked_legend_color in filtered_node_colors:
+        new_filtered_node_colors.pop(clicked_legend_color)
+    else:
+        new_filtered_node_colors[clicked_legend_color] = None
+    return new_filtered_node_colors, None
+
+
+@app.callback(
+    inputs=Input({"type": "link-legend-fig", "index": ALL}, "clickData"),
+    state=[
+        State("filtered-link-types", "data"),
+        State("stale-vals-tbl", "data")
+    ],
+    output=[
+        Output("filtered-link-types", "data"),
+        Output({"type": "link-legend-fig", "index": ALL}, "clickData")
+    ],
+    prevent_initial_call=True
+)
+def filter_link_types(click_data, filtered_link_types, stale_vals_tbl):
+    """Filter links, when user clicks legend.
+
+    :param click_data: Click information on links in legend
+    :type click_data: dict
+    :param filtered_link_types: Currently filtered link types
+    :type filtered_link_types: dict
+    :param stale_vals_tbl: Collection identifying dcc vars specified in
+        previously generated viz.
+    :type stale_vals_tbl: dict[str[None]]
+    :return: New table of filtered link types
+    :rtype: dict
+    """
+    ctx = dash.callback_context
+    clicked_indices = [i for i, e in enumerate(ctx.inputs.values()) if e]
+    if not clicked_indices:
+        raise PreventUpdate
+    else:
+        # Should only be one clicked index, because we reset them all
+        # to None at the end of this fn.
+        clicked_index = clicked_indices[0]
+
+    # Avoid filtering link types that were filtered in previous viz
+    if "filtered-link-types" in stale_vals_tbl:
+        filtered_link_types = {}
+
+    clicked_legend_link_type = ctx.inputs_list[0][clicked_index]["id"]["index"]
+    new_filtered_link_types = filtered_link_types
+    if clicked_legend_link_type in filtered_link_types:
+        new_filtered_link_types.pop(clicked_legend_link_type)
+    else:
+        new_filtered_link_types[clicked_legend_link_type] = None
+
+    return new_filtered_link_types, [None for _ in click_data]
+
+
+@app.callback(
+    inputs=Input({"type": "link-legend-filter-btn", "index": MATCH},
+                 "n_clicks"),
+    state=State({"type": "link-legend-filter-collapse", "index": MATCH},
+                "is_open"),
+    output=Output({"type": "link-legend-filter-collapse", "index": MATCH},
+                "is_open"),
+    prevent_initial_call=True
+)
+def toggle_link_legend_filter_form(_, is_open):
+    """Toggle individual link legend filter forms.
+
+    :param _: Filter form toggle btn clicked
+    :param is_open: If filter form is already visible
+    :type is_open: bool
+    :return: Opposite of is_open
+    :rtype: bool
+    """
+    return not is_open
+
+
+@app.callback(
+    inputs=[
+        Input({"type": "link-legend-slider", "index": ALL}, "id"),
+        Input({"type": "link-legend-slider", "index": ALL}, "value")
+    ],
+    output=Output("link-legend-slider-vals-dict", "data"),
+)
+def update_link_legend_slider_dict(link_legend_slider_ids,
+                                   link_legend_slider_vals):
+    """Update dcc var that tracks link legend slider vals.
+
+    :param link_legend_slider_ids: Link legend slider ids
+    :type link_legend_slider_ids: list[dict[str[str]]]
+    :param link_legend_slider_vals: Link legend slider vals;
+        e.g., [[1, 10], [20, 30]].
+    :type link_legend_slider_vals: list[list]
+    :return: Dict mapping link types to slider vals
+    :rtype: dict[str[list[int]]]
+    """
+    link_legend_slider_vals_dict = {}
+    for i, div_id in enumerate(link_legend_slider_ids):
+        link = div_id["index"]
+        link_legend_slider_vals_dict[link] = \
+            link_legend_slider_vals[i]
+    return link_legend_slider_vals_dict
+
+
+@app.callback(
+    inputs=[
+        Input({"type": "link-legend-filter-collapse", "index": ALL}, "id"),
+        Input({"type": "link-legend-filter-collapse", "index": ALL}, "is_open")
+    ],
+    output=Output("link-legend-filter-collapse-states-dict", "data")
+)
+def update_link_legend_collapse_dict(link_legend_filter_collapse_ids,
+                                     link_legend_filter_collapse_states):
+    """Update dcc var that tracks collapse states of link filter forms.
+
+    :param link_legend_filter_collapse_ids: Collapse ids
+    :type link_legend_filter_collapse_ids: list[dict[str[str]]]
+    :param link_legend_filter_collapse_states: Collapse states
+    :type link_legend_filter_collapse_states: list[bool]
+    :return: Dict mapping link types to filter form collapse states
+    :rtype: dict[str[bool]]
+    """
+    link_legend_filter_collapse_states_dict = {}
+    for i, div_id in enumerate(link_legend_filter_collapse_ids):
+        link = div_id["index"]
+        link_legend_filter_collapse_states_dict[link] = \
+            link_legend_filter_collapse_states[i]
+    return link_legend_filter_collapse_states_dict
+
+
+@app.callback(
+    inputs=[
+        Input({"type": "link-legend-filter-form", "index": ALL}, "id"),
+        Input({"type": "link-legend-filter-form", "index": ALL}, "options"),
+        Input({"type": "link-legend-filter-form", "index": ALL}, "value")
+    ],
+    output=Output("link-legend-neq-dict", "data")
+)
+def update_link_legend_neq_dict(link_legend_filter_ids,
+                                link_legend_filter_opts,
+                                link_legend_filter_vals):
+    """Update dcc var that tracks deselected vals in link filter forms.
+
+    :param link_legend_filter_ids: Link filter form ids
+    :type link_legend_filter_ids: list[dict[str, str]]
+    :param link_legend_filter_opts: Link filter form opts
+    :type link_legend_filter_opts: list[dict[str[int]]]
+    :param link_legend_filter_vals: Link filter form vals
+    :type link_legend_filter_vals: list[list[int]]
+    :return: Dict mapping link types to unselected filter form vals
+    :rtype: dict[str[list[int]]]
+    """
+    link_legend_neq_dict = {}
+    for i, div_id in enumerate(link_legend_filter_ids):
+        link = div_id["index"]
+        opts = link_legend_filter_opts[i]
+        val_set = set(link_legend_filter_vals[i])
+        link_legend_neq_dict[link] = \
+            [e["value"] for e in opts if e["value"] not in val_set]
+    return link_legend_neq_dict
 
 
 @app.callback(
     inputs=[
         Input("selected-nodes", "data"),
+        Input("filtered-node-symbols", "data"),
+        Input("filtered-node-colors", "data"),
+        Input("filtered-link-types", "data"),
+        Input("link-legend-slider-vals-dict", "data"),
+        Input("link-legend-neq-dict", "data"),
         Input("viz-btn", "n_clicks"),
         Input("main-graph", "relayoutData")
     ],
@@ -1014,7 +1286,9 @@ def select_nodes(click_data, selected_nodes):
         State("upload-matrix-file", "contents"),
         State("main-graph", "figure"),
         State("main-graph-x-axis", "figure"),
-        State("main-graph-y-axis", "figure")
+        State("main-graph-y-axis", "figure"),
+        State("link-legend-filter-collapse-states-dict", "data"),
+        State("stale-vals-tbl", "data")
     ],
     output=[
         Output("main-graph", "figure"),
@@ -1026,25 +1300,49 @@ def select_nodes(click_data, selected_nodes):
         Output("zoomed-out-main-graph", "figure"),
         Output("node-shape-legend-title", "children"),
         Output("node-shape-legend-graph", "figure"),
-        Output("link-legend-graph", "figure"),
+        Output("link-legend-col", "children"),
         Output("node-color-legend-title", "children"),
         Output("node-color-legend-graph", "figure"),
-        Output("y-axis-legend-col", "children")
+        Output("y-axis-legend-col", "children"),
+        Output("graph-loading", "children"),
+        Output("stale-vals-tbl", "data")
     ],
     prevent_initial_call=True
 )
-def update_main_viz(selected_nodes, _, relayout_data, sample_file_contents,
-                    config_file_contents, matrix_file_contents, old_main_fig,
-                    old_main_fig_x_axis, old_main_fig_y_axis):
+def update_main_viz(selected_nodes, filtered_node_symbols,
+                    filtered_node_colors, filtered_link_types,
+                    link_legend_slider_vals_dict, link_legend_neq_dict, _,
+                    relayout_data, sample_file_contents, config_file_contents,
+                    matrix_file_contents, old_main_fig, old_main_fig_x_axis,
+                    old_main_fig_y_axis, link_filter_collapse_states_dict,
+                    stale_vals_tbl):
     """Update main graph, axes, zoomed-out main graph, and legends.
 
     Current triggers:
 
     * User clicks viz btn (after uploading data)
     * User selects node in main graph
+    * User filters nodes by symbol
+    * User filters nodes by color
+    * User filters links by type
+    * User modifies link slider vals
+    * User modifies link filter forms
+    * User adjusts zoom level of free-zoom graph
 
     :param selected_nodes: Currently selected nodes
     :type selected_nodes: dict
+    :param filtered_node_symbols: Currently filtered node symbols
+    :type filtered_node_symbols: dict
+    :param filtered_node_colors: Currently filtered node colors
+    :type filtered_node_colors: dict
+    :param filtered_link_types: Currently filtered link types
+    :type filtered_link_types: dict
+    :param link_legend_slider_vals_dict: Dict mapping link types to
+        slider vals.
+    :type link_legend_slider_vals_dict: dict[str[list[int]]]
+    :param link_legend_neq_dict: Dict mapping link types to unselected
+        filter form vals.
+    :type link_legend_neq_dict: dict[str[list[int]]]
     :param _: User clicked viz btn
     :param relayout_data: Information on main graph relayout event
     :type relayout_data: dict
@@ -1060,11 +1358,29 @@ def update_main_viz(selected_nodes, _, relayout_data, sample_file_contents,
     :type old_main_fig_x_axis: go.Figure
     :param old_main_fig_y_axis: Current main y-axis fig
     :type old_main_fig_y_axis: go.Figure
+    :param link_filter_collapse_states_dict: Dict mapping link types to
+        filter form collapse states.
+    :type link_filter_collapse_states_dict: dict[str[bool]]
+    :param stale_vals_tbl: Collection identifying dcc vars specified in
+        previously generated viz.
+    :type stale_vals_tbl: dict[str[None]]
     :return: New main graphs, axes, and legends
     :rtype: tuple[go.Figure]
     """
-    ctx = dash.callback_context
-    trigger = ctx.triggered[0]["prop_id"]
+    main_fig = no_update
+    main_fig_style = no_update
+    main_fig_x_axis = no_update
+    main_fig_x_axis_style = no_update
+    main_fig_y_axis = no_update
+    main_fig_y_axis_style = no_update
+    zoomed_out_main_fig = no_update
+    node_symbol_legend_title = no_update
+    node_symbol_legend_fig = no_update
+    link_legend_col = no_update
+    node_color_legend_title = no_update
+    node_color_legend_fig = no_update
+    y_axis_legend = no_update
+    graph_loading = None
 
     if None in [sample_file_contents, config_file_contents]:
         raise PreventUpdate
@@ -1074,31 +1390,11 @@ def update_main_viz(selected_nodes, _, relayout_data, sample_file_contents,
     matrix_file_base64_str = \
         matrix_file_contents.split(",")[1] if matrix_file_contents else None
 
-    if trigger == "selected-nodes.data":
-        app_data = get_app_data(sample_file_base64_str,
-                                config_file_base64_str,
-                                matrix_file_base64_str=matrix_file_base64_str,
-                                selected_nodes=selected_nodes)
-        zoomed_out_app_data = \
-            get_app_data(sample_file_base64_str,
-                         config_file_base64_str,
-                         matrix_file_base64_str=matrix_file_base64_str,
-                         selected_nodes=selected_nodes,
-                         vpsc=True)
-        main_fig = get_main_fig(app_data)
-        zoomed_out_main_fig = get_zoomed_out_main_fig(zoomed_out_app_data)
-    elif trigger == "viz-btn.n_clicks":
-        app_data = get_app_data(sample_file_base64_str,
-                                config_file_base64_str,
-                                matrix_file_base64_str=matrix_file_base64_str)
-        zoomed_out_app_data = \
-            get_app_data(sample_file_base64_str,
-                         config_file_base64_str,
-                         matrix_file_base64_str=matrix_file_base64_str,
-                         vpsc=True)
-        main_fig = get_main_fig(app_data)
-        zoomed_out_main_fig = get_zoomed_out_main_fig(zoomed_out_app_data)
-    elif trigger == "main-graph.relayoutData":
+    ctx = dash.callback_context
+    trigger = ctx.triggered[0]["prop_id"]
+
+    # Not generating new fig; just zooming
+    if trigger == "main-graph.relayoutData":
         zoom_keys = ["xaxis.range[0]",
                      "xaxis.range[1]",
                      "yaxis.range[0]",
@@ -1116,7 +1412,6 @@ def update_main_viz(selected_nodes, _, relayout_data, sample_file_contents,
 
         first_x_axis_range = old_main_fig_x_axis["data"][0]["customdata"]
         first_y_axis_range = old_main_fig_y_axis["data"][0]["customdata"]
-        old_x_axis_range = old_main_fig_x_axis["layout"]["xaxis"]["range"]
 
         if zoom_event:
             new_x_axis_range = old_main_fig["layout"]["xaxis"]["range"]
@@ -1133,9 +1428,7 @@ def update_main_viz(selected_nodes, _, relayout_data, sample_file_contents,
         main_fig_nodes_trace = \
             [e for e in old_main_fig["data"]
              if "name" in e and e["name"] == "main_fig_nodes_trace"][0]
-        old_marker_size = main_fig_nodes_trace["marker"]["size"]
         new_marker_size = max(1, 24/change_in_range)
-        old_textfont_size = main_fig_nodes_trace["textfont"]["size"]
         new_textfont_size = max(1, 16/change_in_range)
 
         main_fig.update_traces(marker={"size": new_marker_size},
@@ -1156,51 +1449,115 @@ def update_main_viz(selected_nodes, _, relayout_data, sample_file_contents,
                                       "autorange": False})
         main_fig_x_axis.update_layout(xaxis={"range": new_x_axis_range})
         main_fig_y_axis.update_layout(yaxis={"range": new_y_axis_range})
-
-        return (main_fig,
-                no_update,
-                main_fig_x_axis,
-                no_update,
-                main_fig_y_axis,
-                no_update,
-                no_update,
-                no_update,
-                no_update,
-                no_update,
-                no_update,
-                no_update,
-                no_update)
+    # Generating new fig or selecting/filtering
     else:
-        msg = "Unexpected trigger trying to update main graph: %s" % trigger
-        raise RuntimeError(msg)
+        if trigger == "viz-btn.n_clicks":
+            # Reset some stale vals if generating new fig
+            link_legend_slider_vals_dict = {}
+            link_filter_collapse_states_dict = {}
+            link_legend_neq_dict = {}
+            old_main_fig = None
+            old_main_fig_x_axis = None
+            old_main_fig_y_axis = None
+            # Also declare that a bunch of vals are now stale
+            stale_vals_tbl = {"selected-nodes": None,
+                              "filtered-node-symbols": None,
+                              "filtered-node-colors": None,
+                              "filtered-link-types": None}
+        # Some stale vals need a more granular resetting due to:
+        # * The vals continue to persist until they are updated by
+        #   their respective callbacks
+        # * We cannot call those respective callbacks here, because
+        #   Dash does not allow circular callbacks
+        # So we keep an object that tracks stale vals that have not
+        # been updated yet.
+        if stale_vals_tbl:
+            # If this fn was triggered by updating one of these stale
+            # vals, pop them from the object. Otherwise, declare all
+            # stale vals as empty dicts each time this fn is called.
+            trigger_id = trigger.split(".data")[0]
+            stale_vals_tbl.pop(trigger_id, None)
+            if "selected-nodes" in stale_vals_tbl:
+                selected_nodes = {}
+            if "filtered-node-symbols" in stale_vals_tbl:
+                filtered_node_symbols = {}
+            if "filtered-node-colors" in stale_vals_tbl:
+                filtered_node_colors = {}
+            if "filtered-link-types" in stale_vals_tbl:
+                filtered_link_types = {}
 
-    main_fig_x_axis = get_main_fig_x_axis(app_data)
-    main_fig_x_axis_style = {
-        "height": "100%",
-        "width": "max(100%%, %spx)" % app_data["main_fig_width"]
-    }
+        app_data = \
+            get_app_data(sample_file_base64_str,
+                         config_file_base64_str,
+                         matrix_file_base64_str=matrix_file_base64_str,
+                         selected_nodes=selected_nodes,
+                         filtered_node_symbols=filtered_node_symbols,
+                         filtered_node_colors=filtered_node_colors,
+                         filtered_link_types=filtered_link_types,
+                         link_slider_vals_dict=link_legend_slider_vals_dict,
+                         link_neq_dict=link_legend_neq_dict)
+        zoomed_out_app_data = \
+            get_app_data(sample_file_base64_str,
+                         config_file_base64_str,
+                         matrix_file_base64_str=matrix_file_base64_str,
+                         selected_nodes=selected_nodes,
+                         filtered_node_symbols=filtered_node_symbols,
+                         filtered_node_colors=filtered_node_colors,
+                         filtered_link_types=filtered_link_types,
+                         link_slider_vals_dict=link_legend_slider_vals_dict,
+                         link_neq_dict=link_legend_neq_dict,
+                         vpsc=True)
+        main_fig = get_main_fig(app_data)
+        zoomed_out_main_fig = get_zoomed_out_main_fig(zoomed_out_app_data)
+        node_symbol_legend_fig = get_node_symbol_legend_fig(app_data)
+        node_color_legend_fig = get_node_color_legend_fig(app_data)
+        link_legend_col = get_link_legend_col(app_data,
+                                              link_filter_collapse_states_dict)
 
-    main_fig_y_axis = get_main_fig_y_axis(app_data)
-    main_fig_y_axis_style = {
-        "height": "max(100%%, %spx)" % app_data["main_fig_height"],
-        "width": "100%"
-    }
+        # Selecting/filtering
+        if old_main_fig:
+            first_x_axis_range = old_main_fig_x_axis["data"][0]["customdata"]
+            old_x_axis_range = old_main_fig["layout"]["xaxis"]["range"]
+            # Need to adjust some things if fig was zoomed
+            if first_x_axis_range != old_x_axis_range:
+                old_y_axis_range = old_main_fig["layout"]["yaxis"]["range"]
+                main_fig.update_layout(xaxis={"range": old_x_axis_range,
+                                              "autorange": False},
+                                       yaxis={"range": old_y_axis_range,
+                                              "autorange": False})
+                main_fig_nodes_trace = \
+                    [e for e in old_main_fig["data"]
+                     if "name" in e and e["name"] == "main_fig_nodes_trace"][0]
+                old_marker_size = main_fig_nodes_trace["marker"]["size"]
+                old_textfont_size = main_fig_nodes_trace["textfont"]["size"]
+                main_fig.update_traces(marker={"size": old_marker_size},
+                                       textfont={"size": old_textfont_size},
+                                       selector={"name": "main_fig_nodes_trace"})
+        else:
+            main_fig_x_axis = get_main_fig_x_axis(app_data)
+            main_fig_x_axis_style = {
+                "height": "100%",
+                "width": "max(100%%, %spx)" % app_data["main_fig_width"]
+            }
 
-    main_fig_style = {
-        "height": "max(100%%, %spx)" % app_data["main_fig_height"],
-        "width": "max(100%%, %spx)" % app_data["main_fig_width"]
-    }
-    node_symbol_legend_title = html.H5(app_data["node_symbol_attr"])
-    node_symbol_legend_fig = get_node_symbol_legend_fig(app_data)
-    link_legend_fig = get_link_legend_fig(app_data)
-    node_color_legend_title = html.H5(app_data["node_color_attr"])
-    node_color_legend_fig = get_node_color_legend_fig(app_data)
+            main_fig_y_axis = get_main_fig_y_axis(app_data)
+            main_fig_y_axis_style = {
+                "height": "max(100%%, %spx)" % app_data["main_fig_height"],
+                "width": "100%"
+            }
 
-    y_axis_legend = [html.H5("primary y-axis attribute:")]
-    y_axis_legend += [html.P(app_data["primary_y_axis_attributes"])]
-    y_axis_legend += [html.H5("secondary y-axis attributes:")]
-    y_axis_legend += \
-        [html.P(e) for e in app_data["secondary_y_axes_attributes"]]
+            main_fig_style = {
+                "height": "max(100%%, %spx)" % app_data["main_fig_height"],
+                "width": "max(100%%, %spx)" % app_data["main_fig_width"]
+            }
+            node_symbol_legend_title = html.H5(app_data["node_symbol_attr"])
+            node_color_legend_title = html.H5(app_data["node_color_attr"])
+
+            y_axis_legend = [html.H5("primary y-axis attribute:")]
+            y_axis_legend += [html.P(app_data["primary_y_axis_attributes"])]
+            y_axis_legend += [html.H5("secondary y-axis attributes:")]
+            y_axis_legend += \
+                [html.P(e) for e in app_data["secondary_y_axes_attributes"]]
 
     return (main_fig,
             main_fig_style,
@@ -1211,10 +1568,12 @@ def update_main_viz(selected_nodes, _, relayout_data, sample_file_contents,
             zoomed_out_main_fig,
             node_symbol_legend_title,
             node_symbol_legend_fig,
-            link_legend_fig,
+            link_legend_col,
             node_color_legend_title,
             node_color_legend_fig,
-            y_axis_legend)
+            y_axis_legend,
+            graph_loading,
+            stale_vals_tbl)
 
 
 # Switch to main graph tab and scroll to corresponding node, after

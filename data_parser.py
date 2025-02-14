@@ -7,7 +7,7 @@ from datetime import datetime
 from io import StringIO
 from itertools import groupby
 from json import loads
-from math import atan, degrees, radians, sqrt, tan
+from math import atan, ceil, degrees, floor, radians, sqrt, tan
 from re import compile
 
 import networkx as nx
@@ -37,7 +37,10 @@ def parse_fields_from_example_file(example_file_base64_str, delimiter):
 
 
 def get_app_data(sample_file_base64_str, config_file_base64_str,
-                 matrix_file_base64_str=None, selected_nodes=None, vpsc=False):
+                 matrix_file_base64_str=None, selected_nodes=None,
+                 filtered_node_symbols=None, filtered_node_colors=None,
+                 filtered_link_types=None, link_slider_vals_dict=None,
+                 link_neq_dict=None, vpsc=False):
     """Get data from uploaded file that is used to generate viz.
 
     :param sample_file_base64_str: Base64 encoded str corresponding to
@@ -51,6 +54,18 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     :type matrix_file_base64_str: str
     :param selected_nodes: Nodes selected by user
     :type selected_nodes: dict
+    :param filtered_node_symbols: Node symbols filtered by user
+    :type filtered_node_symbols: dict
+    :param filtered_node_colors: Node colors filtered by user
+    :type filtered_node_colors: dict
+    :param filtered_link_types: Link types filtered by user
+    :type filtered_link_types: dict
+    :param link_slider_vals_dict: Dict mapping link types to slider
+        vals.
+    :type link_slider_vals_dict: dict[str[list[int]]]
+    :param link_neq_dict: Dict mapping link types to unselected filter
+        form vals.
+    :type link_neq_dict: dict[str[list[int]]]
     :param vpsc: Run vpsc nodal overlap removal algorithm
     :type vpsc: bool
     :return: Data derived from sample data, used to generate viz
@@ -58,11 +73,40 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     """
     if selected_nodes is None:
         selected_nodes = {}
+    if filtered_node_symbols is None:
+        filtered_node_symbols = {}
+    if filtered_node_colors is None:
+        filtered_node_colors = {}
+    if filtered_link_types is None:
+        filtered_link_types = {}
+    if link_slider_vals_dict is None:
+        link_slider_vals_dict = {}
+    if link_neq_dict is None:
+        link_neq_dict = {}
 
     sample_file_str = b64decode(sample_file_base64_str).decode("utf-8")
 
     config_file_str = b64decode(config_file_base64_str).decode("utf-8")
     config_file_dict = loads(config_file_str)
+
+
+    links_config_dict = config_file_dict["links_config"]
+    # Adjust filters if slider vals set by user through ui
+    for link in link_slider_vals_dict:
+        weight_filters = links_config_dict[link]["weight_filters"]
+        [less_than, greater_than] = link_slider_vals_dict[link]
+        weight_filters["less_than"] = less_than
+        weight_filters["greater_than"] = greater_than
+        # Edge case: slider [x, x] but x in neq vals
+        if less_than == greater_than and less_than in link_neq_dict[link]:
+            # Reset slider
+            del weight_filters["less_than"]
+            del weight_filters["greater_than"]
+    # Adjust filters if filter form unchecked vals set
+    for link in link_neq_dict:
+        weight_filters = links_config_dict[link]["weight_filters"]
+        not_equal = link_neq_dict[link]
+        weight_filters["not_equal"] = not_equal
 
     y_axis_attributes = [config_file_dict["primary_y_axis"]]
     y_axis_attributes += \
@@ -84,9 +128,6 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
                                             config_file_dict["date_output"],
                                             config_file_dict["null_vals"])
     sample_data_vals = sample_data_dict.values()
-    enumerated_samples = enumerate(sample_data_dict)
-    selected_samples = \
-        {k for i, k in enumerated_samples if str(i) in selected_nodes}
 
     date_list = [v[config_file_dict["date_attr"]] for v in sample_data_vals]
     datetime_list = [v["datetime_obj"] for v in sample_data_vals]
@@ -124,13 +165,6 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         node_symbol_attr_dict = {}
         main_fig_nodes_marker_symbol = "square"
 
-    node_range = range(len(sample_data_dict))
-    if selected_nodes:
-        main_fig_nodes_marker_opacity = \
-            [1 if str(e) in selected_nodes else 0.5 for e in node_range]
-    else:
-        main_fig_nodes_marker_opacity = 1
-
     node_color_attr = config_file_dict["node_color_attr"]
     if node_color_attr:
         # Use tuples instead of lists for hashing
@@ -142,6 +176,32 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     else:
         node_color_attr_dict = {}
         main_fig_nodes_marker_color = "lightgrey"
+
+    # Avoid selection of filtered nodes
+    filtered_node_indices_set = set()
+    for i, _ in enumerate(main_fig_nodes_marker_symbol):
+        filter_cond_1 = \
+            main_fig_nodes_marker_symbol[i] in filtered_node_symbols
+        filter_cond_2 = \
+            main_fig_nodes_marker_color[i] in filtered_node_colors
+        if filter_cond_1 or filter_cond_2:
+            filtered_node_indices_set.add(i)
+    selected_nodes = \
+        {int(k): v for k, v in selected_nodes.items()
+         if int(k) not in filtered_node_indices_set}
+
+    main_fig_nodes_marker_opacity = []
+    partially_hidden_samples = set()
+    fully_hidden_samples = set()
+    for node_index, sample in enumerate(sample_data_dict):
+        if node_index in filtered_node_indices_set:
+            main_fig_nodes_marker_opacity.append(0)
+            fully_hidden_samples.add(sample)
+        elif selected_nodes and node_index not in selected_nodes:
+            main_fig_nodes_marker_opacity.append(0.5)
+            partially_hidden_samples.add(sample)
+        else:
+            main_fig_nodes_marker_opacity.append(1)
 
     label_attr = config_file_dict["label_attr"]
     main_fig_nodes_text = \
@@ -162,7 +222,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         primary_y=config_file_dict["primary_y_axis"],
         links_across_primary_y=config_file_dict["links_across_primary_y"],
         max_day_range=config_file_dict["max_day_range"],
-        matrix_file_df=matrix_file_df
+        matrix_file_df=matrix_file_df,
+        filtered_link_types=filtered_link_types
     )
 
     main_fig_nodes_y_dict = get_main_fig_nodes_y_dict(
@@ -188,6 +249,14 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         get_zoomed_out_main_fig_x_axis_dict(datetime_list,
                                             main_fig_nodes_x_dict)
 
+    # Order of next few calls is important:
+    # * Get weight slider info
+    # * Get weight filter form info
+    # * Filter links by weight
+    # * Filter link loops
+    weight_slider_info_dict = get_weight_slider_info_dict(sample_links_dict)
+    weight_filter_form_dict = get_weight_filter_form_dict(sample_links_dict)
+    sample_links_dict = filter_links_by_weight(sample_links_dict)
     sample_links_dict = \
         filter_link_loops(sample_links_dict=sample_links_dict,
                           links_config=config_file_dict["links_config"],
@@ -200,7 +269,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         sample_links_dict=sample_links_dict,
         main_fig_nodes_x_dict=main_fig_nodes_x_dict,
         main_fig_nodes_y_dict=main_fig_nodes_y_dict,
-        selected_samples=selected_samples,
+        partially_hidden_samples=partially_hidden_samples,
+        fully_hidden_samples=fully_hidden_samples,
         main_fig_height=main_fig_height,
         main_fig_width=main_fig_width,
         xaxis_range=xaxis_range,
@@ -211,7 +281,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         sample_links_dict=sample_links_dict,
         main_fig_nodes_x_dict=main_fig_nodes_x_dict,
         main_fig_nodes_y_dict=main_fig_nodes_y_dict,
-        selected_samples=selected_samples
+        partially_hidden_samples=partially_hidden_samples,
+        fully_hidden_samples=fully_hidden_samples
     )
 
     main_fig_link_arrowheads_dict = get_main_fig_link_arrowheads_dict(
@@ -233,7 +304,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         links_config=config_file_dict["links_config"],
         main_fig_links_dict=main_fig_links_dict,
         main_fig_nodes_x_dict=main_fig_nodes_x_dict,
-        selected_samples=selected_samples,
+        partially_hidden_samples=partially_hidden_samples,
+        fully_hidden_samples=fully_hidden_samples,
         main_fig_height=main_fig_height,
         main_fig_width=main_fig_width,
         xaxis_range=xaxis_range,
@@ -245,13 +317,14 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         links_config=config_file_dict["links_config"],
         main_fig_arcs_dict=main_fig_arcs_dict,
         main_fig_nodes_x_dict=main_fig_nodes_x_dict,
-        selected_samples=selected_samples
+        partially_hidden_samples=partially_hidden_samples,
+        fully_hidden_samples=fully_hidden_samples
     )
 
-    if selected_samples:
-        ss = selected_samples
+    if partially_hidden_samples or fully_hidden_samples:
+        phs = partially_hidden_samples
         main_fig_nodes_textfont_color = \
-            ["black" if k in ss else "grey" for k in sample_data_dict]
+            ["grey" if k in phs else "black" for k in sample_data_dict]
     else:
         main_fig_nodes_textfont_color = "black"
 
@@ -272,8 +345,21 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
             list(range(len(node_symbol_attr_dict))),
         "node_shape_legend_fig_nodes_marker_symbol":
             list(node_symbol_attr_dict.values()),
+        "node_shape_legend_fig_nodes_marker_opacity":
+            [0.5 if e in filtered_node_symbols else 1
+             for e in node_symbol_attr_dict.values()],
         "node_shape_legend_fig_nodes_text":
             ["<b>%s</b>" % k for k in node_symbol_attr_dict.keys()],
+        "node_shape_legend_fig_nodes_textfont_color":
+            ["grey" if e in filtered_node_symbols else "black"
+             for e in node_symbol_attr_dict.values()],
+        "node_color_legend_fig_nodes_marker_opacity":
+            [0.5 if e in filtered_node_colors else 1
+             for e in node_color_attr_dict.values()],
+        "node_color_legend_fig_nodes_textfont_color":
+            ["grey" if e in filtered_node_colors else "black"
+             for e in node_color_attr_dict.values()],
+        "filtered_link_types": filtered_link_types,
         "main_fig_xaxis_range":
             xaxis_range,
         "main_fig_yaxis_range":
@@ -310,6 +396,8 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
         "main_fig_link_labels_dict": main_fig_link_labels_dict,
         "main_fig_arc_labels_dict": main_fig_arc_labels_dict,
         "link_color_dict": link_color_dict,
+        "weight_slider_info_dict": weight_slider_info_dict,
+        "weight_filter_form_dict": weight_filter_form_dict,
         "main_fig_primary_facet_x":
             get_main_fig_primary_facet_x(xaxis_range, num_of_primary_facets),
         "main_fig_primary_facet_y":
@@ -338,6 +426,32 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     }
 
     return app_data
+
+
+def is_link_rendered(sample, other_sample, partially_hidden_samples,
+                     fully_hidden_samples):
+    """Determines whether links b/w samples should be rendered in viz.
+
+    We do not render links where both samples are partially hidden, or
+    one sample is fully hidden.
+
+    :param sample: One sample in link
+    :type sample: str
+    :param other_sample: Other sample in link
+    :type other_sample: str
+    :param partially_hidden_samples: Semi-transparent samples
+    :type partially_hidden_samples: set[str]
+    :param fully_hidden_samples: Fully-transparent samples
+    :type fully_hidden_samples: set[str]
+    :return: True if link b/w samples should be fully rendered, False
+        otherwise.
+    :rtype: bool
+    """
+    hidden_cond_1 = \
+        {sample, other_sample}.intersection(fully_hidden_samples)
+    hidden_cond_2 = \
+        {sample, other_sample}.issubset(partially_hidden_samples)
+    return not (hidden_cond_1 or hidden_cond_2)
 
 
 def get_unsorted_track_list(sample_data_dict, primary_y_axis,
@@ -540,14 +654,15 @@ def get_node_color_attr_dict(node_color_attr_list):
 
 def get_sample_links_dict(sample_data_dict, links_config, primary_y,
                           links_across_primary_y, max_day_range,
-                          matrix_file_df):
+                          matrix_file_df, filtered_link_types):
     """Get a dict of all links to viz in main graph.
 
     The keys in the dict are different link labels. The values are a
     nested dict. The keys in the nested dict are tuples containing two
     samples that satisfy the criteria for that link b/w them. The
-    values in the nested dict are weights assigned to the link b/w
-    these nodes, or ``None`` if no weight is calculated.
+    values in the nested dict are a dict describing weight val and
+    whether weight is filtered in the viz, or ``None`` if no weight is
+    calculated.
 
     We filter out certain links using ``weight_filters`` and
     ``attr_val_filters``.
@@ -566,6 +681,8 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
     :type max_day_range: int
     :param matrix_file_df: Dataframe encoding user uploaded matrix
     :type matrix_file_df: pd.DataFrame | None
+    :param filtered_link_types: Link types filtered by user
+    :type filtered_link_types: dict
     :return: Dict detailing links to viz in main graph
     :rtype: dict
     """
@@ -582,6 +699,9 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
                 for e in link_config_list]
 
     for link in links_config:
+        if link in filtered_link_types:
+            continue
+
         all_eq_list = links_config[link]["all_eq"]
         all_neq_list = links_config[link]["all_neq"]
         any_eq_list = links_config[link]["any_eq"]
@@ -678,18 +798,21 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
                         subbed_exp = regex_obj.sub(repl_fn, weight_exp)
                         link_weight = eval_expr(subbed_exp)
 
+                        filtered_by_neq = False
+                        filtered_by_range = False
                         if "not_equal" in weight_filters:
                             neq = weight_filters["not_equal"]
-                            if link_weight in neq:
-                                continue
+                            filtered_by_neq = link_weight in neq
                         if "less_than" in weight_filters:
                             le = weight_filters["less_than"]
-                            if link_weight < le:
-                                continue
-                        if "greater_than" in weight_filters:
-                            ge = weight_filters["greater_than"]
-                            if link_weight > ge:
-                                continue
+                            filtered_by_range = link_weight < le
+                        if not filtered_by_range:
+                            if "greater_than" in weight_filters:
+                                ge = weight_filters["greater_than"]
+                                filtered_by_range = link_weight > ge
+                        link_weight = {"weight": link_weight,
+                                       "filtered_by_neq": filtered_by_neq,
+                                       "filtered_by_range": filtered_by_range}
                     else:
                         link_weight = None
 
@@ -700,6 +823,25 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
                         sample_links_dict[link][(sample_j, sample_i)] = \
                             link_weight
 
+    return sample_links_dict
+
+
+def filter_links_by_weight(sample_links_dict):
+    """Remove links filtered by weight.
+
+    :param sample_links_dict: ``get_sample_links_dict`` ret val
+    :type sample_links_dict: dict
+    """
+    for link in sample_links_dict:
+        for (sample, other_sample) in list(sample_links_dict[link]):
+            weight_info = sample_links_dict[link][(sample, other_sample)]
+            if weight_info is None:
+                # Keep links without weight
+                continue
+            filtered = weight_info["filtered_by_neq"]
+            filtered = filtered or weight_info["filtered_by_range"]
+            if filtered:
+                sample_links_dict[link].pop((sample, other_sample))
     return sample_links_dict
 
 
@@ -731,23 +873,24 @@ def filter_link_loops(sample_links_dict, links_config, main_fig_nodes_x_dict,
         if not bool(links_config[link]["minimize_loops"]):
             continue
         for (sample, other_sample) in sample_links_dict[link]:
-            weight = sample_links_dict[link][(sample, other_sample)]
-
-            if weight is None:
+            weight_info = sample_links_dict[link][(sample, other_sample)]
+            if weight_info is None:
                 # nx will use the difference in graphic distance b/w nodes
                 # in the plot as weight, for mst purposes.
                 x0 = main_fig_nodes_x_dict["staggered"][sample]
                 x1 = main_fig_nodes_x_dict["staggered"][other_sample]
                 y0 = main_fig_nodes_y_dict[sample]
                 y1 = main_fig_nodes_y_dict[other_sample]
-                weight = sqrt((x1-x0)**2 + (y1-y0)**2)
+                weight_info = {"weight": sqrt((x1-x0)**2 + (y1-y0)**2),
+                               "filtered_by_neq": False,
+                               "filtered_by_range": False}
 
             # Need to track original order because graph is undirected
             order = (sample, other_sample)
 
             graph.add_edge(sample,
                            other_sample,
-                           weight=weight,
+                           weight=weight_info["weight"],
                            order=order)
 
         disjoint_subgraphs = \
@@ -789,10 +932,123 @@ def get_link_color_dict(sample_links_dict):
     return ret
 
 
+def get_weight_slider_info_dict(sample_links_dict):
+    """Get information for sliders used in link legend.
+
+    Each visible link with weight exps gets a nested dict containing
+    `min`, `max`, and `marks` vals used by Dash.
+
+    :param sample_links_dict: ``get_sample_links_dict`` ret val
+    :type sample_links_dict: dict
+    :return: Dict with slider info for visible links with weight exps
+    """
+    ret = {}
+    for link in sample_links_dict:
+        link_dict = sample_links_dict[link]
+        # Link is filtered or has no weights
+        if not link_dict or next(iter(link_dict.values())) is None:
+            continue
+
+        ret[link] = {"marks": {}}
+        min_weight = None
+        max_weight = None
+        min_unfiltered_weight = None
+        max_unfiltered_weight = None
+        marks = ret[link]["marks"]
+
+        for val in link_dict.values():
+            # We do not include neq filtered vals in slider
+            if val["filtered_by_neq"]:
+                continue
+
+            weight = val["weight"]
+            filtered_by_range = val["filtered_by_range"]
+
+            # Dash sliders currently have a bug that prevents typing
+            # whole numbers as floats. See https://bit.ly/3wgwh9p.
+            if weight % 1 == 0:
+                weight = int(weight)
+
+            if not min_weight or weight < min_weight:
+                min_weight = weight
+            if not max_weight or weight > max_weight:
+                max_weight = weight
+            if not filtered_by_range:
+                if not min_unfiltered_weight or weight < min_unfiltered_weight:
+                    min_unfiltered_weight = weight
+                if not max_unfiltered_weight or weight > max_unfiltered_weight:
+                    max_unfiltered_weight = weight
+            marks[weight] = {
+                "label": str(weight),
+                "style": {"display": "none"}
+            }
+
+        # All weights filtered
+        if not marks:
+            continue
+
+        min_mark = floor(min_weight)
+        ret[link]["min"] = min_mark
+        marks[min_mark] = {
+            "label": "Weight=%s" % min_mark,
+            "style": {"display": "none"}
+        }
+        max_mark = ceil(max_weight)
+        ret[link]["max"] = max_mark
+        marks[max_mark] = {
+            "label": str(max_mark),
+            "style": {"display": "none"}
+        }
+
+        ret[link]["value"] = [min_unfiltered_weight, max_unfiltered_weight]
+
+        if len(marks) > 1:
+            marks[min_mark]["style"].pop("display")
+            marks[max_mark]["style"].pop("display")
+        else:
+            marks[min_mark]["style"].pop("display")
+    return ret
+
+
+def get_weight_filter_form_dict(sample_links_dict):
+    """Get information for filter forms used in link legend.
+
+    Each visible link with weight exps gets a nested dict containing
+    the params expected by dbc checklist.
+
+    :param sample_links_dict: ``get_sample_links_dict`` ret val
+    :type sample_links_dict: dict
+    :return: Dict with filter form info for visible links with weight
+        exps.
+    """
+    ret = {}
+    for link in sample_links_dict:
+        link_dict = sample_links_dict[link]
+        # Link is filtered or has no weights
+        if not link_dict or next(iter(link_dict.values())) is None:
+            continue
+
+        ret[link] = {"options": [], "value": []}
+
+        seen_weights = set()
+        sorted_vals = sorted(link_dict.values(), key=lambda x: x["weight"])
+        for val in sorted_vals:
+            weight = val["weight"]
+            if weight in seen_weights:
+                continue
+            seen_weights.add(weight)
+
+            ret[link]["options"].append({"label": weight, "value": weight})
+
+            if not val["filtered_by_neq"]:
+                ret[link]["value"].append(weight)
+    return ret
+
+
 def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
-                            main_fig_nodes_y_dict, selected_samples,
-                            main_fig_height, main_fig_width, xaxis_range,
-                            yaxis_range):
+                            main_fig_nodes_y_dict, partially_hidden_samples,
+                            fully_hidden_samples, main_fig_height,
+                            main_fig_width, xaxis_range, yaxis_range):
     """Get dict with info used by Plotly to viz links in main graph.
 
     These are straight links, so this does not include links b/w nodes
@@ -804,8 +1060,10 @@ def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
     :type main_fig_nodes_x_dict: dict
     :param main_fig_nodes_y_dict: ``get_main_fig_nodes_y_dict`` ret val
     :type main_fig_nodes_y_dict: dict
-    :param selected_samples: Samples selected by users
-    :type selected_samples: set[str]
+    :param partially_hidden_samples: Semi-transparent samples
+    :type partially_hidden_samples: set[str]
+    :param fully_hidden_samples: Fully-transparent samples
+    :type fully_hidden_samples: set[str]
     :param main_fig_height: Height for main fig
     :type main_fig_height: int
     :param main_fig_width: Width for main fig
@@ -837,9 +1095,11 @@ def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
         ret[link] = {"x": [], "y": []}
 
         for (sample, other_sample) in sample_links_dict[link]:
-            selected_link = \
-                sample in selected_samples or other_sample in selected_samples
-            if selected_samples and not selected_link:
+            render_link = is_link_rendered(sample,
+                                           other_sample,
+                                           partially_hidden_samples,
+                                           fully_hidden_samples)
+            if not render_link:
                 continue
 
             unstaggered_x0 = main_fig_nodes_x_dict["unstaggered"][sample]
@@ -875,7 +1135,8 @@ def get_main_fig_links_dict(sample_links_dict, main_fig_nodes_x_dict,
 
 
 def get_main_fig_arcs_dict(sample_links_dict, main_fig_nodes_x_dict,
-                           main_fig_nodes_y_dict, selected_samples):
+                           main_fig_nodes_y_dict, partially_hidden_samples,
+                           fully_hidden_samples):
     """Get dict with info used by Plotly to viz arcs in main graph.
 
     These are arcs, so this does not include straight links b/w nodes
@@ -887,8 +1148,10 @@ def get_main_fig_arcs_dict(sample_links_dict, main_fig_nodes_x_dict,
     :type main_fig_nodes_x_dict: dict
     :param main_fig_nodes_y_dict: ``get_main_fig_nodes_y_dict`` ret val
     :type main_fig_nodes_y_dict: dict
-    :param selected_samples: Samples selected by users
-    :type selected_samples: set[str]
+    :param partially_hidden_samples: Semi-transparent samples
+    :type partially_hidden_samples: set[str]
+    :param fully_hidden_samples: Fully-transparent samples
+    :type fully_hidden_samples: set[str]
     :return: Dict with info used by Plotly to viz arcs in main graph
     :rtype: dict
     """
@@ -904,9 +1167,11 @@ def get_main_fig_arcs_dict(sample_links_dict, main_fig_nodes_x_dict,
         ret[link] = {"x": [], "y": []}
 
         for (sample, other_sample) in sample_links_dict[link]:
-            selected_link = \
-                sample in selected_samples or other_sample in selected_samples
-            if selected_samples and not selected_link:
+            render_link = is_link_rendered(sample,
+                                           other_sample,
+                                           partially_hidden_samples,
+                                           fully_hidden_samples)
+            if not render_link:
                 continue
 
             unstaggered_x0 = main_fig_nodes_x_dict["unstaggered"][sample]
@@ -1049,7 +1314,8 @@ def get_main_fig_arc_arrowheads_dict(main_fig_arcs_dict, links_config,
 
 def get_main_fig_link_labels_dict(sample_links_dict, links_config,
                                   main_fig_links_dict, main_fig_nodes_x_dict,
-                                  selected_samples, main_fig_height,
+                                  partially_hidden_samples,
+                                  fully_hidden_samples, main_fig_height,
                                   main_fig_width, xaxis_range, yaxis_range):
     """Get dict with info used by Plotly to viz link labels.
 
@@ -1063,8 +1329,10 @@ def get_main_fig_link_labels_dict(sample_links_dict, links_config,
     :type main_fig_links_dict: dict
     :param main_fig_nodes_x_dict: ``get_main_fig_nodes_x_dict`` ret val
     :type main_fig_nodes_x_dict: dict
-    :param selected_samples: Samples selected by users
-    :type selected_samples: set[str]
+    :param partially_hidden_samples: Semi-transparent samples
+    :type partially_hidden_samples: set[str]
+    :param fully_hidden_samples: Fully-transparent samples
+    :type fully_hidden_samples: set[str]
     :param main_fig_height: Height for main fig
     :type main_fig_height: int
     :param main_fig_width: Width for main fig
@@ -1091,9 +1359,11 @@ def get_main_fig_link_labels_dict(sample_links_dict, links_config,
         # because we do not want to increment i in certain cases.
         i = 0
         for (sample, other_sample) in sample_links_dict[link]:
-            selected_link = \
-                sample in selected_samples or other_sample in selected_samples
-            if selected_samples and not selected_link:
+            render_link = is_link_rendered(sample,
+                                           other_sample,
+                                           partially_hidden_samples,
+                                           fully_hidden_samples)
+            if not render_link:
                 continue
 
             unstaggered_x0 = main_fig_nodes_x_dict["unstaggered"][sample]
@@ -1101,8 +1371,10 @@ def get_main_fig_link_labels_dict(sample_links_dict, links_config,
             if (unstaggered_x1 - unstaggered_x0) == 0:
                 continue
 
-            weight = sample_links_dict[link][(sample, other_sample)]
-            if weight is None:
+            weight_info = sample_links_dict[link][(sample, other_sample)]
+            if any([weight_info is None,
+                    weight_info["filtered_by_neq"],
+                    weight_info["filtered_by_range"]]):
                 i += 1
                 continue
 
@@ -1124,7 +1396,7 @@ def get_main_fig_link_labels_dict(sample_links_dict, links_config,
 
             ret[link]["x"].append(xmid)
             ret[link]["y"].append(ymid)
-            ret[link]["text"].append(weight)
+            ret[link]["text"].append(weight_info["weight"])
             ret[link]["textangle"].append(textangle)
 
             i += 1
@@ -1134,7 +1406,7 @@ def get_main_fig_link_labels_dict(sample_links_dict, links_config,
 
 def get_main_fig_arc_labels_dict(sample_links_dict, links_config,
                                  main_fig_arcs_dict, main_fig_nodes_x_dict,
-                                 selected_samples):
+                                 partially_hidden_samples, fully_hidden_samples):
     """Get dict with info used by Plotly to viz arc labels.
 
     :param sample_links_dict: ``get_sample_links_dict`` ret val
@@ -1147,8 +1419,10 @@ def get_main_fig_arc_labels_dict(sample_links_dict, links_config,
     :type main_fig_arcs_dict: dict
     :param main_fig_nodes_x_dict: ``get_main_fig_nodes_x_dict`` ret val
     :type main_fig_nodes_x_dict: dict
-    :param selected_samples: Samples selected by users
-    :type selected_samples: set[str]
+    :param partially_hidden_samples: Semi-transparent samples
+    :type partially_hidden_samples: set[str]
+    :param fully_hidden_samples: Fully-transparent samples
+    :type fully_hidden_samples: set[str]
     :return: Dict with info used by Plotly to viz arc labels in main graph
     :rtype: dict
     """
@@ -1163,9 +1437,11 @@ def get_main_fig_arc_labels_dict(sample_links_dict, links_config,
         # because we do not want to increment i in certain cases.
         i = 0
         for (sample, other_sample) in sample_links_dict[link]:
-            selected_link = \
-                sample in selected_samples or other_sample in selected_samples
-            if selected_samples and not selected_link:
+            render_link = is_link_rendered(sample,
+                                           other_sample,
+                                           partially_hidden_samples,
+                                           fully_hidden_samples)
+            if not render_link:
                 continue
 
             unstaggered_x0 = main_fig_nodes_x_dict["unstaggered"][sample]
@@ -1173,8 +1449,10 @@ def get_main_fig_arc_labels_dict(sample_links_dict, links_config,
             if (unstaggered_x1 - unstaggered_x0) != 0:
                 continue
 
-            weight = sample_links_dict[link][(sample, other_sample)]
-            if weight is None:
+            weight_info = sample_links_dict[link][(sample, other_sample)]
+            if any([weight_info is None,
+                    weight_info["filtered_by_neq"],
+                    weight_info["filtered_by_range"]]):
                 i += 1
                 continue
 
@@ -1186,7 +1464,7 @@ def get_main_fig_arc_labels_dict(sample_links_dict, links_config,
 
             ret[link]["x"].append(x)
             ret[link]["y"].append(y)
-            ret[link]["text"].append(weight)
+            ret[link]["text"].append(weight_info["weight"])
 
             i += 1
 
