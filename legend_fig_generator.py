@@ -169,16 +169,16 @@ def get_link_legend_fig(link_type, link_color, is_filtered):
 
 
 def get_link_legend_col(app_data, link_filter_collapse_states_dict):
-    """Get link legend col in viz.TODO
+    """Get link legend col in viz.
 
     This is a list of graphs, one per link type, and sliders/filter
     btns if a link type is visible and has weights.
 
     :param app_data: ``data_parser.get_app_data`` ret val
     :type app_data: dict
-    :param link_filter_form_collapse_states: List of whether link
-        filter forms are open, in the order they appear on the legend.
-    :type link_filter_form_collapse_states: list[bool]
+    :param link_filter_collapse_states_dict: Dict mapping link types to
+        filter form collapse states.
+    :type link_filter_collapse_states_dict: dict[str[bool]]
     :return: Graphs, sliders, and filter btns constituting link legend
         in viz.
     :rtype: list[dcc.Graph|dcc.RangeSlider|dbc.Button]

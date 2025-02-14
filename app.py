@@ -1002,7 +1002,7 @@ def download_config_file(config_json_str, filename):
     prevent_initial_call=True
 )
 def select_nodes(click_data, selected_nodes, stale_vals_tbl):
-    """Update selected nodes browser variable after clicking node.TODO
+    """Update selected nodes browser variable after clicking node.
 
     The selected nodes are stored as str numbers representing the
     0-based order they appear in the original dataset. i.e., if you
@@ -1013,6 +1013,9 @@ def select_nodes(click_data, selected_nodes, stale_vals_tbl):
     :type click_data: dict
     :param selected_nodes: Currently selected nodes
     :type selected_nodes: dict
+    :param stale_vals_tbl: Collection identifying dcc vars specified in
+        previously generated viz.
+    :type stale_vals_tbl: dict[str[None]]
     :return: New table of selected nodes
     :rtype: dict
     """
@@ -1022,6 +1025,7 @@ def select_nodes(click_data, selected_nodes, stale_vals_tbl):
     if not clicked_node_opacity:
         raise PreventUpdate
 
+    # Avoid selecting nodes that were selected in previous viz
     if "selected-nodes" in stale_vals_tbl:
         selected_nodes = {}
 
@@ -1048,15 +1052,19 @@ def select_nodes(click_data, selected_nodes, stale_vals_tbl):
     prevent_initial_call=True
 )
 def filter_node_symbols(click_data, filtered_node_symbols, stale_vals_tbl):
-    """Filter nodes by symbol, when user clicks legend.TODO
+    """Filter nodes by symbol, when user clicks legend.
 
     :param click_data: Information on node clicked by user
     :type click_data: dict
     :param filtered_node_symbols: Currently filtered node symbols
     :type filtered_node_symbols: dict
+    :param stale_vals_tbl: Collection identifying dcc vars specified in
+        previously generated viz.
+    :type stale_vals_tbl: dict[str[None]]
     :return: New table of filtered node symbols
     :rtype: dict
     """
+    # Avoid filtering symbols that were filtered in previous viz
     if "filtered-node-symbols" in stale_vals_tbl:
         filtered_node_symbols = {}
 
@@ -1082,15 +1090,19 @@ def filter_node_symbols(click_data, filtered_node_symbols, stale_vals_tbl):
     prevent_initial_call=True
 )
 def filter_node_colors(click_data, filtered_node_colors, stale_vals_tbl):
-    """Filter nodes by color, when user clicks legend.TODO
+    """Filter nodes by color, when user clicks legend.
 
     :param click_data: Information on node clicked by user
     :type click_data: dict
     :param filtered_node_colors: Currently filtered node colors
     :type filtered_node_colors: dict
+    :param stale_vals_tbl: Collection identifying dcc vars specified in
+        previously generated viz.
+    :type stale_vals_tbl: dict[str[None]]
     :return: New table of filtered node colors
     :rtype: dict
     """
+    # Avoid filtering colors that were filtered in previous viz
     if "filtered-node-colors" in stale_vals_tbl:
         filtered_node_colors = {}
 
@@ -1116,12 +1128,15 @@ def filter_node_colors(click_data, filtered_node_colors, stale_vals_tbl):
     prevent_initial_call=True
 )
 def filter_link_types(click_data, filtered_link_types, stale_vals_tbl):
-    """Filter links, when user clicks legend.TODO
+    """Filter links, when user clicks legend.
 
     :param click_data: Click information on links in legend
     :type click_data: dict
     :param filtered_link_types: Currently filtered link types
     :type filtered_link_types: dict
+    :param stale_vals_tbl: Collection identifying dcc vars specified in
+        previously generated viz.
+    :type stale_vals_tbl: dict[str[None]]
     :return: New table of filtered link types
     :rtype: dict
     """
@@ -1134,6 +1149,7 @@ def filter_link_types(click_data, filtered_link_types, stale_vals_tbl):
         # to None at the end of this fn.
         clicked_index = clicked_indices[0]
 
+    # Avoid filtering link types that were filtered in previous viz
     if "filtered-link-types" in stale_vals_tbl:
         filtered_link_types = {}
 
@@ -1177,7 +1193,16 @@ def toggle_link_legend_filter_form(_, is_open):
 )
 def update_link_legend_slider_dict(link_legend_slider_ids,
                                    link_legend_slider_vals):
-    """TODO"""
+    """Update dcc var that tracks link legend slider vals.
+
+    :param link_legend_slider_ids: Link legend slider ids
+    :type link_legend_slider_ids: list[dict[str[str]]]
+    :param link_legend_slider_vals: Link legend slider vals;
+        e.g., [[1, 10], [20, 30]].
+    :type link_legend_slider_vals: list[list]
+    :return: Dict mapping link types to slider vals
+    :rtype: dict[str[list[int]]]
+    """
     link_legend_slider_vals_dict = {}
     for i, div_id in enumerate(link_legend_slider_ids):
         link = div_id["index"]
@@ -1195,7 +1220,15 @@ def update_link_legend_slider_dict(link_legend_slider_ids,
 )
 def update_link_legend_collapse_dict(link_legend_filter_collapse_ids,
                                      link_legend_filter_collapse_states):
-    """TODO"""
+    """Update dcc var that tracks collapse states of link filter forms.
+
+    :param link_legend_filter_collapse_ids: Collapse ids
+    :type link_legend_filter_collapse_ids: list[dict[str[str]]]
+    :param link_legend_filter_collapse_states: Collapse states
+    :type link_legend_filter_collapse_states: list[bool]
+    :return: Dict mapping link types to filter form collapse states
+    :rtype: dict[str[bool]]
+    """
     link_legend_filter_collapse_states_dict = {}
     for i, div_id in enumerate(link_legend_filter_collapse_ids):
         link = div_id["index"]
@@ -1215,7 +1248,17 @@ def update_link_legend_collapse_dict(link_legend_filter_collapse_ids,
 def update_link_legend_neq_dict(link_legend_filter_ids,
                                 link_legend_filter_opts,
                                 link_legend_filter_vals):
-    """TODO"""
+    """Update dcc var that tracks deselected vals in link filter forms.
+
+    :param link_legend_filter_ids: Link filter form ids
+    :type link_legend_filter_ids: list[dict[str, str]]
+    :param link_legend_filter_opts: Link filter form opts
+    :type link_legend_filter_opts: list[dict[str[int]]]
+    :param link_legend_filter_vals: Link filter form vals
+    :type link_legend_filter_vals: list[list[int]]
+    :return: Dict mapping link types to unselected filter form vals
+    :rtype: dict[str[list[int]]]
+    """
     link_legend_neq_dict = {}
     for i, div_id in enumerate(link_legend_filter_ids):
         link = div_id["index"]
@@ -1273,12 +1316,18 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
                     matrix_file_contents, old_main_fig, old_main_fig_x_axis,
                     old_main_fig_y_axis, link_filter_collapse_states_dict,
                     stale_vals_tbl):
-    """Update main graph, axes, zoomed-out main graph, and legends.TODO
+    """Update main graph, axes, zoomed-out main graph, and legends.
 
     Current triggers:
 
     * User clicks viz btn (after uploading data)
     * User selects node in main graph
+    * User filters nodes by symbol
+    * User filters nodes by color
+    * User filters links by type
+    * User modifies link slider vals
+    * User modifies link filter forms
+    * User adjusts zoom level of free-zoom graph
 
     :param selected_nodes: Currently selected nodes
     :type selected_nodes: dict
@@ -1288,15 +1337,12 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
     :type filtered_node_colors: dict
     :param filtered_link_types: Currently filtered link types
     :type filtered_link_types: dict
-    :param link_slider_vals: List of link dcc slider vals, in the
-        order they appear on the legend.
-    :type link_slider_vals: list[list]
-    :param link_filter_form_opts: List of link filter form checklist
-        opts, in the order they appear on the legend.
-    :type link_filter_form_opts: list[list]
-    :param link_filter_form_vals: List of link filter form checklist
-        vals, in the order they appear on the legend.
-    :type link_filter_form_vals: list[list]
+    :param link_legend_slider_vals_dict: Dict mapping link types to
+        slider vals.
+    :type link_legend_slider_vals_dict: dict[str[list[int]]]
+    :param link_legend_neq_dict: Dict mapping link types to unselected
+        filter form vals.
+    :type link_legend_neq_dict: dict[str[list[int]]]
     :param _: User clicked viz btn
     :param relayout_data: Information on main graph relayout event
     :type relayout_data: dict
@@ -1312,9 +1358,12 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
     :type old_main_fig_x_axis: go.Figure
     :param old_main_fig_y_axis: Current main y-axis fig
     :type old_main_fig_y_axis: go.Figure
-    :param link_filter_form_collapse_states: List of whether link
-        filter forms are open, in the order they appear on the legend.
-    :type link_filter_form_collapse_states: list[bool]
+    :param link_filter_collapse_states_dict: Dict mapping link types to
+        filter form collapse states.
+    :type link_filter_collapse_states_dict: dict[str[bool]]
+    :param stale_vals_tbl: Collection identifying dcc vars specified in
+        previously generated viz.
+    :type stale_vals_tbl: dict[str[None]]
     :return: New main graphs, axes, and legends
     :rtype: tuple[go.Figure]
     """
@@ -1402,22 +1451,30 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
         main_fig_y_axis.update_layout(yaxis={"range": new_y_axis_range})
     # Generating new fig or selecting/filtering
     else:
-        # Reset some stale vals if generating new fig
         if trigger == "viz-btn.n_clicks":
-            # TODO we still need to reset some of this in dcc store
-            filtered_link_types = {}
+            # Reset some stale vals if generating new fig
             link_legend_slider_vals_dict = {}
             link_filter_collapse_states_dict = {}
             link_legend_neq_dict = {}
             old_main_fig = None
             old_main_fig_x_axis = None
             old_main_fig_y_axis = None
+            # Also declare that a bunch of vals are now stale
             stale_vals_tbl = {"selected-nodes": None,
                               "filtered-node-symbols": None,
                               "filtered-node-colors": None,
                               "filtered-link-types": None}
-        # More granular resetting when not a new fig TODO better desc
+        # Some stale vals need a more granular resetting due to:
+        # * The vals continue to persist until they are updated by
+        #   their respective callbacks
+        # * We cannot call those respective callbacks here, because
+        #   Dash does not allow circular callbacks
+        # So we keep an object that tracks stale vals that have not
+        # been updated yet.
         if stale_vals_tbl:
+            # If this fn was triggered by updating one of these stale
+            # vals, pop them from the object. Otherwise, declare all
+            # stale vals as empty dicts each time this fn is called.
             trigger_id = trigger.split(".data")[0]
             stale_vals_tbl.pop(trigger_id, None)
             if "selected-nodes" in stale_vals_tbl:
@@ -1429,7 +1486,6 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
             if "filtered-link-types" in stale_vals_tbl:
                 filtered_link_types = {}
 
-        # TODO reset some of these vals if generating new fig
         app_data = \
             get_app_data(sample_file_base64_str,
                          config_file_base64_str,

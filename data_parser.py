@@ -41,7 +41,7 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
                  filtered_node_symbols=None, filtered_node_colors=None,
                  filtered_link_types=None, link_slider_vals_dict=None,
                  link_neq_dict=None, vpsc=False):
-    """Get data from uploaded file that is used to generate viz.TODO
+    """Get data from uploaded file that is used to generate viz.
 
     :param sample_file_base64_str: Base64 encoded str corresponding to
         contents of user uploaded sample file.
@@ -60,12 +60,12 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
     :type filtered_node_colors: dict
     :param filtered_link_types: Link types filtered by user
     :type filtered_link_types: dict
-    :param link_slider_vals: List of link dcc slider vals, in the
-        insertion order of links in config file.
-    :type link_slider_vals: list[list]
-    :param link_neq_vals: List of link filter form checklist
-        unchecked vals, in the order they appear on the legend.
-    :type link_neq_vals: list[list]
+    :param link_slider_vals_dict: Dict mapping link types to slider
+        vals.
+    :type link_slider_vals_dict: dict[str[list[int]]]
+    :param link_neq_dict: Dict mapping link types to unselected filter
+        form vals.
+    :type link_neq_dict: dict[str[list[int]]]
     :param vpsc: Run vpsc nodal overlap removal algorithm
     :type vpsc: bool
     :return: Data derived from sample data, used to generate viz
@@ -91,7 +91,6 @@ def get_app_data(sample_file_base64_str, config_file_base64_str,
 
 
     links_config_dict = config_file_dict["links_config"]
-    # TODO edge case: slider [x, x] but x in neq vals; reset slider
     # Adjust filters if slider vals set by user through ui
     for link in link_slider_vals_dict:
         weight_filters = links_config_dict[link]["weight_filters"]
