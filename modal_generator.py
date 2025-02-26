@@ -35,11 +35,18 @@ def get_upload_data_modal():
                             id="select-config-file-modal-header",
                             style={"display": "none"}),
             dbc.ModalBody(
-                dcc.Upload(
-                    dbc.Button("Select config file",
-                               id="select-config-file-btn"),
-                    id="upload-config-file"
-                ),
+                [
+                    dcc.Upload(
+                        dbc.Button("Select config file",
+                                   id="select-config-file-btn"),
+                        id="upload-config-file"
+                    ),
+                    dbc.Button(
+                        "...or click here to create one from scratch",
+                        id="create-config-file-btn",
+                        color="link"
+                    )
+                ],
                 id="select-config-file-modal-body",
                 style={"display": "none"}
             ),

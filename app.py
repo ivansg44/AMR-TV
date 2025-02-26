@@ -82,11 +82,6 @@ def launch_app(_):
                 width="auto"
                 ),
                 dbc.Col(
-                    dbc.Button("Create config file",
-                               id="create-config-file-btn"),
-                    width="auto"
-                ),
-                dbc.Col(
                     dcc.Loading(
                         html.Div(id="graph-loading"),
                         type="circle"
