@@ -76,7 +76,7 @@ def get_create_config_file_modal():
                         [
                             dbc.Col(
                                 dcc.Upload(
-                                    dbc.Button("Upload sample/example data "
+                                    dbc.Button("Upload sample/example tabular "
                                                "file",
                                                id="select-example-file-btn"),
                                     id="upload-example-file"
