@@ -25,18 +25,23 @@ def get_upload_data_modal():
                 dcc.Upload(
                     dbc.Button("Optional matrix file",
                                id="select-matrix-file-btn",
-                               color="light"),
+                               color="light",
+                               style={"display": "none"}),
                     id="upload-matrix-file",
-                    className="mt-1"
+                    className="mt-2"
                 )
             ]),
-            dbc.ModalHeader("Upload config file"),
+            dbc.ModalHeader("Upload config file",
+                            id="select-config-file-modal-header",
+                            style={"display": "none"}),
             dbc.ModalBody(
                 dcc.Upload(
                     dbc.Button("Select config file",
                                id="select-config-file-btn"),
                     id="upload-config-file"
-                )
+                ),
+                id="select-config-file-modal-body",
+                style={"display": "none"}
             ),
             dbc.ModalFooter(
                 dbc.Button("Visualize", id="viz-btn")
