@@ -74,16 +74,12 @@ def launch_app(_):
         dbc.Row(
             children=[
                 dbc.Col(
-                    dbc.Button("Upload data",
+                    dbc.Button(html.I(className="bi-upload",
+                                      style={"font-size": 16}),
                                id="upload-data-btn",
                                className="mr-1",
                                color="primary"),
                 width="auto"
-                ),
-                dbc.Col(
-                    dbc.Button("Create config file",
-                               id="create-config-file-btn"),
-                    width="auto"
                 ),
                 dbc.Col(
                     dcc.Loading(
@@ -304,25 +300,33 @@ def toggle_upload_data_modal(_, __):
 @app.callback(
     Output("select-sample-file-btn", "children"),
     Output("select-sample-file-btn", "color"),
+    Output("select-matrix-file-btn", "style"),
+    Output("select-config-file-modal-header", "style"),
+    Output("select-config-file-modal-body", "style"),
+    Output("upload-example-file", "contents"),
+    Output("upload-example-file", "filename"),
     Input("upload-sample-file", "contents"),
     Input("upload-sample-file", "filename"),
     prevent_initial_call=True
 )
-def edit_upload_data_modal_after_sample_file_upload(_, filename):
+def edit_upload_data_modal_after_sample_file_upload(contents, filename):
     """Edit upload data modal css after user uploads sample file.
 
     Current changes:
 
     * Filename replaces content of upload sample file btn
     * Upload sample file btn color changes
+    * Hidden parts of modal become visible
+    * Example tabular file == uploaded file
 
-    :param _: User uploaded sample file
+    :param contents: User uploaded sample file contents
+    :type contents: contents
     :param filename: Sample filename
     :type filename: str
     :return: Text inside upload sample file btn, and btn color
-    :rtype: (str, str)
+    :rtype: (str, str, dict, dict, dict)
     """
-    return filename, "success"
+    return filename, "success", {}, {}, {}, contents, filename
 
 
 @app.callback(
