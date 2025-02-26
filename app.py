@@ -314,7 +314,7 @@ def edit_upload_data_modal_after_sample_file_upload(_, filename):
 
     * Filename replaces content of upload sample file btn
     * Upload sample file btn color changes
-    * Hidden parts of modal become visibile
+    * Hidden parts of modal become visible
 
     :param _: User uploaded sample file
     :param filename: Sample filename
