@@ -15,18 +15,12 @@ def get_upload_data_modal():
     """
     ret = dbc.Modal(
         [
-            dbc.ModalHeader("Upload data"),
+            dbc.ModalHeader("Upload tabular data"),
             dbc.ModalBody([
                 dcc.Upload(
-                    dbc.Button("Select sample data file",
+                    dbc.Button("Select tabular data file",
                                id="select-sample-file-btn"),
                     id="upload-sample-file"
-                ),
-                dcc.Upload(
-                    dbc.Button("Select config file",
-                               id="select-config-file-btn"),
-                    id="upload-config-file",
-                    className="mt-1"
                 ),
                 dcc.Upload(
                     dbc.Button("Optional matrix file",
@@ -36,6 +30,14 @@ def get_upload_data_modal():
                     className="mt-1"
                 )
             ]),
+            dbc.ModalHeader("Upload config file"),
+            dbc.ModalBody(
+                dcc.Upload(
+                    dbc.Button("Select config file",
+                               id="select-config-file-btn"),
+                    id="upload-config-file"
+                )
+            ),
             dbc.ModalFooter(
                 dbc.Button("Visualize", id="viz-btn")
             )

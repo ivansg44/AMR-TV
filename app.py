@@ -74,7 +74,8 @@ def launch_app(_):
         dbc.Row(
             children=[
                 dbc.Col(
-                    dbc.Button("Upload data",
+                    dbc.Button(html.I(className="bi-upload",
+                                      style={"font-size": 16}),
                                id="upload-data-btn",
                                className="mr-1",
                                color="primary"),
