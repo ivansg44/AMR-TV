@@ -1,5 +1,7 @@
 # AMR-TV
 
+[Introduction slide set](introduction_slide_set.pdf)
+
 ## Installation
 
 Clone the repo:
