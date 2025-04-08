@@ -121,12 +121,19 @@ def get_create_config_file_modal():
                             style={"visibility": "hidden"}
                         ),
                         dbc.Col(
-                            dbc.Button("Generate config file",
-                                       id="generate-config-file-btn"),
-                            className="text-right my-auto",
-                            width=6
+                            dbc.Button(I(className="bi-download",
+                                         style={"font-size": 16}),
+                                       id="download-config-file-btn"),
+                            width="auto"
+                        ),
+                        dbc.Col(
+                            dbc.Button(I(className="bi-arrow-return-right",
+                                         style={"font-size": 16}),
+                                       id="return-config-file-btn"),
+                            width="auto"
                         )
                     ],
+                    justify="end",
                     style={"width": "100%"}
                 )
             )

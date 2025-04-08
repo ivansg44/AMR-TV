@@ -452,7 +452,8 @@ def edit_create_config_modal_after_example_file_upload(_, filename):
 
 @app.callback(
     Output("create-config-file-modal-form", "children"),
-    Output("generate-config-file-btn", "color"),
+    Output("download-config-file-btn", "color"),
+    Output("return-config-file-btn", "color"),
     Output("example-file-field-opts", "data"),
     Input("upload-example-file", "contents"),
     Input("delimiter-select", "value"),
@@ -465,7 +466,7 @@ def add_create_config_modal_form(example_file_contents, delimiter):
     delimiter, but we only want to add the form if both actions have
     been completed.
 
-    We also change the color of the btn at the bottom of the create
+    We also change the color of the btns at the bottom of the create
     config modal for actually generating the file, and we store the
     example file field select opts in a browser var.
 
@@ -473,8 +474,8 @@ def add_create_config_modal_form(example_file_contents, delimiter):
     :type example_file_contents: str
     :param delimiter: User-specified example file delimiter
     :type delimiter: str
-    :return: Create config modal form, color of btn for actually
-        generating config file, and example file fields select opts
+    :return: Create config modal form, color of btns for downloading or
+        returning config file, and example file fields select opts
         browser var.
     :rtype: (list[dbc.Row], str, list)
     """
@@ -490,7 +491,7 @@ def add_create_config_modal_form(example_file_contents, delimiter):
 
     form = get_create_config_modal_form(example_file_field_opts)
 
-    return form, "primary", example_file_field_opts
+    return form, "info", "primary", example_file_field_opts
 
 
 @app.callback(
@@ -644,8 +645,8 @@ def contract_create_config_modal_form(_):
 
 @app.callback(
     Output("config-file-generation-started", "data"),
-    Input("generate-config-file-btn", "n_clicks"),
-    State("generate-config-file-btn", "color"),
+    Input("download-config-file-btn", "n_clicks"),
+    State("download-config-file-btn", "color"),
     prevent_initial_call=True
 )
 def start_config_file_generation(_, btn_color):
@@ -655,14 +656,14 @@ def start_config_file_generation(_, btn_color):
     starts the next phase. We do not proceed if the btn is not the
     right color yet.
 
-    :param _: User clicked btn for generating config file
-    :param btn_color: Color of btn for generating config file when user
-        clicked it.
+    :param _: User clicked btn for downloading config file
+    :param btn_color: Color of btn for downloading config file when
+        user clicked it.
     :type btn_color: str
     :return: Config file generation started browser var
     :rtype: bool
     """
-    if btn_color != "primary":
+    if btn_color != "info":
         raise PreventUpdate
 
     return True
