@@ -126,11 +126,19 @@ def get_create_config_file_modal():
                                        id="download-config-file-btn"),
                             width="auto"
                         ),
+                        dbc.Tooltip(
+                            "Download config file",
+                            target="download-config-file-btn"
+                        ),
                         dbc.Col(
                             dbc.Button(I(className="bi-arrow-return-right",
                                          style={"font-size": 16}),
                                        id="return-config-file-btn"),
                             width="auto"
+                        ),
+                        dbc.Tooltip(
+                            "Return to previous window with this config file",
+                            target="return-config-file-btn"
                         )
                     ],
                     justify="end",
