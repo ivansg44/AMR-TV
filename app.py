@@ -3,6 +3,7 @@
 Running this script launches the application.
 """
 
+from base64 import b64encode
 from json import dumps
 from pathlib import Path
 from sys import maxsize
@@ -994,6 +995,8 @@ def continue_config_file_generation(started, delimiter,
 
 @app.callback(
     Output("download-config-json-str", "data"),
+    Output("upload-config-file", "filename"),
+    Output("upload-config-file", "contents"),
     Input("config-json-str", "data"),
     State("config-file-generation-started", "data"),
     State("upload-example-file", "filename"),
@@ -1015,14 +1018,24 @@ def process_generated_config_file(config_json_str, dl_or_ret, filename):
     :type dl_or_ret: str
     :param filename: Uploaded example file filename
     :type filename: str
-    :return: New contents for in-browser var that triggers download
-    :rtype: dict
+    :return: New contents for in-browser var that triggers download, or
+        uploaded config file.
+    :rtype: tuple[dict | dash.dash.no_update | str]
     """
     if config_json_str == "":
         raise PreventUpdate
     json_filename = Path(filename).stem + ".json"
     if dl_or_ret == "download":
-        return {"content": config_json_str, "filename": json_filename}
+        return ({"content": config_json_str, "filename": json_filename},
+                no_update,
+                no_update)
+    elif dl_or_ret == "return":
+        # Hackey, but necessary, given the format Dash expects uploaded
+        # files.
+        contents = ",%s" % str(b64encode(config_json_str.encode("utf-8")))[2:]
+        return (no_update,
+                json_filename,
+                contents)
     else:
         msg = "Unexpected value %s when processing generated config file"
         raise(ValueError(msg % dl_or_ret))
