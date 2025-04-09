@@ -249,13 +249,14 @@ def launch_app(_):
         dcc.Store("new-upload", data=False),
         dcc.Store("stale-vals-tbl", data={}),
         dcc.Store("example-file-field-opts"),
-        dcc.Store("config-file-generation-started", data=False),
         dcc.Store("config-json-str", data=""),
         dcc.Download(id="download-config-json-str"),
         # These dicts are easier to work with then the dcc vals
         dcc.Store(id="link-legend-slider-vals-dict", data={}),
         dcc.Store(id="link-legend-filter-collapse-states-dict", data={}),
-        dcc.Store(id="link-legend-neq-dict", data={})
+        dcc.Store(id="link-legend-neq-dict", data={}),
+        # Will be either "download" or "return" going forward
+        dcc.Store("config-file-generation-started", data=False)
     ]
 
     return children
@@ -646,27 +647,46 @@ def contract_create_config_modal_form(_):
 @app.callback(
     Output("config-file-generation-started", "data"),
     Input("download-config-file-btn", "n_clicks"),
+    Input("return-config-file-btn", "n_clicks"),
     State("download-config-file-btn", "color"),
+    State("return-config-file-btn", "color"),
     prevent_initial_call=True
 )
-def start_config_file_generation(_, btn_color):
+def start_config_file_generation(_, __, dl_btn_color, ret_btn_color):
     """Start generating the config file.
 
     We populate the config file generation started browser var, which
-    starts the next phase. We do not proceed if the btn is not the
+    starts the next phase. We do not proceed if the btns are not the
     right color yet.
 
     :param _: User clicked btn for downloading config file
-    :param btn_color: Color of btn for downloading config file when
+    :param __: User clicked btn for returning config file
+    :param dl_btn_color: Color of btn for downloading config file when
         user clicked it.
-    :type btn_color: str
-    :return: Config file generation started browser var
-    :rtype: bool
+    :type dl_btn_color: str
+    :param ret_btn_color: Color of btn for returning config file when
+        user clicked it.
+    :type ret_btn_color: str
+    :return: Config file generation started browser var; one of
+        `"download"` or `"return"`.
+    :rtype: str
     """
-    if btn_color != "info":
-        raise PreventUpdate
+    ctx = dash.callback_context
+    trigger = ctx.triggered[0]["prop_id"]
 
-    return True
+    if trigger == "download-config-file-btn.n_clicks":
+        if dl_btn_color != "info":
+            raise PreventUpdate
+        else:
+            return "download"
+    elif trigger == "return-config-file-btn.n_clicks":
+        if ret_btn_color != "primary":
+            raise PreventUpdate
+        else:
+            return "return"
+    else:
+        msg = "Unexpected trigger %s when starting config file generation"
+        raise(ValueError(msg % trigger))
 
 
 @app.callback(
@@ -975,14 +995,24 @@ def continue_config_file_generation(started, delimiter,
 @app.callback(
     Output("download-config-json-str", "data"),
     Input("config-json-str", "data"),
+    State("config-file-generation-started", "data"),
     State("upload-example-file", "filename"),
     prevent_initial_call=True
 )
-def download_config_file(config_json_str, filename):
-    """Launch download of generated config file.
+def process_generated_config_file(config_json_str, dl_or_ret, filename):
+    """Process generated config file.
+
+    Depending on which btn in the create config modal the user clicked,
+    this could be either downloading the file, or returning to the
+    upload data modal with the new config data acting as an "uploaded
+    file".
 
     :param config_json_str: In-browser config json str var
     :type config_json_str: str
+    :param dl_or_ret: Specifies whether process of config file
+        generation began by user clicking dl or ret btn; should be
+        either "download" or "return".
+    :type dl_or_ret: str
     :param filename: Uploaded example file filename
     :type filename: str
     :return: New contents for in-browser var that triggers download
@@ -991,7 +1021,11 @@ def download_config_file(config_json_str, filename):
     if config_json_str == "":
         raise PreventUpdate
     json_filename = Path(filename).stem + ".json"
-    return {"content": config_json_str, "filename": json_filename}
+    if dl_or_ret == "download":
+        return {"content": config_json_str, "filename": json_filename}
+    else:
+        msg = "Unexpected value %s when processing generated config file"
+        raise(ValueError(msg % dl_or_ret))
 
 
 @app.callback(
