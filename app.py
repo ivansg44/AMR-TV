@@ -521,6 +521,24 @@ def toggle_create_config_modal_help_alert(_, is_already_open):
 
 
 @app.callback(
+    Output({"type": "upload-modal-help-alert", "index": MATCH},"is_open"),
+    Input({"type": "upload-modal-help-btn", "index": MATCH},"n_clicks"),
+    State({"type": "upload-modal-help-alert", "index": MATCH},"is_open"),
+    prevent_initial_call=True
+)
+def toggle_upload_modal_help_alert(_, is_already_open):
+    """Toggle a help alert in upload modal.
+
+    :param _: User clicked help btn for an alert
+    :param is_already_open: Is the alert already open?
+    :type is_already_open: bool
+    :return: Open status for alert specific to help btn user clicked
+    :rtype: bool
+    """
+    return not is_already_open
+
+
+@app.callback(
     Output({"type": "expandable-create-config-form-col", "index": MATCH},
            "children"),
     Input({"type": "expandable-create-config-form-btn", "index": MATCH},

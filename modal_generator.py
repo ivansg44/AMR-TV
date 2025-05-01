@@ -28,13 +28,7 @@ def get_upload_data_modal():
                     ),
                     dbc.Col(
                         dbc.Row([
-                            dbc.Col(
-                                dbc.Button("Help",
-                                           id="select-sample-file-btn-help",
-                                           color="info",
-                                           size="sm",
-                                           className="p-0")
-                            ),
+                            get_upload_help_btn("select-sample-file"),
                             dbc.Col(
                                 dbc.Button("Delete",
                                            id="select-sample-file-btn-del",
@@ -46,6 +40,11 @@ def get_upload_data_modal():
                         width="auto"
                     )
                 ], justify="between"),
+                dbc.Row(
+                    dbc.Col(
+                        get_upload_help_alert("select-sample-file", "foo")
+                    )
+                ),
                 dbc.Row(
                     [
                         dbc.Col(
@@ -59,13 +58,7 @@ def get_upload_data_modal():
                         ),
                         dbc.Col(
                             dbc.Row([
-                                dbc.Col(
-                                    dbc.Button("Help",
-                                               id="select-matrix-file-btn-help",
-                                               color="info",
-                                               size="sm",
-                                               className="p-0")
-                                ),
+                                get_upload_help_btn("select-matrix-file"),
                                 dbc.Col(
                                     dbc.Button("Delete",
                                                id="select-matrix-file-btn-del",
@@ -81,7 +74,12 @@ def get_upload_data_modal():
                     id="select-matrix-file-row",
                     justify="between",
                     style={"display": "none"}
-                )
+                ),
+                dbc.Row(
+                    dbc.Col(
+                        get_upload_help_alert("select-matrix-file", "foo")
+                    )
+                ),
             ]),
             dbc.ModalHeader("Upload config file",
                             id="select-config-file-modal-header",
@@ -98,13 +96,7 @@ def get_upload_data_modal():
                         ),
                         dbc.Col(
                             dbc.Row([
-                                dbc.Col(
-                                    dbc.Button("Help",
-                                               id="select-config-file-btn-help",
-                                               color="info",
-                                               size="sm",
-                                               className="p-0")
-                                ),
+                                get_upload_help_btn("select-config-file"),
                                 dbc.Col(
                                     dbc.Button("Delete",
                                                id="select-config-file-btn-del",
@@ -124,7 +116,12 @@ def get_upload_data_modal():
                                 color="link"
                             )
                         )
-                    )
+                    ),
+                    dbc.Row(
+                        dbc.Col(
+                            get_upload_help_alert("select-config-file", "foo")
+                        )
+                    ),
                 ],
                 id="select-config-file-modal-body",
                 style={"display": "none"}
@@ -1250,7 +1247,8 @@ def get_create_config_help_alert(index, alert_children):
 
     :param index: Index matching btn toggling alert
     :type index: str | int
-    :return: Help lert in create config form
+    :param alert_children: Body of alert
+    :return: Help alert in create config form
     :rtype: dbc.Row
     """
     return dbc.Row(
@@ -1258,6 +1256,48 @@ def get_create_config_help_alert(index, alert_children):
             dbc.Alert(
                 alert_children,
                 id={"type": "create-config-modal-help-alert",
+                    "index": index},
+                dismissable=True,
+                is_open=False,
+                color="info"
+            )
+        ),
+        className="mt-1"
+    )
+
+
+def get_upload_help_btn(index):
+    """Get btn used to toggle alert in upload form.
+
+    :param index: Index matching alert btn toggles
+    :type index: str | int
+    :return: Btn used to toggle alert in upload form
+    :rtype: dbc.Row
+    """
+    return dbc.Col(
+        dbc.Button("Help",
+                   id={"type": "upload-modal-help-btn",
+                       "index": index},
+                   color="info",
+                   size="sm",
+                   className="p-0")
+    )
+
+
+def get_upload_help_alert(index, alert_children):
+    """Get help alert in upload form.
+
+    :param index: Index matching btn toggling alert
+    :type index: str | int
+    :param alert_children: Body of alert
+    :return: Help alert in upload form
+    :rtype: dbc.Row
+    """
+    return dbc.Row(
+        dbc.Col(
+            dbc.Alert(
+                alert_children,
+                id={"type": "upload-modal-help-alert",
                     "index": index},
                 dismissable=True,
                 is_open=False,
