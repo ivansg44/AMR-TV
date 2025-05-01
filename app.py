@@ -7,6 +7,7 @@ from base64 import b64encode
 from json import dumps
 from pathlib import Path
 from sys import maxsize
+from traceback import format_exc
 
 import dash
 from dash import Dash
@@ -1375,7 +1376,9 @@ def update_link_legend_neq_dict(link_legend_filter_ids,
         Output("node-color-legend-graph", "figure"),
         Output("y-axis-legend-col", "children"),
         Output("graph-loading", "children"),
-        Output("stale-vals-tbl", "data")
+        Output("stale-vals-tbl", "data"),
+        Output("upload-error-msg", "children"),
+        Output("upload-error-msg", "className")
     ],
     prevent_initial_call=True
 )
@@ -1398,6 +1401,8 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
     * User modifies link slider vals
     * User modifies link filter forms
     * User adjusts zoom level of free-zoom graph
+
+    Also displays error messages on failed upload.
 
     :param selected_nodes: Currently selected nodes
     :type selected_nodes: dict
@@ -1556,27 +1561,42 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
             if "filtered-link-types" in stale_vals_tbl:
                 filtered_link_types = {}
 
-        app_data = \
-            get_app_data(sample_file_base64_str,
-                         config_file_base64_str,
-                         matrix_file_base64_str=matrix_file_base64_str,
-                         selected_nodes=selected_nodes,
-                         filtered_node_symbols=filtered_node_symbols,
-                         filtered_node_colors=filtered_node_colors,
-                         filtered_link_types=filtered_link_types,
-                         link_slider_vals_dict=link_legend_slider_vals_dict,
-                         link_neq_dict=link_legend_neq_dict)
-        zoomed_out_app_data = \
-            get_app_data(sample_file_base64_str,
-                         config_file_base64_str,
-                         matrix_file_base64_str=matrix_file_base64_str,
-                         selected_nodes=selected_nodes,
-                         filtered_node_symbols=filtered_node_symbols,
-                         filtered_node_colors=filtered_node_colors,
-                         filtered_link_types=filtered_link_types,
-                         link_slider_vals_dict=link_legend_slider_vals_dict,
-                         link_neq_dict=link_legend_neq_dict,
-                         vpsc=True)
+        try:
+            app_data = \
+                get_app_data(
+                    sample_file_base64_str,
+                    config_file_base64_str,
+                    matrix_file_base64_str=matrix_file_base64_str,
+                    selected_nodes=selected_nodes,
+                    filtered_node_symbols=filtered_node_symbols,
+                    filtered_node_colors=filtered_node_colors,
+                    filtered_link_types=filtered_link_types,
+                    link_slider_vals_dict=link_legend_slider_vals_dict,
+                    link_neq_dict=link_legend_neq_dict
+                )
+            zoomed_out_app_data = \
+                get_app_data(
+                    sample_file_base64_str,
+                    config_file_base64_str,
+                    matrix_file_base64_str=matrix_file_base64_str,
+                    selected_nodes=selected_nodes,
+                    filtered_node_symbols=filtered_node_symbols,
+                    filtered_node_colors=filtered_node_colors,
+                    filtered_link_types=filtered_link_types,
+                    link_slider_vals_dict=link_legend_slider_vals_dict,
+                    link_neq_dict=link_legend_neq_dict,
+                    vpsc=True
+                )
+        except Exception:
+            error_msg = [
+                html.B("Ran into an unvalidated error while parsing the data files!"),
+                html.Br(),
+                format_exc()
+            ]
+            # TODO really hackey; solution is to maybe have a return
+            #  dict. Then we know # of return vals.
+            return [no_update]*15 + [error_msg, "pt-0 text-danger"]
+
         main_fig = get_main_fig(app_data)
         zoomed_out_main_fig = get_zoomed_out_main_fig(zoomed_out_app_data)
         node_symbol_legend_fig = get_node_symbol_legend_fig(app_data)
@@ -1643,7 +1663,9 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
             node_color_legend_fig,
             y_axis_legend,
             graph_loading,
-            stale_vals_tbl)
+            stale_vals_tbl,
+            "",
+            "d-none pt-0 text-danger")
 
 
 # Switch to main graph tab and scroll to corresponding node, after

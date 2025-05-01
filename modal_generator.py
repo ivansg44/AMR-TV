@@ -52,6 +52,11 @@ def get_upload_data_modal():
             ),
             dbc.ModalFooter(
                 dbc.Button("Visualize", id="viz-btn")
+            ),
+            dbc.ModalBody(
+                "",
+                className="d-none pt-0 text-danger",
+                id="upload-error-msg"
             )
         ],
         id="upload-data-modal"
