@@ -76,18 +76,11 @@ def launch_app(_):
         dbc.Row(
             children=[
                 dbc.Col(
-                    [
-                        dbc.Button(html.I(className="bi-upload",
-                                          style={"font-size": 16}),
-                                   id="upload-data-btn",
-                                   className="mr-1",
-                                   color="primary"),
-                        dbc.Tooltip(
-                            "Upload data",
-                            target="upload-data-btn"
-                        )
-                    ],
-                width="auto"
+                    dbc.Button("Upload data",
+                               id="upload-data-btn",
+                               className="mr-1",
+                               color="primary"),
+                    width="auto"
                 ),
                 dbc.Col(
                     dcc.Loading(
