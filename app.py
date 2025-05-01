@@ -500,14 +500,16 @@ def add_create_config_modal_form(example_file_contents, delimiter):
 
 
 @app.callback(
-    Output({"type": "form-help-alert", "index": MATCH},"is_open"),
-    Input({"type": "form-help-btn", "index": MATCH},"n_clicks"),
-    State({"type": "form-help-alert", "index": MATCH},
+    Output({"type": "create-config-modal-help-alert", "index": MATCH},
+           "is_open"),
+    Input({"type": "create-config-modal-help-btn", "index": MATCH},
+          "n_clicks"),
+    State({"type": "create-config-modal-help-alert", "index": MATCH},
           "is_open"),
     prevent_initial_call=True
 )
-def toggle_form_help_alert(_, is_already_open):
-    """Toggle a help alert in upload and create config modal.
+def toggle_create_config_modal_help_alert(_, is_already_open):
+    """Toggle a help alert in create config modal.
 
     :param _: User clicked help btn for an alert
     :param is_already_open: Is the alert already open?
