@@ -77,7 +77,7 @@ def get_node_symbol_legend_fig(app_data):
             },
             "showlegend": False,
             "plot_bgcolor": "white",
-            "height": len(graph[0]["y"]) * 50
+            "height": max(10, len(graph[0]["y"]) * 50)
         },
     )
     return fig
@@ -359,5 +359,5 @@ def get_node_color_legend_fig(app_data):
         },
     )
     if graph:
-        fig.update_layout(height=len(graph[0]["y"] * 50))
+        fig.update_layout(height=max(10, len(graph[0]["y"] * 50)))
     return fig

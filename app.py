@@ -696,6 +696,7 @@ def start_config_file_generation(_, __, dl_btn_color, ret_btn_color):
 @app.callback(
     Output("config-error-msg-label", "children"),
     Output("config-error-msg-col", "style"),
+    Output("sample-field-select", "invalid"),
     Output("date-field-select", "invalid"),
     Output("date-input-format-input", "invalid"),
     Output("date-output-format-input", "invalid"),
@@ -704,6 +705,7 @@ def start_config_file_generation(_, __, dl_btn_color, ret_btn_color):
     Output("config-json-str", "data"),
     Input("config-file-generation-started", "data"),
     State("delimiter-select", "value"),
+    State("sample-field-select", "value"),
     State("date-field-select", "value"),
     State("date-input-format-input", "value"),
     State("date-output-format-input", "value"),
@@ -723,6 +725,8 @@ def start_config_file_generation(_, __, dl_btn_color, ret_btn_color):
     State({"type": "link-minimize-loops", "index": ALL}, "checked"),
     State({"type": "link-arrowheads", "index": ALL}, "id"),
     State({"type": "link-arrowheads", "index": ALL}, "checked"),
+    State({"type": "show-link-weights", "index": ALL}, "id"),
+    State({"type": "show-link-weights", "index": ALL}, "checked"),
     State({"type": "link-weight-exp", "index": ALL}, "id"),
     State({"type": "link-weight-exp", "index": ALL}, "value"),
     State({"type": "link-weight-lt", "index": ALL}, "id"),
@@ -742,7 +746,7 @@ def start_config_file_generation(_, __, dl_btn_color, ret_btn_color):
     State({"type": "link-any-eq-select", "index": ALL}, "value"),
     prevent_initial_call=True
 )
-def continue_config_file_generation(started, delimiter,
+def continue_config_file_generation(started, delimiter, sample_field,
                                     date_field, date_input_format,
                                     date_output_format, links_across_primary_y,
                                     max_day_range, empty_strings_are_null,
@@ -753,6 +757,7 @@ def continue_config_file_generation(started, delimiter,
                                     link_label_ids, link_label_vals,
                                     link_min_loop_ids, link_min_loop_vals,
                                     link_arrowhead_ids, link_arrowhead_vals,
+                                    show_link_weights_ids, show_link_weights_vals,
                                     link_weight_exp_ids, link_weight_exp_vals,
                                     link_weight_lt_ids, link_weight_lt_vals,
                                     link_weight_gt_ids, link_weight_gt_vals,
@@ -772,6 +777,8 @@ def continue_config_file_generation(started, delimiter,
     :type started: bool
     :param delimiter: User-specified example file delimiter
     :type delimiter: str
+    :param sample_field: User-specified sample ID field
+    :type sample_field: str
     :param date_field: User-specified date field
     :type date_field: str
     :param date_input_format: User-specified date input format
@@ -811,6 +818,10 @@ def continue_config_file_generation(started, delimiter,
     :type link_arrowhead_ids: list[dict]
     :param link_arrowhead_vals: Vals of link arrowhead checkboxes
     :type link_arrowhead_vals: list[bool]
+    :param show_link_weights_ids: IDs of show link weights checkboxes
+    :type show_link_weights_ids: list[dict]
+    :param show_link_weights_vals: Vals of show link weights checkboxes
+    :type show_link_weights_vals: list[bool]
     :param link_weight_exp_ids: IDs of link weight exp inputs
     :type link_weight_exp_ids: list[dict]
     :param link_weight_exp_vals: Vals of link weight exp inputs
@@ -855,7 +866,8 @@ def continue_config_file_generation(started, delimiter,
     if not started:
         raise PreventUpdate
 
-    mandatory_non_link_fields = [date_field,
+    mandatory_non_link_fields = [sample_field,
+                                 date_field,
                                  date_input_format,
                                  date_output_format,
                                  first_y_axis_field]
@@ -901,6 +913,8 @@ def continue_config_file_generation(started, delimiter,
         link_dict[id_["index"]]["minimize_loops"] = int(val)
     for id_, val in zip(link_arrowhead_ids, link_arrowhead_vals):
         link_dict[id_["index"]]["show_arrowheads"] = int(val)
+    for id_, val in zip(show_link_weights_ids, show_link_weights_vals):
+        link_dict[id_["index"]]["show_weights"] = int(val)
     for id_, val in zip(link_weight_exp_ids, link_weight_exp_vals):
         if val is None:
             val = ""
@@ -969,6 +983,7 @@ def continue_config_file_generation(started, delimiter,
                ""
 
     config_dict = {
+        "sample_id": sample_field,
         "delimiter": delimiter,
         "date_attr": date_field,
         "date_input": date_input_format,
@@ -976,7 +991,7 @@ def continue_config_file_generation(started, delimiter,
         "links_across_primary_y": int(links_across_primary_y),
         "max_day_range": max_day_range,
         "null_vals": null_vals,
-        "primary_y_axis": first_y_axis_field,
+        "primary_y_axis": [first_y_axis_field],
         "secondary_y_axes": [[e] for e in y_axis_fields[1:]
                              if e is not None or ""],
         "label_attr": [e for e in node_label_fields

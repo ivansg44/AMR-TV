@@ -898,7 +898,28 @@ def get_duplicating_link_section(example_file_field_opts, index, alerts=False):
                         ],
                         width={"offset": 1, "size": 8}
                     ),
-                    className="mb-1"
+                    className="mb-3"
+                ),
+                get_create_config_help_btn("show-weights") if alerts else None,
+                get_create_config_help_alert(
+                    "show-weights",
+                    [P("If you check this box, the link weights will "
+                       "be displayed.")]
+                ) if alerts else None,
+                dbc.Row(
+                    [
+                        dbc.Col(
+                            dbc.Checkbox(
+                                id={"type": "show-link-weights", "index": index},
+                                checked=False
+                            ),
+                            width=1
+                        ),
+                        dbc.Col(
+                            dbc.Label("Show weights?")
+                        )
+                    ],
+                    className="mb-3"
                 ),
                 get_create_config_help_btn("attr-filters") if alerts else None,
                 get_create_config_help_alert(
