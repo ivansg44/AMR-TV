@@ -244,8 +244,8 @@ def get_create_config_modal_form(example_file_field_opts):
     :rtype: list
     """
     ret = [
-        get_create_config_help_btn("sample-id-fields"),
-        get_create_config_help_alert(
+        get_form_help_btn("sample-id-fields"),
+        get_form_help_alert(
             "sample-id-fields",
             [
                 P([
@@ -271,8 +271,8 @@ def get_create_config_modal_form(example_file_field_opts):
             ),
             className="mb-3"
         ),
-        get_create_config_help_btn("date-fields"),
-        get_create_config_help_alert(
+        get_form_help_btn("date-fields"),
+        get_form_help_alert(
             "date-fields",
             [
                 P([
@@ -332,8 +332,8 @@ def get_create_config_modal_form(example_file_field_opts):
             className="mb-3"
         ),
         Hr(),
-        get_create_config_help_btn("link-across-primary-y-field"),
-        get_create_config_help_alert(
+        get_form_help_btn("link-across-primary-y-field"),
+        get_form_help_alert(
             "link-across-primary-y-field",
             [
                 P([
@@ -365,8 +365,8 @@ def get_create_config_modal_form(example_file_field_opts):
             className="mb-3"
         ),
         Hr(),
-        get_create_config_help_btn("max-day-range-field"),
-        get_create_config_help_alert(
+        get_form_help_btn("max-day-range-field"),
+        get_form_help_alert(
             "max-day-range-field",
             [P("Links will not be drawn between nodes that were sampled more "
                "than this many days apart.")]
@@ -388,8 +388,8 @@ def get_create_config_modal_form(example_file_field_opts):
             className="mb-3"
         ),
         Hr(),
-        get_create_config_help_btn("null-val-fields"),
-        get_create_config_help_alert(
+        get_form_help_btn("null-val-fields"),
+        get_form_help_alert(
             "null-val-fields",
             [
                 P([
@@ -448,8 +448,8 @@ def get_create_config_modal_form(example_file_field_opts):
             className="mb-3"
         ),
         Hr(),
-        get_create_config_help_btn("y-axis-fields"),
-        get_create_config_help_alert(
+        get_form_help_btn("y-axis-fields"),
+        get_form_help_alert(
             "y-axis-fields",
             [
                 P([
@@ -502,8 +502,8 @@ def get_create_config_modal_form(example_file_field_opts):
             className="mb-3"
         ),
         Hr(),
-        get_create_config_help_btn("node-label-fields"),
-        get_create_config_help_alert(
+        get_form_help_btn("node-label-fields"),
+        get_form_help_alert(
             "node-label-fields",
             [
                 P([
@@ -550,8 +550,8 @@ def get_create_config_modal_form(example_file_field_opts):
             className="mb-3"
         ),
         Hr(),
-        get_create_config_help_btn("node-color-fields"),
-        get_create_config_help_alert(
+        get_form_help_btn("node-color-fields"),
+        get_form_help_alert(
             "node-color-fields",
             [
                 P([
@@ -612,8 +612,8 @@ def get_create_config_modal_form(example_file_field_opts):
             className="mb-3"
         ),
         Hr(),
-        get_create_config_help_btn("node-symbol-fields"),
-        get_create_config_help_alert(
+        get_form_help_btn("node-symbol-fields"),
+        get_form_help_alert(
             "node-symbol-fields",
             [
                 P([
@@ -674,8 +674,8 @@ def get_create_config_modal_form(example_file_field_opts):
             className="mb-3"
         ),
         Hr(),
-        get_create_config_help_btn("link-config"),
-        get_create_config_help_alert(
+        get_form_help_btn("link-config"),
+        get_form_help_alert(
             "link-config",
             [
                 P([
@@ -784,8 +784,8 @@ def get_duplicating_link_section(example_file_field_opts, index, alerts=False):
                     ),
                     className="mb-3"
                 ),
-                get_create_config_help_btn("min-loops") if alerts else None,
-                get_create_config_help_alert(
+                get_form_help_btn("min-loops") if alerts else None,
+                get_form_help_alert(
                     "min-loops",
                     [
                         P([
@@ -834,8 +834,8 @@ def get_duplicating_link_section(example_file_field_opts, index, alerts=False):
                     ],
                     className="mb-3"
                 ),
-                get_create_config_help_btn("arrowheads") if alerts else None,
-                get_create_config_help_alert(
+                get_form_help_btn("arrowheads") if alerts else None,
+                get_form_help_alert(
                     "arrowheads",
                     [P("If you check this box, the links will have "
                        "arrowheads. This is really just a stylistic choice, "
@@ -857,8 +857,8 @@ def get_duplicating_link_section(example_file_field_opts, index, alerts=False):
                     ],
                     className="mb-3"
                 ),
-                get_create_config_help_btn("weight-exp") if alerts else None,
-                get_create_config_help_alert(
+                get_form_help_btn("weight-exp") if alerts else None,
+                get_form_help_alert(
                     "weight-exp",
                     [
                         P("Enter the equation for calculating link weights. "
@@ -915,8 +915,8 @@ def get_duplicating_link_section(example_file_field_opts, index, alerts=False):
                     ),
                     className="mb-3"
                 ),
-                get_create_config_help_btn("weight-fltrs") if alerts else None,
-                get_create_config_help_alert(
+                get_form_help_btn("weight-fltrs") if alerts else None,
+                get_form_help_alert(
                     "weight-fltrs",
                     [P("Filter out links with a weight less than or greater "
                        "than a certain value. You can also filter out links "
@@ -984,8 +984,8 @@ def get_duplicating_link_section(example_file_field_opts, index, alerts=False):
                     ),
                     className="mb-3"
                 ),
-                get_create_config_help_btn("show-weights") if alerts else None,
-                get_create_config_help_alert(
+                get_form_help_btn("show-weights") if alerts else None,
+                get_form_help_alert(
                     "show-weights",
                     [P("If you check this box, the link weights will "
                        "be displayed.")]
@@ -1005,8 +1005,8 @@ def get_duplicating_link_section(example_file_field_opts, index, alerts=False):
                     ],
                     className="mb-3"
                 ),
-                get_create_config_help_btn("attr-filters") if alerts else None,
-                get_create_config_help_alert(
+                get_form_help_btn("attr-filters") if alerts else None,
+                get_form_help_alert(
                     "attr-filters",
                     [
                         P([
@@ -1062,8 +1062,8 @@ def get_duplicating_link_section(example_file_field_opts, index, alerts=False):
                     ),
                     className="mb-3"
                 ),
-                get_create_config_help_btn("all-eq") if alerts else None,
-                get_create_config_help_alert(
+                get_form_help_btn("all-eq") if alerts else None,
+                get_form_help_alert(
                     "all-eq",
                     [P("In order to draw a link between any two nodes, they "
                        "must have the same values for all the fields you "
@@ -1102,8 +1102,8 @@ def get_duplicating_link_section(example_file_field_opts, index, alerts=False):
                     ),
                     className="mb-3"
                 ),
-                get_create_config_help_btn("all-neq") if alerts else None,
-                get_create_config_help_alert(
+                get_form_help_btn("all-neq") if alerts else None,
+                get_form_help_alert(
                     "all-neq",
                     [P("In order to draw a link between any two nodes, they "
                        "must have different values for all the fields you "
@@ -1143,8 +1143,8 @@ def get_duplicating_link_section(example_file_field_opts, index, alerts=False):
                     ),
                     className="mb-3"
                 ),
-                get_create_config_help_btn("any-eq") if alerts else None,
-                get_create_config_help_alert(
+                get_form_help_btn("any-eq") if alerts else None,
+                get_form_help_alert(
                     "any-eq",
                     [P("In order to draw a link between any two nodes, they "
                        "must have at least one matching value across all the "
@@ -1223,8 +1223,8 @@ def get_duplicating_attr_filter_section(example_file_field_opts, index):
     return ret
 
 
-def get_create_config_help_btn(index):
-    """Get btn used to toggle alert in create config form.
+def get_form_help_btn(index):
+    """Get btn used to toggle alert in upload and create config form.
 
     :param index: Index matching alert btn toggles
     :type index: str | int
@@ -1234,7 +1234,7 @@ def get_create_config_help_btn(index):
     return dbc.Row(
         dbc.Col(
             dbc.Button("Help",
-                       id={"type": "create-config-modal-help-btn",
+                       id={"type": "form-help-btn",
                            "index": index},
                        color="info",
                        size="sm",
@@ -1245,19 +1245,20 @@ def get_create_config_help_btn(index):
     )
 
 
-def get_create_config_help_alert(index, alert_children):
-    """Get help alert in create config form.
+def get_form_help_alert(index, alert_children):
+    """Get help alert in upload and create config form.
 
     :param index: Index matching btn toggling alert
     :type index: str | int
-    :return: Help lert in create config form
+    :param alert_children: Body for alert
+    :return: Help alert in create config form
     :rtype: dbc.Row
     """
     return dbc.Row(
         dbc.Col(
             dbc.Alert(
                 alert_children,
-                id={"type": "create-config-modal-help-alert",
+                id={"type": "form-help-alert",
                     "index": index},
                 dismissable=True,
                 is_open=False,
