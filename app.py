@@ -302,7 +302,7 @@ def toggle_upload_data_modal(_, __):
 @app.callback(
     Output("select-sample-file-btn", "children"),
     Output("select-sample-file-btn", "color"),
-    Output("select-matrix-file-btn", "style"),
+    Output("select-matrix-file-row", "style"),
     Output("select-config-file-modal-header", "style"),
     Output("select-config-file-modal-body", "style"),
     Output("upload-example-file", "contents"),

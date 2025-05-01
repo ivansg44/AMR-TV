@@ -17,18 +17,70 @@ def get_upload_data_modal():
         [
             dbc.ModalHeader("Upload tabular data"),
             dbc.ModalBody([
-                dcc.Upload(
-                    dbc.Button("Select tabular data file",
-                               id="select-sample-file-btn"),
-                    id="upload-sample-file"
-                ),
-                dcc.Upload(
-                    dbc.Button("Optional matrix file",
-                               id="select-matrix-file-btn",
-                               color="light",
-                               style={"display": "none"}),
-                    id="upload-matrix-file",
-                    className="mt-2"
+                dbc.Row([
+                    dbc.Col(
+                        dcc.Upload(
+                            dbc.Button("Select tabular data file",
+                                       id="select-sample-file-btn"),
+                            id="upload-sample-file"
+                        ),
+                        width="auto"
+                    ),
+                    dbc.Col(
+                        dbc.Row([
+                            dbc.Col(
+                                dbc.Button("Help",
+                                           id="select-sample-file-btn-help",
+                                           color="info",
+                                           size="sm",
+                                           className="p-0")
+                            ),
+                            dbc.Col(
+                                dbc.Button("Delete",
+                                           id="select-sample-file-btn-del",
+                                           color="danger",
+                                           size="sm",
+                                           className="p-0")
+                            )
+                        ]),
+                        width="auto"
+                    )
+                ], justify="between"),
+                dbc.Row(
+                    [
+                        dbc.Col(
+                            dcc.Upload(
+                                dbc.Button("Optional matrix file",
+                                           id="select-matrix-file-btn",
+                                           color="light"),
+                                id="upload-matrix-file",
+                            ),
+                            width="auto"
+                        ),
+                        dbc.Col(
+                            dbc.Row([
+                                dbc.Col(
+                                    dbc.Button("Help",
+                                               id="select-matrix-file-btn-help",
+                                               color="info",
+                                               size="sm",
+                                               className="p-0")
+                                ),
+                                dbc.Col(
+                                    dbc.Button("Delete",
+                                               id="select-matrix-file-btn-del",
+                                               color="danger",
+                                               size="sm",
+                                               className="p-0")
+                                )
+                            ]),
+                            width="auto"
+                        )
+                    ],
+                    className="mt-2",
+                    id="select-matrix-file-row",
+                    justify="between",
+                    style={"display": "none"}
                 )
             ]),
             dbc.ModalHeader("Upload config file",
@@ -36,15 +88,42 @@ def get_upload_data_modal():
                             style={"display": "none"}),
             dbc.ModalBody(
                 [
-                    dcc.Upload(
-                        dbc.Button("Select config file",
-                                   id="select-config-file-btn"),
-                        id="upload-config-file"
-                    ),
-                    dbc.Button(
-                        "...or click here to create one from scratch",
-                        id="create-config-file-btn",
-                        color="link"
+                    dbc.Row([
+                        dbc.Col(
+                            dcc.Upload(
+                                dbc.Button("Select config file",
+                                           id="select-config-file-btn"),
+                                id="upload-config-file"
+                            ),
+                        ),
+                        dbc.Col(
+                            dbc.Row([
+                                dbc.Col(
+                                    dbc.Button("Help",
+                                               id="select-config-file-btn-help",
+                                               color="info",
+                                               size="sm",
+                                               className="p-0")
+                                ),
+                                dbc.Col(
+                                    dbc.Button("Delete",
+                                               id="select-config-file-btn-del",
+                                               color="danger",
+                                               size="sm",
+                                               className="p-0")
+                                )
+                            ]),
+                            width="auto"
+                        )
+                    ], justify="between"),
+                    dbc.Row(
+                        dbc.Col(
+                            dbc.Button(
+                                "...or click here to create one from scratch",
+                                id="create-config-file-btn",
+                                color="link"
+                            )
+                        )
                     )
                 ],
                 id="select-config-file-modal-body",
