@@ -70,14 +70,15 @@ def get_upload_data_modal():
                         ),
                         dbc.Col(
                             dbc.Row([
-                                get_upload_help_btn("select-matrix-file"),
                                 dbc.Col(
-                                    dbc.Button("Delete",
-                                               id="select-matrix-file-btn-del",
+                                    dbc.Button("Clear",
+                                               id="del-matrix-file-btn",
                                                color="danger",
                                                size="sm",
-                                               className="p-0")
-                                )
+                                               className="p-0",
+                                               style={"display": "none"})
+                                ),
+                                get_upload_help_btn("select-matrix-file")
                             ]),
                             width="auto"
                         )

@@ -322,13 +322,46 @@ def edit_upload_data_modal_after_sample_file_upload(contents, filename):
     * Example tabular file == uploaded file
 
     :param contents: User uploaded sample file contents
-    :type contents: contents
+    :type contents: str
     :param filename: Sample filename
     :type filename: str
     :return: Text inside upload sample file btn, and btn color
     :rtype: (str, str, dict, dict, dict)
     """
     return filename, "success", {}, {}, {}, contents, filename
+
+
+@app.callback(
+    Output("del-matrix-file-btn", "style"),
+    Input("upload-matrix-file", "contents"),
+    prevent_initial_call=True
+)
+def toggle_del_matrix_file_btn_visibility(contents):
+    """Toggle visibility of btn used to clear uploaded matrix file.
+
+    :param contents: User uploaded matrix file contents
+    :type contents: str
+    :return: Css dict dictating whether clear matrix btn is visible
+    :rtype: dict
+    """
+    if contents is None:
+        return {"display": "none"}
+    return {}
+
+
+@app.callback(
+    Output("upload-matrix-file", "contents"),
+    Input("del-matrix-file-btn", "n_clicks"),
+    prevent_initial_call=True
+)
+def clear_matrix_file(_):
+    """Clear uploaded matrix file when user clicks clear btn.
+
+    :param _: User clicked clear btn beside upload matrix file btn
+    :return: New, empty matrix file contents
+    :rtype: None
+    """
+    return None
 
 
 @app.callback(
@@ -362,20 +395,23 @@ def edit_upload_data_modal_after_config_file_upload(_, filename):
     Input("upload-matrix-file", "filename"),
     prevent_initial_call=True
 )
-def edit_upload_data_modal_after_matrix_file_upload(_, filename):
-    """Edit upload data modal css after user uploads matrix file.
+def edit_upload_data_modal_after_matrix_file_upload(contents, filename):
+    """Edit upload data modal css after upload/clear matrix file.
 
     Current changes:
 
     * Filename replaces content of upload matrix file btn
     * Upload matrix file btn color changes
 
-    :param _: User uploaded matrix file
+    :param contents: User uploaded matrix file contents
+    :type contents: str
     :param filename: Matrix filename
     :type filename: str
     :return: Text inside upload matrix file btn, and btn color
     :rtype: (str, str)
     """
+    if contents is None:
+        return "Optional matrix file", "light"
     return filename, "success"
 
 
