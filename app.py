@@ -404,14 +404,16 @@ def toggle_viz_btn_color(sample_file_contents, config_file_contents):
 @app.callback(
     Output("create-config-file-modal", "is_open"),
     Input("create-config-file-btn", "n_clicks"),
+    Input("create-config-file-link", "n_clicks"),
     Input("upload-config-file", "contents"),
     prevent_intial_call=True
 )
-def toggle_create_config_file_modal(_, __):
+def toggle_create_config_file_modal(_, __, ___):
     """Toggle create config modal.
 
     :param _: Create config file btn clicked
-    :param __: Config file uploaded
+    :param _: Create config file link clicked
+    :param ___: Config file uploaded
     :return: Whether modal is open or closed
     :rtype: bool
     :raise RuntimeError: Unexpected trigger trying to toggle modal
@@ -421,6 +423,8 @@ def toggle_create_config_file_modal(_, __):
     if trigger == ".":
         raise PreventUpdate
     elif trigger == "create-config-file-btn.n_clicks":
+        return True
+    elif trigger == "create-config-file-link.n_clicks":
         return True
     # This closes the modal if user generates config file via ret btn
     elif trigger == "upload-config-file.contents":

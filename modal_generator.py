@@ -42,7 +42,26 @@ def get_upload_data_modal():
                 ], justify="between"),
                 dbc.Row(
                     dbc.Col(
-                        get_upload_help_alert("select-sample-file", "foo")
+                        get_upload_help_alert("select-sample-file",[
+                            P("The rows of your tabular dataset should "
+                              "describe individual AMR bacteria samples. You "
+                              "must have some sort of a sample ID column, and "
+                              "some sort of sampling date column."),
+                            P("There are no other rigid or standardized "
+                              "requirements expected for tabular datasets, but"
+                              "you should ideally have multiple other columns "
+                              "relevant to analyzing the AMR transmission "
+                              "dynamics of bacteria (e.g., plasmid "
+                              "classifications and sampling locations)."),
+                            P([
+                                "You can find example tabular dataset files ",
+                                A("here.",
+                                  href="https://github.com/ivansg44/AMR-TV/"
+                                       "tree/development/sample_files",
+                                  target="_blank",
+                                  rel="noopener noreferrer")
+                            ]),
+                        ])
                     )
                 ),
                 dbc.Row(
@@ -77,7 +96,14 @@ def get_upload_data_modal():
                 ),
                 dbc.Row(
                     dbc.Col(
-                        get_upload_help_alert("select-matrix-file", "foo")
+                        get_upload_help_alert("select-matrix-file", [
+                            P("The optional matrix file allows you to input "
+                              "pairwise data values between the samples in "
+                              "your tabular dataset (e.g., pairwise genetic "
+                              "similarity or distance measurements). These "
+                              "can be later referenced in the config file "
+                              "when setting criteria for links between nodes.")
+                        ])
                     )
                 ),
             ]),
@@ -111,7 +137,7 @@ def get_upload_data_modal():
                     dbc.Row(
                         dbc.Col(
                             dbc.Button(
-                                "...or click here to create one from scratch",
+                                "...or click here to create one through a detailed web form",
                                 id="create-config-file-btn",
                                 color="link"
                             )
@@ -119,7 +145,41 @@ def get_upload_data_modal():
                     ),
                     dbc.Row(
                         dbc.Col(
-                            get_upload_help_alert("select-config-file", "foo")
+                            get_upload_help_alert("select-config-file", [
+                                P(B("The configuration file is a JSON file "
+                                    "that instructs AMR-TV on how to parse and "
+                                    "visualize the tabular dataset.")),
+                                P([
+                                    "The expected format of this file is "
+                                    "heavily standardized, and not easy to "
+                                    "write from scratch. We recommend creating "
+                                    "new config files using ",
+                                    A("the more intuitive web form available "
+                                      "directly inside the AMR-TV interface.",
+                                      href="#",
+                                      id="create-config-file-link")
+                                ]),
+                                P([
+                                    "If you must create one without using the "
+                                    "built-in web form, you can read a "
+                                    "detailed description on the config file "
+                                    "format in Tables C.1 and C.2 of ",
+                                    A(I("Interactive visualizations for two "
+                                        "large public health datasets."),
+                                      href="https://dx.doi.org/10.14288/"
+                                           "1.0431521",
+                                      target="_blank",
+                                      rel="noopener noreferrer")
+                                ]),
+                                P([
+                                    "You can find example config files ",
+                                    A("here.",
+                                      href="https://github.com/ivansg44/AMR-TV/"
+                                           "tree/development/config_files",
+                                      target="_blank",
+                                      rel="noopener noreferrer")
+                                ]),
+                            ])
                         )
                     ),
                 ],
