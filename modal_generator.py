@@ -27,16 +27,9 @@ def get_upload_data_modal():
                         width="auto"
                     ),
                     dbc.Col(
-                        dbc.Row([
-                            get_upload_help_btn("select-sample-file"),
-                            dbc.Col(
-                                dbc.Button("Delete",
-                                           id="select-sample-file-btn-del",
-                                           color="danger",
-                                           size="sm",
-                                           className="p-0")
-                            )
-                        ]),
+                        dbc.Row(
+                            get_upload_help_btn("select-sample-file")
+                        ),
                         width="auto"
                     )
                 ], justify="between"),
@@ -121,16 +114,9 @@ def get_upload_data_modal():
                             ),
                         ),
                         dbc.Col(
-                            dbc.Row([
-                                get_upload_help_btn("select-config-file"),
-                                dbc.Col(
-                                    dbc.Button("Delete",
-                                               id="select-config-file-btn-del",
-                                               color="danger",
-                                               size="sm",
-                                               className="p-0")
-                                )
-                            ]),
+                            dbc.Row(
+                                get_upload_help_btn("select-config-file")
+                            ),
                             width="auto"
                         )
                     ], justify="between"),
