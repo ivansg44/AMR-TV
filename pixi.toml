@@ -1,0 +1,28 @@
+[workspace]
+authors = ["Ivan S Gill <ivan_gill@sfu.ca>"]
+channels = ["conda-forge"]
+name = "amr-tv"
+platforms = ["linux-64", "osx-64", "osx-arm64"]
+version = "0.1.0"
+
+[tasks]
+compile = "cd adaptagrams/cola && ./autogen.sh && ./buildPythonSWIG.sh"
+app = "python app.py"
+
+[dependencies]
+automake = ">=1.17,<2"
+cairo = ">=1.18.4,<2"
+libtool = ">=2.5.4,<3"
+pkg-config = ">=0.29.2,<0.30"
+python = ">=3.9.0,<3.10"
+
+[pypi-dependencies]
+setuptools = ">=80.9.0, <81"
+dash = "==1.20.0"
+dash-bootstrap-components = "==0.12.2"
+networkx = "==2.8.5"
+Werkzeug = "==2.0.0"
+numpy = "==1.23.4"
+pandas = "==1.5.1"
+gunicorn = "==23.0.0"
+swig = "==4.2.1"
