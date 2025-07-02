@@ -15,29 +15,171 @@ def get_upload_data_modal():
     """
     ret = dbc.Modal(
         [
-            dbc.ModalHeader("Upload data"),
+            dbc.ModalHeader("Upload tabular data"),
             dbc.ModalBody([
-                dcc.Upload(
-                    dbc.Button("Select sample data file",
-                               id="select-sample-file-btn"),
-                    id="upload-sample-file"
+                dbc.Row([
+                    dbc.Col(
+                        dcc.Upload(
+                            dbc.Button("Select tabular data file",
+                                       id="select-sample-file-btn"),
+                            id="upload-sample-file"
+                        ),
+                        width="auto"
+                    ),
+                    dbc.Col(
+                        dbc.Row(
+                            get_upload_help_btn("select-sample-file")
+                        ),
+                        width="auto"
+                    )
+                ], justify="between"),
+                dbc.Row(
+                    dbc.Col(
+                        get_upload_help_alert("select-sample-file",[
+                            P("The rows of your tabular dataset should "
+                              "describe individual AMR bacteria samples. You "
+                              "must have some sort of a sample ID column, and "
+                              "some sort of sampling date column."),
+                            P("There are no other rigid or standardized "
+                              "requirements expected for tabular datasets, but"
+                              "you should ideally have multiple other columns "
+                              "relevant to analyzing the AMR transmission "
+                              "dynamics of bacteria (e.g., plasmid "
+                              "classifications and sampling locations)."),
+                            P([
+                                "You can find example tabular dataset files ",
+                                A("here.",
+                                  href="https://github.com/ivansg44/AMR-TV/"
+                                       "tree/development/sample_files",
+                                  target="_blank",
+                                  rel="noopener noreferrer")
+                            ]),
+                        ])
+                    )
                 ),
-                dcc.Upload(
-                    dbc.Button("Select config file",
-                               id="select-config-file-btn"),
-                    id="upload-config-file",
-                    className="mt-1"
+                dbc.Row(
+                    [
+                        dbc.Col(
+                            dcc.Upload(
+                                dbc.Button("Optional matrix file",
+                                           id="select-matrix-file-btn",
+                                           color="light"),
+                                id="upload-matrix-file",
+                            ),
+                            width="auto"
+                        ),
+                        dbc.Col(
+                            dbc.Row([
+                                dbc.Col(
+                                    dbc.Button("Clear",
+                                               id="del-matrix-file-btn",
+                                               color="danger",
+                                               size="sm",
+                                               className="p-0",
+                                               style={"display": "none"})
+                                ),
+                                get_upload_help_btn("select-matrix-file")
+                            ]),
+                            width="auto"
+                        )
+                    ],
+                    className="mt-2",
+                    id="select-matrix-file-row",
+                    justify="between",
+                    style={"display": "none"}
                 ),
-                dcc.Upload(
-                    dbc.Button("Optional matrix file",
-                               id="select-matrix-file-btn",
-                               color="light"),
-                    id="upload-matrix-file",
-                    className="mt-1"
-                )
+                dbc.Row(
+                    dbc.Col(
+                        get_upload_help_alert("select-matrix-file", [
+                            P("The optional matrix file allows you to input "
+                              "pairwise data values between the samples in "
+                              "your tabular dataset (e.g., pairwise genetic "
+                              "similarity or distance measurements). These "
+                              "can be later referenced in the config file "
+                              "when setting criteria for links between nodes.")
+                        ])
+                    )
+                ),
             ]),
+            dbc.ModalHeader("Upload config file",
+                            id="select-config-file-modal-header",
+                            style={"display": "none"}),
+            dbc.ModalBody(
+                [
+                    dbc.Row([
+                        dbc.Col(
+                            dcc.Upload(
+                                dbc.Button("Select config file",
+                                           id="select-config-file-btn"),
+                                id="upload-config-file"
+                            ),
+                        ),
+                        dbc.Col(
+                            dbc.Row(
+                                get_upload_help_btn("select-config-file")
+                            ),
+                            width="auto"
+                        )
+                    ], justify="between"),
+                    dbc.Row(
+                        dbc.Col(
+                            dbc.Button(
+                                "...or click here to create one through a detailed web form",
+                                id="create-config-file-btn",
+                                color="link"
+                            )
+                        )
+                    ),
+                    dbc.Row(
+                        dbc.Col(
+                            get_upload_help_alert("select-config-file", [
+                                P(B("The configuration file is a JSON file "
+                                    "that instructs AMR-TV on how to parse and "
+                                    "visualize the tabular dataset.")),
+                                P([
+                                    "The expected format of this file is "
+                                    "heavily standardized, and not easy to "
+                                    "write from scratch. We recommend creating "
+                                    "new config files using ",
+                                    A("the more intuitive web form available "
+                                      "directly inside the AMR-TV interface.",
+                                      href="#",
+                                      id="create-config-file-link")
+                                ]),
+                                P([
+                                    "If you must create one without using the "
+                                    "built-in web form, you can read a "
+                                    "detailed description on the config file "
+                                    "format in Tables C.1 and C.2 of ",
+                                    A(I("Interactive visualizations for two "
+                                        "large public health datasets."),
+                                      href="https://dx.doi.org/10.14288/"
+                                           "1.0431521",
+                                      target="_blank",
+                                      rel="noopener noreferrer")
+                                ]),
+                                P([
+                                    "You can find example config files ",
+                                    A("here.",
+                                      href="https://github.com/ivansg44/AMR-TV/"
+                                           "tree/development/config_files",
+                                      target="_blank",
+                                      rel="noopener noreferrer")
+                                ]),
+                            ])
+                        )
+                    ),
+                ],
+                id="select-config-file-modal-body",
+                style={"display": "none"}
+            ),
             dbc.ModalFooter(
                 dbc.Button("Visualize", id="viz-btn")
+            ),
+            dbc.ModalBody(
+                "",
+                className="d-none pt-0 text-danger",
+                id="upload-error-msg"
             )
         ],
         id="upload-data-modal"
@@ -62,7 +204,7 @@ def get_create_config_file_modal():
                         [
                             dbc.Col(
                                 dcc.Upload(
-                                    dbc.Button("Upload sample/example data "
+                                    dbc.Button("Upload sample/example tabular "
                                                "file",
                                                id="select-example-file-btn"),
                                     id="upload-example-file"
@@ -107,12 +249,27 @@ def get_create_config_file_modal():
                             style={"visibility": "hidden"}
                         ),
                         dbc.Col(
-                            dbc.Button("Generate config file",
-                                       id="generate-config-file-btn"),
-                            className="text-right my-auto",
-                            width=6
+                            dbc.Button(I(className="bi-download",
+                                         style={"font-size": 16}),
+                                       id="download-config-file-btn"),
+                            width="auto"
+                        ),
+                        dbc.Tooltip(
+                            "Download config file",
+                            target="download-config-file-btn"
+                        ),
+                        dbc.Col(
+                            dbc.Button(I(className="bi-arrow-return-right",
+                                         style={"font-size": 16}),
+                                       id="return-config-file-btn"),
+                            width="auto"
+                        ),
+                        dbc.Tooltip(
+                            "Return to previous window with this config file",
+                            target="return-config-file-btn"
                         )
                     ],
+                    justify="end",
                     style={"width": "100%"}
                 )
             )
@@ -869,7 +1026,28 @@ def get_duplicating_link_section(example_file_field_opts, index, alerts=False):
                         ],
                         width={"offset": 1, "size": 8}
                     ),
-                    className="mb-1"
+                    className="mb-3"
+                ),
+                get_create_config_help_btn("show-weights") if alerts else None,
+                get_create_config_help_alert(
+                    "show-weights",
+                    [P("If you check this box, the link weights will "
+                       "be displayed.")]
+                ) if alerts else None,
+                dbc.Row(
+                    [
+                        dbc.Col(
+                            dbc.Checkbox(
+                                id={"type": "show-link-weights", "index": index},
+                                checked=False
+                            ),
+                            width=1
+                        ),
+                        dbc.Col(
+                            dbc.Label("Show weights?")
+                        )
+                    ],
+                    className="mb-3"
                 ),
                 get_create_config_help_btn("attr-filters") if alerts else None,
                 get_create_config_help_alert(
@@ -1116,7 +1294,8 @@ def get_create_config_help_alert(index, alert_children):
 
     :param index: Index matching btn toggling alert
     :type index: str | int
-    :return: Help lert in create config form
+    :param alert_children: Body of alert
+    :return: Help alert in create config form
     :rtype: dbc.Row
     """
     return dbc.Row(
@@ -1124,6 +1303,48 @@ def get_create_config_help_alert(index, alert_children):
             dbc.Alert(
                 alert_children,
                 id={"type": "create-config-modal-help-alert",
+                    "index": index},
+                dismissable=True,
+                is_open=False,
+                color="info"
+            )
+        ),
+        className="mt-1"
+    )
+
+
+def get_upload_help_btn(index):
+    """Get btn used to toggle alert in upload form.
+
+    :param index: Index matching alert btn toggles
+    :type index: str | int
+    :return: Btn used to toggle alert in upload form
+    :rtype: dbc.Row
+    """
+    return dbc.Col(
+        dbc.Button("Help",
+                   id={"type": "upload-modal-help-btn",
+                       "index": index},
+                   color="info",
+                   size="sm",
+                   className="p-0")
+    )
+
+
+def get_upload_help_alert(index, alert_children):
+    """Get help alert in upload form.
+
+    :param index: Index matching btn toggling alert
+    :type index: str | int
+    :param alert_children: Body of alert
+    :return: Help alert in upload form
+    :rtype: dbc.Row
+    """
+    return dbc.Row(
+        dbc.Col(
+            dbc.Alert(
+                alert_children,
+                id={"type": "upload-modal-help-alert",
                     "index": index},
                 dismissable=True,
                 is_open=False,

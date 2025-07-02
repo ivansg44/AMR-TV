@@ -3,9 +3,11 @@
 Running this script launches the application.
 """
 
+from base64 import b64encode
 from json import dumps
 from pathlib import Path
 from sys import maxsize
+from traceback import format_exc
 
 import dash
 from dash import Dash
@@ -78,11 +80,6 @@ def launch_app(_):
                                id="upload-data-btn",
                                className="mr-1",
                                color="primary"),
-                width="auto"
-                ),
-                dbc.Col(
-                    dbc.Button("Create config file",
-                               id="create-config-file-btn"),
                     width="auto"
                 ),
                 dbc.Col(
@@ -253,13 +250,14 @@ def launch_app(_):
         dcc.Store("new-upload", data=False),
         dcc.Store("stale-vals-tbl", data={}),
         dcc.Store("example-file-field-opts"),
-        dcc.Store("config-file-generation-started", data=False),
         dcc.Store("config-json-str", data=""),
         dcc.Download(id="download-config-json-str"),
         # These dicts are easier to work with then the dcc vals
         dcc.Store(id="link-legend-slider-vals-dict", data={}),
         dcc.Store(id="link-legend-filter-collapse-states-dict", data={}),
-        dcc.Store(id="link-legend-neq-dict", data={})
+        dcc.Store(id="link-legend-neq-dict", data={}),
+        # Will be either "download" or "return" going forward
+        dcc.Store("config-file-generation-started", data=False)
     ]
 
     return children
@@ -304,25 +302,66 @@ def toggle_upload_data_modal(_, __):
 @app.callback(
     Output("select-sample-file-btn", "children"),
     Output("select-sample-file-btn", "color"),
+    Output("select-matrix-file-row", "style"),
+    Output("select-config-file-modal-header", "style"),
+    Output("select-config-file-modal-body", "style"),
+    Output("upload-example-file", "contents"),
+    Output("upload-example-file", "filename"),
     Input("upload-sample-file", "contents"),
     Input("upload-sample-file", "filename"),
     prevent_initial_call=True
 )
-def edit_upload_data_modal_after_sample_file_upload(_, filename):
+def edit_upload_data_modal_after_sample_file_upload(contents, filename):
     """Edit upload data modal css after user uploads sample file.
 
     Current changes:
 
     * Filename replaces content of upload sample file btn
     * Upload sample file btn color changes
+    * Hidden parts of modal become visible
+    * Example tabular file == uploaded file
 
-    :param _: User uploaded sample file
+    :param contents: User uploaded sample file contents
+    :type contents: str
     :param filename: Sample filename
     :type filename: str
     :return: Text inside upload sample file btn, and btn color
-    :rtype: (str, str)
+    :rtype: (str, str, dict, dict, dict)
     """
-    return filename, "success"
+    return filename, "success", {}, {}, {}, contents, filename
+
+
+@app.callback(
+    Output("del-matrix-file-btn", "style"),
+    Input("upload-matrix-file", "contents"),
+    prevent_initial_call=True
+)
+def toggle_del_matrix_file_btn_visibility(contents):
+    """Toggle visibility of btn used to clear uploaded matrix file.
+
+    :param contents: User uploaded matrix file contents
+    :type contents: str
+    :return: Css dict dictating whether clear matrix btn is visible
+    :rtype: dict
+    """
+    if contents is None:
+        return {"display": "none"}
+    return {}
+
+
+@app.callback(
+    Output("upload-matrix-file", "contents"),
+    Input("del-matrix-file-btn", "n_clicks"),
+    prevent_initial_call=True
+)
+def clear_matrix_file(_):
+    """Clear uploaded matrix file when user clicks clear btn.
+
+    :param _: User clicked clear btn beside upload matrix file btn
+    :return: New, empty matrix file contents
+    :rtype: None
+    """
+    return None
 
 
 @app.callback(
@@ -356,20 +395,23 @@ def edit_upload_data_modal_after_config_file_upload(_, filename):
     Input("upload-matrix-file", "filename"),
     prevent_initial_call=True
 )
-def edit_upload_data_modal_after_matrix_file_upload(_, filename):
-    """Edit upload data modal css after user uploads matrix file.
+def edit_upload_data_modal_after_matrix_file_upload(contents, filename):
+    """Edit upload data modal css after upload/clear matrix file.
 
     Current changes:
 
     * Filename replaces content of upload matrix file btn
     * Upload matrix file btn color changes
 
-    :param _: User uploaded matrix file
+    :param contents: User uploaded matrix file contents
+    :type contents: str
     :param filename: Matrix filename
     :type filename: str
     :return: Text inside upload matrix file btn, and btn color
     :rtype: (str, str)
     """
+    if contents is None:
+        return "Optional matrix file", "light"
     return filename, "success"
 
 
@@ -397,15 +439,17 @@ def toggle_viz_btn_color(sample_file_contents, config_file_contents):
 
 @app.callback(
     Output("create-config-file-modal", "is_open"),
-    inputs=[
-        Input("create-config-file-btn", "n_clicks")
-    ],
+    Input("create-config-file-btn", "n_clicks"),
+    Input("create-config-file-link", "n_clicks"),
+    Input("upload-config-file", "contents"),
     prevent_intial_call=True
 )
-def toggle_create_config_file_modal(_):
+def toggle_create_config_file_modal(_, __, ___):
     """Toggle create config modal.
 
     :param _: Create config file btn clicked
+    :param _: Create config file link clicked
+    :param ___: Config file uploaded
     :return: Whether modal is open or closed
     :rtype: bool
     :raise RuntimeError: Unexpected trigger trying to toggle modal
@@ -416,6 +460,11 @@ def toggle_create_config_file_modal(_):
         raise PreventUpdate
     elif trigger == "create-config-file-btn.n_clicks":
         return True
+    elif trigger == "create-config-file-link.n_clicks":
+        return True
+    # This closes the modal if user generates config file via ret btn
+    elif trigger == "upload-config-file.contents":
+        return False
     else:
         msg = "Unexpected trigger trying to " \
               "toggle create config file modal: %s" % trigger
@@ -448,7 +497,8 @@ def edit_create_config_modal_after_example_file_upload(_, filename):
 
 @app.callback(
     Output("create-config-file-modal-form", "children"),
-    Output("generate-config-file-btn", "color"),
+    Output("download-config-file-btn", "color"),
+    Output("return-config-file-btn", "color"),
     Output("example-file-field-opts", "data"),
     Input("upload-example-file", "contents"),
     Input("delimiter-select", "value"),
@@ -461,7 +511,7 @@ def add_create_config_modal_form(example_file_contents, delimiter):
     delimiter, but we only want to add the form if both actions have
     been completed.
 
-    We also change the color of the btn at the bottom of the create
+    We also change the color of the btns at the bottom of the create
     config modal for actually generating the file, and we store the
     example file field select opts in a browser var.
 
@@ -469,8 +519,8 @@ def add_create_config_modal_form(example_file_contents, delimiter):
     :type example_file_contents: str
     :param delimiter: User-specified example file delimiter
     :type delimiter: str
-    :return: Create config modal form, color of btn for actually
-        generating config file, and example file fields select opts
+    :return: Create config modal form, color of btns for downloading or
+        returning config file, and example file fields select opts
         browser var.
     :rtype: (list[dbc.Row], str, list)
     """
@@ -486,7 +536,7 @@ def add_create_config_modal_form(example_file_contents, delimiter):
 
     form = get_create_config_modal_form(example_file_field_opts)
 
-    return form, "primary", example_file_field_opts
+    return form, "info", "primary", example_file_field_opts
 
 
 @app.callback(
@@ -500,6 +550,24 @@ def add_create_config_modal_form(example_file_contents, delimiter):
 )
 def toggle_create_config_modal_help_alert(_, is_already_open):
     """Toggle a help alert in create config modal.
+
+    :param _: User clicked help btn for an alert
+    :param is_already_open: Is the alert already open?
+    :type is_already_open: bool
+    :return: Open status for alert specific to help btn user clicked
+    :rtype: bool
+    """
+    return not is_already_open
+
+
+@app.callback(
+    Output({"type": "upload-modal-help-alert", "index": MATCH},"is_open"),
+    Input({"type": "upload-modal-help-btn", "index": MATCH},"n_clicks"),
+    State({"type": "upload-modal-help-alert", "index": MATCH},"is_open"),
+    prevent_initial_call=True
+)
+def toggle_upload_modal_help_alert(_, is_already_open):
+    """Toggle a help alert in upload modal.
 
     :param _: User clicked help btn for an alert
     :param is_already_open: Is the alert already open?
@@ -640,33 +708,53 @@ def contract_create_config_modal_form(_):
 
 @app.callback(
     Output("config-file-generation-started", "data"),
-    Input("generate-config-file-btn", "n_clicks"),
-    State("generate-config-file-btn", "color"),
+    Input("download-config-file-btn", "n_clicks"),
+    Input("return-config-file-btn", "n_clicks"),
+    State("download-config-file-btn", "color"),
+    State("return-config-file-btn", "color"),
     prevent_initial_call=True
 )
-def start_config_file_generation(_, btn_color):
+def start_config_file_generation(_, __, dl_btn_color, ret_btn_color):
     """Start generating the config file.
 
     We populate the config file generation started browser var, which
-    starts the next phase. We do not proceed if the btn is not the
+    starts the next phase. We do not proceed if the btns are not the
     right color yet.
 
-    :param _: User clicked btn for generating config file
-    :param btn_color: Color of btn for generating config file when user
-        clicked it.
-    :type btn_color: str
-    :return: Config file generation started browser var
-    :rtype: bool
+    :param _: User clicked btn for downloading config file
+    :param __: User clicked btn for returning config file
+    :param dl_btn_color: Color of btn for downloading config file when
+        user clicked it.
+    :type dl_btn_color: str
+    :param ret_btn_color: Color of btn for returning config file when
+        user clicked it.
+    :type ret_btn_color: str
+    :return: Config file generation started browser var; one of
+        `"download"` or `"return"`.
+    :rtype: str
     """
-    if btn_color != "primary":
-        raise PreventUpdate
+    ctx = dash.callback_context
+    trigger = ctx.triggered[0]["prop_id"]
 
-    return True
+    if trigger == "download-config-file-btn.n_clicks":
+        if dl_btn_color != "info":
+            raise PreventUpdate
+        else:
+            return "download"
+    elif trigger == "return-config-file-btn.n_clicks":
+        if ret_btn_color != "primary":
+            raise PreventUpdate
+        else:
+            return "return"
+    else:
+        msg = "Unexpected trigger %s when starting config file generation"
+        raise(ValueError(msg % trigger))
 
 
 @app.callback(
     Output("config-error-msg-label", "children"),
     Output("config-error-msg-col", "style"),
+    Output("sample-field-select", "invalid"),
     Output("date-field-select", "invalid"),
     Output("date-input-format-input", "invalid"),
     Output("date-output-format-input", "invalid"),
@@ -675,6 +763,7 @@ def start_config_file_generation(_, btn_color):
     Output("config-json-str", "data"),
     Input("config-file-generation-started", "data"),
     State("delimiter-select", "value"),
+    State("sample-field-select", "value"),
     State("date-field-select", "value"),
     State("date-input-format-input", "value"),
     State("date-output-format-input", "value"),
@@ -694,6 +783,8 @@ def start_config_file_generation(_, btn_color):
     State({"type": "link-minimize-loops", "index": ALL}, "checked"),
     State({"type": "link-arrowheads", "index": ALL}, "id"),
     State({"type": "link-arrowheads", "index": ALL}, "checked"),
+    State({"type": "show-link-weights", "index": ALL}, "id"),
+    State({"type": "show-link-weights", "index": ALL}, "checked"),
     State({"type": "link-weight-exp", "index": ALL}, "id"),
     State({"type": "link-weight-exp", "index": ALL}, "value"),
     State({"type": "link-weight-lt", "index": ALL}, "id"),
@@ -713,7 +804,7 @@ def start_config_file_generation(_, btn_color):
     State({"type": "link-any-eq-select", "index": ALL}, "value"),
     prevent_initial_call=True
 )
-def continue_config_file_generation(started, delimiter,
+def continue_config_file_generation(started, delimiter, sample_field,
                                     date_field, date_input_format,
                                     date_output_format, links_across_primary_y,
                                     max_day_range, empty_strings_are_null,
@@ -724,6 +815,7 @@ def continue_config_file_generation(started, delimiter,
                                     link_label_ids, link_label_vals,
                                     link_min_loop_ids, link_min_loop_vals,
                                     link_arrowhead_ids, link_arrowhead_vals,
+                                    show_link_weights_ids, show_link_weights_vals,
                                     link_weight_exp_ids, link_weight_exp_vals,
                                     link_weight_lt_ids, link_weight_lt_vals,
                                     link_weight_gt_ids, link_weight_gt_vals,
@@ -743,6 +835,8 @@ def continue_config_file_generation(started, delimiter,
     :type started: bool
     :param delimiter: User-specified example file delimiter
     :type delimiter: str
+    :param sample_field: User-specified sample ID field
+    :type sample_field: str
     :param date_field: User-specified date field
     :type date_field: str
     :param date_input_format: User-specified date input format
@@ -782,6 +876,10 @@ def continue_config_file_generation(started, delimiter,
     :type link_arrowhead_ids: list[dict]
     :param link_arrowhead_vals: Vals of link arrowhead checkboxes
     :type link_arrowhead_vals: list[bool]
+    :param show_link_weights_ids: IDs of show link weights checkboxes
+    :type show_link_weights_ids: list[dict]
+    :param show_link_weights_vals: Vals of show link weights checkboxes
+    :type show_link_weights_vals: list[bool]
     :param link_weight_exp_ids: IDs of link weight exp inputs
     :type link_weight_exp_ids: list[dict]
     :param link_weight_exp_vals: Vals of link weight exp inputs
@@ -826,7 +924,8 @@ def continue_config_file_generation(started, delimiter,
     if not started:
         raise PreventUpdate
 
-    mandatory_non_link_fields = [date_field,
+    mandatory_non_link_fields = [sample_field,
+                                 date_field,
                                  date_input_format,
                                  date_output_format,
                                  first_y_axis_field]
@@ -872,6 +971,8 @@ def continue_config_file_generation(started, delimiter,
         link_dict[id_["index"]]["minimize_loops"] = int(val)
     for id_, val in zip(link_arrowhead_ids, link_arrowhead_vals):
         link_dict[id_["index"]]["show_arrowheads"] = int(val)
+    for id_, val in zip(show_link_weights_ids, show_link_weights_vals):
+        link_dict[id_["index"]]["show_weights"] = int(val)
     for id_, val in zip(link_weight_exp_ids, link_weight_exp_vals):
         if val is None:
             val = ""
@@ -940,6 +1041,7 @@ def continue_config_file_generation(started, delimiter,
                ""
 
     config_dict = {
+        "sample_id": sample_field,
         "delimiter": delimiter,
         "date_attr": date_field,
         "date_input": date_input_format,
@@ -947,7 +1049,7 @@ def continue_config_file_generation(started, delimiter,
         "links_across_primary_y": int(links_across_primary_y),
         "max_day_range": max_day_range,
         "null_vals": null_vals,
-        "primary_y_axis": first_y_axis_field,
+        "primary_y_axis": [first_y_axis_field],
         "secondary_y_axes": [[e] for e in y_axis_fields[1:]
                              if e is not None or ""],
         "label_attr": [e for e in node_label_fields
@@ -969,24 +1071,50 @@ def continue_config_file_generation(started, delimiter,
 
 @app.callback(
     Output("download-config-json-str", "data"),
+    Output("upload-config-file", "filename"),
+    Output("upload-config-file", "contents"),
     Input("config-json-str", "data"),
+    State("config-file-generation-started", "data"),
     State("upload-example-file", "filename"),
     prevent_initial_call=True
 )
-def download_config_file(config_json_str, filename):
-    """Launch download of generated config file.
+def process_generated_config_file(config_json_str, dl_or_ret, filename):
+    """Process generated config file.
+
+    Depending on which btn in the create config modal the user clicked,
+    this could be either downloading the file, or returning to the
+    upload data modal with the new config data acting as an "uploaded
+    file".
 
     :param config_json_str: In-browser config json str var
     :type config_json_str: str
+    :param dl_or_ret: Specifies whether process of config file
+        generation began by user clicking dl or ret btn; should be
+        either "download" or "return".
+    :type dl_or_ret: str
     :param filename: Uploaded example file filename
     :type filename: str
-    :return: New contents for in-browser var that triggers download
-    :rtype: dict
+    :return: New contents for in-browser var that triggers download, or
+        uploaded config file.
+    :rtype: tuple[dict | dash.dash.no_update | str]
     """
     if config_json_str == "":
         raise PreventUpdate
     json_filename = Path(filename).stem + ".json"
-    return {"content": config_json_str, "filename": json_filename}
+    if dl_or_ret == "download":
+        return ({"content": config_json_str, "filename": json_filename},
+                no_update,
+                no_update)
+    elif dl_or_ret == "return":
+        # Hackey, but necessary, given the format Dash expects uploaded
+        # files.
+        contents = ",%s" % str(b64encode(config_json_str.encode("utf-8")))[2:]
+        return (no_update,
+                json_filename,
+                contents)
+    else:
+        msg = "Unexpected value %s when processing generated config file"
+        raise(ValueError(msg % dl_or_ret))
 
 
 @app.callback(
@@ -1305,7 +1433,9 @@ def update_link_legend_neq_dict(link_legend_filter_ids,
         Output("node-color-legend-graph", "figure"),
         Output("y-axis-legend-col", "children"),
         Output("graph-loading", "children"),
-        Output("stale-vals-tbl", "data")
+        Output("stale-vals-tbl", "data"),
+        Output("upload-error-msg", "children"),
+        Output("upload-error-msg", "className")
     ],
     prevent_initial_call=True
 )
@@ -1328,6 +1458,8 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
     * User modifies link slider vals
     * User modifies link filter forms
     * User adjusts zoom level of free-zoom graph
+
+    Also displays error messages on failed upload.
 
     :param selected_nodes: Currently selected nodes
     :type selected_nodes: dict
@@ -1486,27 +1618,42 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
             if "filtered-link-types" in stale_vals_tbl:
                 filtered_link_types = {}
 
-        app_data = \
-            get_app_data(sample_file_base64_str,
-                         config_file_base64_str,
-                         matrix_file_base64_str=matrix_file_base64_str,
-                         selected_nodes=selected_nodes,
-                         filtered_node_symbols=filtered_node_symbols,
-                         filtered_node_colors=filtered_node_colors,
-                         filtered_link_types=filtered_link_types,
-                         link_slider_vals_dict=link_legend_slider_vals_dict,
-                         link_neq_dict=link_legend_neq_dict)
-        zoomed_out_app_data = \
-            get_app_data(sample_file_base64_str,
-                         config_file_base64_str,
-                         matrix_file_base64_str=matrix_file_base64_str,
-                         selected_nodes=selected_nodes,
-                         filtered_node_symbols=filtered_node_symbols,
-                         filtered_node_colors=filtered_node_colors,
-                         filtered_link_types=filtered_link_types,
-                         link_slider_vals_dict=link_legend_slider_vals_dict,
-                         link_neq_dict=link_legend_neq_dict,
-                         vpsc=True)
+        try:
+            app_data = \
+                get_app_data(
+                    sample_file_base64_str,
+                    config_file_base64_str,
+                    matrix_file_base64_str=matrix_file_base64_str,
+                    selected_nodes=selected_nodes,
+                    filtered_node_symbols=filtered_node_symbols,
+                    filtered_node_colors=filtered_node_colors,
+                    filtered_link_types=filtered_link_types,
+                    link_slider_vals_dict=link_legend_slider_vals_dict,
+                    link_neq_dict=link_legend_neq_dict
+                )
+            zoomed_out_app_data = \
+                get_app_data(
+                    sample_file_base64_str,
+                    config_file_base64_str,
+                    matrix_file_base64_str=matrix_file_base64_str,
+                    selected_nodes=selected_nodes,
+                    filtered_node_symbols=filtered_node_symbols,
+                    filtered_node_colors=filtered_node_colors,
+                    filtered_link_types=filtered_link_types,
+                    link_slider_vals_dict=link_legend_slider_vals_dict,
+                    link_neq_dict=link_legend_neq_dict,
+                    vpsc=True
+                )
+        except Exception:
+            error_msg = [
+                html.B("Ran into an unvalidated error while parsing the data files!"),
+                html.Br(),
+                format_exc()
+            ]
+            # TODO really hackey; solution is to maybe have a return
+            #  dict. Then we know # of return vals.
+            return [no_update]*15 + [error_msg, "pt-0 text-danger"]
+
         main_fig = get_main_fig(app_data)
         zoomed_out_main_fig = get_zoomed_out_main_fig(zoomed_out_app_data)
         node_symbol_legend_fig = get_node_symbol_legend_fig(app_data)
@@ -1573,7 +1720,9 @@ def update_main_viz(selected_nodes, filtered_node_symbols,
             node_color_legend_fig,
             y_axis_legend,
             graph_loading,
-            stale_vals_tbl)
+            stale_vals_tbl,
+            "",
+            "d-none pt-0 text-danger")
 
 
 # Switch to main graph tab and scroll to corresponding node, after

@@ -868,6 +868,7 @@ def filter_link_loops(sample_links_dict, links_config, main_fig_nodes_x_dict,
         prevent loops.
     :rtype: dict
     """
+    no_weights = set()
     for link in sample_links_dict:
         graph = nx.Graph()
         if not bool(links_config[link]["minimize_loops"]):
@@ -884,6 +885,7 @@ def filter_link_loops(sample_links_dict, links_config, main_fig_nodes_x_dict,
                 weight_info = {"weight": sqrt((x1-x0)**2 + (y1-y0)**2),
                                "filtered_by_neq": False,
                                "filtered_by_range": False}
+                no_weights.add((sample, other_sample))
 
             # Need to track original order because graph is undirected
             order = (sample, other_sample)
@@ -903,7 +905,15 @@ def filter_link_loops(sample_links_dict, links_config, main_fig_nodes_x_dict,
         new_link_dict = {}
         for edgeview in disjoint_mst_subgraph_edgeviews:
             for (sample, other_sample, data) in edgeview:
-                new_link_dict[data["order"]] = data["weight"]
+                if (sample, other_sample) in no_weights:
+                    weight = None
+                elif (other_sample, sample) in no_weights:
+                    weight = None
+                else:
+                    weight = data["weight"]
+                new_link_dict[data["order"]] = {"weight": weight,
+                                                "filtered_by_neq": False,
+                                                "filtered_by_range": False}
         sample_links_dict[link] = new_link_dict
 
     return sample_links_dict
@@ -1372,7 +1382,7 @@ def get_main_fig_link_labels_dict(sample_links_dict, links_config,
                 continue
 
             weight_info = sample_links_dict[link][(sample, other_sample)]
-            if any([weight_info is None,
+            if any([weight_info["weight"] is None,
                     weight_info["filtered_by_neq"],
                     weight_info["filtered_by_range"]]):
                 i += 1
@@ -1450,7 +1460,7 @@ def get_main_fig_arc_labels_dict(sample_links_dict, links_config,
                 continue
 
             weight_info = sample_links_dict[link][(sample, other_sample)]
-            if any([weight_info is None,
+            if any([weight_info["weight"] is None,
                     weight_info["filtered_by_neq"],
                     weight_info["filtered_by_range"]]):
                 i += 1
