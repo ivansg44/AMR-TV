@@ -197,7 +197,27 @@ def get_create_config_file_modal():
     """
     ret = dbc.Modal(
         [
-            dbc.ModalHeader("Create config file"),
+            dbc.ModalHeader(
+                dbc.Row(
+                    [
+                        dbc.Col(
+                            H5("Create config file")
+                        ),
+                        dbc.Col(
+                            dbc.Button(I(className="bi-x-lg",
+                                         style={"font-size": 16}),
+                                        id="exit-config-btn", 
+                                        color="danger")
+                        ),
+                        dbc.Tooltip(
+                            "Return to previous window",
+                            target="exit-config-btn"
+                        )
+                    ],
+                    justify="between",
+                    align="center"
+                )
+            ),
             dbc.ModalBody(
                 [
                     dbc.Row(
