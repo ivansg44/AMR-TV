@@ -709,6 +709,10 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
         weight_filters = links_config[link]["weight_filters"]
         attr_filters = links_config[link]["attr_filters"]
 
+        # if all, neq, and any are all empty, then no links exist.
+        if not all_eq_list and not all_neq_list and not any_eq_list:
+            continue
+
         for i in range(len(sample_list)):
             sample_i = sample_list[i]
             sample_i_data = sample_data_dict[sample_i]
