@@ -2,7 +2,7 @@
 
 [Introduction slide set](introduction_slide_set.pdf)
 
-^Installation steps are out of date. README up-to-date.
+^Installation steps in slide set are out of date. README up-to-date.
 
 ## Installation
 
