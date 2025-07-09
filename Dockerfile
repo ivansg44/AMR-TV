@@ -2,9 +2,9 @@ FROM ghcr.io/prefix-dev/pixi:0.48.2
 
 COPY . .
 
-RUN pixi install \
+RUN pixi install --locked \
     && pixi run compile \
-    && pixi shell-hook -e default -s bash > shell-hook \
+    && pixi shell-hook -s bash > shell-hook \
     && echo "#!/bin/bash" > entrypoint.sh \
     && cat shell-hook >> entrypoint.sh \
     && echo 'exec "$@"' >> entrypoint.sh \
