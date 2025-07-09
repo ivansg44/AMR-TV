@@ -19,8 +19,6 @@ Clone the repo and submodules:
 
 `$ pixi run compile`
 
-AMR-TV will be available at http://0.0.0.0:8050/.
-
 **Windows users:** you can skip to the Docker section.
 
 ## Usage
@@ -29,6 +27,8 @@ Use the dependency manager [pixi](https://pixi.sh/latest/installation/) to
 run AMR-TV after installing:
 
 `$ pixi run app`
+
+AMR-TV will be available at http://0.0.0.0:8050/.
 
 ## Docker
 
