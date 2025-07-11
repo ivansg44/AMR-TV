@@ -929,14 +929,22 @@ def continue_config_file_generation(started, delimiter, sample_field,
     """
     if not started:
         raise PreventUpdate
+    
+    # Stripping variables
+    date_input_format = date_input_format.strip()
+    date_output_format = date_output_format.strip()
+    link_label_vals = [e.strip() for e in link_label_vals]
+    link_weight_exp_vals = [e.strip() for e in link_weight_exp_vals]
+    link_weight_neq_vals = [e.strip() for e in link_weight_neq_vals]
+    link_attr_filter_textarea_vals = [e.strip() for e in 
+                                      link_attr_filter_textarea_vals]
 
     mandatory_non_link_fields = [sample_field,
                                  date_field,
                                  date_input_format,
                                  date_output_format,
                                  first_y_axis_field]
-    non_link_field_invalidity_list = [True if e is None or 
-                                      e.strip() == "" else False
+    non_link_field_invalidity_list = [True if e is None or e == "" else False
                                       for e in mandatory_non_link_fields]
     # Say all the link labels are valid for now
     stub_link_label_invalidity_list = [False for _ in link_label_ids]
@@ -983,7 +991,7 @@ def continue_config_file_generation(started, delimiter, sample_field,
     for id_, val in zip(link_weight_exp_ids, link_weight_exp_vals):
         if val is None:
             val = ""
-        link_dict[id_["index"]]["weight_exp"] = val.strip()
+        link_dict[id_["index"]]["weight_exp"] = val
     for id_, val in zip(link_weight_lt_ids, link_weight_lt_vals):
         if val is not None and val != "":
             link_dict[id_["index"]]["weight_filters"]["less_than"] = val
@@ -991,17 +999,17 @@ def continue_config_file_generation(started, delimiter, sample_field,
         if val is not None and val != "":
             link_dict[id_["index"]]["weight_filters"]["greater_than"] = val
     for id_, val in zip(link_weight_neq_ids, link_weight_neq_vals):
-        if val is not None and val.strip() != "":
-            val_list = val.strip().split(";")
+        if val is not None and val != "":
+            val_list = val.split(";")
             link_dict[id_["index"]]["weight_filters"]["not_equal"] = val_list
     for id_, select_val, textarea_val in zip(link_attr_filter_ids,
                                              link_attr_filter_select_vals,
                                              link_attr_filter_textarea_vals):
         link_index = int(id_["index"].split("-")[0])
         cond = select_val is not None and select_val != ""
-        cond &= textarea_val is not None and textarea_val.strip() != ""
+        cond &= textarea_val is not None and textarea_val != ""
         if cond:
-            textarea_val_list = textarea_val.strip().split(";")
+            textarea_val_list = textarea_val.split(";")
             link_dict[link_index]["attr_filters"][select_val] = \
                 textarea_val_list
     for id_, val in zip(link_all_eq_ids, link_all_eq_vals):
