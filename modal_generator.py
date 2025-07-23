@@ -198,25 +198,7 @@ def get_create_config_file_modal():
     ret = dbc.Modal(
         [
             dbc.ModalHeader(
-                dbc.Row(
-                    [
-                        dbc.Col(
-                            H5("Create config file")
-                        ),
-                        dbc.Col(
-                            dbc.Button(I(className="bi-x-lg",
-                                         style={"font-size": 16}),
-                                        id="exit-config-btn", 
-                                        color="danger")
-                        ),
-                        dbc.Tooltip(
-                            "Return to previous window",
-                            target="exit-config-btn"
-                        )
-                    ],
-                    justify="between",
-                    align="center"
-                )
+                H5("Create config file")
             ),
             dbc.ModalBody(
                 [
@@ -267,6 +249,17 @@ def get_create_config_file_modal():
                             id="config-error-msg-col",
                             className="text-right my-auto",
                             style={"visibility": "hidden"}
+                        ),
+                        dbc.Col(
+                            dbc.Button(I(className="bi-x-lg",
+                                         style={"font-size": 16}),
+                                        id="exit-config-btn", 
+                                        color="danger"),
+                            width="auto"
+                        ),
+                        dbc.Tooltip(
+                            "Return to previous window",
+                            target="exit-config-btn"
                         ),
                         dbc.Col(
                             dbc.Button(I(className="bi-download",
