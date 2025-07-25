@@ -249,6 +249,17 @@ def get_create_config_file_modal():
                             style={"visibility": "hidden"}
                         ),
                         dbc.Col(
+                            dbc.Button(I(className="bi-x-lg",
+                                         style={"font-size": 16}),
+                                        id="exit-config-btn", 
+                                        color="danger"),
+                            width="auto"
+                        ),
+                        dbc.Tooltip(
+                            "Return to previous window",
+                            target="exit-config-btn"
+                        ),
+                        dbc.Col(
                             dbc.Button(I(className="bi-download",
                                          style={"font-size": 16}),
                                        id="download-config-file-btn"),
