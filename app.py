@@ -460,8 +460,8 @@ def toggle_create_config_file_modal(_, __, ___, ____):
     trigger = ctx.triggered[0]["prop_id"]
     if trigger == ".":
         raise PreventUpdate
-    #This opens the modal if the user clicks the create config btn or link
-    elif trigger in ["create-config-file-btn.n_clicks", 
+    #This opens the modal if the user clicks the create config btn/link
+    elif trigger in ["create-config-file-btn.n_clicks",
                      "create-config-file-link.n_clicks"]:
         return True
     #This closes the modal if user clicks the config modal exit button

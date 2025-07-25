@@ -197,9 +197,7 @@ def get_create_config_file_modal():
     """
     ret = dbc.Modal(
         [
-            dbc.ModalHeader(
-                H5("Create config file")
-            ),
+            dbc.ModalHeader("Create config file"),
             dbc.ModalBody(
                 [
                     dbc.Row(
