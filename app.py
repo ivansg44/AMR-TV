@@ -443,18 +443,15 @@ def toggle_viz_btn_color(sample_file_contents, config_file_contents):
     Input("create-config-file-link", "n_clicks"),
     Input("exit-config-btn", "n_clicks"),
     Input("upload-config-file", "contents"),
-    State("create-config-file-modal", "is_open"),
     prevent_initial_call=True
 )
-def toggle_create_config_file_modal(_, __, ___, ____, is_open):
+def toggle_create_config_file_modal(_, __, ___, ____):
     """Toggle create config modal.
 
     :param _: Create config file btn clicked
     :param _: Create config file link clicked
     :param ___: Exit config btn clicked
     :param ____: Config file uploaded
-    :param is_open: current state of modal
-    :type is_open: bool
     :return: Whether modal is open or closed
     :rtype: bool
     :raise RuntimeError: Unexpected trigger trying to toggle modal
@@ -463,11 +460,13 @@ def toggle_create_config_file_modal(_, __, ___, ____, is_open):
     trigger = ctx.triggered[0]["prop_id"]
     if trigger == ".":
         raise PreventUpdate
-    #inverts current modal state
-    elif trigger in ["create-config-file-btn.n_clicks", 
-                     "create-config-file-link.n_clicks", 
-                     "exit-config-btn.n_clicks"]:
-        return not is_open
+    #This opens the modal if the user clicks the create config btn/link
+    elif trigger in ["create-config-file-btn.n_clicks",
+                     "create-config-file-link.n_clicks"]:
+        return True
+    #This closes the modal if user clicks the config modal exit button
+    elif trigger == "exit-config-btn.n_clicks":
+        return False
     # This closes the modal if user generates config file via ret btn
     elif trigger == "upload-config-file.contents":
         return False
@@ -499,7 +498,7 @@ def edit_create_config_modal_after_example_file_upload(_, filename):
     :rtype: (str, str)
     """
     return filename, "success"
-    
+
 
 @app.callback(
     Output("create-config-file-modal-form", "children"),
