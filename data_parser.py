@@ -809,11 +809,11 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
                             filtered_by_neq = link_weight in neq
                         if "less_than" in weight_filters:
                             le = weight_filters["less_than"]
-                            filtered_by_range = link_weight < le
+                            filtered_by_range = (le is None or link_weight < le)
                         if not filtered_by_range:
                             if "greater_than" in weight_filters:
                                 ge = weight_filters["greater_than"]
-                                filtered_by_range = link_weight > ge
+                                filtered_by_range = (ge is None or link_weight > ge)
                         link_weight = {"weight": link_weight,
                                        "filtered_by_neq": filtered_by_neq,
                                        "filtered_by_range": filtered_by_range}
