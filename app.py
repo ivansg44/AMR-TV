@@ -1056,13 +1056,13 @@ def continue_config_file_generation(started, delimiter, sample_field,
         "null_vals": null_vals,
         "primary_y_axis": [first_y_axis_field],
         "secondary_y_axes": [[e] for e in y_axis_fields[1:]
-                             if e is not None or ""],
+                             if e is not None and e != ""],
         "label_attr": [e for e in node_label_fields
-                       if e is not None or ""],
+                       if e is not None and e != ""],
         "node_color_attr": [e for e in node_color_fields
-                            if e is not None or ""],
+                            if e is not None and e != ""],
         "node_symbol_attr": [e for e in node_symbol_fields
-                             if e is not None or ""],
+                             if e is not None and e != ""],
         "links_config": links_config
     }
     config_json_str = dumps(config_dict, indent=2)
