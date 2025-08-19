@@ -12,9 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     container: ubuntu:22.04
     steps:
+      - run: apt-get update && apt-get install -y git
       - uses: actions/checkout@v4
         with:
           submodules: true
-      - run: apt-get update && apt-get install -y git
       - uses: prefix-dev/setup-pixi@v0.9.0
       - run: pixi run compile
