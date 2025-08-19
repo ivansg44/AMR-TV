@@ -2,18 +2,18 @@ name: Cross-platform build test
 on: workflow_dispatch
 
 jobs:
-  build:
-    strategy:
-      matrix:
-#        os: [ubuntu-latest, macos-latest-large, macos-latest]
-        os: [ubuntu-latest]
-    runs-on: ${{ matrix.os }}
+  #  build:
+  #    strategy:
+  #      matrix:
+  #        os: [ubuntu-latest, macos-latest-large, macos-latest]
+  #        os: [ubuntu-latest]
+  #    runs-on: ${{ matrix.os }}
+  test-ubuntu:
+    runs-on: ubuntu-latest
+    container: ubuntu:22.04
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: true
       - uses: prefix-dev/setup-pixi@v0.9.0
-        with:
-          run-install: false
-      - run: pixi install
       - run: pixi run compile
