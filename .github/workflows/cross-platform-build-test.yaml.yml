@@ -13,8 +13,8 @@ jobs:
     container: ubuntu:22.04
     steps:
       - uses: actions/checkout@v4
-      - run: git submodule update --init
-#        with:
-#          submodules: true
+        with:
+          submodules: true
+      - run: apt-get update && apt-get install -y git
       - uses: prefix-dev/setup-pixi@v0.9.0
       - run: pixi run compile
