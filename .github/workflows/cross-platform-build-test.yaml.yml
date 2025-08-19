@@ -14,6 +14,7 @@ jobs:
           submodules: true
       - uses: prefix-dev/setup-pixi@v0.9.0
         with:
+          manifest-path: pyproject.toml
           run-install: false
-      - run: pixi install --manifest-path pyproject.toml
-      - run: pixi run compile --manifest-path pyproject.toml
+      - run: pixi install
+      - run: pixi run compile
