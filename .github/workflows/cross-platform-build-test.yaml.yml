@@ -1,8 +1,15 @@
-name: Cross-platform built test
+name: Cross-platform build test
 on: workflow_dispatch
 
 jobs:
-  placeholder:
-    runs-on: ubuntu-latest
+  build:
+    strategy:
+      matrix:
+#        os: [ubuntu-latest, macos-latest-large, macos-latest]
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
     steps:
-      - run: echo "Workflow is active"
+      - uses: actions/checkout@v4
+      - uses: prefix-dev/setup-pixi@v0.9.0
+      - run: pixi install --manifest-path pyproject.toml
+      - run: pixi compile --manifest-path pyproject.toml
