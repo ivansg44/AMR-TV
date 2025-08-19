@@ -807,13 +807,24 @@ def get_sample_links_dict(sample_data_dict, links_config, primary_y,
                         if "not_equal" in weight_filters:
                             neq = weight_filters["not_equal"]
                             filtered_by_neq = link_weight in neq
-                        if "less_than" in weight_filters:
-                            le = weight_filters["less_than"]
-                            filtered_by_range = (le is None or link_weight < le)
-                        if not filtered_by_range:
-                            if "greater_than" in weight_filters:
-                                ge = weight_filters["greater_than"]
-                                filtered_by_range = (ge is None or link_weight > ge)
+
+                        # [None, None] filter ranges occur if the config 
+                        # file is set such that all points are filtered 
+                        # out, setting the UI sliders to [None, None]. 
+                        # When the graph is redrawn,comparisons use slider
+                        # values and fail.
+                        le_exists = "less_than" in weight_filters.keys()
+                        gt_exists = "greater_than" in weight_filters.keys()
+                        le = weight_filters.get("less_than")
+                        gt = weight_filters.get("greater_than")
+
+                        if (le is None and gt is None and le_exists and gt_exists):
+                                filtered_by_range = True
+                        if not filtered_by_range and le_exists:
+                            filtered_by_range = (link_weight < le)
+                        if not filtered_by_range and gt_exists:
+                            filtered_by_range = (link_weight > gt)
+
                         link_weight = {"weight": link_weight,
                                        "filtered_by_neq": filtered_by_neq,
                                        "filtered_by_range": filtered_by_range}
