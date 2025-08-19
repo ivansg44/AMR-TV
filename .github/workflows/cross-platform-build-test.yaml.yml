@@ -14,4 +14,4 @@ jobs:
         with:
           run-install: false
       - run: pixi install --manifest-path pyproject.toml
-      - run: pixi compile --manifest-path pyproject.toml
+      - run: pixi run compile --manifest-path pyproject.toml
