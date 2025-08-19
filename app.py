@@ -441,15 +441,17 @@ def toggle_viz_btn_color(sample_file_contents, config_file_contents):
     Output("create-config-file-modal", "is_open"),
     Input("create-config-file-btn", "n_clicks"),
     Input("create-config-file-link", "n_clicks"),
+    Input("exit-config-btn", "n_clicks"),
     Input("upload-config-file", "contents"),
-    prevent_intial_call=True
+    prevent_initial_call=True
 )
-def toggle_create_config_file_modal(_, __, ___):
+def toggle_create_config_file_modal(_, __, ___, ____):
     """Toggle create config modal.
 
     :param _: Create config file btn clicked
     :param _: Create config file link clicked
-    :param ___: Config file uploaded
+    :param ___: Exit config btn clicked
+    :param ____: Config file uploaded
     :return: Whether modal is open or closed
     :rtype: bool
     :raise RuntimeError: Unexpected trigger trying to toggle modal
@@ -458,10 +460,13 @@ def toggle_create_config_file_modal(_, __, ___):
     trigger = ctx.triggered[0]["prop_id"]
     if trigger == ".":
         raise PreventUpdate
-    elif trigger == "create-config-file-btn.n_clicks":
+    #This opens the modal if the user clicks the create config btn/link
+    elif trigger in ["create-config-file-btn.n_clicks",
+                     "create-config-file-link.n_clicks"]:
         return True
-    elif trigger == "create-config-file-link.n_clicks":
-        return True
+    #This closes the modal if user clicks the config modal exit button
+    elif trigger == "exit-config-btn.n_clicks":
+        return False
     # This closes the modal if user generates config file via ret btn
     elif trigger == "upload-config-file.contents":
         return False
@@ -1051,13 +1056,13 @@ def continue_config_file_generation(started, delimiter, sample_field,
         "null_vals": null_vals,
         "primary_y_axis": [first_y_axis_field],
         "secondary_y_axes": [[e] for e in y_axis_fields[1:]
-                             if e is not None or ""],
+                             if e is not None and e != ""],
         "label_attr": [e for e in node_label_fields
-                       if e is not None or ""],
+                       if e is not None and e != ""],
         "node_color_attr": [e for e in node_color_fields
-                            if e is not None or ""],
+                            if e is not None and e != ""],
         "node_symbol_attr": [e for e in node_symbol_fields
-                             if e is not None or ""],
+                             if e is not None and e != ""],
         "links_config": links_config
     }
     config_json_str = dumps(config_dict, indent=2)
