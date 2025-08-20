@@ -1,6 +1,12 @@
 name: Cross-platform build test
 on: workflow_dispatch
 
+#on:
+#  pull_request:
+#    branches:
+#      - development
+#  workflow_dispatch:
+
 jobs:
   #  build:
   #    strategy:
