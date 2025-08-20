@@ -22,7 +22,8 @@ platforms = ["linux-64", "osx-64", "osx-arm64"]
 
 [tool.pixi.tasks.compile]
 cmd = "cd adaptagrams/cola && ./autogen.sh && ./buildPythonSWIG.sh"
-env = {CC = "clang", CXX = "clang++"}
+env = {CC = "clang", CXX = "clang++", PATH = "/usr/bin:/bin:$PATH"}
+clean-env = true
 
 [tool.pixi.tasks.start]
 cmd = "python app.py"
