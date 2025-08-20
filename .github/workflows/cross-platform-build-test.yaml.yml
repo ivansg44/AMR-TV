@@ -19,7 +19,6 @@ jobs:
       - uses: prefix-dev/setup-pixi@v0.9.0
       - run: pixi run compile
       - run: |
-          set -e
           timeout 10s pixi run start
           status=$?
           if [ $status -eq 124 ]; then
