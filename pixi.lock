@@ -119,6 +119,8 @@ environments:
       osx-64:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/autoconf-2.72-pl5321had7229c_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/automake-1.17-pl5321h694c41f_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-64/binutils-2.44-h9ccfc6f_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-64/binutils_impl_osx-64-2.44-h555110c_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/bzip2-1.0.8-hfdf4475_7.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/c-compiler-1.10.0-h09a7c41_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2025.8.3-hbd8a1cb_0.conda
@@ -217,6 +219,8 @@ environments:
       osx-arm64:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/autoconf-2.72-pl5321hd3c70e0_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/automake-1.17-pl5321hce30654_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/binutils-2.44-ha5b214f_1.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/binutils_impl_osx-arm64-2.44-h0b6420b_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/bzip2-1.0.8-h99b78c6_7.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/c-compiler-1.10.0-hdf49b6b_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/ca-certificates-2025.8.3-hbd8a1cb_0.conda
@@ -416,6 +420,26 @@ packages:
   purls: []
   size: 34998
   timestamp: 1752032786202
+- conda: https://conda.anaconda.org/conda-forge/osx-64/binutils-2.44-h9ccfc6f_1.conda
+  sha256: 2ec8b7a4540b6f7f27ce614c6443fc80626b2ffc63a892ce10c1c68886e22f99
+  md5: 7bccd44c97e41bc4784b455c5acca2f5
+  depends:
+  - binutils_impl_osx-64 >=2.44,<2.45.0a0
+  license: GPL-3.0-only
+  license_family: GPL
+  purls: []
+  size: 35128
+  timestamp: 1752033041577
+- conda: https://conda.anaconda.org/conda-forge/osx-arm64/binutils-2.44-ha5b214f_1.conda
+  sha256: 68b732ecef4501e6b49c7f7f45506450b5f2fa51b3ee7ada40aa10eee98b9019
+  md5: 560fe097a3b7cc9a8de4a02303e27f49
+  depends:
+  - binutils_impl_osx-arm64 >=2.44,<2.45.0a0
+  license: GPL-3.0-only
+  license_family: GPL
+  purls: []
+  size: 35229
+  timestamp: 1752033186356
 - conda: https://conda.anaconda.org/conda-forge/linux-64/binutils_impl_linux-64-2.44-h4bf12b8_1.conda
   sha256: 8556847f91a85c31ef65b05b7e9182a52775616d5d4e550dfb48cdee5fd35687
   md5: e45cfedc8ca5630e02c106ea36d2c5c6
@@ -427,6 +451,28 @@ packages:
   purls: []
   size: 3781716
   timestamp: 1752032761608
+- conda: https://conda.anaconda.org/conda-forge/osx-64/binutils_impl_osx-64-2.44-h555110c_1.conda
+  sha256: 07bdd9150a5c18ac6fc83726ab48de6dd3a8025250f9cffc208d6c09fe7e82a4
+  md5: 4fb29e2b5482877121411c856ce6a55e
+  depends:
+  - __osx >=10.13
+  - libcxx >=17
+  license: GPL-3.0-only
+  license_family: GPL
+  purls: []
+  size: 1627038
+  timestamp: 1752033024718
+- conda: https://conda.anaconda.org/conda-forge/osx-arm64/binutils_impl_osx-arm64-2.44-h0b6420b_1.conda
+  sha256: 8f2ac78f84ee2b20b2934cf2fb98a31f618f85492b461e0b34bddbc72c678166
+  md5: eff42b7ed6f366b63af8cadf4c86ee35
+  depends:
+  - __osx >=11.0
+  - libcxx >=17
+  license: GPL-3.0-only
+  license_family: GPL
+  purls: []
+  size: 1832359
+  timestamp: 1752033170343
 - conda: https://conda.anaconda.org/conda-forge/linux-64/binutils_linux-64-2.44-h4852527_1.conda
   sha256: fbd94448d099a8c5fe7d9ec8c67171ab6e2f4221f453fe327de9b5aaf507f992
   md5: 38e0be090e3af56e44a9cac46101f6cd
