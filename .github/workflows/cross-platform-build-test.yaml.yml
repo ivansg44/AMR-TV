@@ -18,11 +18,14 @@ jobs:
           submodules: true
       - uses: prefix-dev/setup-pixi@v0.9.0
       - run: pixi run compile
-      - run:  |
+      - run: |
           set -e
           timeout 10s pixi run start
           status=$?
-          if [ $status -ne 0 ] && [ $status -ne 124 ]; then
-            echo "❌ App crashed with status $status"
+          if [ $status -eq 124 ]; then
+            echo "Timeout reached (normal)"
+            exit 0
+          elif [ $status -ne 0 ]; then
+            echo "App crashed with status $status"
             exit $status
           fi
