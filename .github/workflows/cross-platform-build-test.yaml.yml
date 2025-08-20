@@ -36,3 +36,31 @@ jobs:
             echo "App crashed with status $status"
             exit $status
           fi
+  test-macos:
+    strategy:
+      matrix:
+        os: [
+          # Intel
+          macos-13,
+          # arm64
+          macos-latest
+        ]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: prefix-dev/setup-pixi@v0.9.0
+      - run: pixi run compile
+      - run: |
+          set +e
+          timeout 10s pixi run start
+          status=$?
+          set -e
+          if [ $status -eq 124 ]; then
+            echo "Timeout reached (normal)"
+            exit 0
+          elif [ $status -ne 0 ]; then
+            echo "App crashed with status $status"
+            exit $status
+          fi
