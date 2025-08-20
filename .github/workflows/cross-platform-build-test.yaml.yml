@@ -54,7 +54,7 @@ jobs:
       - run: pixi run compile
       - run: |
           set +e
-          timeout 10s pixi run start
+          timeout 10s pixi run start > start.log 2>&1
           status=$?
           set -e
           if [ $status -eq 124 ]; then
