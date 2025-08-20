@@ -27,3 +27,4 @@ start = "python app.py"
 [tool.pixi.dependencies]
 automake = ">=1.17,<2"
 libtool = ">=2.5.4,<3"
+cxx-compiler = ">=1.10.0,<2"
