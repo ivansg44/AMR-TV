@@ -37,6 +37,11 @@ jobs:
             echo "App crashed with status $status"
             exit $status
           fi
+      - name: Archive start.log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          path: start.log
   test-macos:
     strategy:
       matrix:
