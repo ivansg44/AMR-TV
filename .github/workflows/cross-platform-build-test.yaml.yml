@@ -54,7 +54,8 @@ jobs:
       - run: pixi run compile
       - run: |
           set +e
-          timeout 10s pixi run start > start.log 2>&1
+          # macos does not have timeout but coreutils does
+          pixi run timeout 10s pixi run start > start.log 2>&1
           status=$?
           set -e
           if [ $status -eq 124 ]; then
