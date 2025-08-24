@@ -22,17 +22,17 @@ platforms = ["linux-64", "osx-64", "osx-arm64"]
 
 [tool.pixi.target.osx-64.tasks.compile]
 cmd = "cd adaptagrams/cola && ./autogen.sh && ./buildSWIGVersionForMac.sh"
-env = {CC = "clang", CXX = "clang++", PATH = "/usr/bin:/bin:$PATH", ARCHFLAGS = "-arch x86_64", CXXFLAGS = "-arch x86_64", LDFLAGS = "-arch x86_64"}
+env = {CC = "clang", CXX = "clang++", PATH = "$CONDA_PREFIX/bin:/usr/bin:/bin:$PATH", ARCHFLAGS = "-arch x86_64", CXXFLAGS = "-arch x86_64", LDFLAGS = "-arch x86_64"}
 clean-env = true
 
 [tool.pixi.target.osx-arm64.tasks.compile]
 cmd = "cd adaptagrams/cola && ./autogen.sh && ./buildSWIGVersionForMac.sh"
-env = {CC = "clang", CXX = "clang++", PATH = "/usr/bin:/bin:$PATH", ARCHFLAGS = "-arch arm64", CXXFLAGS = "-arch arm64", LDFLAGS = "-arch arm64"}
+env = {CC = "clang", CXX = "clang++", PATH = "$CONDA_PREFIX/bin:/usr/bin:/bin:$PATH", ARCHFLAGS = "-arch arm64", CXXFLAGS = "-arch arm64", LDFLAGS = "-arch arm64"}
 clean-env = true
 
 [tool.pixi.target.linux-64.tasks.compile]
 cmd = "cd adaptagrams/cola && ./autogen.sh && ./buildPythonSWIG.sh"
-env = {CC = "clang", CXX = "clang++", PATH = "/usr/bin:/bin:$PATH"}
+env = {CC = "clang", CXX = "clang++", PATH = "$CONDA_PREFIX/bin:/usr/bin:/bin:$PATH"}
 clean-env = true
 
 [tool.pixi.tasks.start]
