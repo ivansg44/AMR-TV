@@ -26,11 +26,17 @@ env = {CC = "clang", CXX = "clang++", PATH = "$CONDA_PREFIX/bin:/usr/bin:/bin:$P
 #env = {CC = "clang", CXX = "clang++", PATH = "$CONDA_PREFIX/bin:/usr/bin:/bin:$PATH", ARCHFLAGS = "-arch x86_64", CXXFLAGS = "-arch x86_64", LDFLAGS = "-arch x86_64"}
 clean-env = true
 
+[tool.pixi.target.osx-64.dependencies]
+ld64_osx-64 = ">=954.16,<955"
+
 [tool.pixi.target.osx-arm64.tasks.compile]
 cmd = "cd adaptagrams/cola && ./autogen.sh && ./buildPythonSWIG.sh"
 env = {CC = "clang", CXX = "clang++", PATH = "$CONDA_PREFIX/bin:/usr/bin:/bin:$PATH"}
 #env = {CC = "clang", CXX = "clang++", PATH = "$CONDA_PREFIX/bin:/usr/bin:/bin:$PATH", ARCHFLAGS = "-arch arm64", CXXFLAGS = "-arch arm64", LDFLAGS = "-arch arm64"}
 clean-env = true
+
+[tool.pixi.target.osx-arm64.dependencies]
+ld64_osx-64 = ">=954.16,<955"
 
 [tool.pixi.target.linux-64.tasks.compile]
 cmd = "cd adaptagrams/cola && ./autogen.sh && ./buildPythonSWIG.sh"
