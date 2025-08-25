@@ -41,6 +41,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
+          name: start-ubuntu-latest.log
           path: start.log
   test-macos:
     strategy:
@@ -76,4 +77,5 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
+          name: start-${{ matrix.os }}.log
           path: start.log
