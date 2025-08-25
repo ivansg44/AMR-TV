@@ -73,6 +73,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/readline-8.2-h8c095d6_2.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/sed-4.9-h6688a6e_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/sqlite-3.46.0-h6d4b2fc_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/swig-4.3.1-heed6a68_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/sysroot_linux-64-2.28-h4ee821c_8.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/tk-8.6.13-noxft_h4845f30_101.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tzdata-2025b-h78e105d_0.conda
@@ -113,7 +114,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/3f/d4/e7fd4b0bf3cb5d792e373c0002ac05b7b55ee8349dd80eb1c99c8d167973/pyzstd-0.17.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/a3/dc/17031897dae0efacfea57dfd3a82fdd2a2aeb58e0ff71b77b87e44edc772/setuptools-80.9.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/2f/df/11c14b2a71b0d94a226682cee3beaecf7cdb88cc20a4f276f5fc316b93e1/swig-4.2.1-py2.py3-none-manylinux_2_5_x86_64.manylinux1_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/b5/00/d631e67a838026495268c2f6884f3711a15a9a2a96cd244fdaea53b823fb/typing_extensions-4.14.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/ff/1d/960bb4017c68674a1cb099534840f18d3def3ce44aed12b5ed8b78e0153e/Werkzeug-2.0.0-py3-none-any.whl
       osx-64:
@@ -171,6 +171,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/readline-8.2-h7cca4af_2.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/sed-4.9-hf9b2955_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/sqlite-3.46.0-h28673e1_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-64/swig-4.3.1-h6b1e1f8_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/tk-8.6.13-h1abcd95_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tzdata-2025b-h78e105d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/xz-5.8.1-h357f2ed_2.conda
@@ -203,7 +204,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/ea/4f/fb1528fb8cc5c499d7d62953c6d0bce5e96260482abfba883f625c14d168/pyzstd-0.17.0-cp310-cp310-macosx_10_9_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/a3/dc/17031897dae0efacfea57dfd3a82fdd2a2aeb58e0ff71b77b87e44edc772/setuptools-80.9.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/c4/be/97195fd53bfb7780c75813b72e4f65a08a73ed32496804f4bb5dc2dbe4a5/swig-4.2.1-py2.py3-none-macosx_10_9_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/b5/00/d631e67a838026495268c2f6884f3711a15a9a2a96cd244fdaea53b823fb/typing_extensions-4.14.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/ff/1d/960bb4017c68674a1cb099534840f18d3def3ce44aed12b5ed8b78e0153e/Werkzeug-2.0.0-py3-none-any.whl
       osx-arm64:
@@ -261,6 +261,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/readline-8.2-h1d1bf99_2.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/sed-4.9-h21ae2d7_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/sqlite-3.46.0-h5838104_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/swig-4.3.1-h7bdf247_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/tk-8.6.13-h5083fa2_1.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/tzdata-2025b-h78e105d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/xz-5.8.1-h9a6d368_2.conda
@@ -293,7 +294,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/f3/60/eedb75628f905263baf4c552dc8255912c43f70784c8b18ef9dd52b186f6/pyzstd-0.17.0-cp310-cp310-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/a3/dc/17031897dae0efacfea57dfd3a82fdd2a2aeb58e0ff71b77b87e44edc772/setuptools-80.9.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/63/b1/ec77501fc171c914207f7564292d597cd0de72546efe381f021423dff59e/swig-4.2.1-py2.py3-none-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/b5/00/d631e67a838026495268c2f6884f3711a15a9a2a96cd244fdaea53b823fb/typing_extensions-4.14.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/ff/1d/960bb4017c68674a1cb099534840f18d3def3ce44aed12b5ed8b78e0153e/Werkzeug-2.0.0-py3-none-any.whl
 packages:
@@ -2534,18 +2534,43 @@ packages:
   purls: []
   size: 822635
   timestamp: 1718050678797
-- pypi: https://files.pythonhosted.org/packages/2f/df/11c14b2a71b0d94a226682cee3beaecf7cdb88cc20a4f276f5fc316b93e1/swig-4.2.1-py2.py3-none-manylinux_2_5_x86_64.manylinux1_x86_64.whl
-  name: swig
-  version: 4.2.1
-  sha256: c7b2db2ccff556dbfc88ef98773b3524b18bc4077ea1d7a5d7339c3a1f3f70dc
-- pypi: https://files.pythonhosted.org/packages/63/b1/ec77501fc171c914207f7564292d597cd0de72546efe381f021423dff59e/swig-4.2.1-py2.py3-none-macosx_11_0_arm64.whl
-  name: swig
-  version: 4.2.1
-  sha256: 6f30b409d20b1e96f5432bf94e0106cf68596884b6da70323d5a21b8f43e3f3b
-- pypi: https://files.pythonhosted.org/packages/c4/be/97195fd53bfb7780c75813b72e4f65a08a73ed32496804f4bb5dc2dbe4a5/swig-4.2.1-py2.py3-none-macosx_10_9_x86_64.whl
-  name: swig
-  version: 4.2.1
-  sha256: 5c8826b415d6feaca2bbf1f4bd0ff900d6dbb9ddd3b1850f95129b8aac1eb44b
+- conda: https://conda.anaconda.org/conda-forge/linux-64/swig-4.3.1-heed6a68_0.conda
+  sha256: dc98b1997a452be85afbbd0ee227e0c510fc07daf74c86b17cfd2abfdc07ac20
+  md5: 3c188d4b0cb60f848d21ee7fd99db78d
+  depends:
+  - __glibc >=2.17,<3.0.a0
+  - libgcc >=13
+  - libstdcxx >=13
+  - pcre2 >=10.44,<10.45.0a0
+  license: GPL-3.0-or-later
+  license_family: GPL
+  purls: []
+  size: 1250356
+  timestamp: 1744785997839
+- conda: https://conda.anaconda.org/conda-forge/osx-64/swig-4.3.1-h6b1e1f8_0.conda
+  sha256: b0d83cbf0856e1b557cd7999b4d09d96478db3c29cf5e221f7c4b648ff9b9e62
+  md5: f9bfae54798e1991f37c57693c5e7733
+  depends:
+  - __osx >=10.13
+  - libcxx >=18
+  - pcre2 >=10.44,<10.45.0a0
+  license: GPL-3.0-or-later
+  license_family: GPL
+  purls: []
+  size: 1156610
+  timestamp: 1744786109547
+- conda: https://conda.anaconda.org/conda-forge/osx-arm64/swig-4.3.1-h7bdf247_0.conda
+  sha256: e191e0a8a79e36a334eac30f876a6da2f9755645a3874935276debb60831f12f
+  md5: 48ec758ba6872e0f5c33ab1e467c7b08
+  depends:
+  - __osx >=11.0
+  - libcxx >=18
+  - pcre2 >=10.44,<10.45.0a0
+  license: GPL-3.0-or-later
+  license_family: GPL
+  purls: []
+  size: 1117007
+  timestamp: 1744786042566
 - conda: https://conda.anaconda.org/conda-forge/noarch/sysroot_linux-64-2.28-h4ee821c_8.conda
   sha256: 0053c17ffbd9f8af1a7f864995d70121c292e317804120be4667f37c92805426
   md5: 1bad93f0aa428d618875ef3a588a889e
