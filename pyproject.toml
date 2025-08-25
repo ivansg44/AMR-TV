@@ -21,30 +21,12 @@ channels = ["conda-forge"]
 platforms = ["linux-64", "osx-64", "osx-arm64"]
 
 [tool.pixi.target.osx-64.tasks.compile]
-cmd = """
-cd adaptagrams/cola
-&& ./autogen.sh
-&& mkdir -p m4
-&& autoreconf --install --verbose
-&& env FATFLAGS="-arch x86_64" ./configure --disable-dependency-tracking CPPFLAGS="-DNDEBUG -O3 -DUSE_ASSERT_EXCEPTIONS" CXXFLAGS="$FATFLAGS" LDFLAGS="$FATFLAGS"
-&& make clean
-&& make -j8
-&& make -f Makefile-swig-python
-"""
+cmd = "cd adaptagrams/cola && env FATFLAGS='-arch x86_64' ./buildSWIGVersionForMac.sh"
 env = {CC = "clang", CXX = "clang++", PATH = "$CONDA_PREFIX/bin:/usr/bin:/bin:$PATH", ARCHFLAGS = "-arch x86_64", CXXFLAGS = "-arch x86_64", LDFLAGS = "-arch x86_64"}
 clean-env = true
 
 [tool.pixi.target.osx-arm64.tasks.compile]
-cmd = """
-cd adaptagrams/cola
-&& ./autogen.sh
-&& mkdir -p m4
-&& autoreconf --install --verbose
-&& env FATFLAGS="-arch arm64" ./configure --disable-dependency-tracking CPPFLAGS="-DNDEBUG -O3 -DUSE_ASSERT_EXCEPTIONS" CXXFLAGS="$FATFLAGS" LDFLAGS="$FATFLAGS"
-&& make clean
-&& make -j8
-&& make -f Makefile-swig-python
-"""
+cmd = "cd adaptagrams/cola && env FATFLAGS='-arch arm64' ./buildSWIGVersionForMac.sh"
 env = {CC = "clang", CXX = "clang++", PATH = "$CONDA_PREFIX/bin:/usr/bin:/bin:$PATH", ARCHFLAGS = "-arch arm64", CXXFLAGS = "-arch arm64", LDFLAGS = "-arch arm64"}
 clean-env = true
 
