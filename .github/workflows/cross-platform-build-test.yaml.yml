@@ -25,6 +25,11 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: |
+            adaptagrams/cola/autom4te.cache*
+            adaptagrams/cola/config*
+            adaptagrams/cola/Makefile*
+            adaptagrams/cola/**/Makefile*
+            adaptagrams/cola/libtool
             adaptagrams/cola/lib*/.deps
             adaptagrams/cola/lib*/.libs
             adaptagrams/cola/lib*/*.la
@@ -78,6 +83,11 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: |
+            adaptagrams/cola/autom4te.cache*
+            adaptagrams/cola/config*
+            adaptagrams/cola/Makefile*
+            adaptagrams/cola/**/Makefile*
+            adaptagrams/cola/libtool
             adaptagrams/cola/lib*/.deps
             adaptagrams/cola/lib*/.libs
             adaptagrams/cola/lib*/*.la
