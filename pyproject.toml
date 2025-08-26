@@ -7,12 +7,10 @@ dependencies = [
     "networkx==2.8.5",
     # https://github.com/plotly/dash/issues/1992
     "Werkzeug==2.0.0",
-    "numpy==1.23.4",
-    "pandas==1.5.1",
     "gunicorn==23.0.0",
-    "setuptools==80.9.*"
+    "setuptools==80.9.0"
 ]
-requires-python = "==3.10"
+requires-python = ">=3.9"
 authors = [{name = "Ivan S Gill", email = "<ivan_gill@sfu.ca>"}]
 
 [tool.pixi.workspace]
@@ -33,6 +31,8 @@ grep = ">=3.11,<4"
 sed = ">=4.9,<5"
 swig = ">=4.3.1,<5"
 gawk = ">=5.3.1,<6"
+pandas = "==1.5.1"
+numpy = "==1.23.4"
 
 [tool.pixi.target.osx.dependencies]
 cctools = ">=1021.4,<1022"
@@ -47,5 +47,3 @@ clean-env = true
 
 [tool.pixi.tasks.start]
 cmd = "python app.py"
-
-# TODO python version? setuptools version?
