@@ -37,7 +37,7 @@ jobs:
             adaptagrams/cola/libtopology/.libs
             adaptagrams/cola/libvpsc/.deps
             adaptagrams/cola/libvpsc/.libs
-          key: adaptagrams-build-${{ env.ADAPTAGRAMS_HASH }}
+          key: adaptagrams-build-${{ runner.os }}-${{ env.ADAPTAGRAMS_HASH }}
       - uses: prefix-dev/setup-pixi@v0.9.0
       - run: pixi run compile
       - run: |
@@ -57,7 +57,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: start-ubuntu-latest.log
+          name: start-${{ runner.os }}.log
           path: start.log
   test-macos:
     strategy:
@@ -95,7 +95,7 @@ jobs:
             adaptagrams/cola/libtopology/.libs
             adaptagrams/cola/libvpsc/.deps
             adaptagrams/cola/libvpsc/.libs
-          key: adaptagrams-build-${{ env.ADAPTAGRAMS_HASH }}
+          key: adaptagrams-build-${{ matrix.os }}-${{ env.ADAPTAGRAMS_HASH }}
       - uses: prefix-dev/setup-pixi@v0.9.0
       - run: pixi run compile
       - run: |
