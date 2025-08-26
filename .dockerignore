@@ -9,3 +9,5 @@
 !main_fig_generator.py
 !modal_generator.py
 !requirements.txt
+!pyproject.toml
+!pixi.lock

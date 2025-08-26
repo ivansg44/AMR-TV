@@ -1,0 +1,49 @@
+[project]
+name = "amr-tv"
+version = "0.1.0"
+dependencies = [
+    "dash==1.20.0",
+    "dash-bootstrap-components==0.12.2",
+    "networkx==2.8.5",
+    # https://github.com/plotly/dash/issues/1992
+    "Werkzeug==2.0.0",
+    "gunicorn==23.0.0",
+    "setuptools==80.9.0"
+]
+requires-python = ">=3.9"
+authors = [{name = "Ivan S Gill", email = "<ivan_gill@sfu.ca>"}]
+
+[tool.pixi.workspace]
+channels = ["conda-forge"]
+platforms = ["linux-64", "osx-64", "osx-arm64"]
+
+[tool.pixi.dependencies]
+automake = ">=1.17,<2"
+libtool = ">=2.5.4,<3"
+pkg-config = ">=0.29.2,<0.30"
+make = ">=4.4.1,<5"
+cairo = ">=1.18.4,<2"
+clang = ">=20.1.8,<21"
+clangxx = ">=20.1.8,<21"
+coreutils = ">=9.5,<10"
+findutils = ">=4.10.0,<5"
+grep = ">=3.11,<4"
+sed = ">=4.9,<5"
+swig = ">=4.3.1,<5"
+gawk = ">=5.3.1,<6"
+pandas = "==1.5.1"
+numpy = "==1.23.4"
+
+[tool.pixi.target.osx.dependencies]
+cctools = ">=1021.4,<1022"
+
+[tool.pixi.target.linux-64.dependencies]
+binutils = ">=2.44,<3"
+
+[tool.pixi.tasks.compile]
+cmd = "cd adaptagrams/cola && ./autogen.sh && ./buildPythonSWIG.sh"
+env = {CC = "$CONDA_PREFIX/bin/clang", CXX = "$CONDA_PREFIX/bin/clang++", PATH = "$CONDA_PREFIX/bin:/usr/bin:/bin:$PATH"}
+clean-env = true
+
+[tool.pixi.tasks.start]
+cmd = "python app.py"
