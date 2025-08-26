@@ -25,18 +25,13 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: |
-            adaptagrams/cola/libavoid/.deps
-            adaptagrams/cola/libavoid/.libs
-            adaptagrams/cola/libcola/.deps
-            adaptagrams/cola/libcola/.libs
-            adaptagrams/cola/libdialect/.deps
-            adaptagrams/cola/libdialect/.libs
-            adaptagrams/cola/libproject/.deps
-            adaptagrams/cola/libproject/.libs
-            adaptagrams/cola/libtopology/.deps
-            adaptagrams/cola/libtopology/.libs
-            adaptagrams/cola/libvpsc/.deps
-            adaptagrams/cola/libvpsc/.libs
+            adaptagrams/cola/lib*/.deps
+            adaptagrams/cola/lib*/.libs
+            adaptagrams/cola/lib*/*.la
+            adaptagrams/cola/lib*/*.lo
+            adaptagrams/cola/lib*/*.o
+            adaptagrams/cola/lib*/*.so
+            adaptagrams/cola/lib*/*.dylib
           key: adaptagrams-build-${{ runner.os }}-${{ env.ADAPTAGRAMS_HASH }}
       - uses: prefix-dev/setup-pixi@v0.9.0
       - run: pixi run compile
@@ -83,18 +78,13 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: |
-            adaptagrams/cola/libavoid/.deps
-            adaptagrams/cola/libavoid/.libs
-            adaptagrams/cola/libcola/.deps
-            adaptagrams/cola/libcola/.libs
-            adaptagrams/cola/libdialect/.deps
-            adaptagrams/cola/libdialect/.libs
-            adaptagrams/cola/libproject/.deps
-            adaptagrams/cola/libproject/.libs
-            adaptagrams/cola/libtopology/.deps
-            adaptagrams/cola/libtopology/.libs
-            adaptagrams/cola/libvpsc/.deps
-            adaptagrams/cola/libvpsc/.libs
+            adaptagrams/cola/lib*/.deps
+            adaptagrams/cola/lib*/.libs
+            adaptagrams/cola/lib*/*.la
+            adaptagrams/cola/lib*/*.lo
+            adaptagrams/cola/lib*/*.o
+            adaptagrams/cola/lib*/*.so
+            adaptagrams/cola/lib*/*.dylib
           key: adaptagrams-build-${{ matrix.os }}-${{ env.ADAPTAGRAMS_HASH }}
       - uses: prefix-dev/setup-pixi@v0.9.0
       - run: pixi run compile
