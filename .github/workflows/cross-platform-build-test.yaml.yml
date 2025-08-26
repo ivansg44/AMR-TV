@@ -24,19 +24,7 @@ jobs:
           echo "ADAPTAGRAMS_HASH=$ADAPTAGRAMS_HASH" >> $GITHUB_ENV
       - uses: actions/cache@v4
         with:
-          path: |
-            adaptagrams/cola/autom4te.cache*
-            adaptagrams/cola/config*
-            adaptagrams/cola/Makefile*
-            adaptagrams/cola/**/Makefile*
-            adaptagrams/cola/libtool
-            adaptagrams/cola/lib*/.deps
-            adaptagrams/cola/lib*/.libs
-            adaptagrams/cola/lib*/*.la
-            adaptagrams/cola/lib*/*.lo
-            adaptagrams/cola/lib*/*.o
-            adaptagrams/cola/lib*/*.so
-            adaptagrams/cola/lib*/*.dylib
+          path: adaptagrams/cola
           key: adaptagrams-build-${{ runner.os }}-${{ env.ADAPTAGRAMS_HASH }}
       - uses: prefix-dev/setup-pixi@v0.9.0
       - run: pixi run compile
@@ -82,19 +70,7 @@ jobs:
           echo "ADAPTAGRAMS_HASH=$ADAPTAGRAMS_HASH" >> $GITHUB_ENV
       - uses: actions/cache@v4
         with:
-          path: |
-            adaptagrams/cola/autom4te.cache*
-            adaptagrams/cola/config*
-            adaptagrams/cola/Makefile*
-            adaptagrams/cola/**/Makefile*
-            adaptagrams/cola/libtool
-            adaptagrams/cola/lib*/.deps
-            adaptagrams/cola/lib*/.libs
-            adaptagrams/cola/lib*/*.la
-            adaptagrams/cola/lib*/*.lo
-            adaptagrams/cola/lib*/*.o
-            adaptagrams/cola/lib*/*.so
-            adaptagrams/cola/lib*/*.dylib
+          path: adaptagrams/cola/
           key: adaptagrams-build-${{ matrix.os }}-${{ env.ADAPTAGRAMS_HASH }}
       - uses: prefix-dev/setup-pixi@v0.9.0
       - run: pixi run compile
