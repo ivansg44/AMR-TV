@@ -37,7 +37,7 @@ cctools = ">=1021.4,<1022"
 
 [tool.pixi.target.linux-64.tasks.compile]
 cmd = "cd adaptagrams/cola && ./autogen.sh && ./buildPythonSWIG.sh"
-env = {CC = "clang", CXX = "clang++", PATH = "$CONDA_PREFIX/bin:/usr/bin:/bin:$PATH"}
+env = {CC = "$CONDA_PREFIX/bin/clang", CXX = "$CONDA_PREFIX/bin/clang++", PATH = "$CONDA_PREFIX/bin:/usr/bin:/bin:$PATH"}
 clean-env = true
 
 [tool.pixi.target.linux-64.dependencies]
