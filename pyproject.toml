@@ -32,6 +32,7 @@ findutils = ">=4.10.0,<5"
 grep = ">=3.11,<4"
 sed = ">=4.9,<5"
 swig = ">=4.3.1,<5"
+gawk = ">=5.3.1,<6"
 
 [tool.pixi.target.osx.dependencies]
 cctools = ">=1021.4,<1022"
@@ -47,4 +48,4 @@ clean-env = true
 [tool.pixi.tasks.start]
 cmd = "python app.py"
 
-# TODO system requirements? python version? setuptools version?
+# TODO python version? setuptools version?
