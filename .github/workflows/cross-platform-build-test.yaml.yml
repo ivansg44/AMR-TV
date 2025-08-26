@@ -19,8 +19,8 @@ jobs:
         run: |
           ADAPTAGRAMS_HASH=$(find adaptagrams/cola -type f \( \
             -name '*.c' -o -name '*.cpp' -o -name '*.h' -o \
-            -name '*.m4' -o -name 'Makefile*' \) \
-            -exec sha256sum {} \; | sort -k2 | sha256sum | cut -d' ' -f1)
+            -name '*.m4' -o -name 'Makefile*' \) -exec sha256sum {} \; \
+            | sort -k2 | sha256sum | cut -d' ' -f1)
           echo "ADAPTAGRAMS_HASH=$ADAPTAGRAMS_HASH" >> $GITHUB_ENV
       - uses: actions/cache@v4
         with:
@@ -77,8 +77,8 @@ jobs:
         run: |
           ADAPTAGRAMS_HASH=$(find adaptagrams/cola -type f \( \
             -name '*.c' -o -name '*.cpp' -o -name '*.h' -o \
-            -name '*.m4' -o -name 'Makefile*' \) \
-            -exec sha256sum {} \; | sort -k2 | sha256sum | cut -d' ' -f1)
+            -name '*.m4' -o -name 'Makefile*' \) -exec shasum -a 256 {} \; \
+            | sort -k2 | shasum -a 256 | \ cut -d' ' -f1)
           echo "ADAPTAGRAMS_HASH=$ADAPTAGRAMS_HASH" >> $GITHUB_ENV
       - uses: actions/cache@v4
         with:
