@@ -48,12 +48,12 @@ clean-env = true
 [tool.pixi.tasks.start]
 cmd = "python app.py"
 
-[tool.pixi.feature.test.dependencies]
-pytest = "*"
-
-[tool.pixi.feature.test.tasks]
-test = "pytest"
-
 [tool.pixi.environments]
 default = { solve-group = "prod" }
 test = { features = ["test"], solve-group = "prod" }
+
+[dependency-groups]
+test = ["pytest>=8.4.1,<9"]
+
+[tool.pixi.feature.test.tasks]
+test = "pytest"
