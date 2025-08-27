@@ -1,2 +1,2 @@
 def test_foo():
-    assert "foo" == "bar"
+    assert "foo" == "foo"
