@@ -1,0 +1,422 @@
+{
+  "filtered_link_types": {},
+  "link_color_dict": {
+    "potential clonal spread": [
+      55,
+      126,
+      184
+    ],
+    "potential hgt": [
+      228,
+      26,
+      28
+    ]
+  },
+  "main_fig_arc_arrowheads_dict": {},
+  "main_fig_arc_labels_dict": {},
+  "main_fig_arcs_dict": {
+    "potential clonal spread": {
+      "x": [
+        [
+          5.875,
+          5.783493649053891,
+          5.958333333333333
+        ],
+        [
+          5.958333333333333,
+          5.783493649053891,
+          6.041666666666667
+        ]
+      ],
+      "y": [
+        [
+          6.25,
+          6.625,
+          7.0
+        ],
+        [
+          7.0,
+          7.375,
+          7.75
+        ]
+      ]
+    },
+    "potential hgt": {
+      "x": [
+        [
+          5.875,
+          5.863511162150174,
+          5.958333333333333
+        ],
+        [
+          5.958333333333333,
+          5.863511162150174,
+          6.041666666666667
+        ]
+      ],
+      "y": [
+        [
+          6.25,
+          6.625,
+          7.0
+        ],
+        [
+          7.0,
+          7.375,
+          7.75
+        ]
+      ]
+    }
+  },
+  "main_fig_height": 1296,
+  "main_fig_link_arrowheads_dict": {},
+  "main_fig_link_labels_dict": {},
+  "main_fig_links_dict": {
+    "potential clonal spread": {
+      "x": [
+        4.0,
+        8.0,
+        null
+      ],
+      "y": [
+        2.0347222222222223,
+        2.0347222222222223,
+        null
+      ]
+    },
+    "potential hgt": {
+      "x": [
+        1.0,
+        2.0,
+        null,
+        4.0,
+        8.0,
+        null,
+        6.125,
+        7.0,
+        null
+      ],
+      "y": [
+        1.0,
+        1.0,
+        null,
+        2.0,
+        2.0,
+        null,
+        5.0,
+        5.0,
+        null
+      ]
+    }
+  },
+  "main_fig_nodes_hovertext": [
+    "BC17A507A",
+    "BC17A419A",
+    "BC18A454A",
+    "BC19A403A",
+    "BC21A166A",
+    "BC20A976A",
+    "BC19A658A",
+    "BC20A785A",
+    "BC19A642A",
+    "BC19A661A",
+    "BC19A659A",
+    "BC19A660A"
+  ],
+  "main_fig_nodes_marker_color": [
+    "#8dd3c7",
+    "#8dd3c7",
+    "#8dd3c7",
+    "#8dd3c7",
+    "#8dd3c7",
+    "#8dd3c7",
+    "#8dd3c7",
+    "#8dd3c7",
+    "#8dd3c7",
+    "#8dd3c7",
+    "#8dd3c7",
+    "#8dd3c7"
+  ],
+  "main_fig_nodes_marker_opacity": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+  ],
+  "main_fig_nodes_marker_symbol": [
+    "circle",
+    "circle",
+    "circle",
+    "circle",
+    "circle",
+    "circle",
+    "square",
+    "circle",
+    "circle",
+    "square",
+    "square",
+    "square"
+  ],
+  "main_fig_nodes_text": [
+    "<b>BC17A507A</b><br><b>Enterobacter cloacae</b>",
+    "<b>BC17A419A</b><br><b>Enterobacter asburiae</b>",
+    "<b>BC18A454A</b><br><b>Enterobacter cloacae</b>",
+    "<b>BC19A403A</b><br><b>Enterobacter cloacae</b>",
+    "<b>BC21A166A</b><br><b>Enterobacter cloacae</b>",
+    "<b>BC20A976A</b><br><b>Enterobacter cloacae</b>",
+    "<b>BC19A658A</b><br><b>Klebsiella oxytoca</b>",
+    "<b>BC20A785A</b><br><b>Enterobacter cloacae</b>",
+    "<b>BC19A642A</b><br><b>Enterobacter cloacae</b>",
+    "<b>BC19A661A</b><br><b>Klebsiella oxytoca</b>",
+    "<b>BC19A659A</b><br><b>Klebsiella oxytoca</b>",
+    "<b>BC19A660A</b><br><b>Klebsiella oxytoca</b>"
+  ],
+  "main_fig_nodes_textfont_color": "black",
+  "main_fig_nodes_x": [
+    2.0,
+    1.0,
+    3.0,
+    4.0,
+    9.0,
+    8.0,
+    5.875,
+    7.0,
+    5.0,
+    5.958333333333333,
+    6.041666666666667,
+    6.125
+  ],
+  "main_fig_nodes_y": [
+    1.0,
+    1.0,
+    4.0,
+    2.0,
+    3.0,
+    2.0,
+    6.25,
+    5.0,
+    9.0,
+    7.0,
+    7.75,
+    5.0
+  ],
+  "main_fig_primary_facet_x": [
+    0.5,
+    9.5,
+    null,
+    0.5,
+    9.5,
+    null,
+    0.5,
+    9.5,
+    null
+  ],
+  "main_fig_primary_facet_y": [
+    1.5,
+    1.5,
+    null,
+    4.5,
+    4.5,
+    null,
+    8.5,
+    8.5,
+    null
+  ],
+  "main_fig_secondary_facet_x": [
+    0.5,
+    9.5,
+    null,
+    0.5,
+    9.5,
+    null,
+    0.5,
+    9.5,
+    null,
+    0.5,
+    9.5,
+    null,
+    0.5,
+    9.5,
+    null,
+    0.5,
+    9.5,
+    null
+  ],
+  "main_fig_secondary_facet_y": [
+    1.5,
+    1.5,
+    null,
+    2.5,
+    2.5,
+    null,
+    3.5,
+    3.5,
+    null,
+    4.5,
+    4.5,
+    null,
+    5.5,
+    5.5,
+    null,
+    8.5,
+    8.5,
+    null
+  ],
+  "main_fig_width": 1296,
+  "main_fig_xaxis_range": [
+    0.5,
+    9.5
+  ],
+  "main_fig_xaxis_ticktext": [
+    "21-03-2017",
+    "02-07-2017",
+    "27-08-2018",
+    "17-06-2019",
+    "26-10-2019",
+    "30-10-2019",
+    "26-08-2020",
+    "19-10-2020",
+    "22-02-2021"
+  ],
+  "main_fig_xaxis_tickvals": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "main_fig_yaxis_range": [
+    0.5,
+    9.5
+  ],
+  "main_fig_yaxis_ticktext": [
+    "HA1<br>AA552<br>GTTCT; GTTCT<br>MOBF<br>IncN",
+    "HA2<br>AA543<br>GTTCT; GTTCT<br>MOBH;MOBP<br>IncHI1A;IncP",
+    "HA2<br>AA543<br>GTTCT; GTTCT<br>MOBH;MOBP<br>IncHI1B;IncP",
+    "HA2<br>AA552<br>GTTCT; GTTCT<br>MOBF<br>IncN",
+    "HA5<br>AA543<br>GTTCT; GTTCT<br>MOBH;MOBP<br>IncHI1A;IncP",
+    "HA5<br>AA543<br>GTTCT; GTTCT<br>MOBH;MOBP<br>IncHI1B;IncP",
+    "null<br>AA543<br>GTTCT; GTTCT<br>MOBH;MOBP<br>IncHI1B;IncP"
+  ],
+  "main_fig_yaxis_tickvals": [
+    1.0,
+    2.0,
+    3.0,
+    4.0,
+    5.0,
+    7.0,
+    9.0
+  ],
+  "node_color_attr": [
+    "Predicted_mobility"
+  ],
+  "node_color_attr_dict": {},
+  "node_color_legend_fig_nodes_marker_opacity": [
+    1
+  ],
+  "node_color_legend_fig_nodes_textfont_color": [
+    "black"
+  ],
+  "node_shape_legend_fig_nodes_marker_opacity": [
+    1,
+    1
+  ],
+  "node_shape_legend_fig_nodes_marker_symbol": [
+    "circle",
+    "square"
+  ],
+  "node_shape_legend_fig_nodes_text": [
+    "<b>Clinical</b>",
+    "<b>Environmental</b>"
+  ],
+  "node_shape_legend_fig_nodes_textfont_color": [
+    "black",
+    "black"
+  ],
+  "node_shape_legend_fig_nodes_y": [
+    0,
+    1
+  ],
+  "node_symbol_attr": [
+    "Surname"
+  ],
+  "primary_y_axis_attributes": "Submitter",
+  "secondary_y_axes_attributes": [
+    "PrimaryID",
+    "Left_flanks;Right_flanks",
+    "Relaxases",
+    "Incompatability_Groups"
+  ],
+  "weight_filter_form_dict": {
+    "potential clonal spread": {
+      "options": [
+        {
+          "label": 3,
+          "value": 3
+        },
+        {
+          "label": 5,
+          "value": 5
+        },
+        {
+          "label": 6,
+          "value": 6
+        }
+      ],
+      "value": [
+        3,
+        5,
+        6
+      ]
+    }
+  },
+  "weight_slider_info_dict": {
+    "potential clonal spread": {
+      "marks": {},
+      "max": 6,
+      "min": 3,
+      "value": [
+        3,
+        6
+      ]
+    }
+  },
+  "zoomed_out_main_fig_xaxis_ticktext": [
+    2017,
+    2018,
+    2019,
+    2020,
+    2021
+  ],
+  "zoomed_out_main_fig_xaxis_tickvals": [
+    1.0,
+    3.0,
+    4.0,
+    7.0,
+    9.0
+  ],
+  "zoomed_out_main_fig_yaxis_ticktext": [
+    "HA1",
+    "HA2",
+    "HA5",
+    "null"
+  ],
+  "zoomed_out_main_fig_yaxis_tickvals": [
+    1.0,
+    3.0,
+    6.0,
+    9.0
+  ]
+}

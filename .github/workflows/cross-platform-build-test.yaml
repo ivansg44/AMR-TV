@@ -50,6 +50,7 @@ jobs:
         with:
           name: start-${{ runner.os }}.log
           path: start.log
+      - run: pixi run test
   test-macos:
     strategy:
       matrix:
@@ -97,3 +98,4 @@ jobs:
         with:
           name: start-${{ matrix.os }}.log
           path: start.log
+      - run: pixi run test
