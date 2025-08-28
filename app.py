@@ -946,6 +946,19 @@ def continue_config_file_generation(started, delimiter, sample_field,
                stub_link_label_invalidity_list, \
                ""
 
+    # Nested function to strip whitespace from all elements in a list
+    def strip_list(lst):
+        return [e.strip() for e in lst if e]
+
+    # Stripping input variables
+    date_input_format = date_input_format.strip()
+    date_output_format = date_output_format.strip()
+
+    link_label_vals = strip_list(link_label_vals)
+    link_weight_exp_vals = strip_list(link_weight_exp_vals)
+    link_weight_neq_vals = strip_list(link_weight_neq_vals)
+    link_attr_filter_textarea_vals = strip_list(link_attr_filter_textarea_vals)
+
     if max_day_range is None:
         max_day_range = maxsize
     elif max_day_range < 0:
