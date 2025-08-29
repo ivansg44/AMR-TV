@@ -1,3 +1,3 @@
 [submodule "adaptagrams"]
-	path = adaptagrams
+	path = src/amr_tv/adaptagrams
 	url = git@github.com:ivansg44/adaptagrams.git
