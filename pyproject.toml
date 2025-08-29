@@ -1,7 +1,7 @@
 [project]
 name = "amr-tv"
 version = "0.1.0"
-scripts = { amr-tv = "amr_tv:app"}
+scripts = { amr-tv = "amr_tv.app:main"}
 dependencies = [
     "dash==1.20.0",
     "dash-bootstrap-components==0.12.2",
