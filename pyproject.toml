@@ -1,5 +1,5 @@
 [project]
-name = "amr-tv"
+name = "amr_tv"
 version = "0.1.0"
 scripts = { amr-tv = "amr_tv.app:main"}
 dependencies = [
@@ -23,7 +23,7 @@ preview = ["pixi-build"]
 build = { backend = { name = "pixi-build-python", version = "*" } }
 
 [tool.pixi.dependencies]
-amr-tv = { path = "." }
+amr_tv = { path = "." }
 automake = ">=1.17,<2"
 libtool = ">=2.5.4,<3"
 pkg-config = ">=0.29.2,<0.30"

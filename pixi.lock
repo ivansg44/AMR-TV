@@ -706,7 +706,7 @@ packages:
   size: 23621
   timestamp: 1650670423406
 - conda: .
-  name: amr-tv
+  name: amr_tv
   version: 0.1.0
   build: pyh4616a5c_0
   subdir: noarch
@@ -714,7 +714,7 @@ packages:
   - python
   - python
   input:
-    hash: 8801f211abe16e339393863b536669eb8ca7b17f5e91dec1d08990c05cdad526
+    hash: e82657b6f02278ebb2bdb3c161b921c01a4022974aa092bdce61a2a08672acd2
     globs:
     - pyproject.toml
 - conda: https://conda.anaconda.org/conda-forge/linux-64/autoconf-2.72-pl5321hbb4ee43_1.conda
