@@ -3,11 +3,11 @@
 !adaptagrams
 !assets
 !app.py
-!data_parser.py
-!expression_evaluator.py
-!legend_fig_generator.py
-!main_fig_generator.py
-!modal_generator.py
+!src/amr-tv/data_parser.py
+!src/amr-tv/expression_evaluator.py
+!src/amr-tv/legend_fig_generator.py
+!src/amr-tv/main_fig_generator.py
+!src/amr-tv/modal_generator.py
 !requirements.txt
 !pyproject.toml
 !pixi.lock
