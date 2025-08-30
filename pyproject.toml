@@ -17,13 +17,16 @@ authors = [{name = "Ivan S Gill", email = "ivan_gill@sfu.ca"}]
 [tool.pixi.workspace]
 channels = ["conda-forge"]
 platforms = ["linux-64", "osx-64", "osx-arm64"]
-preview = ["pixi-build"]
+#preview = ["pixi-build"]
 
-[tool.pixi.package]
-build = { backend = { name = "pixi-build-python", version = "*" } }
+#[tool.pixi.package]
+#build = { backend = { name = "pixi-build-python", version = "*" } }
+
+[tool.pixi.pypi-dependencies]
+amr_tv = { path = ".", editable = true}
 
 [tool.pixi.dependencies]
-amr_tv = { path = "." }
+#amr_tv = { path = "." }
 automake = ">=1.17,<2"
 libtool = ">=2.5.4,<3"
 pkg-config = ">=0.29.2,<0.30"
