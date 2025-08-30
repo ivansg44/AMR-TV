@@ -5,7 +5,7 @@ from syrupy.extensions.json import JSONSnapshotExtension
 
 from amr_tv.data_parser import get_app_data
 
-KPC3_DATA_DIR = Path(__file__).parent.parent / "kpc3_data"
+KPC3_DATA_DIR = Path(__file__).parent.parent / "data" / "kpc3_data"
 
 def test_kpc3_ecl719_snapshot(snapshot):
     data_b64str = b64encode(
