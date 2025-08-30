@@ -708,7 +708,7 @@ packages:
 - pypi: ./
   name: amr-tv
   version: 0.1.0
-  sha256: 9bce88f463f45a2cfe0273d8354894c9f36e68416bf136128b51b81732642d1f
+  sha256: 3ce8f6476fb3b0496f64d1ba4d5545e4b134191af3365c27ececf416295e801c
   requires_dist:
   - dash==1.20.0
   - dash-bootstrap-components==0.12.2
