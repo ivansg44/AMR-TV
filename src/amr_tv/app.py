@@ -26,20 +26,20 @@ from dash_html_components import Div
 from flask import Flask
 import plotly.graph_objects as go
 
-from data_parser import get_app_data, parse_fields_from_example_file
-from main_fig_generator import (get_main_fig,
-                                get_zoomed_out_main_fig,
-                                get_main_fig_x_axis,
-                                get_main_fig_y_axis)
-from modal_generator import (get_upload_data_modal,
-                             get_create_config_file_modal,
-                             get_create_config_modal_form,
-                             get_duplicating_select_field,
-                             get_duplicating_link_section,
-                             get_duplicating_attr_filter_section)
-from legend_fig_generator import (get_node_symbol_legend_fig,
-                                  get_link_legend_col,
-                                  get_node_color_legend_fig)
+from amr_tv.data_parser import get_app_data, parse_fields_from_example_file
+from amr_tv.main_fig_generator import (get_main_fig,
+                                       get_zoomed_out_main_fig,
+                                       get_main_fig_x_axis,
+                                       get_main_fig_y_axis)
+from amr_tv.modal_generator import (get_upload_data_modal,
+                                    get_create_config_file_modal,
+                                    get_create_config_modal_form,
+                                    get_duplicating_select_field,
+                                    get_duplicating_link_section,
+                                    get_duplicating_attr_filter_section)
+from amr_tv.legend_fig_generator import (get_node_symbol_legend_fig,
+                                         get_link_legend_col,
+                                         get_node_color_legend_fig)
 
 # For gunicorn during docker deployment
 server = Flask(__name__)
@@ -1754,5 +1754,9 @@ app.clientside_callback(
     prevent_initial_call=True
 )
 
-if __name__ == "__main__":
+
+def main():
     app.run_server(debug=False)
+
+if __name__ == "__main__":
+    main()
