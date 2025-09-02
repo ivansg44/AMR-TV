@@ -13,8 +13,8 @@ from re import compile
 import networkx as nx
 import pandas as pd
 
-from adaptagrams.cola import adaptagrams as ag
-from expression_evaluator import eval_expr
+from amr_tv.adaptagrams.cola import adaptagrams as ag
+from amr_tv.expression_evaluator import eval_expr
 
 
 def parse_fields_from_example_file(example_file_base64_str, delimiter):

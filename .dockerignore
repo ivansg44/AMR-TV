@@ -1,11 +1,7 @@
 *
 
-!adaptagrams
 !assets
 !app.py
-!data_parser.py
-!expression_evaluator.py
-!legend_fig_generator.py
-!main_fig_generator.py
-!modal_generator.py
-!requirements.txt
+!src
+!pyproject.toml
+!pixi.lock

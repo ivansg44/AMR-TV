@@ -1,14 +1,15 @@
-FROM python:3.9.20-slim
+FROM ghcr.io/prefix-dev/pixi:0.48.2
 
 COPY . .
 
-RUN pip install -r requirements.txt \
-    && apt-get update \
-    && apt-get install gcc g++ gdb make libtool autoconf automake pkg-config -y \
-    && cd adaptagrams/cola \
-    && ./autogen.sh \
-    && make install \
-    && ./buildPythonSWIG.sh \
-    && cd ../..
+RUN pixi install --locked \
+    && pixi run compile \
+    && pixi shell-hook -s bash > shell-hook \
+    && echo "#!/bin/bash" > entrypoint.sh \
+    && cat shell-hook >> entrypoint.sh \
+    && echo 'exec "$@"' >> entrypoint.sh \
+    && chmod 755 entrypoint.sh
+
+ENTRYPOINT [ "/entrypoint.sh" ]
 
 CMD [ "gunicorn", "--workers=5", "--threads=1", "-b 0.0.0.0:8050", "app:server"]

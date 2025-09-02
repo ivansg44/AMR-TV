@@ -1,20 +1,42 @@
 # AMR-TV
 
-[Introduction slide set](introduction_slide_set.pdf)
-
 ## Installation
 
-Clone the repo:
+Clone the repo and submodules:
 
 `$ git clone git@github.com:ivansg44/AMR-TV.git amr-tv --recurse-submodules`
 
-Build the docker image:
+`$ cd amr-tv`
+
+### Linux and macOs users
+
+Use the dependency manager [pixi](https://pixi.sh/latest/installation/) to
+install and compile AMR-TV:
+
+`$ pixi install --locked`
+
+`$ pixi run compile`
+
+Now you can run AMR-TV with:
+
+`$ pixi run start`
+
+AMR-TV will be available at http://0.0.0.0:8050/.
+
+### Windows users
+
+You can run the application through [Docker](https://www.docker.com/):
 
 `$ docker-compose build`
 
-### If there are issues building the image
-You may run into issues building the image if you already tried building
-adaptagrams locally, or if your adaptagrams submodule is out of date.
+`$ docker-compose up`
+
+AMR-TV will be available at http://0.0.0.0:8050/.
+
+#### If there are issues building the image:
+
+You may run into issues building the image if you tried compiling locally
+earlier.
 
 Clean things up:
 
@@ -22,19 +44,4 @@ Clean things up:
 
 `$ git submodule update --init`
 
-`$ git submodule update`
-
-## Run AMR-TV
-
-### Development
-
-`$ docker-compose --file docker-compose.yaml
---file docker-compose.local.yaml up`
-
-AMR-TV will be available at http://0.0.0.0:8050/.
-
-Changes to Python files will be reflected on container restart.
-
-### Production
-
-`$ docker-compose up`
+And try again.
