@@ -1,9 +1,5 @@
 # AMR-TV
 
-[Introduction slide set](introduction_slide_set.pdf)
-
-^Installation steps in slide set are out of date. README up-to-date.
-
 ## Installation
 
 Clone the repo and submodules:
@@ -12,27 +8,24 @@ Clone the repo and submodules:
 
 `$ cd amr-tv`
 
-**Linux and macOS users only:** Use the dependency manager
-[pixi](https://pixi.sh/latest/installation/) to install AMR-TV:
+### Linux and macOs users
+
+Use the dependency manager [pixi](https://pixi.sh/latest/installation/) to
+install and compile AMR-TV:
 
 `$ pixi install --locked`
 
 `$ pixi run compile`
 
-**Windows users:** you can skip to the Docker section.
+Now you can run AMR-TV with:
 
-## Usage
-
-Use the dependency manager [pixi](https://pixi.sh/latest/installation/) to
-run AMR-TV after installing:
-
-`$ pixi run app`
+`$ pixi run start`
 
 AMR-TV will be available at http://0.0.0.0:8050/.
 
-## Docker
+### Windows users
 
-You can also run the application through [Docker](https://www.docker.com/):
+You can run the application through [Docker](https://www.docker.com/):
 
 `$ docker-compose build`
 
@@ -40,7 +33,7 @@ You can also run the application through [Docker](https://www.docker.com/):
 
 AMR-TV will be available at http://0.0.0.0:8050/.
 
-### If there are issues building the image
+#### If there are issues building the image:
 
 You may run into issues building the image if you tried compiling locally
 earlier.
@@ -51,4 +44,4 @@ Clean things up:
 
 `$ git submodule update --init`
 
-`$ git submodule update`
+And try again.
